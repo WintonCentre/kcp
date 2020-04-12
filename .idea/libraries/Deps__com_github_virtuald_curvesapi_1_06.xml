@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: com.github.virtuald/curvesapi:1.06">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/virtuald/curvesapi/1.06/curvesapi-1.06.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

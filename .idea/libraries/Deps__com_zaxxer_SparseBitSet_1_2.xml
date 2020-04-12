@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: com.zaxxer/SparseBitSet:1.2">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/zaxxer/SparseBitSet/1.2/SparseBitSet-1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

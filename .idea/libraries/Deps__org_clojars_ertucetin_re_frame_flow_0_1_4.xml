@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: org.clojars.ertucetin/re-frame-flow:0.1.4">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/clojars/ertucetin/re-frame-flow/0.1.4/re-frame-flow-0.1.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

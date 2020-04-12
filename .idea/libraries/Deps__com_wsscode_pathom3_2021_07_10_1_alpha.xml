@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: com.wsscode/pathom3:2021.07.10-1-alpha">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/wsscode/pathom3/2021.07.10-1-alpha/pathom3-2021.07.10-1-alpha.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: edn-query-language/eql:2021.02.28">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/edn-query-language/eql/2021.02.28/eql-2021.02.28.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

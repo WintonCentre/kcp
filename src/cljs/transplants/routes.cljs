@@ -9,7 +9,7 @@
    [transplants.events :as events]
    [transplants.views :as views]
    [transplants.subs :as subs]
-   ["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse
+   ["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                      Nav Nav.Link]]))
 
 
@@ -36,20 +36,28 @@
        :start (fn [& params] (js/console.log "Entering home page"))
        ;; Teardown can be done here.
        :stop  (fn [& params] (js/console.log "Leaving home page"))}]}]
-   ["sub-page1"
+   ["About"
     {:name      ::views/sub-page1
      :view      views/sub-page1
-     :link-text "Sub page 1"
+     :link-text "About"
      :controllers
      [{:start (fn [& params] (js/console.log "Entering sub-page 1"))
        :stop  (fn [& params] (js/console.log "Leaving sub-page 1"))}]}]
-   ["sub-page2"
+   ["Waiting"
     {:name      ::views/sub-page2
      :view      views/sub-page2
-     :link-text "Sub-page 2"
+     :link-text "Waiting"
      :controllers
-     [{:start (fn [& params] (js/console.log "Entering sub-page 2"))
-       :stop  (fn [& params] (js/console.log "Leaving sub-page 2"))}]}]])
+     [{:start (fn [& params] (js/console.log "Start TTW"))
+       :stop  (fn [& params] (js/console.log "Leaving TTW"))}]}]
+   ["Surviving"
+    {:name      ::views/sub-page3
+     :view      views/sub-page2
+     :link-text "Surviving"
+     :controllers
+     [{:start (fn [& params] (js/console.log "Start TTW"))
+       :stop  (fn [& params] (js/console.log "Leaving TTW"))}]}]])
+
 
 (defn on-navigate [new-match]
   (let [old-match (rf/subscribe [::subs/current-route])]
@@ -82,14 +90,21 @@
       ;; Create a normal link that user can click
       [:a {:href (href route-name)} text]])))
 
+(def themes {:lung {:name "Lung Transplants"
+                    :primary "#608"}
+             :kidney {:name "Kidney Transplants"
+                      :primary "#080"}})
+
 (defn navbar
-  [{:keys [router current-route]}]
-  [:> Navbar {:bg "light" :expand "lg"}
+  [{:keys [router current-route theme] 
+    :or {theme (:lung themes)}}]
+  [:> Navbar {:bg "light" :expand "md" :style {:border-bottom "1px solid black"}}
    [:> Navbar.Brand {:href "https://www.nhsbt.nhs.uk/"} 
-    [:img {:src "/assets/nhsbt-left-align_scaled.svg" :style {:height 40} :alt "NHS"} ]]
+    [:img {:src "/assets/nhsbt-left-align_scaled.svg" :style {:height 40} :alt "NHS"}]]
+   [:> Navbar.Text [:span {:style {:margin-left 20 :font-size "120%" :color (:primary theme)}} (:name theme)]]
    [:> Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
-   [:> Navbar.Collapse {:id "basic-navbar-nav"}
-    (into [:> Nav {:class "mr-auto"}]
+   [:> Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
+    (into [:> Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
           (for [route-name (r/route-names router)
                 :let       [route (r/match-by-name router route-name)
                             text (-> route :data :link-text)]]
@@ -100,11 +115,12 @@
              text]))]])
 
 
-
 (defn router-component [{:keys [router]}]
   (let [current-route @(rf/subscribe [::subs/current-route])]
     [:div
-     [navbar {:router router :current-route current-route}]
+     [navbar {:router router 
+              :current-route current-route
+              :tool-name "Lung Transplants"}]
      (when current-route
        [(-> current-route :data :view)])]))
 

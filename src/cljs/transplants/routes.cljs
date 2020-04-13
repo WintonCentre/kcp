@@ -8,7 +8,9 @@
    [reitit.frontend.easy :as rfe]
    [transplants.events :as events]
    [transplants.views :as views]
-   [transplants.subs :as subs]))
+   [transplants.subs :as subs]
+   ["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse
+                                     Nav Nav.Link]]))
 
 
 ;;; Routes ;;;
@@ -80,10 +82,29 @@
       ;; Create a normal link that user can click
       [:a {:href (href route-name)} text]])))
 
+(defn navbar
+  [{:keys [router current-route]}]
+  [:> Navbar {:bg "light" :expand "lg"}
+   [:> Navbar.Brand {:href "https://www.nhsbt.nhs.uk/"} 
+    [:img {:src "/assets/nhsbt-left-align_scaled.svg" :style {:height 40} :alt "NHS"} ]]
+   [:> Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
+   [:> Navbar.Collapse {:id "basic-navbar-nav"}
+    (into [:> Nav {:class "mr-auto"}]
+          (for [route-name (r/route-names router)
+                :let       [route (r/match-by-name router route-name)
+                            text (-> route :data :link-text)]]
+            [:> Nav.Link
+             {:class (if (= route-name (-> current-route :data :name)) "active" "")
+              :href (href route-name)
+              :key  route-name}
+             text]))]])
+
+
+
 (defn router-component [{:keys [router]}]
   (let [current-route @(rf/subscribe [::subs/current-route])]
     [:div
-     [nav {:router router :current-route current-route}]
+     [navbar {:router router :current-route current-route}]
      (when current-route
        [(-> current-route :data :view)])]))
 

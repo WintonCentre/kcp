@@ -8,7 +8,9 @@
                  [reagent "0.9.1"]
                  [re-frame "0.11.0"]
                  [secretary "1.2.3"]
-                 [venantius/accountant "0.2.5"]]
+                 [venantius/accountant "0.2.5"]
+                 [metosin/reitit "0.4.2"]
+                 ]
 
   :plugins [
             [lein-shell "0.5.0"]]
@@ -29,6 +31,8 @@
 
   :aliases {"dev"          ["with-profile" "dev" "do"
                             ["run" "-m" "shadow.cljs.devtools.cli" "watch" "app"]]
+            "example"          ["with-profile" "dev" "do"
+                            ["run" "-m" "shadow.cljs.devtools.cli" "watch" "example"]]
             "prod"         ["with-profile" "prod" "do"
                             ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
             "build-report" ["with-profile" "prod" "do"

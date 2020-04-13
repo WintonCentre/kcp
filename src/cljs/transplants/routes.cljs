@@ -19,6 +19,11 @@
        (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
+(comment
+  (secretary/dispatch! "/about")
+  (re-frame/dispatch [::events/set-active-panel :home-panel])
+  (re-frame/dispatch [::events/set-active-panel :about-panel])
+  )
 
 (defn app-routes []
   ; No need for hashtag routing if we use the shadow-cljs server in dev 
@@ -41,8 +46,10 @@
   (hook-browser-navigation!)
 
   (accountant/configure-navigation!
-   {:nav-handler   (fn [path] (do (js/console.log ["nav-path " path])
-                                  (secretary/dispatch! path)))
-    :path-exists?  (fn [path] (do (js/console.log "path-exists? " path) 
-                                  (contains? #{"" "/" "/about"} path)))})
+   {:nav-handler   (fn [path] 
+                     (js/console.log ["nav-path " path])
+                     (secretary/dispatch! path))
+    :path-exists?  (fn [path] 
+                     (js/console.log "path-exists? " path) 
+                     (contains? #{"" "/" "/about"} path))})
   )

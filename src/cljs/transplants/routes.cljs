@@ -1,55 +1,89 @@
 (ns transplants.routes
-  (:require-macros [secretary.core :refer [defroute]])
-  (:import [goog History]
-           [goog.history EventType])
   (:require
-   [secretary.core :as secretary]
-   [accountant.core :as accountant]
-   [goog.events :as gevents]
-   [re-frame.core :as re-frame] 
+   [re-frame.core :as rf]
+   [reitit.core :as r]
+   [reitit.coercion.spec :as rss]
+   [reitit.frontend :as rfr]
+   [reitit.frontend.controllers :as rfc]
+   [reitit.frontend.easy :as rfe]
    [transplants.events :as events]
-   ))
-
-(defn hook-browser-navigation! []
-  (doto (History.)
-    (gevents/listen
-     EventType/NAVIGATE
-     (fn [event]
-       (js/console.log "navigate to:" event)
-       (secretary/dispatch! (.-token event))))
-    (.setEnabled true)))
-
-(comment
-  (secretary/dispatch! "/about")
-  (re-frame/dispatch [::events/set-active-panel :home-panel])
-  (re-frame/dispatch [::events/set-active-panel :about-panel])
-  )
-
-(defn app-routes []
-  ; No need for hashtag routing if we use the shadow-cljs server in dev 
-  #_(secretary/set-config! :prefix "#")
-  
-  ;; --------------------
-  ;; define routes here
-  (defroute "/" []
-    (re-frame/dispatch [::events/set-active-panel :home-panel])
-    )
-  
-  (defroute "" []
-    (re-frame/dispatch [::events/set-active-panel :home-panel]))
-
-  (defroute "/about" []
-    (re-frame/dispatch [::events/set-active-panel :about-panel]))
+   [transplants.views :as views]
+   [transplants.subs :as subs]))
 
 
-  ;; --------------------
-  (hook-browser-navigation!)
+;;; Routes ;;;
 
-  (accountant/configure-navigation!
-   {:nav-handler   (fn [path] 
-                     (js/console.log ["nav-path " path])
-                     (secretary/dispatch! path))
-    :path-exists?  (fn [path] 
-                     (js/console.log "path-exists? " path) 
-                     (contains? #{"" "/" "/about"} path))})
-  )
+(defn href
+  "Return relative url for given route. Url can be used in HTML links."
+  ([k]
+   (href k nil nil))
+  ([k params]
+   (href k params nil))
+  ([k params query]
+   (rfe/href k params query)))
+
+(def routes
+  ["/"
+   [""
+    {:name      ::views/home
+     :view      views/home-page
+     :link-text "Home"
+     :controllers
+     [{;; Do whatever initialization needed for home page
+       ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
+       :start (fn [& params] (js/console.log "Entering home page"))
+       ;; Teardown can be done here.
+       :stop  (fn [& params] (js/console.log "Leaving home page"))}]}]
+   ["sub-page1"
+    {:name      ::views/sub-page1
+     :view      views/sub-page1
+     :link-text "Sub page 1"
+     :controllers
+     [{:start (fn [& params] (js/console.log "Entering sub-page 1"))
+       :stop  (fn [& params] (js/console.log "Leaving sub-page 1"))}]}]
+   ["sub-page2"
+    {:name      ::views/sub-page2
+     :view      views/sub-page2
+     :link-text "Sub-page 2"
+     :controllers
+     [{:start (fn [& params] (js/console.log "Entering sub-page 2"))
+       :stop  (fn [& params] (js/console.log "Leaving sub-page 2"))}]}]])
+
+(defn on-navigate [new-match]
+  (let [old-match (rf/subscribe [::subs/current-route])]
+    (when new-match
+      (let [cs (rfc/apply-controllers (:controllers @old-match) new-match)
+            m  (assoc new-match :controllers cs)]
+        (rf/dispatch [::events/navigated m])))))
+
+(def router
+  (rfr/router
+   routes
+   {:data {:coercion rss/coercion}}))
+
+(defn init-routes! []
+  (js/console.log "initializing routes")
+  (rfe/start!
+   router
+   on-navigate
+   {:use-fragment false}))
+
+(defn nav [{:keys [router current-route]}]
+  (into
+   [:ul]
+   (for [route-name (r/route-names router)
+         :let       [route (r/match-by-name router route-name)
+                     text (-> route :data :link-text)]]
+     [:li
+      (when (= route-name (-> current-route :data :name))
+        "> ")
+      ;; Create a normal link that user can click
+      [:a {:href (href route-name)} text]])))
+
+(defn router-component [{:keys [router]}]
+  (let [current-route @(rf/subscribe [::subs/current-route])]
+    [:div
+     [nav {:router router :current-route current-route}]
+     (when current-route
+       [(-> current-route :data :view)])]))
+

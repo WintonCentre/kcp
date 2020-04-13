@@ -2,12 +2,8 @@
   (:require
    [re-frame.core :as re-frame]))
 
+;;; Subscriptions ;;;
 (re-frame/reg-sub
- ::name
+ ::current-route
  (fn [db]
-   (:name db)))
-
-(re-frame/reg-sub
- ::active-panel
- (fn [db _]
-   (:active-panel db)))
+   (:current-route db)))

@@ -1,22 +1,26 @@
 (ns transplants.events
   (:require
    [re-frame.core :as rf]
-   [transplants.db :as db]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
+   [transplants.fx :as fx]
    ))
 
-(rf/reg-event-fx
- ::nav-to-location
- (fn-traced [{:keys [db page]} _]
-            ))
+;;; Events ;;;
 
 (rf/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
-            db/default-db))
+   {:current-route nil}))
+
+(rf/reg-event-fx
+ ::navigate
+ (fn-traced [db [_ route]]
+   ;; See `navigate` effect in routes.cljs
+   {::fx/navigate! route}))
 
 (rf/reg-event-db
- ::set-active-panel
- (fn-traced [db [_ active-panel]]
-   (assoc db :active-panel active-panel)))
+ ::navigated
+ (fn-traced [db [_ new-match]]
+   (assoc db :current-route new-match)))
+
 

@@ -9,44 +9,20 @@
               Col col}]
    ))
 
+;;; Views ;;;
+(defn home-page []
+  [:div
+   [:h1 "This is home page"]
+   [:button
+    ;; Dispatch navigate event that triggers a (side)effect.
+    {:on-click #(rf/dispatch [::events/navigate ::sub-page2])}
+    "Go to sub-page 2"]])
 
-;; home
-(defn home-panel []
-  (let [name (rf/subscribe [::subs/name])]
-    [:> container
-     [:> row
-      [:> col
-       [:h1 (str "Hello from " @name ". This is the Home Page.")]]
+(defn sub-page1 []
+  [:div
+   [:h1 "This is sub-page 1"]])
 
-      [:> col
-       [:a {:href "/about"}
-        "go to About Page"]]]
-     ]))
+(defn sub-page2 []
+  [:div
+   [:h1 "This is sub-page 2"]])
 
-
-;; about
-(defn about-panel []
-  [:> container
-   [:> row
-    [:> col
-     [:h1 "This is the About Page."]
-
-     [:div
-      [:a {:href "/"}
-       "go to Home Page"]]]]])
-
-
-;; main
-(defn- panels [panel-name]
-  (case panel-name
-    :home-panel [home-panel]
-    :about-panel [about-panel]
-    [:div "No matching path"]
-    ))
-
-(defn show-panel [panel-name]
-  [panels panel-name])
-
-(defn main-panel []
-  (let [active-panel (rf/subscribe [::subs/active-panel])]
-    [show-panel @active-panel]))

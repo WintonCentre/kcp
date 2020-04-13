@@ -1,25 +1,26 @@
 (ns transplants.core
   (:require
    [reagent.core :as reagent]
-   [re-frame.core :as re-frame]
-   [transplants.events :as events]
+   [re-frame.core :as rf]
    [transplants.routes :as routes]
-   [transplants.views :as views]
-   [transplants.config :as config]
+   [transplants.events :as events]
    ))
 
+;;; Setup ;;;
+(def debug? ^boolean goog.DEBUG)
 
 (defn dev-setup []
-  (when config/debug?
+  (when debug?
+    (enable-console-print!)
     (println "dev mode")))
 
-(defn ^:dev/after-load mount-root []
-  (re-frame/clear-subscription-cache!)
-  (reagent/render [views/main-panel]
+(defn mount-root []
+  (rf/clear-subscription-cache!)
+  (routes/init-routes!) ;; Reset routes on figwheel reload
+  (reagent/render [routes/router-component {:router routes/router}]
                   (.getElementById js/document "app")))
 
-(defn init []
-  (re-frame/dispatch-sync [::events/initialize-db])
-  (routes/app-routes)
+(defn ^:export init []
+  (rf/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root))

@@ -41,6 +41,7 @@
   (case panel-name
     :home-panel [home-panel]
     :about-panel [about-panel]
+    [:div "No matching path"]
     ))
 
 (defn show-panel [panel-name]

@@ -19,7 +19,7 @@
                   (.getElementById js/document "app")))
 
 (defn init []
-  (routes/app-routes)
   (re-frame/dispatch-sync [::events/initialize-db])
+  (routes/app-routes)
   (dev-setup)
   (mount-root))

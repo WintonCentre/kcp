@@ -6,7 +6,7 @@
    [secretary.core :as secretary]
    [accountant.core :as accountant]
    [goog.events :as gevents]
-   [re-frame.core :as re-frame]
+   [re-frame.core :as re-frame] 
    [transplants.events :as events]
    ))
 
@@ -15,12 +15,13 @@
     (gevents/listen
      EventType/NAVIGATE
      (fn [event]
-       (js/console.log "navigate "(.-token event))
+       (js/console.log "navigate to:" event)
        (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
 
 (defn app-routes []
+  ; No need for hashtag routing if we use the shadow-cljs server in dev 
   #_(secretary/set-config! :prefix "#")
   
   ;; --------------------
@@ -40,5 +41,8 @@
   (hook-browser-navigation!)
 
   (accountant/configure-navigation!
-     {:nav-handler   (fn [path] (secretary/dispatch! path))
-      :path-exists?  (fn [path] (contains? #{"" "/" "/about"} path))}))
+   {:nav-handler   (fn [path] (do (js/console.log ["nav-path " path])
+                                  (secretary/dispatch! path)))
+    :path-exists?  (fn [path] (do (js/console.log "path-exists? " path) 
+                                  (contains? #{"" "/" "/about"} path)))})
+  )

@@ -1,0 +1,58 @@
+;;;
+;; Kidney xlsx tables
+;;;
+{
+ :tables [{:path "data/current-kidney/Competing risks CIF kidney.xlsx"
+           :sheet [:baseline-cif-sheet "Baseline CIF"]
+           :columns {:A [:centre "Centre"]
+                     :B [:days "Days"]
+                     :C [:cif-transplant "CIF Transplant"]
+                     :D [:cif-removal "CIF Removal"]
+                     :E [:cif-death "CIF Death"]
+                     :F [:cif-leaving "CIF all reasons"]}
+           :header-rows 0
+           :filters [:nil-row]
+           }
+
+          {:path #ref [:tables 0 :path]
+           :sheet [:baseline-variables "Baseline Variables"]
+           :columns {:A [:age "Age"]
+                     :B [:sex "Sex"]
+                     :C [:ethnicity "Ethnicity"]
+                     :D [:dialysis "Dialysis at registration"]
+                     :E [:diabetes "Primary renal disease - diabetes"]
+                     :F [:sensitised "Highly sensitised (cRF > 85%)"]
+                     :G [:blood-group  "Blood group"]
+                     :H [:matchability "Matchability"]
+                     :I [:graft "Graft number"]}
+           :header-rows 1
+           :filters [:nil-row]
+           }
+
+          {:path #ref [:tables 0 :path]
+           :sheet [:params-transplant "Parameter estimates transplant"]
+           :columns {:A [:factor "Factor"]
+                     :B [:level "Level"]
+                     :C [:beta "Parameter estimate"]
+                     :D [:fkey "Factor key"]
+                     :E [:lkey "Level key"]}
+           :header-rows 1
+           :filters [:nil-row]}
+          
+          {:path #ref [:tables 0 :path]
+           :sheet [:params-removal "Parameter estimates removal"]
+           :columns #ref [:tables 2 :columns]
+           :header-rows 1
+           :filters [:nil-row]}
+          
+          {:path #ref [:tables 0 :path]
+           :sheet [:params-death "Parameter estimates death"]
+           :columns #ref [:tables 2 :columns]
+           :header-rows 1
+           :filters [:nil-row]}
+          
+          {:path #ref [:tables 0 :path]
+           :sheet [:params-leaving "Leaving list -all reasons"]
+           :columns #ref [:tables 2 :columns]
+           :header-rows 1
+           :filter [:nil-row]}]} 

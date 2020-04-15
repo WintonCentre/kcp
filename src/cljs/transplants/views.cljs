@@ -3,7 +3,7 @@
    [re-frame.core :as rf]
    [transplants.subs :as subs]
    [transplants.events :as events]
-   ["react-bootstrap" :as bs 
+   ["react-bootstrap" :as bs :refer [Button]
     :rename  {Container container
               Row row
               Col col}]
@@ -11,12 +11,21 @@
 
 ;;; Views ;;;
 (defn home-page []
-  [:div
-   [:h1 "This is home page"]
-   [:button
+  [:> container
+   [:> row
+    [:> col
+     [:h1 ""]
+     [:> Button {:variant "primary"
     ;; Dispatch navigate event that triggers a (side)effect.
-    {:on-click #(rf/dispatch [::events/navigate ::sub-page2])}
-    "Go to sub-page 2"]])
+                 :key 1
+                 :on-click #(rf/dispatch [::events/navigate ::sub-page1])}
+      "Waiting Time Tool"]
+     [:> Button {:variant "secondary"
+    ;; Dispatch navigate event that triggers a (side)effect.
+                 :key 2
+                 :on-click #(rf/dispatch [::events/navigate ::sub-page2])}
+      "Survival Time Tool"]]]
+   ])
 
 (defn sub-page1 []
   [:div

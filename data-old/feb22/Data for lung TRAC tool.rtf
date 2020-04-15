@@ -1,0 +1,121 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf200
+{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;\f1\fswiss\fcharset0 Helvetica;\f2\froman\fcharset0 Times-Roman;
+\f3\froman\fcharset0 Times-Bold;\f4\ftech\fcharset0 Wingdings-Regular;\f5\fswiss\fcharset0 Arial-BoldMT;
+\f6\fswiss\fcharset0 Arial-ItalicMT;\f7\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;\red24\green55\blue106;
+\red0\green0\blue255;\red11\green76\blue180;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0\cname textColor;\cssrgb\c0\c0\c0;\cssrgb\c12157\c28627\c49020;
+\cssrgb\c0\c0\c100000;\cssrgb\c1961\c38824\c75686;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 From: Mehew Jennifer <Jennifer.Mehew@nhsbt.nhs.uk>\
+Subject: Data for lung TRAC tool\
+Date: 22 February 2019 at 09:34:44 GMT\
+To: Mike Pearson <gmp26@cam.ac.uk>, Alex Freeman <af621@cam.ac.uk>, david spiegelhalter <d.spiegelhalter@statslab.cam.ac.uk>\
+Cc: Ibrahim Maria <Maria.Ibrahim@nhsbt.nhs.uk>, Hogg Rachel <Rachel.Hogg@nhsbt.nhs.uk>, Mumford Lisa <Lisa.Mumford@nhsbt.nhs.uk>, Johnson Rachel <Rachel.Johnson@nhsbt.nhs.uk>\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1 \cf2 \
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+
+\f2\fs29\fsmilli14667 \cf3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 Hi Mike,\
+\'a0\
+I am pleased to (finally!) send you the complete set of information you require to put together the Lung TRAC tool.\
+\'a0\
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+
+\f3\b \cf3 1.
+\f2\b0  I have attached the baseline CIF\'92s for each of the competing risks (transplant, death on the list, removal from the list) from time of listing as well as the parameter estimates which are used to shift the baseline up or down. The formula for doing this is:\
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+\cf3  \
+\'a0\
+Where   is the baseline CIF and \'91 \'92 is the CIF that relates to a patient of particular characteristics (X).\
+\'a0\
+How to calculate  in order to shift the baseline CIF:\
+\'a0\
+Imagine we have only three variables in our model for time to transplant: sex (male/female categorical variable), height (linear continuous variable) and age (non-linear continuous using a spline). Then the linear predictor is:\
+\'a0\
+ \
+The latter three terms of this expression make up the spline term where:\
+ \
+\'a0\
+ \
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+\cf4 \strokec4 \'a0\cf3 \strokec3 \
+Please note that the \'91+\'92 in the equation   just means to set this part of the equation to 0 if  <0. The k\'92s are the knots which we have specified in the spreadsheet.\
+\'a0\
+Imagine that the characteristics of the baseline CIF ( ) are as follows: sex=male, height=150, age=45. Then to calculate the CIF for a female of height 160 and age 60, we would calculate the following:\
+\'a0\
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+\cf3  \
+\'a0\
+\'a0\
+If the patient had been male, we would exclude   from the above calculation.\
+You will notice that   is a constant whereas   and hence   varies over time so once you have calculated  , you simply apply this constant \'91conversion factor\'92 to the baseline CIF.\
+\'a0\
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+
+\f3\b \cf3 2. 
+\f2\b0 For completeness (you have already seen this), I have also attached the a) survival from listing and b) post-transplant survival spreadsheets. These come from Cox Proportional Hazards regression models. Each spreadsheet contains the baseline survival function as well as the parameter estimates which are used to shift the baseline up or down. The formula for doing this is:\
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+\cf3  \
+\'a0\
+Where   is the baseline survival and   is the survival function that relates to a patient of particular characteristics (X).\
+In order to shift the baseline survival in order to calculate   for a patient of particular characteristics (X), you apply exactly the same principles as described above to calculate  .\
+\'a0\
+\'a0\
+\pard\pardeftab720\sl340\sa0\partightenfactor0
+
+\f3\b \cf3 3. 
+\f2\b0 I have also attached a word document which summarises how the TRAC tool works in exactly the same format as the Predict tool. This can be used on the website under the same headings (\'91How it works\'92, \'91the technical section\'92 and \'91the algorithms\'92). I have also included the email address for questions and descriptions of each variable for the \'91i\'92s\'92 (I would recommend asking Jas to review the i\'92s). \
+\'a0\
+\'a0\
+\'a0\
+Before the tool goes live, I suggest that we test the estimates of   and   for a set of \'91test cases\'92 (patients). If Mike could send us his calculated   and   for each model for an agreed set of test cases, we can then compare these with our estimates to make sure we\'92re happy with what values are being plotted/displayed.\
+\'a0\
+My last day is Monday (25
+\fs24\fsmilli12222 \super th
+\fs29\fsmilli14667 \nosupersub  Feb) so I will leave you in the capable hands of Lisa (cc\'92d) to coordinate things but I believe you have everything you need now to put together a first full draft. I would love to see the final version up and running so have asked Maria to send me a link when it is ready! Amongst all the nappies and feeding, I shall feel proud to see this tool up and running! 
+\f4 J
+\f2  \
+\'a0\
+Maria is working on the kidney models and Lisa will liaise with you regarding sending the data. The models are formulated in exactly the same way as described above so the same principles can be applied in programming (and similar text for the website, only slightly amended from the lung version). \
+\'a0\
+Best wishes to you all,\
+Jenny \
+\'a0\
+\pard\pardeftab720\sl360\sa0\partightenfactor0
+
+\f5\b\fs32 \cf3 Dr. Jenny Mehew
+\f2\b0\fs29\fsmilli14667 \
+\pard\pardeftab720\sl360\sa320\partightenfactor0
+
+\f6\i\fs32 \cf3 Principal Statistician, Statistics and Clinical Studies\uc0\u8232 
+\f7\i0 NHS Blood and\'a0Transplant
+\f2\fs29\fsmilli14667 \
+\pard\pardeftab720\sl360\sa0\partightenfactor0
+
+\f5\b\fs32 \cf3 Tel
+\f7\b0  0117 975 7503
+\f2\fs29\fsmilli14667 \
+
+\f5\b\fs32 Visit {\field{\*\fldinst{HYPERLINK "http://www.nhsbt.nhs.uk/"}}{\fldrslt 
+\f7\b0 \cf5 \ul \ulc5 \strokec5 www.nhsbt.nhs.uk}}
+\f7\b0 , {\field{\*\fldinst{HYPERLINK "http://www.odt.nhs.uk/"}}{\fldrslt \cf5 \ul \ulc5 \strokec5 www.odt.nhs.uk}}
+\f2\fs29\fsmilli14667 \
+\'a0\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1\fs24 \cf3 \
+\
++++++++++++++++++++++++++++++++++++++++++++++++++++++++\
+NHS Blood and Transplant\
+Do something amazing today - Give Blood.\
+Organ donation. The gift of life.\
+You can visit us at {\field{\*\fldinst{HYPERLINK "http://www.nhsbt.nhs.uk/"}}{\fldrslt \cf6 \ul \ulc6 \strokec6 www.nhsbt.nhs.uk}}\
++++++++++++++++++++++++++++++++++++++++++++++++++++++++\
+The views expressed in this e-mail are those of the sender, and not necessarily those of NHS Blood and Transplant.\
+This text confirms that this e-mail message and its attachments have been swept for the presence of computer viruses by NHS Blood and Transplant, however we cannot guarantee that they are virus free.\
+All e-mails and their attachments to and from the nhsbt.nhs.uk domain may be archived, and their contents monitored.\
+}

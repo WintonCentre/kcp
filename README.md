@@ -1,5 +1,6 @@
 # Transplants
 
+## Status
 A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
 
 I'm working on the premise that we can generate all the organ transplant tools from this
@@ -8,6 +9,29 @@ one repo, and also do the configuration pre-processing here.
 See the config files in the data folder. 
 
 [Work in Progress]
+
+## Configuration Development
+All data is stored in the configuration folder. 
+
+The job of the clojure configuration app is to read this data and validate it. The process is controlled by
+a transplant organ specific file e.g. `data/kidney-config.edn`. This identifies the model `.xlsx` files that need to be read in. It also specifies where the data should ultimately reside in the final online tool.
+
+We are using juxt/aero to simplify the construction of configuration files. The transplants/configure namespace provides access to the controlling configuration.
+
+If jacking in from VS-Code be sure to select leiningen without aliases and the `configuration` profile. A cursive setup 
+is also possible.
+
+## Tool Development
+Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start 
+that way to avoid duplication.
+
+If jacking in from VS-code, select shadow-cljs and the :app build. 
+
+Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. This server does not need hashtag routing.
+
+## Tests
+To come. See re-frame instructions below.
+
 
 # Original Re-frame template README below
 ## Getting Started

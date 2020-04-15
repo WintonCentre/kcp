@@ -6,8 +6,8 @@
    ))
 
 
-(defn read-config [path]
-  (aero/read-config (io/resource path)))
+(defn read-config [path profile]
+  (aero/read-config (io/resource path) {:profile profile}))
 
 (defn read-table
   "Read in non-null rows of data from columns in a spreadsheet.
@@ -27,21 +27,41 @@
      table
      )))
 ;;;
-; startup
+; spreadsheet configuration
 ;;;
-(def kidney-config "data/kidney-config.edn")
-(def lung-config "data/kidney-config.edn")
-(def system-config (atom {}))
+(defn get-config
+  "Read the configuration file, profiled by organ - either :lung or :kidney"
+  [profile]
+  (aero/read-config "data/config.edn" {:profile profile}))
 
-(read-table  ((:tables (aero/read-config kidney-config)) 0))
+;;;
+; switch organ here for now
+(def organ :kidney)
+;(def organ :lung)
+;;;
+
+(defn get-workbooks
+  "Read in workbooks for an organ"
+  [organ]
+  (into {}
+        (->> (:workbooks (get-config organ))
+             (map (fn [[k v]]
+                    (when v
+                      (println "loading " k v)
+                      [k (xls/load-workbook v)])))
+             )))
 
 (comment
   (require '[clojure.pprint :refer [pp pprint]])
+  
+  ;; raw loading test
   (xls/load-workbook "data/current-kidney/Competing risks CIF kidney.xlsx")
-  (clojure.java.io/resource kidney-config)
-  (io/resource kidney-config)
-  (aero/read-config kidney-config)
-  (pprint (aero/read-config kidney-config))
+  (xls/load-workbook "data/current-kidney/post tx patient and graft survival.xlsx")
+
+  ;; configured loading test
+  (get-workbooks :kidney)
+  (get-workbooks :lung)
+  
   (pprint (read-table  ((:tables (aero/read-config kidney-config)) 0)))
   (pp)
   (pprint *1)

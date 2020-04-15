@@ -1,0 +1,83 @@
+;;;
+;; xlsx table specification
+;;;
+{:workbooks {:kidney-competing-risks "data/current-kidney/Competing risks CIF kidney.xlsx"
+             :kidney-survival "data/current-kidney/post tx patient and graft survival.xlsx"}
+
+ :sheets {:baseline-cifs {:path #ref [:workbooks :kidney-competing-risks]
+                          :match "Baseline CIF"
+                          :name  "Baseline CIF"}
+          :params-transplant {:path #ref [:workbooks :kidney-competing-risks]
+                              :match "transplant"
+                              :name  "Parameter estimates transplant"}
+          :params-removal {:path #ref [:workbooks :kidney-competing-risks]
+                           :match "remov"
+                           :name  "Parameter estimates removal"}
+          :params-death {:path #ref [:workbooks :kidney-competing-risks]
+                         :match "death"
+                         :name  "Parameter estimates death"}
+          :params-all {:path #ref [:workbooks :kidney-competing-risks]
+                       :match "all"
+                       :name  "Leaving - all reasons"}}
+
+ :tables  {:baseline-cifs {:path #ref [:workbooks :kidney-competing-risks]
+                           :sheet #ref [:sheets :baseline-cifs]
+                           :variables {:centre {:column :A
+                                                :match "cent"
+                                                :name "Baseline CIF"}
+                                       :days {:column :B
+                                              :match "(time)|(days)|(t)"
+                                              :name "Days"}
+                                       :cif-transplant {:column :C
+                                                        :match "transplant"
+                                                        :name "CIF Transplant"}
+                                       :cif-death {:column :D
+                                                   :match "death"
+                                                   :name "CIF Death"}
+                                       :cif-removal {:column :E
+                                                     :match "transplant"
+                                                     :name "CIF Transplant"}
+                                       :cif-all {:column :F
+                                                 :match "transplant"
+                                                 :name "CIF Transplant"}}}
+
+           :baseline-variables {:path #ref [:workbooks :kidney-competing-risks]
+                                :sheet #ref [:sheets :baseline-cifs]
+                                :variables {:factor-name {:column :I
+                                                          :match ["vari" "factor"]
+                                                          :name "Factors"}
+                                            :level-name {:column :J
+                                                         :name "Levels"}}}
+
+           :params-transplant {:path #ref [:workbooks :kidney-competing-risks]
+                               :sheet #ref [:sheets :params-transplant]
+                               :variables {:factor {:column :A :match "factor" :name "Factor"}
+                                           :level {:column :B :match "level" :name "Level"}
+                                           :beta {:column :C :match "param" :name "Parameter estimate"}
+                                           :fkey {:column :D :match "factor key" :name "Factor key"}
+                                           :lkey {:column :E :match "level key" :name "Level key"}}}
+
+           :params-removal {:path #ref [:workbooks :kidney-competing-risks]
+                            :sheet #ref [:sheets :params-removal]
+                            :variables {:factor {:column :A :match "factor" :name "Factor"}
+                                        :level {:column :B :match "level" :name "Level"}
+                                        :beta {:column :C :match "param" :name "Parameter estimate"}
+                                        :fkey {:column :D :match "factor key" :name "Factor key"}
+                                        :lkey {:column :E :match "level key" :name "Level key"}}}
+           
+           :params-death {:path #ref [:workbooks :kidney-competing-risks]
+                          :sheet #ref [:sheets :params-death]
+                          :variables {:factor {:column :A :match "factor" :name "Factor"}
+                                      :level {:column :B :match "level" :name "Level"}
+                                      :beta {:column :C :match "param" :name "Parameter estimate"}
+                                      :fkey {:column :D :match "factor key" :name "Factor key"}
+                                      :lkey {:column :E :match "level key" :name "Level key"}}}
+           
+           :params-all {:path #ref [:workbooks :kidney-competing-risks]
+                        :sheet #ref [:sheets :params-all]
+                        :variables {:factor {:column :A :match "factor" :name "Factor"}
+                                    :level {:column :B :match "level" :name "Level"}
+                                    :beta {:column :C :match "param" :name "Parameter estimate"}
+                                    :fkey {:column :D :match "factor key" :name "Factor key"}
+                                    :lkey {:column :E :match "level key" :name "Level key"}}}}
+} 

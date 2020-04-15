@@ -1,8 +1,15 @@
-# transplants
+# Transplants
 
-A [re-frame](https://github.com/day8/re-frame) application designed to ... well, that part is up to
-you.
+A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
 
+I'm working on the premise that we can generate all the organ transplant tools from this
+one repo, and also do the configuration pre-processing here.
+
+See the config files in the data folder. 
+
+[Work in Progress]
+
+# Original Re-frame template README below
 ## Getting Started
 
 ### Project Overview
@@ -230,4 +237,4 @@ end of your app.
 Always inspect the `resources/public/js/compiled` directory prior to deploying the app. Running any
 `lein` alias in this project after `lein dev` will, at the very least, run `lein clean`, which
 deletes this generated directory. Further, running `lein dev` will generate many, much larger
-development versions of the files in this directory.
+development versions of the files in this directory

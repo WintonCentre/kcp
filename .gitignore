@@ -24,3 +24,5 @@ resources/public/js
 # WIP - not ready for the public
 doc/UI inputs.md
 ~*
+nashorn_code_cache/*
+.cljs_nashorn*/*

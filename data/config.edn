@@ -1,88 +1,121 @@
 ;;;
 ;; xlsx table specifications for BOTH kidney and lung -- set the profile to choose which
+;; 
+;; If a match key is provided it allows us to use a regex for a looser match when reading a spreadsheet.
+;; If no match key is present we match on the name key
+;; Having made a successful match, we use the canonical form on the :name key
+;; 
+;; A :match key of "abc" will be matched against lowercase(:name) with leading and trailing white-space trimmed.
 ;;;
-{:workbooks {:competing-risks #profile {:kidney "data/current-kidney/Competing risks CIF kidney.xlsx"
-                                        :lung "data/current-lung/Competing risks CIF lung.xlsx"}
-             :post-survival #profile {:kidney "data/current-kidney/post tx patient and graft survival.xlsx"
-                                      :lung "data/current-lung/Post-transplant information.xlsx"}
-             :pre-survival #profile {:kidney nil
-                                     :lung "data/current-lung/Survival from listing information.xlsx"}
-             }
+{:workbook #profile {:kidney "data/kidney-models-master.xlsx"
+                     :lung "data/lung-models-master.xlsx"}
 
- :sheets {:baseline-cifs {:path #ref [:workbooks :competing-risks]
-                          :match "Baseline CIF"
-                          :name  "Baseline CIF"}
-          :params-transplant {:path #ref [:workbooks :competing-risks]
-                              :match "transplant"
-                              :name  "Parameter estimates transplant"}
-          :params-removal {:path #ref [:workbooks :competing-risks]
-                           :match "remov"
-                           :name  "Parameter estimates removal"}
-          :params-death {:path #ref [:workbooks :competing-risks]
-                         :match "death"
-                         :name  "Parameter estimates death"}
-          :params-all {:path #ref [:workbooks :competing-risks]
-                       :match "all"
-                       :name  "Leaving - all reasons"}}
+ :sheets {:waiting-baseline-cifs {:centre {:column :A
+                                           :match "cent"}
+                                  :days {:column :B
+                                         :match "(time)|(days)|(t)"}
+                                  :cif-transplant {:column :C
+                                                   :match "trans"}
+                                  :cif-death {:column :D
+                                              :match "death"}
+                                  :cif-removal {:column :E
+                                                :match "rremov"}
+                                  :cif-all {:column :F
+                                            :match "all"}}
 
- :tables  {:baseline-cifs {:path #ref [:workbooks :competing-risks]
-                           :sheet #ref [:sheets :baseline-cifs]
-                           :variables {:centre {:column :A
-                                                :match "cent"
-                                                :name "Baseline CIF"}
-                                       :days {:column :B
-                                              :match "(time)|(days)|(t)"
-                                              :name "Days"}
-                                       :cif-transplant {:column :C
-                                                        :match "transplant"
-                                                        :name "CIF Transplant"}
-                                       :cif-death {:column :D
-                                                   :match "death"
-                                                   :name "CIF Death"}
-                                       :cif-removal {:column :E
-                                                     :match "transplant"
-                                                     :name "CIF Transplant"}
-                                       :cif-all {:column :F
-                                                 :match "transplant"
-                                                 :name "CIF Transplant"}}}
+          :waiting-baseline-vars {:baseline-factor {:column :A
+                                                    :match "factor"}
+                                  :baseline-level {:column :B
+                                                   :match "level"}}
 
-           :baseline-variables {:path #ref [:workbooks :competing-risks]
-                                :sheet #ref [:sheets :baseline-cifs]
-                                :variables {:factor-name {:column :I
-                                                          :match ["vari" "factor"]
-                                                          :name "Factors"}
-                                            :level-name {:column :J
-                                                         :name "Levels"}}}
+          :waiting-inputs {:label {:column :A
+                                   :match "(Factor)|(label)"}
+                           :button-labels {:column :B
+                                           :match "(level)|(button)"}
+                           :factor {:column :C
+                                    :match "factor"}
+                           :level {:column :D
+                                   :match "level"}
+                           :beta-transplant {:column :E
+                                             :match "transplant"}
+                           :beta-removal {:column :F
+                                          :match "remov"}
+                           :beta-death {:column :G
+                                        :match "death"}
+                           :beta-all-reasons {:column :H
+                                              :match "all"}
+                           :type {:column :I
+                                  :match "type"}
+                           :sub-text {:column :J
+                                      :match "sub"}
+                           :info-box? {:column :K
+                                       :match "info"}}
 
-           :params-transplant {:path #ref [:workbooks :competing-risks]
-                               :sheet #ref [:sheets :params-transplant]
-                               :variables {:factor {:column :A :match "factor" :name "Factor"}
-                                           :level {:column :B :match "level" :name "Level"}
-                                           :beta {:column :C :match "param" :name "Parameter estimate"}
-                                           :fkey {:column :D :match "factor key" :name "Factor key"}
-                                           :lkey {:column :E :match "level key" :name "Level key"}}}
+          :graft-baseline-cifs {:centre {:column :A
+                                         :match "centre"}
+                                :days {:column :A
+                                       :match "(time)|(days)"}
+                                :cif-graft {:column :A
+                                            :match "graft"}}
 
-           :params-removal {:path #ref [:workbooks :competing-risks]
-                            :sheet #ref [:sheets :params-removal]
-                            :variables {:factor {:column :A :match "factor" :name "Factor"}
-                                        :level {:column :B :match "level" :name "Level"}
-                                        :beta {:column :C :match "param" :name "Parameter estimate"}
-                                        :fkey {:column :D :match "factor key" :name "Factor key"}
-                                        :lkey {:column :E :match "level key" :name "Level key"}}}
-           
-           :params-death {:path #ref [:workbooks :competing-risks]
-                          :sheet #ref [:sheets :params-death]
-                          :variables {:factor {:column :A :match "factor" :name "Factor"}
-                                      :level {:column :B :match "level" :name "Level"}
-                                      :beta {:column :C :match "param" :name "Parameter estimate"}
-                                      :fkey {:column :D :match "factor key" :name "Factor key"}
-                                      :lkey {:column :E :match "level key" :name "Level key"}}}
-           
-           :params-all {:path #ref [:workbooks :competing-risks]
-                        :sheet #ref [:sheets :params-all]
-                        :variables {:factor {:column :A :match "factor" :name "Factor"}
-                                    :level {:column :B :match "level" :name "Level"}
-                                    :beta {:column :C :match "param" :name "Parameter estimate"}
-                                    :fkey {:column :D :match "factor key" :name "Factor key"}
-                                    :lkey {:column :E :match "level key" :name "Level key"}}}}
-} 
+          :graft-baseline-vars {:baseline-factor {:column :A
+                                                  :match "factor"}
+                                :baseline-level {:column :B
+                                                 :match "level"}}
+
+          :graft-baseline-inputs {:label {:column :A
+                                          :match "inputs"}
+                                  :button-labels {:column :A
+                                                  :match "(label)|(level)"}
+                                  :factor {:column :A
+                                           :match "factor"}
+                                  :level {:column :A
+                                          :match "level"}
+                                  :beta-graft {:column :A
+                                               :match "graft"}
+                                  :type {:column :A
+                                         :match "type"}
+                                  :sub-text {:column :A
+                                             :match "sub-text"}
+                                  :info-box? {:column :A
+                                              :match "info"}}
+          :bmi-calculator {:label {:column :A
+                                   :match "label"}
+                           :factor {:column :B
+                                    :match "factor"}
+                           :level {:column :C
+                                   :match "level"}
+                           :min {:column :D
+                                 :match "min"}
+                           :max {:column :E
+                                 :match "max"}
+                           :dps {:column :F
+                                 :match "dps"}
+                           :type {:column :G
+                                  :match "type"}}
+          :survival-baseline-cifs {:centre {:column :A
+                                            :match "centre"}
+                                   :days {:column :B
+                                          :match "(time)|(days)"}
+                                   :cif-survival {:column :C
+                                                  :match "survival"}}
+          :survival-baseline-vars {:baseline-factor {:column :A
+                                                     :match "factor"}
+                                   :baseline-level {:column :B
+                                                    :match "level"}}
+          :survival-inputs {:label {:column :A
+                                    :match "inputs"}
+                            :button-labels {:column :B
+                                            :match "(label)|(level)"}
+                            :factor {:column :C
+                                     :match "factor"}
+                            :level {:column :D
+                                    :match "level"}
+                            :beta-survival {:column :E
+                                            :match "survival"}
+                            :type {:column :F
+                                   :match "type"}
+                            :sub-text {:column :G
+                                       :match "sub-text"}
+                            :info-box? {:column :H
+                                        :match "info"}}}} 

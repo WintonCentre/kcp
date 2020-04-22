@@ -50,8 +50,8 @@
    :configure {:source-paths ["src/clj" "data"]
                :dependencies [[aero "1.1.6"]
                               [dk.ative/docjure "1.13.0"]
-                              [org.apache.commons/commons-math3 "3.6.1"]]
-               }
+                              [org.apache.commons/commons-math3 "3.6.1"]
+                              [org.clojure/data.csv "1.0.0"]]}
 
    :prod {:dependencies [[day8.re-frame/tracing-stubs "0.5.3"]]}}
 

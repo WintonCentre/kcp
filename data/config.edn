@@ -9,7 +9,9 @@
 ;;;
 {:workbook #profile {:kidney "data/kidney-models-master.xlsx"
                      :lung "data/lung-models-master.xlsx"}
-
+ 
+ :export {:csv-path "data/csv"
+          :edn-path "data/edn"}
  :sheets {:waiting-baseline-cifs {:centre {:column :A
                                            :match "cent"}
                                   :days {:column :B

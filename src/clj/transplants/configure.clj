@@ -4,6 +4,7 @@
    [dk.ative.docjure.spreadsheet :as xls]
    [clojure.java [io :as io]]
    [clojure.string :as string]
+   [clojure.data.csv :as csv]
    ))
 
 
@@ -84,10 +85,6 @@
 
 (defn get-rows
   "retrieve a sequence of maps - one map per row of data, with variables as keys"
-  ([organ sheet-key centre]
-   (->> (get-rows organ sheet-key)
-        (filter #(= (first %) centre))))
-  
   ([organ sheet-key]
    (let [workbook (memo-workbook organ)
          sheet (get-sheet-spec organ sheet-key)
@@ -98,6 +95,40 @@
           (drop 1)
           (map #(map xls/read-cell (take (count headers) %)))
           ))))
+
+(defn write-csv
+  "read a sheet from xslx and export it to data/csv as a csv file"
+  [organ sheet-key]
+  (let [cfg (memo-config organ)
+        f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv"))
+        headers (map #(str ":" (name %)) (get-header organ sheet-key))
+        rows (get-rows organ sheet-key)]
+    (io/make-parents f)
+    (with-open [writer (io/writer f)]
+      (csv/write-csv writer (list headers))
+      (csv/write-csv writer rows #_(conj headers rows)))))
+
+(comment
+  (def cfg  (memo-config :kidney))
+  (def organ :kidney)
+  (def sheet-key :waiting-baseline-cifs)
+  (def f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv")))
+  (def headers (map #(str ":" (name %)) (get-header organ sheet-key)))
+  (def rows (get-rows organ sheet-key))
+  (take 10 (concat (list headers) rows))
+  (write-csv :kidney :waiting-baseline-cifs)
+  (write-csv :kidney :waiting-baseline-vars)
+  (write-csv :kidney :waiting-inputs)
+  
+  (def f (io/as-file "data/csv/hello.txt"))
+  f
+  (io/make-parents f)
+  (with-open [writer (io/writer f)]
+    (csv/write-csv writer
+                   [["abc" "def"]
+                    ["ghi" "jkl"]]))
+
+  )
 
 (defn row->map
   [headers row]
@@ -120,17 +151,7 @@
       (transpose
        (get-rows organ sheet-key)
        (get-header organ sheet-key))))
-#_(defn get-columns
-  "retrieve a table as a map of vectors"
-  ([organ sheet-key centre]
-   (->> (get-rows organ sheet-key centre)
-        (apply map vector)
-        (zipmap (get-header organ sheet-key))))
-  ([organ sheet-key]
-   (->> (get-rows organ sheet-key)
-        (apply map vector)
-        (zipmap (get-header organ sheet-key))))
-  )
+
 
 (comment
   (require '[clojure.pprint :refer [pp pprint]])

@@ -28,8 +28,14 @@
   [path profile]
   (aero/read-config (io/resource path) {:profile profile}))
 
-(defn read-table
-  "Read in non-null rows of data from columns in a spreadsheet.
+(comment
+  ;;;
+  ;; following is a docjure example. Keep as a quick check on setup, but not uswed here as it 
+  ;; does not respect the edn configuration
+  ;;;
+  
+  (defn read-table
+    "Read in non-null rows of data from columns in a spreadsheet.
   'path' identifies the xlsx file.
   'sheet-title' is the name of the sheet to read.
   'columns' should be a map of XLSX column letters as keywords (:A, :B etc) to more meaningful keys.
@@ -37,14 +43,11 @@
 
   Returns a collection of maps containing meaningful keys mapped to data.
   "
-  [{:keys [path sheet columns header-rows]}]
-  (->> (xls/load-workbook path)
-       (xls/select-sheet (second sheet))
-       (xls/select-columns columns)
-       (drop header-rows)))
-
-(->> (xls/load-workbook "data/kidney-models-master.xlsx")
-     (xls/select-sheet "waiting-inputs"))
+    [{:keys [path sheet columns header-rows]}]
+    (->> (xls/load-workbook path)
+         (xls/select-sheet (second sheet))
+         (xls/select-columns columns)
+         (drop header-rows))))
 
 ;;;
 ; spreadsheet configuration
@@ -56,17 +59,10 @@
 
 (def memo-config (memoize get-config))
 
-;;;
-; switch organ here for now
-(def organ :kidney)
-;(def organ :lung)
-;;;
-
 (defn get-workbook
-  "Read in workbooks for an organ"
+  "Read in xlsx workbook for an organ"
   [organ]
-  (xls/load-workbook (:workbook (memo-config organ)))
-  )
+  (xls/load-workbook (:workbook (memo-config organ))))
 
 (def memo-workbook
   "memoize get-workbook because it reads in a load of data"
@@ -82,26 +78,63 @@
                      :organ organ
                      :sheet sheet-key}))))
 
+(defn get-column-selection
+  "Return a map of columns suitable for docjure select-columns. Column order may not be preserved in the map."
+  [organ sheet-key]
+  (into {} (map (fn [[k {:keys [column]}]] [column k]) (get-sheet-spec organ sheet-key))))
+
+(defn get-columns
+  "Return a seq of configured columns in spreadsheet order"
+  [organ sheet-key]
+  (->> (get-sheet-spec organ sheet-key)
+       (into [])
+       (sort-by (comp :column second))
+       (map first)))
+
+(def get-variable-keys
+  "Treating the spreadsheet as a data frame, return a list of keys identifying the variables in the header row"
+  get-columns)
+
+(comment
+  (get-sheet-spec :kidney :waiting-inputs)
+  ; {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :D, :match "level"}, :button-labels {:column :B, :match "(level)|(button)"}, :factor {:column :C, :match "factor"}, :label {:column :A, :match "(Factor)|(label)"}}
+  
+  (get-columns :kidney :waiting-inputs)
+  ; (:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)
+  
+  (get-variable-keys :kidney :waiting-inputs)
+  ; (:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)
+  
+  (get-column-selection :kidney :waiting-inputs)
+  ; {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}
+  )
 
 (defn get-row-maps
-  "get maps of rows of a spreadsheet where each key is one of the specified data columns"
+  "Get maps of rows of a spreadsheet where each key is one of the specified data columns. 
+  The result is the 'vector of maps' representation of a data frame.
+  Empty rows are not removed to preserve indexes. 
+  However it is often better to filter the result on some variable value"
   [organ sheet-key]
-  (let [workbook (memo-workbook organ)
-        sheet (get-sheet-spec organ sheet-key)
-        columns (into {} (map (fn [[k {:keys [column]}]] [column k]) sheet))]
-    (->> (xls/select-sheet (name sheet-key) workbook)
-         (xls/select-columns columns))
-    ))
+  (->> (memo-workbook organ)
+       (xls/select-sheet (name sheet-key))
+       (xls/select-columns (get-column-selection organ sheet-key))))
+(comment
+  (get-row-maps :kidney :waiting-baseline-vars)
+  ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
+  
+  (get-row-maps :kidney :waiting-inputs)
+  )
 
 (defn get-col-maps
   "gets a map of columns"
   [organ sheet-key]
     (let [workbook (memo-workbook organ)
           sheet (get-sheet-spec organ sheet-key)
-          columns (into {} (map (fn [[k {:keys [column]}]] [column k]) sheet))]
-      (->> (xls/select-sheet (name sheet-key) workbook)
-           (xls/select-columns columns)
-           (map (apply juxt (vals columns)))
+          columns (get-column-selection organ sheet-key)]
+      (->> (get-row-maps organ sheet-key)
+           ;(xls/select-sheet (name sheet-key) workbook)
+           ;(xls/select-columns columns)
+           (map (apply juxt (vals (get-column-selection organ sheet-key))))
            (transpose)
            (map (fn [v] [(maybe-key (first v)) (map maybe-key (rest v))]))
            (into {}))))

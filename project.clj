@@ -7,17 +7,20 @@
                  [thheller/shadow-cljs "2.8.94"]
                  [reagent "0.9.1"]
                  [re-frame "0.11.0"]
-                 [metosin/reitit "0.4.2"]]
+                 [metosin/reitit "0.4.2"]
+                 ]
 
   :plugins [[lein-shell "0.5.0"]
+            [lein-eftest "0.5.9"]
+            [lein-auto "0.1.3"]
             ; checkout `lein help sass4clj`
             [deraen/lein-sass4clj "0.5.1"]]
 
   :min-lein-version "2.5.3"
 
-  :source-paths ["src/clj" "src/cljs"]
+  :source-paths ["src/cljs"]
 
-  :test-paths   ["test/cljs"]
+
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
                                     "test/js"]
@@ -27,7 +30,8 @@
                              :macosx  "open"
                              :linux   "xdg-open"}}}
 
-  :aliases {"dev"          ["with-profile" "dev" "do"
+  :aliases {"check" ["with-profile" "configure" "auto" "eftest"]
+            "dev"          ["with-profile" "dev" "do"
                             ["run" "-m" "shadow.cljs.devtools.cli" "watch" "app"]]
             "example"          ["with-profile" "dev" "do"
                                 ["run" "-m" "shadow.cljs.devtools.cli" "watch" "example"]]
@@ -45,9 +49,11 @@
    {:dependencies [[binaryage/devtools "1.0.0"]
                    [day8.re-frame/re-frame-10x "0.5.1"]
                    [day8.re-frame/tracing "0.5.3"]]
-    :source-paths ["dev"]}
-   
+    :source-paths ["dev"]
+    :test-paths   ["test/cljs"]}
+
    :configure {:source-paths ["src/clj" "data"]
+               :test-paths ["test/clj" "src/clj" "data"]
                :dependencies [[aero "1.1.6"]
                               [dk.ative/docjure "1.13.0"]
                               [org.apache.commons/commons-math3 "3.6.1"]

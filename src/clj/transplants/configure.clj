@@ -31,8 +31,8 @@
 (comment
   ;;;
   ;; following is a docjure example. Keep as a quick check on setup, but not uswed here as it 
-  ;; does not respect the edn configuration
   ;;;
+  ;; does not respect the edn configuration
   
   (defn read-table
     "Read in non-null rows of data from columns in a spreadsheet.
@@ -148,7 +148,7 @@
   #_(def row-maps [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}])
 
   (get-col-maps :kidney :waiting-baseline-vars)
-  (get-variables )
+
   
   (let [cols (transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
     (into {} (map (fn [v] [(maybe-key (first v)) (map maybe-key (rest v))]) cols)))
@@ -187,7 +187,8 @@
    (map #(zipmap columns %))))
 
 (defn get-header
-  "retrieve header variables in a seq"
+  "retrieve header variables from the speadsheet in a seq. We assume they are in the 
+first non-nil row, and always stat with a :. Headers that do not start with ':' are ignored."
   [organ sheet-key]
   (let [workbook (memo-workbook organ)
         sheet (get-sheet-spec organ sheet-key)]
@@ -242,7 +243,7 @@
   (def cfg  (memo-config :kidney))
   (def organ :kidney)
   (def sheet-key :waiting-baseline-cifs)
-  (def sheet-key :waiting-inputs)
+  ;(def sheet-key :waiting-inputs)
   (def f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv")))
   (def headers (map #(str ":" (name %)) (get-header organ sheet-key)))
   (def rows (get-rows organ sheet-key))
@@ -298,7 +299,8 @@
   ; ({:factor :sex, :level :male, :button-labels "Male"} 
   ; {:factor :sex, :level :female, :button-labels "Female"})
   
-
+  (get-header :kidney :waiting-baseline-cifs)
+  
 
   (get-header :kidney :graft-baseline-cifs)
   (get-header :kidney :graft-baseline-vars)

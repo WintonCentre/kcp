@@ -14,7 +14,8 @@
                                                                        day8.re-frame.tracing.trace-enabled? true}}}
                 :devtools        {:http-root    "resources/public"
                                   :http-port    8280
-                                  }}
+                                  :after-load  transplants.core/init}
+                }
 
           :browser-test
         

@@ -1,5 +1,18 @@
 # Transplants
 
+## Contents
+This repository contains both a set of configuration utilities and the run-tim web-site(s) themselves.
+The configuration tools are written in clojure and run on the JVM.
+The website is also written in clojure - in clojurescript - and runs in a browser.
+
+## Configuration tools and data
+  Tools are in `src/clj/transplants/configure`.
+  Configuration is in `data` and is controlled by `config.edn`
+
+  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
+
+  Configuration tests run under the `configure` profile. Launch these using the `check` alias i.e. `lein check`
+
 ## Status
 A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
 

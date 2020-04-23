@@ -1,5 +1,0 @@
-{:lint-as {reagent.core/with-let clojure.core/let
-           day8.re-frame.tracing/fn-traced clojure.core/fn}
- :linters {:unused-binding {:level :off}
-           :if {:level :off}
-           :unused-referred-var {:exclude {cljs.test [deftest testing is]}}}}

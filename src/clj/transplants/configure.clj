@@ -103,7 +103,7 @@
            (xls/select-columns columns)
            (map (apply juxt (vals columns)))
            (transpose)
-           (map (fn [v] [(as-key (first v)) (map as-key (rest v))]))
+           (map (fn [v] [(maybe-key (first v)) (map maybe-key (rest v))]))
            (into {}))))
 
 (def get-variables
@@ -118,7 +118,7 @@
   (get-variables )
   
   (let [cols (transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
-    (into {} (map (fn [v] [(as-key (first v)) (map as-key (rest v))]) cols)))
+    (into {} (map (fn [v] [(maybe-key (first v)) (map maybe-key (rest v))]) cols)))
 
   ; ([":baseline-factor" ":age" ":sex" ":ethincity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft"] 
   ; [":baseline-level" ":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft"])

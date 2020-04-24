@@ -67,6 +67,30 @@
     (configured-headers :kidney :survival-baseline-vars)
     (configured-headers :kidney :survival-inputs)))
 
+(defn check-factors
+  [organ sheet-prefix] 
+  (let [sheet1 (keyword (str (name sheet-prefix) "-baseline-vars"))
+        sheet2 (keyword (str (name sheet-prefix) "-inputs"))
+        b-factors (:baseline-factor  (c/get-variables organ sheet1))
+        i-factors (distinct (:factor (c/get-variables organ sheet2)))]
+    (is (=  (into #{} (remove nil? b-factors)) 
+            (into #{} (->> i-factors 
+                           (remove nil?)
+                           #_(remove #(= :centre %))
+                           #_(remove #(= :centre-d-gp %))
+                           )))
+        [:check-factors organ sheet-prefix])))
+
+(deftest check-all-factors
+  (testing "apart from :centre, factors in baseline-vars should agree with those in inputs" 
+    (check-factors :kidney :waiting)
+    (check-factors :kidney :graft)
+    (check-factors :kidney :survival)
+    (check-factors :lung :waiting)
+    (check-factors :lung :post-transplant)
+    (check-factors :lung :from-listing)
+    ))
+
 ;---- LUNG
 
 (deftest lung-data-frames

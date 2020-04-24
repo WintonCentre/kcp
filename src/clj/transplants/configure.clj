@@ -2,37 +2,17 @@
   (:require 
    [aero.core :as aero]
    [dk.ative.docjure.spreadsheet :as xls]
-   [clojure.java [io :as io]]
+   [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.data.csv :as csv]
+   [transplants.utils :as utils]
+   [transplants.config :as cfg]
    ))
-
-;--- Utilities
-(defn maybe-key 
-  "Convert a possible string possibly starting with a colon to a keyword"
-  [s] (if (and (string? s) (> (count s) 1) (string/starts-with? s ":"))
-        (keyword (subs s 1))
-        s))
-
-(defn transpose
-  "transpose rows of a matrix. If 2 arity, add headers"
-  ([m]
-   (apply map vector m))
-  ([m headers]
-   (zipmap headers (transpose m))))
-
-;--- EDN configuation
-
-(defn read-config
-  "read configuration file from the classpath using aero"
-  [path profile]
-  (aero/read-config (io/resource path) {:profile profile}))
 
 (comment
   ;;;
-  ;; following is a docjure example. Keep as a quick check on setup, but not uswed here as it 
-  ;;;
-  ;; does not respect the edn configuration
+  ;; following is a docjure example. Keep as a quick check on setup, but it's not used here as it 
+  ;; does not respect the edn configuration file
   
   (defn read-table
     "Read in non-null rows of data from columns in a spreadsheet.
@@ -50,62 +30,35 @@
          (drop header-rows))))
 
 ;;;
-; spreadsheet configuration
+; spreadsheet configuration.
+; There are 2 sources of data for the transplants apps
+; 1) The configuration file `config.edn`
+; 2) The workbook containing the model for that organ
+;
+; These 2 should agree on certain details - typically those highlighted in orange in the spreadsheet
+; To avoid confusion we'll put config data readers in a separate workspace.
 ;;;
-(defn get-config
-  "Read the configuration file, profiled by organ - either :lung or :kidney"
-  [profile]
-  (aero/read-config "data/config.edn" {:profile profile}))
-
-(def memo-config (memoize get-config))
 
 (defn get-workbook
   "Read in xlsx workbook for an organ"
   [organ]
-  (xls/load-workbook (:workbook (memo-config organ))))
+  (xls/load-workbook (:workbook (cfg/memo-config organ))))
 
 (def memo-workbook
   "memoize get-workbook because it reads in a load of data"
-  (memoize get-workbook))
-
-(defn get-sheet-spec
-  "get sheet spec given sheet-key"
-  [organ sheet-key]
-  (if-let [sheet (get-in (memo-config organ) [:sheets sheet-key])]
-    sheet
-    (throw (ex-info "Unable to read sheet"
-                    {:cause "sheet name missing?"
-                     :organ organ
-                     :sheet sheet-key}))))
-
-(defn get-column-selection
-  "Return a map of columns suitable for docjure select-columns. Column order may not be preserved in the map."
-  [organ sheet-key]
-  (into {} (map (fn [[k {:keys [column]}]] [column k]) (get-sheet-spec organ sheet-key))))
-
-(defn get-columns
-  "Return a seq of configured columns in spreadsheet order"
-  [organ sheet-key]
-  (->> (get-sheet-spec organ sheet-key)
-       (into [])
-       (sort-by (comp :column second))
-       (map first)))
-
-(def get-variable-keys
-  "Treating the spreadsheet as a data frame, return a list of keys identifying the variables in the header row"
-  get-columns)
+  (if utils/MEMO (memoize get-workbook) get-workbook))
 
 (comment
-  (get-sheet-spec :kidney :waiting-inputs)
+  (cfg/get-sheet-spec :kidney :waiting-inputs)
   ; {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :D, :match "level"}, :button-labels {:column :B, :match "(level)|(button)"}, :factor {:column :C, :match "factor"}, :label {:column :A, :match "(Factor)|(label)"}}
   
-  (get-columns :kidney :waiting-inputs)
+  (cfg/get-columns :kidney :waiting-inputs)
   ; (:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)
   
-  (get-variable-keys :kidney :waiting-inputs)
+  (cfg/get-variable-keys :kidney :waiting-inputs)
   ; (:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)
   
-  (get-column-selection :kidney :waiting-inputs)
+  (cfg/get-column-selection :kidney :waiting-inputs)
   ; {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}
   )
 
@@ -117,7 +70,7 @@
   [organ sheet-key]
   (->> (memo-workbook organ)
        (xls/select-sheet (name sheet-key))
-       (xls/select-columns (get-column-selection organ sheet-key))))
+       (xls/select-columns (cfg/get-column-selection organ sheet-key))))
 (comment
   (get-row-maps :kidney :waiting-baseline-vars)
   ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
@@ -129,14 +82,14 @@
   "gets a map of columns"
   [organ sheet-key]
     (let [workbook (memo-workbook organ)
-          sheet (get-sheet-spec organ sheet-key)
-          columns (get-column-selection organ sheet-key)]
+          sheet (cfg/get-sheet-spec organ sheet-key)
+          columns (cfg/get-column-selection organ sheet-key)]
       (->> (get-row-maps organ sheet-key)
            ;(xls/select-sheet (name sheet-key) workbook)
            ;(xls/select-columns columns)
-           (map (apply juxt (vals (get-column-selection organ sheet-key))))
-           (transpose)
-           (map (fn [v] [(maybe-key (first v)) (map maybe-key (rest v))]))
+           (map (apply juxt (vals (cfg/get-column-selection organ sheet-key))))
+           (utils/transpose)
+           (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
            (into {}))))
 
 (def get-variables
@@ -150,8 +103,8 @@
   (get-col-maps :kidney :waiting-baseline-vars)
 
   
-  (let [cols (transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
-    (into {} (map (fn [v] [(maybe-key (first v)) (map maybe-key (rest v))]) cols)))
+  (let [cols (utils/transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
+    (into {} (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]) cols)))
 
   ; ([":baseline-factor" ":age" ":sex" ":ethincity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft"] 
   ; [":baseline-level" ":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft"])
@@ -163,7 +116,7 @@
   [organ sheet-key & columns]
   (->> (get-row-maps organ sheet-key)
        (map (apply juxt columns))
-       (map #(map maybe-key %))))
+       (map #(map utils/maybe-key %))))
 
 ;;;
 ;; Following does not always work since the rows matrix may not be rectangular
@@ -191,7 +144,7 @@
   first non-nil row, and always stat with a :. Headers that do not start with ':' are ignored."
   [organ sheet-key]
   (let [workbook (memo-workbook organ)
-        sheet (get-sheet-spec organ sheet-key)]
+        sheet (cfg/get-sheet-spec organ sheet-key)]
     (->> (xls/select-sheet (name sheet-key) workbook)
          (xls/row-seq)
          (remove nil?)
@@ -206,7 +159,7 @@
   "retrieve a sequence of maps - one map per row of data, with variables as keys"
   ([organ sheet-key]
    (let [workbook (memo-workbook organ)
-         sheet (get-sheet-spec organ sheet-key)
+         sheet (cfg/get-sheet-spec organ sheet-key)
          headers (get-header organ sheet-key)]
      (->> (xls/select-sheet (name sheet-key) workbook)
           (xls/row-seq)
@@ -219,7 +172,7 @@
   "retrieve a sequence of maps - one map per row of data, with variables as keys"
   ([organ sheet-key]
    (let [workbook (memo-workbook organ)
-         sheet (get-sheet-spec organ sheet-key)
+         sheet (cfg/get-sheet-spec organ sheet-key)
          headers (get-header organ sheet-key)]
      (->> (xls/select-sheet (name sheet-key) workbook)
           (xls/row-seq)          
@@ -230,7 +183,7 @@
 (defn write-csv
   "read a sheet from xslx and export it to data/csv as a csv file"
   [organ sheet-key]
-  (let [cfg (memo-config organ)
+  (let [cfg (cfg/memo-config organ)
         f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv"))
         ;headers (map #(str ":" (name %)) (get-header organ sheet-key))
         rows (get-all-rows organ sheet-key)]
@@ -240,7 +193,7 @@
       (csv/write-csv writer rows))))
 
 (comment
-  (def cfg  (memo-config :kidney))
+  (def cfg  (cfg/memo-config :kidney))
   (def organ :kidney)
   (def sheet-key :waiting-baseline-cifs)
   ;(def sheet-key :waiting-inputs)
@@ -263,19 +216,19 @@
 (comment
   (require '[clojure.pprint :refer [pp pprint]])
 
-  (get-config :kidney)
-  (memo-config :kidney)
-  (get-config :lung)
+  (cfg/get-config :kidney)
+  (cfg/memo-config :kidney)
+  (cfg/get-config :lung)
 
   ;; configured loading test
   (get-workbook :kidney)
   (get-workbook :lung)
   (memo-workbook :kidney)
 
-  (get-sheet-spec :kidney :waiting-baseline-cifs)
-  (get-sheet-spec :kidney :waiting-baseline-vars)
-  (get-sheet-spec :lung :waiting-baseline-cifs)
-  (try (get-sheet-spec :kidney :foo)
+  (cfg/get-sheet-spec :kidney :waiting-baseline-cifs)
+  (cfg/get-sheet-spec :kidney :waiting-baseline-vars)
+  (cfg/get-sheet-spec :lung :waiting-baseline-cifs)
+  (try (cfg/get-sheet-spec :kidney :foo)
        (catch Exception e (ex-data e)))
 
   (get-header :kidney :waiting-baseline-cifs)

@@ -1,5 +1,7 @@
 (ns transplants.configure-test
   (:require  [transplants.configure :as c]
+             [transplants.utils :as utils]
+             [transplants.config :as cfg]
              [clojure.test :as t :refer [deftest is testing]]))
 
 (deftest success
@@ -7,17 +9,17 @@
 
 (deftest utils
   (testing "utilities"
-    (is (= (c/maybe-key ":a") :a))
-    (is (= (c/maybe-key "A") "A"))
-    (is (= (c/maybe-key 1) 1))
-    (is (= (c/transpose [[1 2 3] [4 5 6]]) [[1 4] [2 5] [3 6]] ))))
+    (is (= (utils/maybe-key ":a") :a))
+    (is (= (utils/maybe-key "A") "A"))
+    (is (= (utils/maybe-key 1) 1))
+    (is (= (utils/transpose [[1 2 3] [4 5 6]]) [[1 4] [2 5] [3 6]] ))))
 
 (deftest config-file
   (testing "config-edn makes sense"
-    (is (= (c/get-sheet-spec :kidney :waiting-inputs) {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :D, :match "level"}, :button-labels {:column :B, :match "(level)|(button)"}, :factor {:column :C, :match "factor"}, :label {:column :A, :match "(Factor)|(label)"}}))
-    (is (= (c/get-columns :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)))
-    (is (= (c/get-variable-keys :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)) )
-    (is (= (c/get-column-selection :kidney :waiting-inputs) {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}))
+    (is (= (cfg/get-sheet-spec :kidney :waiting-inputs) {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :D, :match "level"}, :button-labels {:column :B, :match "(level)|(button)"}, :factor {:column :C, :match "factor"}, :label {:column :A, :match "(Factor)|(label)"}}))
+    (is (= (cfg/get-columns :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)))
+    (is (= (cfg/get-variable-keys :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)) )
+    (is (= (cfg/get-column-selection :kidney :waiting-inputs) {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}))
     ))
 
 (defn rectangular [organ sheet]
@@ -41,7 +43,7 @@
     (rectangular :kidney :bmi-calculator)
     ))
 
-(def kidney-variables (partial c/get-variable-keys :kidney))
+(def kidney-variables (partial cfg/get-variable-keys :kidney))
 
 (defn configured-headers
   "Runs a configuration check on a spreadsheet, ensuring that actual headers
@@ -50,7 +52,7 @@
   We could use a re match instead if we wanted to
   be less fussy. This would be the place to implement re matching."
   [organ sheet]
-  (is (= (c/get-variable-keys organ sheet) 
+  (is (= (cfg/get-variable-keys organ sheet) 
          (c/get-header organ sheet)) sheet))
 
 (deftest kidney-variables-check
@@ -80,7 +82,7 @@
     (rectangular :lung :from-listing-inputs)
     (rectangular :lung :numerics)))
 
-(def lung-headers (partial c/get-variable-keys :lung))
+(def lung-headers (partial cfg/get-variable-keys :lung))
 
 (deftest lung-variables-check
   (testing "lung headers"

@@ -188,7 +188,7 @@
 
 (defn get-header
   "retrieve header variables from the speadsheet in a seq. We assume they are in the 
-first non-nil row, and always stat with a :. Headers that do not start with ':' are ignored."
+  first non-nil row, and always stat with a :. Headers that do not start with ':' are ignored."
   [organ sheet-key]
   (let [workbook (memo-workbook organ)
         sheet (get-sheet-spec organ sheet-key)]

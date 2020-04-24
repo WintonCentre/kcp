@@ -44,8 +44,14 @@
 (def kidney-variables (partial c/get-variable-keys :kidney))
 
 (defn configured-headers
+  "Runs a configuration check on a spreadsheet, ensuring that actual headers
+  match configured headers. Note that we are currently looking for exact matches. 
+  
+  We could use a re match instead if we wanted to
+  be less fussy. This would be the place to implement re matching."
   [organ sheet]
-  (is (= (c/get-variable-keys organ sheet) (c/get-header organ sheet)) sheet))
+  (is (= (c/get-variable-keys organ sheet) 
+         (c/get-header organ sheet)) sheet))
 
 (deftest kidney-variables-check
   (testing "configured variables are spreadsheet headers"

@@ -74,22 +74,32 @@
         b-factors (:baseline-factor  (c/get-variables organ sheet1))
         i-factors (distinct (:factor (c/get-variables organ sheet2)))]
     (is (=  (into #{} (remove nil? b-factors)) 
-            (into #{} (->> i-factors 
-                           (remove nil?)
-                           #_(remove #(= :centre %))
-                           #_(remove #(= :centre-d-gp %))
-                           )))
+            (into #{} (remove nil? i-factors)))
         [:check-factors organ sheet-prefix])))
 
-(deftest check-all-factors
-  (testing "apart from :centre, factors in baseline-vars should agree with those in inputs" 
+(deftest check-kidney-factors
+  (testing "apart from :centre, factors in baseline-vars should agree with those in inputs"
     (check-factors :kidney :waiting)
     (check-factors :kidney :graft)
-    (check-factors :kidney :survival)
-    (check-factors :lung :waiting)
-    (check-factors :lung :post-transplant)
-    (check-factors :lung :from-listing)
-    ))
+    (check-factors :kidney :survival)))
+
+
+(defn check-type-label
+  [organ sheet row]
+  (is (= (nil? (:type row)) (nil? (:label row)))
+      [:in organ sheet (:factor row) (:level row)]))
+
+(defn check-widget-labels
+  [organ sheet-prefix]
+  (let [sheet (keyword (str (name sheet-prefix) "-inputs"))
+        rows (c/get-row-maps organ sheet)]
+    (mapv (partial check-type-label organ sheet) rows)))
+
+(deftest kidney-widgets-have-a-label
+  (testing "All kidney widget types have a Label"
+    (check-widget-labels :kidney :waiting)
+    (check-widget-labels :kidney :graft)
+    (check-widget-labels :kidney :survival)))
 
 ;---- LUNG
 
@@ -106,6 +116,8 @@
     (rectangular :lung :from-listing-inputs)
     (rectangular :lung :numerics)))
 
+(lung-data-frames)
+
 (def lung-headers (partial cfg/get-variable-keys :lung))
 
 (deftest lung-variables-check
@@ -121,3 +133,14 @@
     (configured-headers :lung :from-listing-baseline-vars)
     (configured-headers :lung :from-listing-inputs)))
 
+(deftest check-lung-factors
+  (testing "apart from :centre, lung factors in baseline-vars should agree with those in inputs"
+    (check-factors :lung :waiting)
+    (check-factors :lung :post-transplant)
+    (check-factors :lung :from-listing)))
+
+(deftest lung-widgets-have-a-label
+  (testing "All lung widget types have a Label"
+    (check-widget-labels :lung :waiting)
+    (check-widget-labels :lung :post-transplant)
+    (check-widget-labels :lung :from-listing)))

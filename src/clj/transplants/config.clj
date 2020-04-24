@@ -1,7 +1,6 @@
 (ns transplants.config
   (:require [aero.core :as aero]
             [clojure.java.io :as io]
-            [clojure.string :as stg]
             [transplants.utils :as utils]))
 
 ;--- EDN configuation

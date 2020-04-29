@@ -1,0 +1,13 @@
+:baseline-factor,:baseline-level
+:donor-cmv,:positive
+:donor-smokes,:yes
+:dd-pred,:>=15
+:type,:2
+:d-gp,:copd
+:age,52
+:tlc-mismatch,-0.066
+:fvc,2.06
+:bilirubin,9.0
+:cholesterol,4.9
+:centre,:unused
+:type-d-gp,:unused

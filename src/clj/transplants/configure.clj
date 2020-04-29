@@ -1,4 +1,5 @@
 (ns transplants.configure
+  (:import [org.apache.poi.ss.usermodel Workbook Sheet Cell Row])
   (:require 
    [aero.core :as aero]
    [dk.ative.docjure.spreadsheet :as xls]
@@ -83,14 +84,13 @@
 
 (defn get-col-maps
   "gets a map of columns"
-  [organ sheet-key]
+  [organ sheet-key & [exclude-nil-rows]]
     (let [workbook (memo-workbook organ)
           sheet (cfg/get-sheet-spec organ sheet-key)
           columns (cfg/get-column-selection organ sheet-key)]
       (->> (get-row-maps organ sheet-key)
-           ;(xls/select-sheet (name sheet-key) workbook)
-           ;(xls/select-columns columns)
            (map (apply juxt (vals (cfg/get-column-selection organ sheet-key))))
+           ((fn [r] (if exclude-nil-rows (remove #(every? nil? %) r) r)))
            (utils/transpose)
            (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
            (into {}))))
@@ -104,6 +104,8 @@
   #_(def row-maps [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}])
 
   (get-col-maps :kidney :waiting-baseline-vars)
+  (get-col-maps :kidney :waiting-inputs)
+  (get-col-maps :kidney :waiting-inputs true)
 
   
   (let [cols (utils/transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
@@ -181,73 +183,99 @@
           (map #(map xls/read-cell (take (count headers) %)))
           ))))
 
-
 (defn write-csv
-  "read a sheet from xslx and export it to data/csv as a csv file"
-  [organ sheet-key]
-  (let [cfg (cfg/memo-config organ)
-        f (io/file (str (get-in cfg [:export :csv-path]) slash (name organ) slash (name sheet-key) ".csv"))
-        headers (map #(str ":" (name %)) (get-header organ sheet-key))
-        variables (get-variables :kidney :waiting-inputs)
-        rows (->>
-              (cfg/get-columns :kidney :waiting-inputs)
-              (map #(get variables %))
-              (utils/transpose))
-        ]
-    (io/make-parents f)
-    (with-open [writer (io/writer f)]
-      (csv/write-csv writer (list headers))
-      (csv/write-csv writer rows))))
+  "read a sheet from xslx and export it to data/csv as a csv file. 2-arity excludes nil rows by default"
+  ([organ sheet-key]
+   (write-csv organ sheet-key true))
+  ([organ sheet-key exclude-nil-rows]
+   (println "writing " sheet-key " to " organ)
+   (let [cfg (cfg/memo-config organ)
+         f (io/file (str (get-in cfg [:export :csv-path]) slash (name sheet-key) ".csv"))
+         headers (map #(str ":" (name %)) (get-header organ sheet-key))
+         variables (get-variables organ sheet-key exclude-nil-rows)
+         rows (->>
+               (cfg/get-columns organ sheet-key)
+               (map #(get variables %))
+               (utils/transpose))]
+     (io/make-parents f)
+     (with-open [writer (io/writer f)]
+       (csv/write-csv writer (list headers))
+       (csv/write-csv writer rows)))))
 
-(defn write-kidney-csvs
-  "Write out kidney csvs"
-  []
-  (write-csv :kidney :waiting-baseline-cifs)
-  (write-csv :kidney :waiting-baseline-vars)
-  (write-csv :kidney :waiting-inputs)
-  (write-csv :kidney :graft-baseline-cifs)
-  (write-csv :kidney :graft-baseline-vars)
-  (write-csv :kidney :graft-inputs)
-  (write-csv :kidney :survival-baseline-cifs)
-  (write-csv :kidney :survival-baseline-vars)
-  (write-csv :kidney :survival-inputs)
-  (write-csv :kidney :bmi-calculator)
-  )
+
+
+ (defn sheet-name
+   "Dip into the apache xlsx lib to extract a sheet name from the xlsx using its Sheet class"
+   [^Sheet s]
+   (.getSheetName s))
+
+(defn get-sheet-names
+  "Return a seq of all the sheet names in an organ"
+  [organ]
+  (->> (get-workbook organ)
+       (xls/sheet-seq)
+       (map sheet-name)
+       (remove #(= "Notes" %))
+       (map keyword)))
+
 
 (defn write-edn
+  "Read a sheet and spit out an equivalent map of clj variables in edn"
   [organ sheet-key]
-    (let [cfg (cfg/memo-config organ)
-        f (io/file (str (get-in cfg [:export :csv-path]) slash (name organ) slash (name sheet-key) ".edn"))
-        headers (map #(str ":" (name %)) (get-header organ sheet-key))
-        variables (get-variables :kidney :waiting-inputs)
-        ]
+  (let [cfg (cfg/memo-config organ)
+        f (io/file (str (get-in cfg [:export :edn-path]) slash (name sheet-key) ".edn"))
+       ; headers (map #(str ":" (name %)) (get-header organ sheet-key))
+        variables (get-variables organ sheet-key)]
     (io/make-parents f)
-    (with-open [out (io/output-stream f)]
-      (map prn variables)
-      )))
-  
+    (spit f variables)))
+
+  (defn export
+    "Write out organ data using a write function wf. wf is typically write-csv or write-edn."
+    [wf organ]
+    #_(let [sheets {:kidney [:waiting-baseline-cifs
+                             :waiting-baseline-vars
+                             :waiting-inputs
+                             :graft-baseline-cifs
+                             :graft-baseline-vars
+                             :graft-inputs
+                             :survival-baseline-cifs
+                             :survival-baseline-vars
+                             :survival-inputs
+                             :bmi-calculator]
+                    :lung []}])
+    (doseq [s (get-sheet-names organ)]
+      (println "calling wf on " organ " to write " s)
+      (wf organ s)))
 
 (comment
-  (get-all-rows :kidney :waiting-inputs) 
+  (export write-edn :lung)
+  (export write-csv :lung)
+  (export write-edn :kidney)
+  (export write-csv :kidney)
+
+  (get-sheet-names :lung)
+  (get-all-rows :kidney :waiting-inputs)
   (get-row-maps :kidney :waiting-inputs)
   (cfg/get-variable-keys :kidney :waiting-inputs)
-  
+
   (def cfg  (cfg/memo-config :kidney))
+  (def wb (get-workbook :kidney))
   (def organ :kidney)
   (def sheet-key :waiting-baseline-cifs)
+
   ;(def sheet-key :waiting-inputs)
   (def f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv")))
   (def headers (map #(str ":" (name %)) (get-header organ sheet-key)))
   (def rows (get-rows organ sheet-key))
   (take 10 (concat (list headers) rows))
+
+
   (write-csv :kidney :waiting-baseline-cifs)
   (write-csv :kidney :waiting-baseline-vars)
   (write-csv :kidney :waiting-inputs)
-  
-  (write-edn :kidney :waiting-baseline-vars)
-  
-  (write-kidney-csvs)
-  )
+  (write-edn :kidney :waiting-inputs)
+
+  (write-edn :kidney :waiting-baseline-vars))
 
 (defn row->map
   [headers row]

@@ -1,0 +1,1 @@
+{:baseline-factor (:age :sex :ethnicity :dialysis :diabetes :sensitised :blood-group :matchability :graft :centre), :baseline-level (:50+ :male :white :yes :no :no :O :easy :first-graft :unused)}

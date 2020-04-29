@@ -1,0 +1,16 @@
+:baseline-factor,:baseline-level
+:thoracotomy,:yes
+:sex,:female
+:nyha-class,:4
+:blood-group,:AB
+:d-gp,:copd
+:dd-pred,:>=15
+:in-hosp,:yes
+:ethnicity,:non-white
+:bmi,23.0224
+:fvc,1.9
+:age,51.0
+:bilirubin,9.0
+:ethnicity,:non-white
+:centre-d-gp,:unused
+:centre,:unused

@@ -1,0 +1,1 @@
+{:baseline-factor (:age :ethnicity :wait :diabetes :donor-age :donor-ht :hla-mismatch :centre), :baseline-level (:40+ :white :<=1 :no :50+ :no :1 :unused)}

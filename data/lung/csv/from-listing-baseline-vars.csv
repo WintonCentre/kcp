@@ -1,0 +1,12 @@
+:baseline-factor,:baseline-level
+:thoracotomy,:yes
+:sex,:female
+:ethnicity,:non-white
+:blood-group,:AB
+:d-gp,:copd
+:thoracotomy,Yes
+:in-hosp,Yes
+:age,51.0
+:bmi,23.038
+:centre,:unused
+:centre-d-gp,:unused

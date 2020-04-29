@@ -1,4 +1,4 @@
-:label,:button-labels,:factor,:level,:beta-transplant,:beta-removal,:beta-death,:beta-all-reasons,:type,:sub-text,:info-box?
+:label,:button-labels,:factor,:level,:beta-survival,:type,:sub-text,:info-box?
 Transplant Centre,[:centre-labels],:centre,[:centre-keys],,,,,:dropdown,,
 ,,,,,,,,,,
 Sex,Male,:sex,:male,0.0,0.0,0.0,0.0,:radio,Sex,Male
@@ -34,11 +34,8 @@ Highly sensitised?,No,:sensitised,:no,0.0,0.0,0.0,0.0,:radio,cRF less than 85%,
 ,,,,,,,,,,
 Primary renal disease - diabetes?,No,:diabetes,:no,0.0,0.18723,0.86605,0.0,:radio,,
 ,Yes,:diabetes,:yes,-0.32635,0.0,0.0,0.05058,,?,
-
-Subtexts appear when that option is selected
-
-Where and how should we manage unknown entries?
-Yes/No selections could be switches + subtext
-
-"On startup or tool reset, should all entries be deselected or should they "
-be set to the baseline variable as a default?
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,

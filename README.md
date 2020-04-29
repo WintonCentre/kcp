@@ -1,17 +1,13 @@
 # Transplants
 
 ## Contents
-This repository contains both a set of configuration utilities and the run-tim web-site(s) themselves.
-The configuration tools are written in clojure and run on the JVM.
-The website is also written in clojure - in clojurescript - and runs in a browser.
+This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
 
-## Configuration tools and data
-  Tools are in `src/clj/transplants/configure`.
-  Configuration is in `data` and is controlled by `config.edn`
+The configuration tools are written in clojure and run on the JVM. JVM 8 or 11 are recommended for clojure. Use a tool such as Jabba to install and switch JVM versions as necessary. Since Oracle JVMs are no longer free we are using `adopt-openj9@1.11.0-6`.
 
-  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
+The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs]() tool set as this gave simpler access to the few `npm` module dependencies we are using. `react-bootstrap` gives us a better reactive framework than the usual jquery bootstrap setup..
 
-  Configuration tests run under the `configure` profile. Launch these using the `check` alias i.e. `lein check`
+There have however been recent releases on the main clojurescript compiler thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
 
 ## Status
 A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
@@ -23,18 +19,25 @@ See the config files in the data folder.
 
 [Work in Progress]
 
-## Configuration Development
+## Configuration tools and data
+  Tools are in `src/clj/transplants/configure`.
+  Configuration is in `data` and is controlled by `config.edn`
+
+  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
+
+  Configuration tests run under the `configure` profile. Launch these using the `check` alias i.e. `lein check`
+
+### Configuration Development
 All data is stored in the configuration folder. 
 
-The job of the clojure configuration app is to read this data and validate it. The process is controlled by
-a transplant organ specific file e.g. `data/kidney-config.edn`. This identifies the model `.xlsx` files that need to be read in. It also specifies where the data should ultimately reside in the final online tool.
+The job of the clojure configuration app is to read this data and validate it, and then write it out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code. 
 
-We are using juxt/aero to simplify the construction of configuration files. The transplants/configure namespace provides access to the controlling configuration.
+The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing. 
 
-If jacking in from VS-Code be sure to select leiningen without aliases and the `configuration` profile. A cursive setup 
-is also possible.
+### Jacking in from vs-code to work on the *configuration* process
+If jacking in from VS-Code be sure to select `leiningen` with `no alias` and then the `:configuration` profile. 
 
-## Tool Development
+## Trac Tool Development
 Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start 
 that way to avoid duplication.
 

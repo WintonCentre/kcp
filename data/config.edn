@@ -10,8 +10,10 @@
 {:workbook #profile {:kidney "data/kidney-models-master.xlsx"
                      :lung "data/lung-models-master.xlsx"}
 
- :export {:csv-path "data/csv"
-          :edn-path "data/edn"}
+ :export #profile {:kidney {:csv-path "data/csv"
+                            :edn-path "data/edn"}
+                   :lung {:csv-path "data/csv"
+                          :edn-path "data/edn"}}
 
  :sheets #profile {:kidney {:waiting-baseline-cifs {:centre {:column :A
                                                              :match "cent"}

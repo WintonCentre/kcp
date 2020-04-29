@@ -9,6 +9,8 @@
    [transplants.config :as cfg]
    ))
 
+(def slash java.io.File/separator)
+
 (comment
   ;;;
   ;; following is a docjure example. Keep as a quick check on setup, but it's not used here as it 
@@ -128,7 +130,6 @@
 ;;     (get-rows organ sheet-key)
 ;;     (get-header organ sheet-key))))
 
-(defn get-table [] nil)
 
 (defn sub-table
   "Extract a sub-table from the given columns, 
@@ -180,19 +181,57 @@
           (map #(map xls/read-cell (take (count headers) %)))
           ))))
 
+
 (defn write-csv
   "read a sheet from xslx and export it to data/csv as a csv file"
   [organ sheet-key]
   (let [cfg (cfg/memo-config organ)
-        f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv"))
-        ;headers (map #(str ":" (name %)) (get-header organ sheet-key))
-        rows (get-all-rows organ sheet-key)]
+        f (io/file (str (get-in cfg [:export :csv-path]) slash (name organ) slash (name sheet-key) ".csv"))
+        headers (map #(str ":" (name %)) (get-header organ sheet-key))
+        variables (get-variables :kidney :waiting-inputs)
+        rows (->>
+              (cfg/get-columns :kidney :waiting-inputs)
+              (map #(get variables %))
+              (utils/transpose))
+        ]
     (io/make-parents f)
     (with-open [writer (io/writer f)]
-      ;(csv/write-csv writer (list headers))
+      (csv/write-csv writer (list headers))
       (csv/write-csv writer rows))))
 
+(defn write-kidney-csvs
+  "Write out kidney csvs"
+  []
+  (write-csv :kidney :waiting-baseline-cifs)
+  (write-csv :kidney :waiting-baseline-vars)
+  (write-csv :kidney :waiting-inputs)
+  (write-csv :kidney :graft-baseline-cifs)
+  (write-csv :kidney :graft-baseline-vars)
+  (write-csv :kidney :graft-inputs)
+  (write-csv :kidney :survival-baseline-cifs)
+  (write-csv :kidney :survival-baseline-vars)
+  (write-csv :kidney :survival-inputs)
+  (write-csv :kidney :bmi-calculator)
+  )
+
+(defn write-edn
+  [organ sheet-key]
+    (let [cfg (cfg/memo-config organ)
+        f (io/file (str (get-in cfg [:export :csv-path]) slash (name organ) slash (name sheet-key) ".edn"))
+        headers (map #(str ":" (name %)) (get-header organ sheet-key))
+        variables (get-variables :kidney :waiting-inputs)
+        ]
+    (io/make-parents f)
+    (with-open [out (io/output-stream f)]
+      (map prn variables)
+      )))
+  
+
 (comment
+  (get-all-rows :kidney :waiting-inputs) 
+  (get-row-maps :kidney :waiting-inputs)
+  (cfg/get-variable-keys :kidney :waiting-inputs)
+  
   (def cfg  (cfg/memo-config :kidney))
   (def organ :kidney)
   (def sheet-key :waiting-baseline-cifs)
@@ -204,14 +243,15 @@
   (write-csv :kidney :waiting-baseline-cifs)
   (write-csv :kidney :waiting-baseline-vars)
   (write-csv :kidney :waiting-inputs)
+  
+  (write-edn :kidney :waiting-baseline-vars)
+  
+  (write-kidney-csvs)
   )
 
 (defn row->map
   [headers row]
   (zipmap headers row))
-
-
-
 
 (comment
   (require '[clojure.pprint :refer [pp pprint]])

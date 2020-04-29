@@ -5,19 +5,20 @@ This repository contains both a set of configuration utilities and the run-time 
 
 The configuration tools are written in clojure and run on the JVM. JVM 8 or 11 are recommended for clojure. Use a tool such as Jabba to install and switch JVM versions as necessary. Since Oracle JVMs are no longer free we are using `adopt-openj9@1.11.0-6`.
 
-The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs]() tool set as this gave simpler access to the few `npm` module dependencies we are using. `react-bootstrap` gives us a better reactive framework than the usual jquery bootstrap setup..
+The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html) tool set as this gave simpler access to the few `npm` module dependencies such as react-bootstrap that we are using.
 
-There have however been recent releases on the main clojurescript compiler thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
+There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
 
 ## Status
+**Work in Progress**
+
 A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
 
-I'm working on the premise that we can generate all the organ transplant tools from this
-one repo, and also do the configuration pre-processing here.
+I'm working on the premise that we can generate all the organ transplant tools from this one repo, and also do the configuration pre-processing here.
 
 See the config files in the data folder. 
 
-[Work in Progress]
+
 
 ## Configuration tools and data
   Tools are in `src/clj/transplants/configure`.
@@ -25,7 +26,7 @@ See the config files in the data folder.
 
   The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
 
-  Configuration tests run under the `configure` profile. Launch these using the `check` alias i.e. `lein check`
+  Configuration tests run under the `configure` leiningen profile. Launch these using the `check` alias i.e. Run `lein check` in a terminal.
 
 ### Configuration Development
 All data is stored in the configuration folder. 

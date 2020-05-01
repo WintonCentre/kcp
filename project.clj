@@ -8,7 +8,7 @@
                  [reagent "0.9.1"]
                  [re-frame "0.11.0"]
                  [metosin/reitit "0.4.2"]
-                 ]
+                 [cljs-ajax "0.7.3"]]
 
   :plugins [[lein-shell "0.5.0"]
             [lein-eftest "0.5.9"]
@@ -20,11 +20,8 @@
 
   :source-paths ["src/cljs"]
 
-
-
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
                                     "test/js"]
-
 
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
@@ -44,24 +41,23 @@
                             ["run" "-m" "shadow.cljs.devtools.cli" "compile" "karma-test"]
                             ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]}
 
-  :profiles
-  {:dev
-   {:dependencies [[binaryage/devtools "1.0.0"]
-                   [day8.re-frame/re-frame-10x "0.5.1"]
-                   [day8.re-frame/tracing "0.5.3"]
-                   [eftest "0.5.9"]]
-    :source-paths ["dev"]
-    :test-paths   ["test/cljs"]}
+  :profiles {:dev {:dependencies [[binaryage/devtools "1.0.0"]]
+                   :source-paths ["dev"]}
 
-   :configure {:source-paths ["src/clj" "data"]
-               :test-paths ["test/clj" "src/clj" "data"]
-               :dependencies [[aero "1.1.6"]
-                              [org.apache.poi/poi "3.17"]
-                              [org.apache.poi/poi-ooxml "3.17"]
-                              [dk.ative/docjure "1.13.0"]
-                              [org.apache.commons/commons-math3 "3.6.1"]
-                              [org.clojure/data.csv "1.0.0"]]}
-   
-   :prod {:dependencies [[day8.re-frame/tracing-stubs "0.5.3"]]}}
+             :test {:dependencies [[binaryage/devtools "1.0.0"]
+                                   [eftest "0.5.9"]]
+                    :source-paths ["dev"]
+                    :test-paths   ["test/cljs"]}
+
+             :configure {:source-paths ["src/clj" "data"]
+                         :test-paths ["test/clj" "src/clj" "data"]
+                         :dependencies [[aero "1.1.6"]
+                                        [org.apache.poi/poi "3.17"]
+                                        [org.apache.poi/poi-ooxml "3.17"]
+                                        [dk.ative/docjure "1.13.0"]
+                                        [org.apache.commons/commons-math3 "3.6.1"]
+                                        [org.clojure/data.csv "1.0.0"]]}
+
+             :prod {:dependencies []}}
 
   :prep-tasks [])

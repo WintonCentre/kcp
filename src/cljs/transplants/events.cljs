@@ -1,26 +1,35 @@
 (ns transplants.events
   (:require
    [re-frame.core :as rf]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]
    [transplants.fx :as fx]
-   ))
+   [transplants.db :as db]))
 
 ;;; Events ;;;
 
 (rf/reg-event-db
  ::initialize-db
- (fn-traced [_ _]
+ (fn [_ _]
    {:current-route nil}))
 
 (rf/reg-event-fx
  ::navigate
- (fn-traced [db [_ route]]
+ (fn [{:keys [db]} [_ route]]
    ;; See `navigate` effect in routes.cljs
    {::fx/navigate! route}))
 
 (rf/reg-event-db
  ::navigated
- (fn-traced [db [_ new-match]]
+ (fn [db [_ new-match]]
    (assoc db :current-route new-match)))
+
+;;; Waiting tool ;;;
+(rf/reg-event-fx
+ ::load-waiting-data
+ (fn [{:keys [db]} [_ [tool-key route]] ]
+            (if (nil? (get db tool-key))
+                {:dispatch [::load tool-key route]}
+                {::fx/navigate! route})))
+
+
 
 

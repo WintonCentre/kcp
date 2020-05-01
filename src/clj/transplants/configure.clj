@@ -247,11 +247,18 @@
       (println "calling wf on " organ " to write " s)
       (wf organ s)))
 
-(comment
+(defn main
+  "Main entry point. This function uses export to read the spreadsheets and write out edn and csv files.
+When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
+  []
   (export write-edn :lung)
   (export write-csv :lung)
   (export write-edn :kidney)
-  (export write-csv :kidney)
+  (export write-csv :kidney))
+
+
+(comment
+
 
   (get-sheet-names :lung)
   (get-all-rows :kidney :waiting-inputs)

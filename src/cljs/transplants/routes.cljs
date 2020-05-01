@@ -12,7 +12,6 @@
    ["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                      Nav Nav.Link]]))
 
-
 ;;; Routes ;;;
 
 (defn href
@@ -30,33 +29,38 @@
     {:name      ::views/home
      :view      views/home-page
      :link-text "Home"
-     :controllers
-     [{;; Do whatever initialization needed for home page
+     :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
-       :start (fn [& params] (js/console.log "Entering home page"))
+                    :start (fn [& params] (js/console.log "Entering Home"))
        ;; Teardown can be done here.
-       :stop  (fn [& params] (js/console.log "Leaving home page"))}]}]
+                    :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
    ["About"
-    {:name      ::views/sub-page1
-     :view      views/sub-page1
+    {:view      views/sub-page1
      :link-text "About"
-     :controllers
-     [{:start (fn [& params] (js/console.log "Entering sub-page 1"))
-       :stop  (fn [& params] (js/console.log "Leaving sub-page 1"))}]}]
+     :controllers [{:start (fn [& params] (js/console.log "Entering About"))
+                    :stop  (fn [& params] (js/console.log "Leaving About"))}]}
+    ["" {:name ::views/about}]
+    ["Technical"
+     {:name      ::views/about-technical
+      :view      views/about-technical
+      :link-text "Technical"
+      :controllers
+      [{:start (fn [& params] (js/console.log "Entering About/Technical"))
+        :stop  (fn [& params] (js/console.log "Leaving About/Technical"))}]}]]
    ["Waiting"
-    {:name      ::views/sub-page2
-     :view      views/sub-page2
+    {:name      ::views/waiting
+     :view      views/waiting
      :link-text "Waiting"
-     :controllers
-     [{:start (fn [& params] (js/console.log "Start TTW"))
-       :stop  (fn [& params] (js/console.log "Leaving TTW"))}]}]
-   ["Surviving"
-    {:name      ::views/sub-page3
-     :view      views/sub-page2
-     :link-text "Surviving"
-     :controllers
-     [{:start (fn [& params] (js/console.log "Start TTW"))
-       :stop  (fn [& params] (js/console.log "Leaving TTW"))}]}]])
+     :controllers [{:start (fn [& params]
+                             (js/console.log "Start Waiting")
+                             (rf/dispatch [::events/load-waiting-data]))
+                    :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
+   ["Surviving" {:name      ::views/sub-page3
+                 :view      views/waiting
+                 :link-text "Surviving"
+                 :controllers
+                 [{:start (fn [& params] (js/console.log "Start Surviving"))
+                   :stop  (fn [& params] (js/console.log "Leaving Surving"))}]}]])
 
 
 (defn on-navigate [new-match]
@@ -98,7 +102,8 @@
 (defn navbar
   [{:keys [router current-route theme] 
     :or {theme (:lung themes)}}]
-  [:> Navbar {:bg "light" :expand "md" :style {:border-bottom "1px solid black"}}
+  [:> Navbar {:bg "light" :expand "md" :fixed "top"
+              :style {:border-bottom "1px solid black"}}
    [:> Navbar.Brand {:href "https://www.nhsbt.nhs.uk/"} 
     [:img {:src "/assets/nhsbt-left-align_scaled.svg" :style {:height 40} :alt "NHS"}]]
    [:> Navbar.Text [:span {:style {:margin-left 20 :font-size "120%" :color (:primary theme)}} (:name theme)]]
@@ -114,13 +119,19 @@
               :key  route-name}
              text]))]])
 
+(defn footer []
+  [:div {:style {:width "100%" :height "60px" :background-color "black"}}])
 
 (defn router-component [{:keys [router]}]
   (let [current-route @(rf/subscribe [::subs/current-route])]
-    [:div
-     [navbar {:router router 
+    (println "current-route: " current-route)
+    [:div 
+     [navbar {:router router
               :current-route current-route
               :tool-name "Lung Transplants"}]
+     
      (when current-route
-       [(-> current-route :data :view)])]))
+       [:div {:style {:margin-top "100px"}}
+        [(-> current-route :data :view)]
+        [footer]])]))
 

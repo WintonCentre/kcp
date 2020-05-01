@@ -1,37 +1,53 @@
 (ns transplants.views
   (:require
    [re-frame.core :as rf]
+   [transplants.dev-utils :as dev-utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
-   ["react-bootstrap" :as bs :refer [Button]
-    :rename  {Container container
-              Row row
-              Col col}]
+   (transplants.ui :as ui :refer [page
+                                  row
+                                  col
+                                  button])
    ))
+
+(comment
+  (devu/lorem-1 2)
+  (devulorem-many 2)
+  )
 
 ;;; Views ;;;
 (defn home-page []
-  [:> container
-   [:> row
-    [:> col
-     [:h1 ""]
-     [:> Button {:variant "primary"
+  [page
+   [row
+    [col
+     [:h1 "Home"]
+     [button {:variant "primary"
     ;; Dispatch navigate event that triggers a (side)effect.
-                 :key 1
-                 :on-click #(rf/dispatch [::events/navigate ::sub-page1])}
+              :key 1
+              :on-click #(rf/dispatch [::events/navigate ::sub-page1])}
       "Waiting Time Tool"]
-     [:> Button {:variant "secondary"
+     [button {:variant "secondary"
     ;; Dispatch navigate event that triggers a (side)effect.
-                 :key 2
-                 :on-click #(rf/dispatch [::events/navigate ::sub-page2])}
-      "Survival Time Tool"]]]
-   ])
+              :key 2
+              :on-click #(rf/dispatch [::events/navigate ::sub-page2])}
+      "Survival Time Tool"]
+     (dev-utils/lorem-many 20)
+     ]]])
 
 (defn sub-page1 []
-  [:div
-   [:h1 "This is sub-page 1"]])
+  [:h1 "This is sub-page 1"])
 
-(defn sub-page2 []
-  [:div
-   [:h1 "This is sub-page 2"]])
+(defn about []
+  [:h1 "About"])
+
+(defn about-technical []
+  [:h1 "Technical"])
+
+(defn waiting []
+  [:<>
+   [:h1 "Waiting"]
+   [ui/two-panels
+    ui/inputs-panel
+    ui/results-panel]]
+  )
 

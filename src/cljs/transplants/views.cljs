@@ -10,11 +10,6 @@
                                   button])
    ))
 
-(comment
-  (devu/lorem-1 2)
-  (devulorem-many 2)
-  )
-
 ;;; Views ;;;
 (defn home-page []
   [page
@@ -38,14 +33,27 @@
   [:h1 "This is sub-page 1"])
 
 (defn about []
-  [:h1 "About"])
+  [page
+   [:h1 "About"]])
 
-(defn about-technical []
-  [:h1 "Technical"])
+(defn about-technical
+  "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
+In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
+  []
+  [page
+   [:h1 "Technical"]])
 
 (defn waiting []
-  [:<>
-   [:h1 "Waiting"]
+  [page
+   [:h1 "Waiting for a transplant"]
+   [ui/two-panels
+    ui/inputs-panel
+    ui/results-panel]]
+  )
+
+(defn surviving []
+  [page
+   [:h1 "Survival Post Transplant"]
    [ui/two-panels
     ui/inputs-panel
     ui/results-panel]]

@@ -35,7 +35,7 @@
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
    ["About"
-    {:view      views/sub-page1
+    {:view      views/about
      :link-text "About"
      :controllers [{:start (fn [& params] (js/console.log "Entering About"))
                     :stop  (fn [& params] (js/console.log "Leaving About"))}]}
@@ -55,8 +55,8 @@
                              (js/console.log "Start Waiting")
                              (rf/dispatch [::events/load-waiting-data]))
                     :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
-   ["Surviving" {:name      ::views/sub-page3
-                 :view      views/waiting
+   ["Surviving" {:name      ::views/surviving
+                 :view      views/surviving
                  :link-text "Surviving"
                  :controllers
                  [{:start (fn [& params] (js/console.log "Start Surviving"))
@@ -120,7 +120,9 @@
              text]))]])
 
 (defn footer []
-  [:div {:style {:width "100%" :height "60px" :background-color "black"}}])
+  [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"
+                 :display "flex" :align-items "center" :justify-content "center"}}
+   [:div {:flex 1 :style {:margin "20px"}} "Footer"]])
 
 (defn router-component [{:keys [router]}]
   (let [current-route @(rf/subscribe [::subs/current-route])]

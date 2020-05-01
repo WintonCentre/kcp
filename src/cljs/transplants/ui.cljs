@@ -9,7 +9,7 @@
 
 (defn page
   [children]
-  [container 
+  [container {:style {:min-height "calc(100vh - 160px"}}           ;todo: There's probably a flexbox way to do this
    children])
 
 (defn two-panels

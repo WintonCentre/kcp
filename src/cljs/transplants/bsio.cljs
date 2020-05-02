@@ -38,9 +38,10 @@ The caller would have to provide wrapping Form components like InputGroup in tha
 I doubt that those would need to be part of this library. Each component would likely be wrapped in 
 its own Form in that case. That's for the next level up to worry about.
 
-Some experimentation with Forms is necessary to come up with a good approach that allows the 
-low level inputs to react to value changes without the user having to press a submit button. Hopefully that
-is easy!
+Some experimentation with Forms is necessary to checki it's a viable approach that allows the 
+low level inputs to react to value changes without the user having to press a submit button. Hopefully it is.
+
+I've also missed out things like stopPropagation, preventDefault, and touch events.
 
 "
     [value-k value-f event-f & [options]]

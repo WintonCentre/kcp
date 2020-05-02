@@ -4,6 +4,8 @@
    [re-frame.core :as rf]
    [transplants.routes :as routes]
    [transplants.events :as events]
+   [transplants.subs :as subs]
+   [transplants.ui :as ui]
    ))
 
 ;;; Setup ;;;
@@ -17,7 +19,8 @@
 (defn mount-root []
   (rf/clear-subscription-cache!)
   (routes/init-routes!) ;; Reset routes on figwheel reload
-  (reagent/render [routes/router-component {:router routes/router}]
+  (reagent/render [ui/root-component {:router routes/router
+                                      :subscribe-current-route #(rf/subscribe [::subs/current-route])}]
                   (.getElementById js/document "app")))
 
 (defn ^:export init []

@@ -26,3 +26,6 @@ doc/UI inputs.md
 ~*
 nashorn_code_cache/*
 .cljs_nashorn*/*
+
+# experimental
+src/cljs/eric.*

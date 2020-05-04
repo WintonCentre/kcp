@@ -27,7 +27,8 @@ We can't assume that value-k identifies (value-f) though it often will.
 
 `options` is a map for anything else we might need to pass in - e.g. labels or style or size choices.
 [If we use bs4 Forms here, we'll need to do this, but it's the sort of things that is really app
-responsibility. Ideally bsio components should be ]
+responsibility. However some component like checkboxes (we don't need them at the moment), do require 
+labels to be part of the same form control because they are part of the clickable area.]
 
 The example uses a raw input component, but it may be desirable to replace that in the real library 
 with a react-bootstrap Form.Control so we can use them to flag invalid or empty values. 

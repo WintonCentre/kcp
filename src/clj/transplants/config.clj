@@ -29,6 +29,11 @@
                      :organ organ
                      :sheet sheet-key}))))
 
+(defn get-bundle
+  "Return the bundles of sheet-keys associated with a tool"
+  [organ tool-key]
+  (get-in (memo-config organ) [:bundles tool-key]))
+
 (defn get-column-selection
   "Return a map of columns suitable for docjure select-columns. Column order may not be preserved in the map."
   [organ sheet-key]
@@ -45,3 +50,4 @@
 (def get-variable-keys
   "Treating the spreadsheet as a data frame, return a list of keys identifying the variables in the header row"
   get-columns)
+

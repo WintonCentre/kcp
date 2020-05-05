@@ -44,7 +44,7 @@ It works but application and generic navbar code need to be separated."
     :or {theme (:lung themes)}}]
   [:> bs/Navbar {:bg "light" :expand "md" :fixed "top"
                  :style {:border-bottom "1px solid black"}}
-   [:> (:bs-navbar-brand bs-map) {:href home-url}
+   [:> bs/Navbar.Brand  {:href home-url}
     [:img {:src logo 
            :style {:height 40} :alt "NHS"}]]
    [:> bs/Navbar.Text [:span {:style {:margin-left 20 :font-size "120%" :color (:primary theme)}} 

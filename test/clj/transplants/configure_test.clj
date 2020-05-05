@@ -22,6 +22,11 @@
     (is (= (cfg/get-column-selection :kidney :waiting-inputs) {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}))
     ))
 
+(deftest bundles
+  (testing "bundles exist in config"
+    (is (= (cfg/get-bundles :kidney :graft) [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]))))
+
+
 (defn rectangular [organ sheet]
   (let [variables (c/get-variables :kidney :waiting-baseline-cifs)
         lengths (map count (vals variables))]

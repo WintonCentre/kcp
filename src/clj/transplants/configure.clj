@@ -1,21 +1,30 @@
 (ns transplants.configure
+  "Spreadsheet reader, checker, and csv or edn export according to config.edn configuration.
+ There are 2 sources of data for the transplants apps
+ 1) The app configuration file `config.edn` which specifies the format of the spreadsheet
+ 2) The workbook containing the model for that organ
+
+ Clearly, the spreadsheet format must agree with that in the app configuration file. We provided a large number of
+ tests to check this, but these can be extended at will. 
+ 
+ The configuration edn readers are in a separate workspace (alias cfg) to those that read the spreadsheet."
+
   (:import [org.apache.poi.ss.usermodel Workbook Sheet Cell Row])
-  (:require 
+  (:require
    [aero.core :as aero]
    [dk.ative.docjure.spreadsheet :as xls]
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.data.csv :as csv]
    [transplants.utils :as utils]
-   [transplants.config :as cfg]
-   ))
+   [transplants.config :as cfg]))
 
 (def slash java.io.File/separator)
 
 (comment
   ;;;
   ;; following is a docjure example. Keep as a quick check on setup, but it's not used here as it 
-  ;; does not respect the edn configuration file
+  ;; does not respect the application edn configuration file
   
   (defn read-table
     "Read in non-null rows of data from columns in a spreadsheet.
@@ -32,15 +41,7 @@
          (xls/select-columns columns)
          (drop header-rows))))
 
-;;;
-; spreadsheet configuration.
-; There are 2 sources of data for the transplants apps
-; 1) The configuration file `config.edn`
-; 2) The workbook containing the model for that organ
-;
-; These 2 should agree on certain details - typically those highlighted in orange in the spreadsheet
-; To avoid confusion we'll put config data readers in a separate workspace.
-;;;
+
 
 (defn get-workbook
   "Read in xlsx workbook for an organ"
@@ -74,6 +75,7 @@
   (->> (memo-workbook organ)
        (xls/select-sheet (name sheet-key))
        (xls/select-columns (cfg/get-column-selection organ sheet-key))))
+
 (comment
   (get-row-maps :kidney :waiting-baseline-vars)
   ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
@@ -232,20 +234,69 @@
   (defn export
     "Write out organ data using a write function wf. wf is typically write-csv or write-edn."
     [wf organ]
-    #_(let [sheets {:kidney [:waiting-baseline-cifs
-                             :waiting-baseline-vars
-                             :waiting-inputs
-                             :graft-baseline-cifs
-                             :graft-baseline-vars
-                             :graft-inputs
-                             :survival-baseline-cifs
-                             :survival-baseline-vars
-                             :survival-inputs
-                             :bmi-calculator]
-                    :lung []}])
     (doseq [s (get-sheet-names organ)]
       (println "calling wf on " organ " to write " s)
       (wf organ s)))
+
+
+(defn centre-row-maps
+  "Return row-maps, filtered by a list of centres if centres"
+  [organ sheet-key centre]
+  (let [cset (into #{} centre)
+        row-maps (get-row-maps organ sheet-key)
+        header-map (first row-maps)
+        header-set (into #{} (keys header-map))
+        f #(if (contains? header-set :centre)
+             (= (:centre %) centre)
+             (constantly true)
+             )
+        ]
+    (cons header-map (filter f (rest row-maps))))
+  )
+
+(defn centre-columns
+  "Convert from row-map form to column variable form"
+  [organ sheet-key centre]
+  (let [rows (centre-row-maps organ sheet-key centre)
+        headers (keys (first rows))]
+    (utils/transpose (map (apply juxt headers) rows)))
+  )
+
+(defn columns->variables
+  "columns including a header in row 1, converted "
+  [columns]
+  (into {} (map (fn [col] [(first col) (rest col)]) columns))
+  )
+
+
+(comment
+  (rest (get-row-maps :kidney :survival-baseline-cifs))
+  (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
+  (centre-columns :kidney :survival-baseline-cifs  "Belfast")
+  (columns->variables (centre-columns :kidney :survival-baseline-cifs  "Belfast"))
+  (centre-columns :kidney :waiting-baseline-cifs "Belfast")
+  (cfg/get-bundle :kidney :waiting)
+  )
+
+
+(defn collect-tool-bundle
+  "Collect together an export bundle for a tool. Arity 3 filters this by a list of centres"
+
+  ([organ tool-key]
+   (collect-tool-bundle organ tool-key))
+
+  ([organ tool-key centre]
+   (into {}
+         (for [sheet-key (cfg/get-bundle organ tool-key)]
+           [sheet-key (centre-columns organ sheet-key centre)]))))
+
+(comment
+  (collect-tool-bundle :kidney :waiting "Belfast")
+  )
+
+(defn export-tool-bundles
+  "Collect and export all tool bundles for a list of centres"
+  [organ ])
 
 (defn main
   "Main entry point. This function uses export to read the spreadsheets and write out edn and csv files.
@@ -261,8 +312,11 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 
 
   (get-sheet-names :lung)
-  (get-all-rows :kidney :waiting-inputs)
-  (get-row-maps :kidney :waiting-inputs)
+  (get-rows :kidney :waiting-baseline-cifs)
+  (get-row-maps :kidney :waiting-baseline-cifs)
+  
+  (get-rows :kidney :waiting-baseline-vars)
+  
   (cfg/get-variable-keys :kidney :waiting-inputs)
 
   (def cfg  (cfg/memo-config :kidney))

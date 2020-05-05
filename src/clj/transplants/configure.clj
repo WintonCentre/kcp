@@ -22,6 +22,8 @@
 (def slash java.io.File/separator)
 
 (comment
+
+  
   ;;;
   ;; following is a docjure example. Keep as a quick check on setup, but it's not used here as it 
   ;; does not respect the application edn configuration file
@@ -283,15 +285,59 @@
   "Collect together an export bundle for a tool. Arity 3 filters this by a list of centres"
 
   ([organ tool-key]
-   (collect-tool-bundle organ tool-key))
+   (collect-tool-bundle organ tool-key nil))
 
   ([organ tool-key centre]
    (into {}
          (for [sheet-key (cfg/get-bundle organ tool-key)]
            [sheet-key (centre-columns organ sheet-key centre)]))))
 
+#_(let [cfg (cfg/memo-config organ)
+      f (io/file (str (get-in cfg [:export :edn-path]) slash (name sheet-key) ".edn"))
+       ; headers (map #(str ":" (name %)) (get-header organ sheet-key))
+      variables (get-variables organ sheet-key)]
+  (io/make-parents f)
+  (spit f variables))
+
+(defn underscore 
+  "replace special chars in file paths with underscore"
+  [s] 
+  (string/replace s #"-|\s+|'|\." "_"))
+
+(defn bundle-path
+  [organ tool-key centre]
+  (str (get-in (cfg/memo-config organ) [:export :edn-path])
+       slash (underscore (name tool-key))
+       (if centre
+         (str slash (underscore centre) ".edn")
+         ".edn")))
 (comment
-  (collect-tool-bundle :kidney :waiting "Belfast")
+
+  (bundle-path :lung :post-transplant "St. George's")
+  (io/make-parents (io/file (bundle-path :kidney :waiting "Edinburgh")))
+  )
+
+(defn write-edn-bundle
+  "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres."
+  ([organ tool-key]
+   (write-edn-bundle organ tool-key nil))
+  
+  ([organ tool-key centre]
+   (let [f (io/file (bundle-path organ tool-key centre))]
+     (io/make-parents f)
+     (spit f (collect-tool-bundle organ tool-key centre))
+     )
+   ))
+
+(comment
+  (keys (collect-tool-bundle :lung :post-transplant "Edinburgh"))
+  
+  (write-edn-bundle :kidney :waiting "Edinburgh")
+
+  ; All 
+  (for [sheet-key (keys (collect-tool-bundle :kidney :survival "Edinburgh"))]
+    (apply = (map count (sheet-key (collect-tool-bundle :kidney :survival "Edinburgh")))))
+  
   )
 
 (defn export-tool-bundles

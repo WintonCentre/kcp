@@ -53,14 +53,16 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
   [{:keys [value-k value-f event-f buttons-f]}]
   [:div
-   (into [:> bs/ToggleButtonGroup
-          {:type "radio"
-           :name value-k
-           :value (value-f)
-           :on-change #(event-f value-k %)
-           :style  {:border (str "3px solid " (if (nil? (value-f)) "pink" "white"))
-                    :padding 1}}
-          ]
-         (map (fn [{:keys [label level disabled]}]
-                [:> bs/ToggleButton {:key level :disabled disabled :value level} label])
-              (buttons-f)))])
+   (let [value (value-f)]
+     (into [:> bs/ToggleButtonGroup
+            {:type "radio"
+             :name value-k
+             :value value
+             :on-change #(event-f value-k %)
+             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
+                      :border-radius 5
+                      :padding 1}}
+            ]
+           (map (fn [{:keys [label level disabled]}]
+                  [:> bs/ToggleButton {:key level :disabled disabled :value level} label])
+                (buttons-f))))])

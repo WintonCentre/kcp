@@ -46,7 +46,7 @@
      :link-text "Waiting"
      :controllers [{:start (fn [& params]
                              (js/console.log "Start Waiting")
-                             (rf/dispatch [::events/load-waiting-data]))
+                             #_(rf/dispatch [::events/load-waiting-data :tool-key]))
                     :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
    ["Surviving" {:name      ::views/surviving
                  :view      views/surviving

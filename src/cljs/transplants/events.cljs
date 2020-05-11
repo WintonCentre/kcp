@@ -22,13 +22,16 @@
  (fn [db [_ new-match]]
    (assoc db :current-route new-match)))
 
+;;
+;; Load data sequences
+;; 
 ;;; Waiting tool ;;;
-(rf/reg-event-fx
+#_(rf/reg-event-fx
  ::load-waiting-data
- (fn [{:keys [db]} [_ [tool-key route]] ]
+ (fn [{:keys [db]} [_ [tool-key]]]
             (if (nil? (get db tool-key))
                 {:dispatch [::load tool-key route]}
-                {::fx/navigate! route})))
+                )))
 
 
 

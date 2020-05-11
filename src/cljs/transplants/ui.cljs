@@ -90,23 +90,19 @@ It works but application and generic navbar code need to be separated."
 (def button (rc/adapt-react-class bs/Button))
 
 (defn page
-  [children]
-  [container {:style {:min-height "calc(100vh - 160px"}}           ;todo: There's probably a flexbox way to do this
-   children])
+  [title & children]
+  [container {:key 1 :style {:min-height "calc(100vh - 160px"}}  
+   [row
+    [col
+     [:h1 title]
+     (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
-(defn two-panels
-  [col1 col2]
-  [row
-   [col1]
-   [col2]])
 
-(defn inputs-panel
-  []
-  [col
-   [:h2 "Inputs"]])
+(defn titled-panel
+  [title & children]
+  [:<>
+   [:h2 title]
+   (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))])
 
-(defn results-panel
-  []
-  [col
-   [:h2 "Results"]])
+
 

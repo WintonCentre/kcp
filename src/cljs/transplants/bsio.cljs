@@ -2,7 +2,7 @@
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
 where we can work on defining a common interface. 
 "
-  ["react-bootstrap" :as bs])
+  (:require ["react-bootstrap" :as bs]))
 
 (comment
   
@@ -48,4 +48,19 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
       [:input {:type "text" :value (value-f) :on-change handle-change}])))
           
           
-
+(defn radio-button-group
+  "Add in correct toggle operation. 
+   Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
+  [{:keys [value-k value-f event-f buttons-f]}]
+  [:div
+   (into [:> bs/ToggleButtonGroup
+          {:type "radio"
+           :name value-k
+           :value (value-f)
+           :on-change #(event-f value-k %)
+           :style  {:border (str "3px solid " (if (nil? (value-f)) "pink" "white"))
+                    :padding 1}}
+          ]
+         (map (fn [{:keys [label level disabled]}]
+                [:> bs/ToggleButton {:key level :disabled disabled :value level} label])
+              (buttons-f)))])

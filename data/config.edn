@@ -64,7 +64,9 @@
                                              :sub-text {:column :J
                                                         :match "sub"}
                                              :info-box? {:column :K
-                                                         :match "info"}}
+                                                         :match "info"}
+                                             :order {:column :L
+                                                     :match "order"}}
 
                             :graft-baseline-cifs {:centre {:column :A
                                                            :match "centre"}
@@ -93,7 +95,9 @@
                                            :sub-text {:column :G
                                                       :match "sub-text"}
                                            :info-box? {:column :H
-                                                       :match "info"}}
+                                                       :match "info"}
+                                           :order {:column :I
+                                                   :match "order"}}
                             :bmi-calculator {:label {:column :A
                                                      :match "label"}
                                              :factor {:column :B
@@ -133,7 +137,9 @@
                                               :sub-text {:column :G
                                                          :match "sub-text"}
                                               :info-box? {:column :H
-                                                          :match "info"}}}
+                                                          :match "info"}
+                                              :order {:column :I
+                                                      :match "order"}}}
                    :lung {:waiting-baseline-cifs {:centre {:column :A
                                                            :match "cent"}
                                                   :days {:column :B
@@ -173,7 +179,9 @@
                                            :sub-text {:column :J
                                                       :match "sub"}
                                            :info-box? {:column :K
-                                                       :match "info"}}
+                                                       :match "info"}
+                                           :order {:column :L
+                                                   :match "order"}}
 
                           :numerics {:model {:column :A
                                              :match "model"}
@@ -220,7 +228,9 @@
                                                    :sub-text {:column :G
                                                               :match "sub-text"}
                                                    :info-box? {:column :H
-                                                               :match "info"}}
+                                                               :match "info"}
+                                                   :order {:column :I
+                                                           :match "order"}}
 
                           :from-listing-baseline-cifs {:centre {:column :A
                                                                 :match "centre"}
@@ -247,4 +257,6 @@
                                                 :sub-text {:column :G
                                                            :match "sub-text"}
                                                 :info-box? {:column :H
-                                                            :match "info"}}}}} 
+                                                            :match "info"}
+                                                :order {:column :I
+                                                        :match "order"}}}}} 

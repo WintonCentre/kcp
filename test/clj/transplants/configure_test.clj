@@ -16,15 +16,26 @@
 
 (deftest config-file
   (testing "config-edn makes sense"
-    (is (= (cfg/get-sheet-spec :kidney :waiting-inputs) {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :D, :match "level"}, :button-labels {:column :B, :match "(level)|(button)"}, :factor {:column :C, :match "factor"}, :label {:column :A, :match "(Factor)|(label)"}}))
-    (is (= (cfg/get-columns :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)))
-    (is (= (cfg/get-variable-keys :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)) )
-    (is (= (cfg/get-column-selection :kidney :waiting-inputs) {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}))
+    (is (= (cfg/get-sheet-spec :kidney :waiting-inputs) {:beta-all-reasons {:column :H, :match "all"}
+                                                         :beta-death {:column :G, :match "death"}
+                                                         :beta-removal {:column :F, :match "remov"}
+                                                         :beta-transplant {:column :E, :match "transplant"}
+                                                         :button-labels {:column :B, :match "(level)|(button)"}
+                                                         :factor {:column :C, :match "factor"}
+                                                         :info-box? {:column :K, :match "info"}
+                                                         :label {:column :A, :match "(Factor)|(label)"}
+                                                         :level {:column :D, :match "level"}
+                                                         :order {:column :L, :match "order"}
+                                                         :sub-text {:column :J, :match "sub"}
+                                                         :type {:column :I, :match "type"}}))
+    (is (= (cfg/get-columns :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box? :order)))
+    (is (= (cfg/get-variable-keys :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box? :order)) )
+    (is (= (cfg/get-column-selection :kidney :waiting-inputs) {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?, :L :order}))
     ))
 
 (deftest bundles
   (testing "bundles exist in config"
-    (is (= (cfg/get-bundles :kidney :graft) [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]))))
+    (is (= (cfg/get-bundle :kidney :graft) [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]))))
 
 
 (defn rectangular [organ sheet]
@@ -57,20 +68,21 @@
   We could use a re match instead if we wanted to
   be less fussy. This would be the place to implement re matching."
   [organ sheet]
-  (is (= (cfg/get-variable-keys organ sheet) 
-         (c/get-header organ sheet)) sheet))
+  (= (cfg/get-variable-keys organ sheet) 
+     (c/get-header organ sheet)) sheet)
+
 
 (deftest kidney-variables-check
   (testing "configured variables are spreadsheet headers"
-    (configured-headers :kidney :waiting-baseline-cifs)
-    (configured-headers :kidney :waiting-baseline-vars)
-    (configured-headers :kidney :waiting-inputs)
-    (configured-headers :kidney :graft-baseline-cifs)
-    (configured-headers :kidney :graft-baseline-vars)
-    (configured-headers :kidney :graft-inputs)
-    (configured-headers :kidney :survival-baseline-cifs) 
-    (configured-headers :kidney :survival-baseline-vars)
-    (configured-headers :kidney :survival-inputs)))
+    (is (configured-headers :kidney :waiting-baseline-cifs))
+    (is (configured-headers :kidney :waiting-baseline-vars))
+    (is (configured-headers :kidney :waiting-inputs))
+    (is (configured-headers :kidney :graft-baseline-cifs))
+    (is (configured-headers :kidney :graft-baseline-vars))
+    (is (configured-headers :kidney :graft-inputs))
+    (is (configured-headers :kidney :survival-baseline-cifs)) 
+    (is (configured-headers :kidney :survival-baseline-vars))
+    (is (configured-headers :kidney :survival-inputs))))
 
 (defn check-factors
   [organ sheet-prefix] 

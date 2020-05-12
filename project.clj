@@ -26,8 +26,11 @@
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
                              :linux   "xdg-open"}}}
+  
+  :main "transplants.configure/-main"
 
   :aliases {"check" ["with-profile" "configure" "auto" "eftest"]
+            "config" ["with-profile" "configure" "do" "run" "-m" "transplants.configure"]
             "dev"          ["with-profile" "dev" "do"
                             ["run" "-m" "shadow.cljs.devtools.cli" "watch" "app"]]
             "example"          ["with-profile" "dev" "do"

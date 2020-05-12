@@ -1,5 +1,7 @@
 /out/
 /resources/public/js/compiled/
+/resources/public/kidney
+/resources/public/lung
 /target/
 /*-init.clj
 /*.log

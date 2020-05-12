@@ -10,11 +10,11 @@
 {:workbook #profile {:kidney "data/kidney-models-master.xlsx"
                      :lung "data/lung-models-master.xlsx"}
 
- :export #profile {:kidney {:csv-path "data/kidney/csv"
-                            :edn-path "data/kidney/edn"}
-                   :lung {:csv-path "data/lung/csv"
-                          :edn-path "data/lung/edn"}}
- 
+ :export #profile {:kidney {:csv-path "resources/public/kidney/csv"
+                            :edn-path "resources/public/kidney/edn"}
+                   :lung {:csv-path "resources/public/lung/csv"
+                          :edn-path "resources/public/lung/edn"}}
+ ;
  ; Configuration files may also be exported in bundles appropriate for embedded tools. 
  ; Baseline cifs may be filtered by centre.
  ; 

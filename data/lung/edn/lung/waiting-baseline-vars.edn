@@ -1,1 +1,0 @@
-{:baseline-factor (:thoracotomy :sex :nyha-class :blood-group :d-gp :dd-pred :in-hosp :ethnicity :bmi :fvc :age :bilirubin :ethnicity :centre-d-gp :centre), :baseline-level (:yes :female :4 :AB :copd :>=15 :yes :non-white 23.0224 1.9 51.0 9.0 :non-white :unused :unused)}

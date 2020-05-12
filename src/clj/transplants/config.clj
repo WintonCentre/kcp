@@ -22,6 +22,7 @@
 (defn get-sheet-spec
   "get sheet spec given sheet-key"
   [organ sheet-key]
+  ;(println "sheet-key" sheet-key)
   (if-let [sheet (get-in (memo-config organ) [:sheets sheet-key])]
     sheet
     (throw (ex-info "Unable to read sheet"
@@ -29,10 +30,27 @@
                      :organ organ
                      :sheet sheet-key}))))
 
+(comment
+  (get-in (memo-config :lung) [:sheets nil])
+  )
+
 (defn get-bundle
-  "Return the bundles of sheet-keys associated with a tool"
-  [organ tool-key]
-  (get-in (memo-config organ) [:bundles tool-key]))
+  "Return the bundles of sheet-keys associated with a tool, or if no tool is given, returns a map of
+   tool-key bundles"
+  ([organ]
+   (get-bundle organ nil))
+  ([organ tool-key]
+   (let [bs (get (memo-config organ) :bundles)]
+     (if tool-key
+       (into {} [(find bs tool-key)])
+       bs #_(flatten (vals bs)))
+     #_(get-in (memo-config organ) 
+               [:bundles tool-key]))))
+
+(comment
+  (get-bundle :kidney)
+  (get-bundle :kidney :waiting)
+  )
 
 (defn get-column-selection
   "Return a map of columns suitable for docjure select-columns. Column order may not be preserved in the map."

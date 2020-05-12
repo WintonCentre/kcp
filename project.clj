@@ -1,10 +1,10 @@
 (defproject transplants "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/clojurescript "1.10.597"
+                 [org.clojure/clojurescript "1.10.758"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs "2.8.94"]
+                 [thheller/shadow-cljs "2.9.2"]
                  [reagent "0.9.1"]
                  [re-frame "0.11.0"]
                  [metosin/reitit "0.4.2"]

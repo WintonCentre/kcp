@@ -8,6 +8,9 @@
                  [reagent "0.9.1"]
                  [re-frame "0.11.0"]
                  [metosin/reitit "0.4.2"]
+                 [reagent "1.0.0-alpha1"]
+                 [re-frame "0.12.0"]
+                 [metosin/reitit "0.4.2"]
                  [cljs-ajax "0.7.3"]]
 
   :plugins [[lein-shell "0.5.0"]

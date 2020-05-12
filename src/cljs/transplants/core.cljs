@@ -1,6 +1,7 @@
 (ns transplants.core
   (:require
    [reagent.core :as reagent]
+   [reagent.dom :as rd]
    [re-frame.core :as rf]
    [transplants.routes :as routes]
    [transplants.events :as events]
@@ -19,7 +20,7 @@
 (defn mount-root []
   (rf/clear-subscription-cache!)
   (routes/init-routes!) ;; Reset routes on figwheel reload
-  (reagent/render [ui/root-component {:router routes/router
+  (rd/render [ui/root-component {:router routes/router
                                       :subscribe-current-route #(rf/subscribe [::subs/current-route])}]
                   (.getElementById js/document "app")))
 

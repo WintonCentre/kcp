@@ -27,6 +27,7 @@
                     :start (fn [& params] (js/console.log "Entering Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
+   
    ["About"
     {:view      views/about
      :link-text "About"
@@ -40,6 +41,7 @@
       :controllers
       [{:start (fn [& params] (js/console.log "Entering About/Technical"))
         :stop  (fn [& params] (js/console.log "Leaving About/Technical"))}]}]]
+   
    ["Waiting"
     {:name      ::views/waiting
      :view      views/waiting
@@ -48,6 +50,7 @@
                              (js/console.log "Start Waiting")
                              #_(rf/dispatch [::events/load-waiting-data :tool-key]))
                     :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
+   
    ["Surviving" {:name      ::views/surviving
                  :view      views/surviving
                  :link-text "Surviving"
@@ -74,3 +77,7 @@
    router
    on-navigate
    {:use-fragment false}))
+
+(comment 
+  routes
+  )

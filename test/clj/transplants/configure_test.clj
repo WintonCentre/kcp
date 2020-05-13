@@ -35,7 +35,7 @@
 
 (deftest bundles
   (testing "bundles exist in config"
-    (is (= (cfg/get-bundle :kidney :graft) [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]))))
+    (is (= (cfg/get-bundle :kidney :graft) {:graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]}))))
 
 
 (defn rectangular [organ sheet]

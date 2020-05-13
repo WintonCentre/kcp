@@ -55,11 +55,12 @@ It works but application and generic navbar code need to be separated."
           (for [route-name (r/route-names router)
                 :let       [route (r/match-by-name router route-name)
                             text (-> route :data :link-text)]]
-            [:> bs/Nav.Link
-             {:class (if (= route-name (-> current-route :data :name)) "active" "")
-              :href (href route-name)
-              :key  route-name}
-             text]))]])
+            (do (println route)
+                [:> bs/Nav.Link
+                 {:class (if (= route-name (-> current-route :data :name)) "active" "")
+                  :href (href route-name)
+                  :key  route-name}
+                 text])))]])
 
 (defn footer []
   [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"

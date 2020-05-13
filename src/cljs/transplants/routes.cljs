@@ -27,20 +27,21 @@
                     :start (fn [& params] (js/console.log "Entering Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
-   
+
    ["About"
-    {:view      views/about
+    {:name ::views/about
+     :view      views/about
      :link-text "About"
      :controllers [{:start (fn [& params] (js/console.log "Entering About"))
-                    :stop  (fn [& params] (js/console.log "Leaving About"))}]}
-    ["" {:name ::views/about}]
-    ["Technical"
-     {:name      ::views/about-technical
-      :view      views/about-technical
-      :link-text "Technical"
-      :controllers
-      [{:start (fn [& params] (js/console.log "Entering About/Technical"))
-        :stop  (fn [& params] (js/console.log "Leaving About/Technical"))}]}]]
+                    :stop  (fn [& params] (js/console.log "Leaving About"))}]}]
+
+   ["Technical"
+    {:name      ::views/about-technical
+     :view      views/about-technical
+     :link-text "Technical"
+     :controllers
+     [{:start (fn [& params] (js/console.log "Entering About/Technical"))
+       :stop  (fn [& params] (js/console.log "Leaving About/Technical"))}]}]
    
    ["Waiting"
     {:name      ::views/waiting

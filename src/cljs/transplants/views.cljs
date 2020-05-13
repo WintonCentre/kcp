@@ -40,8 +40,7 @@
   "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
 In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
   []
-  [page
-   [:h1 "Technical"]])
+  [page "Technical"])
 
 
 (defonce sex (rc/atom nil))

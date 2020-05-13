@@ -16,17 +16,17 @@
 ;;; Views ;;;
 (defn home-page []
   [page "Home"
-   [button {:variant "primary"
+   #_[button {:variant "primary"
     ;; Dispatch navigate event that triggers a (side)effect.
             :key 1
             :on-click #(rf/dispatch [::events/navigate ::waiting])}
     "Waiting Time Tool"]
-   [button {:variant "secondary"
+   #_[button {:variant "secondary"
     ;; Dispatch navigate event that triggers a (side)effect.
             :key 2
             :on-click #(rf/dispatch [::events/navigate ::surviving])}
     "Survival Time Tool"]
-   (dev-utils/lorem-many 20)
+   #_(dev-utils/lorem-many 20)
    ])
 
 (defn sub-page1 []

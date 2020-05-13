@@ -33,6 +33,20 @@
   
   :main "transplants.configure/-main"
   
+  :npm-deps {"bootstrap" "^4.5.0"
+             "highlight.js" "9.15.10"
+             "react" "16.13.0"
+             "react-bootstrap" "^1.0.1"
+             "react-dom" "16.13.0"
+             ;"react-highlight.js" "1.0.7"
+             ;"react-router-dom" "^5.2.0"
+             }
+  :npm-dev-deps {"shadow-cljs"           "2.9.2"
+                 "karma"                 "4.4.1"
+                 "karma-chrome-launcher" "3.1.0"
+                 "karma-cljs-test"       "0.1.0"
+                 "karma-junit-reporter"  "2.0.1"}
+  
   :shadow-cljs {:nrepl {:port 8777}
 
                 :builds {:app {:target :browser
@@ -42,7 +56,8 @@
                                                :preloads [devtools.preload]}}
                                :dev {:compiler-options {:closure-defines {goog.DEBUG true}}}
                                :devtools {:http-root "resources/public"
-                                          :http-port 8280}}
+                                          :http-port 8280
+                                          :after-load transplants.core/init}}
                          :browser-test
                          {:target :browser-test
                           :ns-regexp "-test$"

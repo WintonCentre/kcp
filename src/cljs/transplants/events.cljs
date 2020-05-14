@@ -2,13 +2,14 @@
   (:require
    [re-frame.core :as rf]
    [transplants.fx :as fx]
-   [transplants.db :as db]))
+   [transplants.db :as db]
+   [day8.re-frame.tracing :refer-macros [fn-traced]]))
 
 ;;; Events ;;;
 
 (rf/reg-event-db
  ::initialize-db
- (fn [_ _]
+ (fn-traced [_ _]
    {:current-route nil}))
 
 (rf/reg-event-fx

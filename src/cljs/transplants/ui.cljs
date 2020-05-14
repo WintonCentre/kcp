@@ -49,20 +49,19 @@ It works but application and generic navbar code need to be separated."
    [:> bs/Navbar.Brand  {:href home-url}
     [:img {:src logo 
            :style {:height 40} :alt "NHS"}]]
-   [:> bs/Navbar.Text [:span {:style {:margin-left 20 :font-size "120%" :color (:primary theme)}} 
-                       (:name theme)]]
+   #_[:> bs/Navbar.Text [:span {:style {:font-size "120%" :color (:primary theme)}} 
+                       "Trac Tool"#_(:name theme)]]
    [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
    [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
     (into [:> bs/Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
           (for [route-name (r/route-names router)
                 :let       [route (r/match-by-name router route-name)
                             text (-> route :data :link-text)]]
-            (do (println route)
-                [:> bs/Nav.Link
-                 {:class (if (= route-name (-> current-route :data :name)) "active" "")
-                  :href (href route-name)
-                  :key  route-name}
-                 text])))]])
+            [:> bs/Nav.Link
+             {:class (if (= route-name (-> current-route :data :name)) "active" "")
+              :href (href route-name)
+              :key  route-name}
+             text]))]])
 
 (defn footer []
   [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"
@@ -130,7 +129,9 @@ It works but application and generic navbar code need to be separated."
 
 (defn page
   [title & children]
-  [container {:key 1 :style {:min-height "calc(100vh - 160px"}}  
+  [container {:key 1 :style {:min-height "calc(100vh - 180px"
+                             :background-color "#ffffffbb"
+                             :margin-bottom 20}}  
    [row
     [col
      [:h1 title]

@@ -19,13 +19,32 @@
    [""
     {:name      ::views/home
      :view      views/home-page
-     :link-text "Home"
+     :link-text "Trac tools"
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (js/console.log "Entering Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
 
+   ["lung"
+    {:name      ::views/lung
+     :view      views/lung-home
+     :link-text "Lung"
+     :controllers [{;; Do whatever initialization needed for home page
+       ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
+                    :start (fn [& params] (js/console.log "Entering Lung Home"))
+       ;; Teardown can be done here.
+                    :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]
+   
+   ["kidney"
+    {:name      ::views/kidney
+     :view      views/kidney-home
+     :link-text "Kidney"
+     :controllers [{;; Do whatever initialization needed for home page
+       ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
+                    :start (fn [& params] (js/console.log "Entering Lung Home"))
+       ;; Teardown can be done here.
+                    :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]
    ["About"
     {:name ::views/about
      :view      views/about
@@ -33,16 +52,8 @@
      :controllers [{:start (fn [& params] (js/console.log "Entering About"))
                     :stop  (fn [& params] (js/console.log "Leaving About"))}]}]
 
-   #_["Technical"
-    {:name      ::views/about-technical
-     :view      views/about-technical
-     :link-text "Technical"
-     :controllers
-     [{:start (fn [& params] (js/console.log "Entering About/Technical"))
-       :stop  (fn [& params] (js/console.log "Leaving About/Technical"))}]}]
-   
    ["Waiting"
-    {:name      :waiting
+    {:name      ::views/waiting
      :view      views/waiting
      :link-text "Competing Risks"
      :controllers [{:start (fn [& params]
@@ -50,7 +61,7 @@
                              #_(rf/dispatch [::events/load-waiting-data :tool-key]))
                     :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
    
-   ["Surviving" {:name      :surviving
+   ["Surviving" {:name      ::views/surviving
                  :view      views/surviving
                  :link-text "Survival"
                  :controllers

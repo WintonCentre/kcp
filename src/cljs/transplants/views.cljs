@@ -3,29 +3,55 @@
    
    [reagent.core :as rc]
    [re-frame.core :as rf]
+   ["react-bootstrap" :as bs]
    [transplants.dev-utils :as dev-utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
-   (transplants.bsio :as bsio :refer [radio-button-group])
-   (transplants.ui :as ui :refer [page
+   [transplants.bsio :as bsio :refer [radio-button-group]]
+   [transplants.ui :as ui :refer [page
                                   row
                                   col
-                                  button])
+                                  button]]
    ))
 
 ;;; Views ;;;
 (defn home-page []
-  [page "Home"
+  [ui/card-page "Choose your transplant centre"
+   
+   [:> bs/CardDeck
+    [ui/nav-card {:img-src "https://srmrc.nihr.ac.uk/wp-content/uploads/o-BIRMINGHAM-HOSPITAL-facebook-1024x576.jpg"
+                  :organ :lung
+                  :centre "Birmingham"
+                  :hospital "Queen Elizabeth's Hospital"}]
+    [ui/nav-card {:img-src "https://royalpapworth.nhs.uk/application/files/cache/thumbnails/bc01df4e4f94ceb3d51f4f5d4a307160.jpg"
+                  :organ :lung
+                  :centre "Papworth"
+                  :hospital "Royal Papworth Hospital"}]
+    [ui/nav-card {:img-src "https://www.rbht.nhs.uk/sites/nhs/files/styles/teaser_image_16_9/public/Teasers/khp-1.jpg?h=88299694&itok=AzFNmBQH"
+                  :organ :lung
+                  :centre "Harefield"
+                  :hospital "Harefield Hospital"}]
+    [ui/nav-card {:img-src "http://www.newcastle-hospitals.org.uk/Freeman_External_1.jpg"
+                  :organ :lung
+                  :centre "Newcastle"
+                  :hospital "Institute of Transplantation"}]
+    [ui/nav-card {:img-src "https://upload.wikimedia.org/wikipedia/commons/2/2d/UHSMentrance.jpg"
+                  :organ :lung
+                  :centre "Manchester"
+                  :hospital "University Hospital"}]
+    ]
+   
+   
    #_[button {:variant "primary"
     ;; Dispatch navigate event that triggers a (side)effect.
-            :key 1
-            :on-click #(rf/dispatch [::events/navigate ::waiting])}
-    "Waiting Time Tool"]
+              :key 1
+              :on-click #(rf/dispatch [::events/navigate ::waiting])}
+      "Waiting Time Tool"]
    #_[button {:variant "secondary"
     ;; Dispatch navigate event that triggers a (side)effect.
-            :key 2
-            :on-click #(rf/dispatch [::events/navigate ::surviving])}
-    "Survival Time Tool"]
+              :key 2
+              :on-click #(rf/dispatch [::events/navigate ::surviving])}
+      "Survival Time Tool"]
    #_(dev-utils/lorem-many 20)
    ])
 

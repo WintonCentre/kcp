@@ -13,8 +13,6 @@
    ["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                      Nav Nav.Link]])) 
 
-;;; Routes ;;;
-
 
 (def routes
   ["/"
@@ -35,7 +33,7 @@
      :controllers [{:start (fn [& params] (js/console.log "Entering About"))
                     :stop  (fn [& params] (js/console.log "Leaving About"))}]}]
 
-   ["Technical"
+   #_["Technical"
     {:name      ::views/about-technical
      :view      views/about-technical
      :link-text "Technical"
@@ -44,17 +42,17 @@
        :stop  (fn [& params] (js/console.log "Leaving About/Technical"))}]}]
    
    ["Waiting"
-    {:name      ::views/waiting
+    {:name      :waiting
      :view      views/waiting
-     :link-text "Waiting"
+     :link-text "Competing Risks"
      :controllers [{:start (fn [& params]
                              (js/console.log "Start Waiting")
                              #_(rf/dispatch [::events/load-waiting-data :tool-key]))
                     :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
    
-   ["Surviving" {:name      ::views/surviving
+   ["Surviving" {:name      :surviving
                  :view      views/surviving
-                 :link-text "Surviving"
+                 :link-text "Survival"
                  :controllers
                  [{:start (fn [& params] (js/console.log "Start Surviving"))
                    :stop  (fn [& params] (js/console.log "Leaving Surving"))}]}]])

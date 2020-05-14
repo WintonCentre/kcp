@@ -4,16 +4,18 @@ the low level ui."
   (:require [reagent.core :as rc]
             [reitit.core :as r]
             [reitit.frontend.easy :as rfe]
-            ["react-bootstrap" :as bs]))
+            ["react-bootstrap" :as bs]
+            [re-frame.core :as rf]
+            [transplants.events :as events]))
 
 (def themes
   "Very provisional colour palette. "
   {:lung {:name "Lung Transplants"
           :organ-logo nil
-          :primary "#608"}
+          :primary "black"}
    :kidney {:name "Kidney Transplants"
             :organ-logo nil
-            :primary "#080"}})
+            :primary "black"}})
 
 (defn href
   "Return relative url for given route. Url can be used in HTML links. Note that k is a route name defined 
@@ -79,7 +81,7 @@ It works but application and generic navbar code need to be separated."
               :tool-name "Lung Transplants"}]
 
      (if current-route
-       [:div {:style {:margin-top "100px"}}
+       [:div {:style {:margin-top "0px" :padding-top 100}}
         [(-> current-route :data :view)]
         [footer]]
        [:div
@@ -89,6 +91,42 @@ It works but application and generic navbar code need to be separated."
 (def col (rc/adapt-react-class bs/Col))
 (def row (rc/adapt-react-class bs/Row))
 (def button (rc/adapt-react-class bs/Button))
+
+(defn card-page
+  [title & children]
+  [container {:key 1 :style {:min-height "calc(100vh - 160px"}}  
+   [row
+    [col
+     [:h2 {:style {:color "#fff" :margin-bottom 30}} title]
+     (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
+
+(defn nav-card
+  [{:keys [img-src organ centre hospital]}]
+  [:> bs/Card {:style {:max-width 300 :min-width 300 :margin-bottom 20}}
+   [:> bs/Card.Img {:variant "top" :src img-src :height 160 :filter "brightness(50%)"}]
+   [:> bs/Card.ImgOverlay 
+    [:> bs/Card.Title {:style {:color "white";"lightblue"
+                               :text-shadow "2px 2px #000"
+                               :font-size "2.5rem"
+                               :font-weight "bold"
+                               }} centre]]
+   [:> bs/Card.Body
+    [:> bs/Card.Title hospital]
+    [:> bs/ButtonGroup {:vertical true}
+     [button {:variant "primary"
+              :style {:margin-bottom 2}
+              :key 1
+              :on-click #(rf/dispatch [::events/navigate :transplants.views/about])}
+      "Consultation Aid"]
+     [button {:variant "primary"
+              :style {:margin-bottom 2}
+              :key 2
+              :on-click #(rf/dispatch [::events/navigate :transplants.views/waiting])}
+      "Competing Risks"]
+     [button {:variant "primary"
+              :key 3
+              :on-click #(rf/dispatch [::events/navigate :transplants.views/surviving])}
+      "Survival"]]]])
 
 (defn page
   [title & children]

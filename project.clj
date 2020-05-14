@@ -38,8 +38,6 @@
              "react" "16.13.0"
              "react-bootstrap" "^1.0.1"
              "react-dom" "16.13.0"
-             ;"react-highlight.js" "1.0.7"
-             ;"react-router-dom" "^5.2.0"
              }
   :npm-dev-deps {"shadow-cljs"           "2.9.2"
                  "karma"                 "4.4.1"

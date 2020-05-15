@@ -219,6 +219,7 @@
        (csv/write-csv writer (list headers))
        (csv/write-csv writer rows)))))
 
+
 (defn sheet-name
   "Dip into the apache xlsx lib to extract a sheet name from the xlsx using its Sheet class"
   [^Sheet s]
@@ -242,6 +243,8 @@
         variables (get-variables organ sheet-key)]
     (io/make-parents f)
     (spit f variables)))
+
+(comment (remove nil? (:name (get-variables :kidney :centres))))
 
 (defn export
   "Write out organ data using a write function wf. wf is typically write-csv or write-edn."
@@ -303,13 +306,13 @@
            ))))
 
 (comment
-  (centre-columns :lung :waiting-baseline-cifs "Papworth")
+  (-> (centre-columns :lung :waiting-baseline-cifs "Papworth") first first)
   (centre-columns :lung :waiting-baseline-cifs nil)
   (cfg/get-bundle :lung :waiting)
   (flatten (vals (cfg/get-bundle :lung nil)))
   (collect-tool-bundle :lung "Papworth" :waiting)
   (collect-tool-bundle :lung "Papworth" nil)
-)
+  )
 
 
 (defn underscore
@@ -350,6 +353,34 @@
   (csv-bundle-path :lung nil nil)
 )
 
+(defn headed-vectors-to-map 
+  "Given a sequence of vectors where the first element of each is a header, convert this to a map keyed by those headers"
+  [hvs]
+  (into {} (map (fn [[h & vs]] [(if (and (string? h) (string/starts-with? h ":")) 
+                                  (keyword (subs h 1)) 
+                                  h) 
+                                vs]) hvs)))
+(comment
+  (headed-vectors-to-map [[":a" 1 2 3] [":b" 4 5 6]])
+  )
+
+(defn collect-mapped-tool-bundle
+  [organ centre tool-key]
+  (->> (collect-tool-bundle organ centre tool-key)
+       (map (fn [[k hvs]] 
+              (println (type k))
+              [(if (and (string? k) (string/starts-with? k ":")) 
+                             (keyword (subs k 1)) 
+                             k) 
+                           (headed-vectors-to-map hvs)]))
+       (into {})))
+(comment
+  (collect-mapped-tool-bundle :lung "Birmingham" :waiting)
+  (string/starts-with? ":centre" ":")
+  (keyword (subs ":centre" 1))
+  (get-in (cfg/memo-config :lung) [:export :edn-path])
+  )
+
 (defn write-edn-bundle
   "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres."
   ([organ]
@@ -359,12 +390,20 @@
    (write-edn-bundle organ centre nil))
 
   ([organ centre tool-key]
-   (let [cf (io/file (centres-path organ))]
+
+   #_(let [cf (io/file (centres-path organ))]
      (io/make-parents cf)
      (spit cf (get-centres organ)))
    (let [f (io/file (bundle-path organ centre tool-key))]
      (io/make-parents f)
-     (spit f (collect-tool-bundle organ centre tool-key)))))
+     (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
+
+(comment
+  (get-centres :lung)
+  (collect-tool-bundle :lung "Birmingham" :waiting)
+  (bundle-path :lung "Birmingham" nil)
+  (bundle-path nil nil nil)
+  )
 
 (defn write-csv-bundle
   "Write out spreadsheets containing sufficient data for one tool. If centre is not given, then enough for all centres."
@@ -390,13 +429,27 @@
   (write-csv-bundle :lung "Papworth" :waiting)
   )
 
+(defn write-centres 
+  [organ]
+  (let [centres (get-variables organ :centres)
+        centres-path (str (get-in (cfg/memo-config organ) [:export :edn-path])
+                          slash "centres.txt")]
+    [centres-path centres]
+    (io/make-parents centres-path)
+    (spit centres-path centres)
+    ))
+
+(write-centres :lung)
+
 (defn export-all-edn-bundles
   []
+  (doseq [organ [:lung :kidney]]
+    (write-centres organ))
+  
   (doseq [organ [:lung :kidney]
           :let [centres (get-centres organ)]
           centre centres]
-    ;(println organ centre)
-    
+
     (write-edn-bundle organ centre)
     (doseq [tool-key (keys (cfg/get-bundle organ))]
       (write-edn-bundle organ centre tool-key))))
@@ -414,12 +467,13 @@
   "Main entry point. This function reads config.edn and the spreadsheets and writes out edn and csv files.
 When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
   [& args]
-  ;(println "Hello World!")
   (export-all-edn-bundles)
   (export-all-csv-bundles))
 ;----------------------------------------------
 ;
 (comment
+
+  
   (-main) ; Run this
   
   (export-all-edn-bundles)

@@ -205,7 +205,7 @@
   ([organ sheet-key]
    (write-csv organ sheet-key true))
   ([organ sheet-key exclude-nil-rows]
-   (println "writing " sheet-key " to " organ)
+   ;(println "writing " sheet-key " to " organ)
    (let [cfg (cfg/memo-config organ)
          f (io/file (str (get-in cfg [:export :csv-path]) slash (name sheet-key) ".csv"))
          headers (map #(str ":" (name %)) (get-header organ sheet-key))
@@ -250,7 +250,7 @@
   "Write out organ data using a write function wf. wf is typically write-csv or write-edn."
   [wf organ]
   (doseq [s (get-sheet-names organ)]
-    (println "calling wf on " organ " to write " s)
+    ;(println "calling wf on " organ " to write " s)
     (wf organ s)))
 
 
@@ -368,7 +368,6 @@
   [organ centre tool-key]
   (->> (collect-tool-bundle organ centre tool-key)
        (map (fn [[k hvs]] 
-              (println (type k))
               [(if (and (string? k) (string/starts-with? k ":")) 
                              (keyword (subs k 1)) 
                              k) 

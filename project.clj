@@ -29,7 +29,7 @@
                              :macosx  "open"
                              :linux   "xdg-open"}}}
   
-  :main "transplants.configure/-main"
+  :main  transplants.configure/-main
   
   :npm-deps {;"bootstrap" "^4.5.0"
              "highlight.js" "9.15.10"
@@ -73,7 +73,7 @@
                           :ns-regexp "-test$"
                           :output-to "target/karma-test.js"}}}
   
- 
+  
   :aliases {"check" ["with-profile" "configure" "auto" "eftest"]
             "config" ["with-profile" "configure" "do" "run" "-m" "transplants.configure"]
             "dev"          ["with-profile" "dev" "do"

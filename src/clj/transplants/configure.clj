@@ -219,8 +219,6 @@
        (csv/write-csv writer (list headers))
        (csv/write-csv writer rows)))))
 
-
-
 (defn sheet-name
   "Dip into the apache xlsx lib to extract a sheet name from the xlsx using its Sheet class"
   [^Sheet s]
@@ -234,7 +232,6 @@
        (map sheet-name)
        (remove #(= "Notes" %))
        (map keyword)))
-
 
 (defn write-edn
   "Read a sheet and spit out an equivalent map of clj variables in edn"
@@ -412,7 +409,7 @@
     (doseq [tool-key (cfg/get-bundle organ)]
       (write-csv-bundle organ centre tool-key))))
 
-
+;-------- MAIN -----------
 (defn -main
   "Main entry point. This function reads config.edn and the spreadsheets and writes out edn and csv files.
 When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
@@ -420,7 +417,8 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   ;(println "Hello World!")
   (export-all-edn-bundles)
   (export-all-csv-bundles))
-
+;----------------------------------------------
+;
 (comment
   (-main) ; Run this
   

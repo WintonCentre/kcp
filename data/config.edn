@@ -18,14 +18,21 @@
  ; Configuration files may also be exported in bundles appropriate for embedded tools. 
  ; Baseline cifs may be filtered by centre.
  ; 
- :bundles #profile {:kidney {:waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
+ :bundles #profile {:kidney {:centres [:centres]
+                             :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                              :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]
                              :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]}
-                    :lung {:waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs :numerics]
+                    :lung {:centres [:centres]
+                           :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs :numerics]
                            :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs :numerics]
                            :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs :numerics]}}
 
- :sheets #profile {:kidney {:waiting-baseline-cifs {:centre {:column :A
+ :sheets #profile {:kidney {:centres {:key {:column :A :match "centres"}
+                                      :name {:column :B :match "name"}
+                                      :link {:column :C :match "link"}
+                                      :image {:column :D :match "image"}
+                                      :description {:column :E :match "desc"}}
+                            :waiting-baseline-cifs {:centre {:column :A
                                                              :match "cent"}
                                                     :days {:column :B
                                                            :match "(time)|(days)|(t)"}
@@ -140,7 +147,12 @@
                                                           :match "info"}
                                               :order {:column :I
                                                       :match "order"}}}
-                   :lung {:waiting-baseline-cifs {:centre {:column :A
+                   :lung {:centres {:key {:column :A :match "centres"}
+                                    :name {:column :B :match "name"}
+                                    :link {:column :C :match "link"}
+                                    :image {:column :D :match "image"}
+                                    :description {:column :E :match "desc"}}
+                          :waiting-baseline-cifs {:centre {:column :A
                                                            :match "cent"}
                                                   :days {:column :B
                                                          :match "(time)|(days)|(t)"}

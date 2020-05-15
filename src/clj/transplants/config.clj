@@ -25,7 +25,7 @@
   ;(println "sheet-key" sheet-key)
   (if-let [sheet (get-in (memo-config organ) [:sheets sheet-key])]
     sheet
-    (throw (ex-info "Unable to read sheet"
+    (throw (ex-info (str "Unable to read sheet " sheet-key)
                     {:cause "sheet name missing?"
                      :organ organ
                      :sheet sheet-key}))))

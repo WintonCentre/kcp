@@ -30,9 +30,10 @@
     {:name      ::views/lung
      :view      views/lung-home
      :link-text "Lung"
-     :controllers [{;; Do whatever initialization needed for home page
-       ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
-                    :start (fn [& params] (js/console.log "Entering Lung Home"))
+     :controllers [{;; Do whatever initialization needed for lung home page
+                    :start (fn [& params]
+                             (rf/dispatch [::events/load-data ["lung/edn/centres.txt" [:lung :centres]]]) ;todo: define path elsewhere
+                             (js/console.log "Entering Lung Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]
    
@@ -41,7 +42,7 @@
      :view      views/kidney-home
      :link-text "Kidney"
      :controllers [{;; Do whatever initialization needed for home page
-       ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
+       ;; I.e (rf/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (js/console.log "Entering Lung Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]

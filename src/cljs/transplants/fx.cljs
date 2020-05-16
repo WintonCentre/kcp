@@ -9,7 +9,7 @@
 ;; Triggering navigation from events.
 ;; k is the route :name as defined in routes/routes
 ;; params are any url parameters
-;; query are any query parameters
+;; query is any query parameters
 (rf/reg-fx
  ::navigate!
  (fn [k params query]
@@ -25,17 +25,17 @@
 
 (defn path-to-tool-data 
   [tool-key]
-  "/numerics.edn"
+  "/lung/edn/centres.txt"
   )
 
-(rf/reg-fx
- ::load
- (fn [[tool-key route]]
-   (let [url (path-to-tool-data tool-key)]
-     (GET url
-       {:error-handler #(js/alert "error loading " url)
-        :handler #(rf/dispatch [:events/navigate route])
-        :format :transit}))))
+
+#_(rf/reg-fx
+ ::get-data
+ (fn [[path data-key]] 
+   (GET path
+     {:error-handler #(js/alert "error loading " path)
+      :handler #(rf/dispatch [:events/navigate route])
+      :format :transit})))
 
 (comment
   ; from predict code

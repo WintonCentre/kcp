@@ -14,6 +14,10 @@
                                   button]]
    ))
 
+(comment
+(rf/dispatch [::events/initialize-db])
+  )
+
 ;;; Views ;;;
 (defn home-page
   []
@@ -42,23 +46,23 @@
      (if-not @ready?
        [:div "loading lung/edn/centres.txt"]
        [:> bs/CardDeck
-        [ui/nav-card {:img-src "https://srmrc.nihr.ac.uk/wp-content/uploads/o-BIRMINGHAM-HOSPITAL-facebook-1024x576.jpg"
+        [ui/nav-card {:img-src "assets/lung/birm.png"
                       :organ :lung
                       :centre "Birmingham"
                       :hospital "Queen Elizabeth's Hospital"}]
-        [ui/nav-card {:img-src "https://royalpapworth.nhs.uk/application/files/cache/thumbnails/bc01df4e4f94ceb3d51f4f5d4a307160.jpg"
+        [ui/nav-card {:img-src "assets/lung/pap.png"
                       :organ :lung
                       :centre "Papworth"
                       :hospital "Royal Papworth Hospital"}]
-        [ui/nav-card {:img-src "https://www.rbht.nhs.uk/sites/nhs/files/styles/teaser_image_16_9/public/Teasers/khp-1.jpg?h=88299694&itok=AzFNmBQH"
+        [ui/nav-card {:img-src "assets/lung/hare.png"
                       :organ :lung
                       :centre "Harefield"
                       :hospital "Harefield Hospital"}]
-        [ui/nav-card {:img-src "http://www.newcastle-hospitals.org.uk/Freeman_External_1.jpg"
+        [ui/nav-card {:img-src "assets/lung/new.png"
                       :organ :lung
                       :centre "Newcastle"
                       :hospital "Institute of Transplantation"}]
-        [ui/nav-card {:img-src "https://upload.wikimedia.org/wikipedia/commons/2/2d/UHSMentrance.jpg"
+        [ui/nav-card {:img-src "assets/lung/man.png"
                       :organ :lung
                       :centre "Manchester"
                       :hospital "University Hospital"}]])]))

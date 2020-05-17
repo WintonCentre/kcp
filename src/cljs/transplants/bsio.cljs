@@ -67,4 +67,21 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                   [:> bs/ToggleButton {:key level :disabled disabled :value level} label])
                 (buttons-f))))])
 
+(comment
+  ; white border when there is a value
+  (:border (:style (nth (second (radio-button-group {:value-k :sex
+                                                     :value-f (fn [] :male)
+                                                     :event-f identity
+                                                     :buttons-f (fn [] [{:key :male :value :male :label "Male"}
+                                                                        {:key :female :value :female :label "Female"}])}))
+                        2)))
+  
+  ; red border when there isn't
+  (:border (:style (nth (second (radio-button-group {:value-k :sex
+                                                     :value-f (fn [] nil)
+                                                     :event-f identity
+                                                     :buttons-f (fn [] [{:key :male :value :male :label "Male"}
+                                                                        {:key :female :value :female :label "Female"}])}))
+                        2)))
+  )
 

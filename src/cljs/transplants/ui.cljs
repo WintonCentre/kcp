@@ -105,7 +105,7 @@ It works but application and generic navbar code need to be separated."
    [:> bs/Card.Img {:variant "top" :src img-src :height 160 :filter "brightness(50%)"}]
    [:> bs/Card.ImgOverlay 
     [:> bs/Card.Title {:style {:color "white";"lightblue"
-                               :text-shadow "2px 2px #000"
+                               ;:text-shadow "2px 2px #000"
                                :font-size "2.5rem"
                                :font-weight "bold"
                                }} centre]]

@@ -8,8 +8,11 @@
                  [reagent "0.10.0"]
                  [re-frame "0.12.0"]
                  [day8.re-frame/tracing "0.5.5"]
+                 [day8.re-frame/http-fx "v0.2.0"]
                  [metosin/reitit "0.4.2"]
-                 [cljs-ajax "0.7.3"]]
+                 [cljs-ajax "0.7.3"]
+
+                 ]
 
   :plugins [[lein-shell "0.5.0"]
             [lein-shadow "0.2.0"]
@@ -32,9 +35,9 @@
   :main  transplants.configure/-main
   
   :npm-deps {;"bootstrap" "^4.5.0"
-             "highlight.js" "9.15.10"
-             "react" "16.13.1"
-             "react-dom" "16.13.1"
+             "highlight.js" "9.18.1"
+             "react" "16.13.0"
+             "react-dom" "16.13.0"
              "react-bootstrap" "^1.0.1"
              }
   :npm-dev-deps {"shadow-cljs"           "2.9.3"

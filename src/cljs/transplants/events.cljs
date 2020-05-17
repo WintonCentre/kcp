@@ -37,6 +37,14 @@
       (assoc :lung-centres-loaded? true))))
 
 (rf/reg-event-db
+ ::bad-response
+ (fn-traced
+  [db [_ response]]
+  (js/console.log  (:key (edn/read-string response)))
+  (-> db
+      (assoc :lung-centres-loaded? true))))
+
+(rf/reg-event-db
  ::load-data
  (fn-traced [db [evt [path data-path]]]
             (println "event =" evt "path =" path "data-path =" data-path)

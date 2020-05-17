@@ -92,7 +92,8 @@
 
 
   :profiles {:dev {:dependencies [[binaryage/devtools "1.0.0"]
-                                  [day8.re-frame/re-frame-10x "0.6.4"]]
+                                  [day8.re-frame/re-frame-10x "0.6.4"]
+                                  [clj-kondo "2020.05.09"]]
                    :source-paths ["dev"]}
 
              :test {:dependencies [[binaryage/devtools "1.0.0"]

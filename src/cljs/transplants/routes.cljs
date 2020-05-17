@@ -32,7 +32,7 @@
      :link-text "Lung"
      :controllers [{;; Do whatever initialization needed for lung home page
                     :start (fn [& params]
-                             (rf/dispatch [::events/load-data ["lung/edn/centres.txt" [:lung :centres]]]) ;todo: define path elsewhere
+                             (rf/dispatch [::events/load-data-xhrio ["lung/edn/centres.txt" [:lung :centres]]]) ;todo: define path elsewhere
                              (js/console.log "Entering Lung Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]

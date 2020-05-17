@@ -45,7 +45,7 @@ It works but application and generic navbar code need to be separated."
   [{:keys [home-url logo router current-route theme]
     :or {theme (:lung themes)}}]
   [:> bs/Navbar {:bg "light" :expand "md" :fixed "top"
-                 :style {:border-bottom "1px solid black"}}
+                 :style {:border-bottom "1px solid black" :opacity "0.7"}}
    [:> bs/Navbar.Brand  {:href home-url}
     [:img {:src logo 
            :style {:height 40} :alt "NHS"}]]

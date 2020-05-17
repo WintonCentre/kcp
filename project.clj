@@ -11,7 +11,7 @@
                  [day8.re-frame/http-fx "v0.2.0"]
                  [metosin/reitit "0.4.2"]
                  [cljs-ajax "0.7.3"]
-
+                 [winton-utils "0.2.1"]
                  ]
 
   :plugins [[lein-shell "0.5.0"]

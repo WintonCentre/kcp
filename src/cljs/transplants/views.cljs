@@ -12,6 +12,7 @@
                                   row
                                   col
                                   button]]
+   [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
    ))
 
 (comment
@@ -38,36 +39,23 @@
        "Kidney transplant centres"]]]]])
 
 (defn lung-home
-  "The lung home page needs centres data to render"
+  "The lung home page needs lung centres data to render"
   []
-  (let [ready? (rf/subscribe [::subs/lung-centres-loaded?])]
-
+  (let [ready? (rf/subscribe [::subs/loaded?])]
     [ui/card-page "Choose your transplant centre"
      (if-not @ready?
        [:div "loading lung/edn/centres.txt"]
-       [:> bs/CardDeck
-        [ui/nav-card {:img-src "assets/lung/birm.png"
-                      :organ :lung
-                      :centre "Birmingham"
-                      :hospital "Queen Elizabeth's Hospital"}]
-        [ui/nav-card {:img-src "assets/lung/pap.png"
-                      :organ :lung
-                      :centre "Papworth"
-                      :hospital "Royal Papworth Hospital"}]
-        [ui/nav-card {:img-src "assets/lung/hare.png"
-                      :organ :lung
-                      :centre "Harefield"
-                      :hospital "Harefield Hospital"}]
-        [ui/nav-card {:img-src "assets/lung/new.png"
-                      :organ :lung
-                      :centre "Newcastle"
-                      :hospital "Institute of Transplantation"}]
-        [ui/nav-card {:img-src "assets/lung/man.png"
-                      :organ :lung
-                      :centre "Manchester"
-                      :hospital "University Hospital"}]])]))
+       (let [centres (sort-by :name (map-of-vs->v-of-maps @(rf/subscribe [::subs/lung-centres])))]
+         (->> centres
+              (map (fn [centre]
+                     [ui/nav-card {:img-src (:image centre)
+                                   :organ :lung
+                                   :centre (:name centre)
+                                   :hospital (:description centre)}]))
+              (into [:> bs/CardDeck]))))]))
 
 (defn kidney-home
+    "The kidney home page needs kidney centres data to render"
   []
   [ui/card-page "Choose your transplant centre"
 

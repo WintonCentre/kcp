@@ -36,8 +36,9 @@
   (js/console.log  (:key (edn/read-string response)))
   (js/console.log (:loading-data-path db))
   (-> db
-      (assoc :lung-centres-loaded? true)
-      (assoc-in (:loading-data-path db) (edn/read-string response)))))
+      (assoc :loaded? true)
+      (assoc-in (:loading-data-path db) (edn/read-string response))
+      (assoc :loading-data-path nil))))
 
 (rf/reg-event-db
  ::bad-response
@@ -45,7 +46,8 @@
   [db [_ response]]
   (js/alert "bad-response loading while loading " (:loading-data-path db) "response = "response)
   (-> db
-      (assoc :lung-centres-loaded? false))))
+      (assoc :loading-data-path nil)
+      (assoc :loaded? false))))
 
 (rf/reg-event-db
  ::load-data

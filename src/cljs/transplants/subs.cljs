@@ -11,4 +11,6 @@
 ;;; 
 (rf/reg-sub ::current-route (fn [db] (:current-route db)))
 
-(rf/reg-sub ::lung-centres-loaded? (fn [db] (:lung-centres-loaded? db)))
+(rf/reg-sub ::loaded? (fn [db] (:loaded? db)))
+
+(rf/reg-sub ::lung-centres (fn [db] (get-in db [:lung :centres])))

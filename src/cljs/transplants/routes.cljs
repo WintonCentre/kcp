@@ -43,9 +43,11 @@
      :link-text "Kidney"
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (rf/dispatch [::events/load-something-with-ajax])
-                    :start (fn [& params] (js/console.log "Entering Lung Home"))
+                    :start (fn [& params] 
+                             (rf/dispatch [::events/load-data-xhrio ["kidney/edn/centres.txt" [:kidney :centres]]])
+                             (js/console.log "Entering Kidney Home"))
        ;; Teardown can be done here.
-                    :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]
+                    :stop  (fn [& params] (js/console.log "Leaving Kidney Home"))}]}]
    ["About"
     {:name ::views/about
      :view      views/about

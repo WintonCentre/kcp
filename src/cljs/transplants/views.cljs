@@ -38,14 +38,46 @@
                :on-click #(rf/dispatch [::events/navigate ::kidney])}
        "Kidney transplant centres"]]]]])
 
-(defn lung-home
-  "The lung home page needs lung centres data to render"
-  []
+(defn organ-home
+  "The organ home page needs organ centres data to render"
+  [organ]
   (let [ready? (rf/subscribe [::subs/loaded?])]
     [ui/card-page "Choose your transplant centre"
      (if-not @ready?
+       [:div "loading " (name organ) "/edn/centres.txt"]
+       (let [centres (sort-by :name (map-of-vs->v-of-maps
+                                     @(rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])))]
+         (->> centres
+              (map (fn [centre]
+                     [ui/nav-card {:img-src (:image centre)
+                                   :organ :lung
+                                   :centre (:name centre)
+                                   :hospital (:description centre)}]))
+              (into [:> bs/CardDeck]))))]
+    #_[ui/card-page "Choose your transplant centre"
+     (if-not @ready?
+       (let [centres (sort-by :name (map-of-vs->v-of-maps @(rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])))]
+         (->> centres
+              (map (fn [centre]
+                     [ui/nav-card {:img-src (:image centre)
+                                   :organ organ
+                                   :centre (:name centre)
+                                   :hospital (:description centre)}]))
+              (into [:> bs/CardDeck]))))]))
+
+(defn lung-home [] (organ-home :lung))
+(defn kidney-home [] (organ-home :kidney))
+
+#_(defn lung-home
+  "The lung home page needs lung centres data to render"
+  []
+  (let [organ :lung
+        ready? (rf/subscribe [::subs/loaded?])]
+    [ui/card-page "Choose your transplant centre"
+     (if-not @ready?
        [:div "loading lung/edn/centres.txt"]
-       (let [centres (sort-by :name (map-of-vs->v-of-maps @(rf/subscribe [::subs/lung-centres])))]
+       (let [centres (sort-by :name (map-of-vs->v-of-maps
+                                     @(rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])))]
          (->> centres
               (map (fn [centre]
                      [ui/nav-card {:img-src (:image centre)
@@ -54,7 +86,24 @@
                                    :hospital (:description centre)}]))
               (into [:> bs/CardDeck]))))]))
 
-(defn kidney-home
+
+#_(defn kidney-home
+  "The lung home page needs lung centres data to render"
+  []
+  (let [ready? (rf/subscribe [::subs/loaded?])]
+    [ui/card-page "Choose your transplant centre"
+     (if-not @ready?
+       [:div "loading kidney/edn/centres.txt"]
+       (let [centres (sort-by :name (map-of-vs->v-of-maps @(rf/subscribe [::subs/kidney-centres])))]
+         (->> centres
+              (map (fn [centre]
+                     [ui/nav-card {:img-src (:image centre)
+                                   :organ :lung
+                                   :centre (:name centre)
+                                   :hospital (:description centre)}]))
+              (into [:> bs/CardDeck]))))]))
+
+#_(defn kidney-home
     "The kidney home page needs kidney centres data to render"
   []
   [ui/card-page "Choose your transplant centre"

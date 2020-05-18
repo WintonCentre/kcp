@@ -44,7 +44,7 @@
   (let [tools (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-tools"))])
         centres (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])]
     [ui/card-page "Choose your transplant centre"
-     (if-not (@centres) ;@ready?
+     (if-not @centres ;@ready?
        [:div "loading " (name organ) "/edn/centres.txt"]
        (let [centres (sort-by :name (map-of-vs->v-of-maps
                                      @centres))]

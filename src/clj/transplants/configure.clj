@@ -324,6 +324,10 @@
   (str (get-in (cfg/memo-config organ) [:export :edn-path])
        slash "centres.txt"))
 
+(defn tools-path [organ]
+  (str (get-in (cfg/memo-config organ) [:export :edn-path])
+       slash "tools.txt"))
+
 (defn -bundle-path
   [suffix organ centre tool-key]
   (let [suf (name suffix)
@@ -428,22 +432,22 @@
   (write-csv-bundle :lung "Papworth" :waiting)
   )
 
-(defn write-centres 
-  [organ]
-  (let [centres (get-variables organ :centres)
-        centres-path (str (get-in (cfg/memo-config organ) [:export :edn-path])
-                          slash "centres.txt")]
-    [centres-path centres]
-    (io/make-parents centres-path)
-    (spit centres-path centres)
+(defn write-sheet
+  "writes a generic sheet out in edn format. Used for tools and centres"
+  [organ key]
+  (let [sheet (get-variables organ key)
+        sheet-path (str (get-in (cfg/memo-config organ) [:export :edn-path])
+                          slash (str (name key)) ".txt")]
+    (io/make-parents sheet-path)
+    (spit sheet-path sheet)
     ))
-
-(write-centres :lung)
 
 (defn export-all-edn-bundles
   []
-  (doseq [organ [:lung :kidney]]
-    (write-centres organ))
+  (doseq [organ [:lung :kidney]
+          sheet [:tools :centres]]
+    (write-sheet organ sheet)
+    )
   
   (doseq [organ [:lung :kidney]
           :let [centres (get-centres organ)]

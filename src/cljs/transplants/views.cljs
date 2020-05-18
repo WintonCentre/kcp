@@ -39,96 +39,26 @@
        "Kidney transplant centres"]]]]])
 
 (defn organ-home
-  "The organ home page needs organ centres data to render"
+  "The organ home pages need organ centres data to render"
   [organ]
-  (let [ready? (rf/subscribe [::subs/loaded?])]
+  (let [tools (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-tools"))])
+        centres (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])]
     [ui/card-page "Choose your transplant centre"
-     (if-not @ready?
+     (if-not (@centres) ;@ready?
        [:div "loading " (name organ) "/edn/centres.txt"]
        (let [centres (sort-by :name (map-of-vs->v-of-maps
-                                     @(rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])))]
+                                     @centres))]
          (->> centres
               (map (fn [centre]
                      [ui/nav-card {:img-src (:image centre)
                                    :organ :lung
-                                   :centre (:name centre)
-                                   :hospital (:description centre)}]))
-              (into [:> bs/CardDeck]))))]
-    #_[ui/card-page "Choose your transplant centre"
-     (if-not @ready?
-       (let [centres (sort-by :name (map-of-vs->v-of-maps @(rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])))]
-         (->> centres
-              (map (fn [centre]
-                     [ui/nav-card {:img-src (:image centre)
-                                   :organ organ
+                                   :link (:link centre)
                                    :centre (:name centre)
                                    :hospital (:description centre)}]))
               (into [:> bs/CardDeck]))))]))
 
 (defn lung-home [] (organ-home :lung))
 (defn kidney-home [] (organ-home :kidney))
-
-#_(defn lung-home
-  "The lung home page needs lung centres data to render"
-  []
-  (let [organ :lung
-        ready? (rf/subscribe [::subs/loaded?])]
-    [ui/card-page "Choose your transplant centre"
-     (if-not @ready?
-       [:div "loading lung/edn/centres.txt"]
-       (let [centres (sort-by :name (map-of-vs->v-of-maps
-                                     @(rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])))]
-         (->> centres
-              (map (fn [centre]
-                     [ui/nav-card {:img-src (:image centre)
-                                   :organ :lung
-                                   :centre (:name centre)
-                                   :hospital (:description centre)}]))
-              (into [:> bs/CardDeck]))))]))
-
-
-#_(defn kidney-home
-  "The lung home page needs lung centres data to render"
-  []
-  (let [ready? (rf/subscribe [::subs/loaded?])]
-    [ui/card-page "Choose your transplant centre"
-     (if-not @ready?
-       [:div "loading kidney/edn/centres.txt"]
-       (let [centres (sort-by :name (map-of-vs->v-of-maps @(rf/subscribe [::subs/kidney-centres])))]
-         (->> centres
-              (map (fn [centre]
-                     [ui/nav-card {:img-src (:image centre)
-                                   :organ :lung
-                                   :centre (:name centre)
-                                   :hospital (:description centre)}]))
-              (into [:> bs/CardDeck]))))]))
-
-#_(defn kidney-home
-    "The kidney home page needs kidney centres data to render"
-  []
-  [ui/card-page "Choose your transplant centre"
-
-   [:> bs/CardDeck
-    [ui/nav-card {:img-src "https://srmrc.nihr.ac.uk/wp-content/uploads/o-BIRMINGHAM-HOSPITAL-facebook-1024x576.jpg"
-                  :organ :lung
-                  :centre "Birmingham"
-                  :hospital "Queen Elizabeth's Hospital"}]
-    [ui/nav-card {:img-src "https://royalpapworth.nhs.uk/application/files/cache/thumbnails/bc01df4e4f94ceb3d51f4f5d4a307160.jpg"
-                  :organ :lung
-                  :centre "Papworth"
-                  :hospital "Royal Papworth Hospital"}]
-    [ui/nav-card {:img-src "https://www.rbht.nhs.uk/sites/nhs/files/styles/teaser_image_16_9/public/Teasers/khp-1.jpg?h=88299694&itok=AzFNmBQH"
-                  :organ :lung
-                  :centre "Harefield"
-                  :hospital "Harefield Hospital"}]
-    [ui/nav-card {:img-src "http://www.newcastle-hospitals.org.uk/Freeman_External_1.jpg"
-                  :organ :lung
-                  :centre "Newcastle"
-                  :hospital "Institute of Transplantation"}]
-    [ui/nav-card {:img-src "https://upload.wikimedia.org/wikipedia/commons/2/2d/UHSMentrance.jpg"
-                  :organ :lung
-                  :centre "Manchester"
-                  :hospital "University Hospital"}]]])
 
 (defn sub-page1 []
   [:h1 "This is sub-page 1"])

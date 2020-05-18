@@ -19,10 +19,12 @@
  ; Baseline cifs may be filtered by centre.
  ; 
  :bundles #profile {:kidney {:centres [:centres]
+                             :tools [:tools]
                              :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                              :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]
                              :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]}
                     :lung {:centres [:centres]
+                           :tools [:tools]
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs :numerics]
                            :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs :numerics]
                            :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs :numerics]}}
@@ -32,6 +34,9 @@
                                       :link {:column :C :match "link"}
                                       :image {:column :D :match "image"}
                                       :description {:column :E :match "desc"}}
+                            :tools {:key {:column :A :match "key"}
+                                    :name {:column :B :match "name"}
+                                    :description {:column :C :match "desc"}}
                             :waiting-baseline-cifs {:centre {:column :A
                                                              :match "cent"}
                                                     :days {:column :B
@@ -152,6 +157,9 @@
                                     :link {:column :C :match "link"}
                                     :image {:column :D :match "image"}
                                     :description {:column :E :match "desc"}}
+                          :tools {:key {:column :A :match "key"}
+                                  :name {:column :B :match "name"}
+                                  :description {:column :C :match "desc"}}
                           :waiting-baseline-cifs {:centre {:column :A
                                                            :match "cent"}
                                                   :days {:column :B

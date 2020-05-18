@@ -10,6 +10,7 @@
    [transplants.events :as events]
    [transplants.views :as views]
    [transplants.subs :as subs]
+   [transplants.paths :as paths]
    ["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                      Nav Nav.Link]])) 
 
@@ -32,7 +33,8 @@
      :link-text "Lung"
      :controllers [{;; Do whatever initialization needed for lung home page
                     :start (fn [& params]
-                             (rf/dispatch [::events/load-data-xhrio ["lung/edn/centres.txt" [:lung :centres]]]) ;todo: define path elsewhere
+                             (rf/dispatch [::events/load-data-xhrio [(paths/centres-path :lung) [:lung :centres]]])
+                             (rf/dispatch [::events/load-data-xhrio [(paths/tools-path :lung) [:lung :tools]]])
                              (js/console.log "Entering Lung Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Lung Home"))}]}]
@@ -44,7 +46,8 @@
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (rf/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] 
-                             (rf/dispatch [::events/load-data-xhrio ["kidney/edn/centres.txt" [:kidney :centres]]])
+                             (rf/dispatch [::events/load-data-xhrio [(paths/centres-path :kidney) [:kidney :centres]]])
+                             (rf/dispatch [::events/load-data-xhrio [(paths/tools-path :kidney) [:kidney :tools]]])
                              (js/console.log "Entering Kidney Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Kidney Home"))}]}]

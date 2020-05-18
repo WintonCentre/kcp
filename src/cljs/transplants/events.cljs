@@ -32,27 +32,23 @@
 (rf/reg-event-db
  ::process-response
  (fn-traced
-  [db [_ response]]
-  (js/console.log  (:key (edn/read-string response)))
-  (js/console.log (:loading-data-path db))
+  [db [_ data-path response]]
   (-> db
-      (assoc :loaded? true)
-      (assoc-in (:loading-data-path db) (edn/read-string response))
+      (assoc-in data-path (edn/read-string response))
       (assoc :loading-data-path nil))))
 
 (rf/reg-event-db
  ::bad-response
  (fn-traced
-  [db [_ response]]
-  (js/alert "bad-response loading while loading " (:loading-data-path db) "response = "response)
+  [db [_ data-path response]]
+  (js/alert "bad-response loading while loading " data-path "response = "response)
   (-> db
-      (assoc :loading-data-path nil)
-      (assoc :loaded? false))))
+      (assoc :loading-data-path nil))))
 
-(rf/reg-event-db
+#_(rf/reg-event-db
  ::load-data
  (fn-traced [db [evt [path data-path]]]
-            (println "event =" evt "path =" path "data-path =" data-path)
+            ;(println "event =" evt "path =" path "data-path =" data-path)
             (GET path
               {:handler #(rf/dispatch [::process-response %1])
                :error-handler #(rf/dispatch [::bad-response %1])})
@@ -62,14 +58,13 @@
  ::load-data-xhrio
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             (println "event =" evt "path =" path "data-path =" data-path)
-            {:db (assoc db :loading-data-path data-path)
-             :http-xhrio {:method :get
+            {:http-xhrio {:method :get
                           :uri path
                           :timeout 8000
                           :format          (ajax/text-request-format)
                           :response-format (ajax/text-response-format)
-                          :on-success [::process-response]
-                          :on-failure [::bad-response]}}))
+                          :on-success [::process-response data-path]
+                          :on-failure [::bad-response data-path]}}))
 
 
 

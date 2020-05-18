@@ -100,23 +100,20 @@ It works but application and generic navbar code need to be separated."
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
 (defn nav-card
-  [{:keys [img-src organ centre hospital]}]
-  [:> bs/Card {:style {:max-width 300 :min-width 300 :margin-bottom 20}}
-   [:> bs/Card.Img {:variant "top" :src img-src :height 160 :filter "brightness(50%)"}]
-   [:> bs/Card.ImgOverlay 
-    [:> bs/Card.Title {:style {:color "white";"lightblue"
-                               ;:text-shadow "2px 2px #000"
-                               :font-size "2.5rem"
+  [{:keys [img-src organ centre hospital link]}]
+  [:> bs/Card {:style {:max-width 220 :min-width 220 :margin-bottom 20}}
+   [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]
+   [:> bs/Card.ImgOverlay {:style {:pointer-events "none"}}
+    [:> bs/Card.Title {:style {:color "white";
+                               :font-size "1.8rem"
                                :font-weight "bold"
                                }} centre]]
-   [:> bs/Card.Body
-    [:> bs/Card.Title hospital]
+   [:> bs/Card.Body {:style {:display "flex"
+                             :flex-direction "column"
+                             :justify-content "flex-end"
+                             :padding-top 10}}
+    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href link :target "_blank"} hospital]]
     [:> bs/ButtonGroup {:vertical true}
-     [button {:variant "primary"
-              :style {:margin-bottom 2}
-              :key 1
-              :on-click #(rf/dispatch [::events/navigate :transplants.views/about])}
-      "Consultation Aid"]
      [button {:variant "primary"
               :style {:margin-bottom 2}
               :key 2
@@ -124,8 +121,14 @@ It works but application and generic navbar code need to be separated."
       "Competing Risks"]
      [button {:variant "primary"
               :key 3
+              :style {:margin-bottom 2}
               :on-click #(rf/dispatch [::events/navigate :transplants.views/surviving])}
-      "Survival"]]]])
+      "Survival"]
+     [button {:variant "primary"
+              :key 4
+              :on-click #(rf/dispatch [::events/navigate :transplants.views/surviving])}
+      "Graft Survival"]
+     ]]])
 
 (defn page
   [title & children]

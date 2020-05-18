@@ -11,7 +11,8 @@
 ;;; 
 (rf/reg-sub ::current-route (fn [db] (:current-route db)))
 
-(rf/reg-sub ::loaded? (fn [db] (:loaded? db)))
-
 (rf/reg-sub ::lung-centres (fn [db] (get-in db [:lung :centres])))
 (rf/reg-sub ::kidney-centres (fn [db] (get-in db [:kidney :centres])))
+
+(rf/reg-sub ::lung-tools (fn [db] (get-in db [:lung :tools])))
+(rf/reg-sub ::kidney-tools (fn [db] (get-in db [:kidney :tools])))

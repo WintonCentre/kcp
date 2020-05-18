@@ -5,7 +5,7 @@ where we can work on defining a common interface.
   (:require ["react-bootstrap" :as bs]))
 
 (comment
-  
+
   (defn example
     "This example defines an interface for reading and writing application state. 
 It borrows some language from re-frame.
@@ -46,8 +46,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
     [value-k value-f event-f & [options]]
     (let [handle-change (fn [e] (event-f [value-k (-> e .-target .-value)]))]
       [:input {:type "text" :value (value-f) :on-change handle-change}])))
-          
-          
+
 (defn radio-button-group
   "Add in correct toggle operation. 
    Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
@@ -61,8 +60,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :on-change #(event-f value-k %)
              :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
                       :border-radius 5
-                      :padding 1}}
-            ]
+                      :padding 1}}]
            (map (fn [{:keys [label level disabled]}]
                   [:> bs/ToggleButton {:key level :disabled disabled :value level} label])
                 (buttons-f))))])
@@ -75,13 +73,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                      :buttons-f (fn [] [{:key :male :value :male :label "Male"}
                                                                         {:key :female :value :female :label "Female"}])}))
                         2)))
-  
+
   ; red border when there isn't
   (:border (:style (nth (second (radio-button-group {:value-k :sex
                                                      :value-f (fn [] nil)
                                                      :event-f identity
                                                      :buttons-f (fn [] [{:key :male :value :male :label "Male"}
                                                                         {:key :female :value :female :label "Female"}])}))
-                        2)))
-  )
+                        2))))
 

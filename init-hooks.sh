@@ -2,4 +2,4 @@
 set -e
 
 git config core.hooksPath dev/hooks
-chmod +x dev/hooks/pre-push.sh
+chmod +x dev/hooks/pre-push

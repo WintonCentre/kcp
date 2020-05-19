@@ -4,6 +4,8 @@ while read oldrev newrev refname
 do
     branch=$(git rev-parse --symbolic --abbrev-ref $refname)
 
+    echo branch
+
 	if [ "staging/lung" == "$branch" ]; then
 		echo "staging/lung. Sending jenkins build."
         curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-lung-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe

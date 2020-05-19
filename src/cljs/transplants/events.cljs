@@ -13,7 +13,13 @@
 (rf/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
-   {:current-route nil}))
+   {:current-route nil
+    :window-width (.-innerWidth js/window)}))
+
+(rf/reg-event-db
+ ::update-window-width
+ (fn [db [_ new-width]]
+   (assoc db :window-width new-width)))
 
 (rf/reg-event-fx
  ::navigate

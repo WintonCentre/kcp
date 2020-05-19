@@ -8,6 +8,14 @@ the low level ui."
             [re-frame.core :as rf]
             [transplants.events :as events]))
 
+(def container (rc/adapt-react-class bs/Container))
+(def col (rc/adapt-react-class bs/Col))
+(def col-sm (rc/adapt-react-class bs/Col))
+(def row (rc/adapt-react-class bs/Row))
+(def button (rc/adapt-react-class bs/Button))
+(def card-header (rc/adapt-react-class bs/Card.Header))
+
+
 (def themes
   "Very provisional colour palette. "
   {:lung {:name "Lung Transplants"
@@ -27,6 +35,13 @@ in the routes table."
   ([k params query]
    (rfe/href k params query)))
 
+(defn get-client-rect
+  "return the bounding rectangle of a node"
+  [node]
+  (let [r (.getBoundingClientRect node)]
+    {:left (.-left r), :top (.-top r) :right (.-right r) :bottom (.-bottom r) :width (.-width r) :height (.-height r)}))
+
+
 (defn nav [{:keys [router current-route]}]
   (into
    [:ul]
@@ -44,13 +59,9 @@ in the routes table."
 It works but application and generic navbar code need to be separated."
   [{:keys [home-url logo router current-route theme]
     :or {theme (:lung themes)}}]
-  [:> bs/Navbar {:bg "light" :expand "md" :fixed "top"
-                 :style {:border-bottom "1px solid black" :opacity "0.7"}}
-   [:> bs/Navbar.Brand  {:href home-url}
-    [:img {:src logo 
-           :style {:height 40} :alt "NHS"}]]
-   #_[:> bs/Navbar.Text [:span {:style {:font-size "120%" :color (:primary theme)}} 
-                       "Trac Tool"#_(:name theme)]]
+  [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
+                 :style {:border-bottom "1px solid black" :opacity "0.8"}}
+   [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
    [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
    [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
     (into [:> bs/Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
@@ -80,28 +91,26 @@ It works but application and generic navbar code need to be separated."
               :tool-name "Lung Transplants"}]
 
      (if current-route
-       [:div {:style {:margin-top "0px" :padding-top 100}}
+       [:div {:style {:margin-top "0px" :padding-top 20}}
         [(-> current-route :data :view)]
         [footer]]
        [:div
         [:h2 "The current route is invalid"]])]))
 
-(def container (rc/adapt-react-class bs/Container))
-(def col (rc/adapt-react-class bs/Col))
-(def row (rc/adapt-react-class bs/Row))
-(def button (rc/adapt-react-class bs/Button))
 
 (defn card-page
   [title & children]
-  [container {:key 1 :style {:min-height "calc(100vh - 160px"}}  
+  [container {:key 1 :style {:min-height "calc(100vh - 144px"}}  
    [row
     [col
-     [:h2 {:style {:color "#fff" :margin-bottom 30}} title]
+     (if (> @(rf/subscribe [:transplants.subs/window-width]) 441)
+       [:h2 {:style {:color "#fff" :margin-bottom 30}} title]
+       [:h5 {:style {:color "#fff" :margin-bottom 20}} title])
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
 (defn nav-card
-  [{:keys [img-src organ centre hospital link]}]
-  [:> bs/Card {:style {:max-width 220 :min-width 220 :margin-bottom 20}}
+  [{:keys [img-src organ centre hospital link width tools]}]
+  [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 20}}
    [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]
    [:> bs/Card.ImgOverlay {:style {:pointer-events "none"}}
     [:> bs/Card.Title {:style {:color "white";
@@ -113,22 +122,35 @@ It works but application and generic navbar code need to be separated."
                              :justify-content "flex-end"
                              :padding-top 10}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href link :target "_blank"} hospital]]
-    [:> bs/ButtonGroup {:vertical true}
-     [button {:variant "primary"
-              :style {:margin-bottom 2}
-              :key 2
-              :on-click #(rf/dispatch [::events/navigate :transplants.views/waiting])}
-      "Competing Risks"]
-     [button {:variant "primary"
-              :key 3
-              :style {:margin-bottom 2}
-              :on-click #(rf/dispatch [::events/navigate :transplants.views/surviving])}
-      "Survival"]
-     [button {:variant "primary"
-              :key 4
-              :on-click #(rf/dispatch [::events/navigate :transplants.views/surviving])}
-      "Graft Survival"]
-     ]]])
+    (->> tools
+         (map (fn [{:keys [key label description]}]
+                (let [view (keyword "transplants.views" (name key))]
+                  (println view key label description)
+                  [button {:variant "primary"
+                           :style {:margin-bottom 2}
+                           :key key
+                           :on-click #(rf/dispatch [::events/navigate view])}
+                   label])))
+         (into [:> bs/ButtonGroup {:vertical true}]))]])
+
+(defn phone-card
+  [{:keys [img-src organ centre hospital link width tools]}]
+  [:> bs/Accordion {:defaultActiveKey nil}
+   [:> bs/Card
+    (->> tools
+         (map (fn [{:keys [key label description]}]
+                [:> bs/Accordion.Collapse {:eventKey 0}
+                 [:> bs/Card.Body {:style {:background-color "white"
+                                           :margin-bottom 2
+                                           :border "1px solid white"
+                                           :border-radius 5
+                                           :opacity 0.5
+                                           :color "black"}} label]]))
+         (into [:> bs/Accordion.Toggle {:as bs/Card.Header
+                                        :eventKey 0
+                                        :style {:background-color "#007bff"
+                                                :color "white"}}
+                hospital]))]])
 
 (defn page
   [title & children]

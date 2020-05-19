@@ -80,5 +80,6 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                      :event-f identity
                                                      :buttons-f (fn [] [{:key :male :value :male :label "Male"}
                                                                         {:key :female :value :female :label "Female"}])}))
-                        2))))
+                        2)))
+  )
 

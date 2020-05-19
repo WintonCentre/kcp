@@ -6,5 +6,5 @@
 
 
 (def default-db
-  {:name "re-frame"})
+  {:window-width 800 #_(.innerWidth js/Window)})
 

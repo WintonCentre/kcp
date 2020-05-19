@@ -1,6 +1,6 @@
 (ns transplants.views
   (:require
-   
+   [reagent.dom :as rd]
    [reagent.core :as rc]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
@@ -39,23 +39,39 @@
        "Kidney transplant centres"]]]]])
 
 (defn organ-home
-  "The organ home pages need organ centres data to render"
+  "The organ home pages need organ centres data to render. And it's handy to detect small screens"
   [organ]
-  (let [tools (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-tools"))])
+
+  #_[:div "Organ " organ]
+  (let [window-width (rf/subscribe [::subs/window-width])
+        tools (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-tools"))])
         centres (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])]
+    
     [ui/card-page "Choose your transplant centre"
-     (if-not @centres ;@ready?
+     (if-not @centres
        [:div "loading " (name organ) "/edn/centres.txt"]
-       (let [centres (sort-by :name (map-of-vs->v-of-maps
-                                     @centres))]
-         (->> centres
-              (map (fn [centre]
-                     [ui/nav-card {:img-src (:image centre)
-                                   :organ :lung
-                                   :link (:link centre)
-                                   :centre (:name centre)
-                                   :hospital (:description centre)}]))
-              (into [:> bs/CardDeck]))))]))
+       (if-not @tools 
+         [:div "loading " (name organ) "/edn/tools.txt"]
+         (let [centres (sort-by :description (map-of-vs->v-of-maps @centres))
+               tools (map-of-vs->v-of-maps @tools)]
+           (->> centres
+                (map (fn [centre]
+                       (if (> @window-width 414)
+                         [ui/nav-card {:img-src (:image centre)
+                                       :organ :lung
+                                       :link (:link centre)
+                                       :centre (:name centre)
+                                       :hospital (:description centre)
+                                       :width 200
+                                       :tools tools}]
+                         [ui/phone-card {:img-src (:image centre)
+                                         :organ :lung
+                                         :link (:link centre)
+                                         :centre (:name centre)
+                                         :hospital (:description centre)
+                                         :tools tools
+                                         }])))
+                (into [:> bs/CardDeck])))))]))
 
 (defn lung-home [] (organ-home :lung))
 (defn kidney-home [] (organ-home :kidney))

@@ -4,6 +4,7 @@ while read oldrev newrev refname
 do
     branch=$(git rev-parse --symbolic --abbrev-ref $refname)
 
+    echo "pre-push script"
     echo branch
 
 	if [ "staging/lung" == "$branch" ]; then

@@ -1,8 +1,6 @@
 (ns transplants.fx
   (:require [re-frame.core :as rf]
-            [reitit.frontend.easy :as rfe]
-            [ajax.core :refer [GET]])
-  )
+            [reitit.frontend.easy :as rfe]))
 
 ;;; Effects ;;;
 

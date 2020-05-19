@@ -1,10 +1,10 @@
 (ns transplants.views
   (:require
-   [reagent.dom :as rd]
+;   [reagent.dom :as rd]
    [reagent.core :as rc]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
-   [transplants.dev-utils :as dev-utils]
+;   [transplants.dev-utils :as dev-utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
    [transplants.bsio :as bsio :refer [radio-button-group]]
@@ -73,8 +73,8 @@
                                          }])))
                 (into [:> bs/CardDeck])))))]))
 
-(defn lung-home [] (organ-home :lung))
-(defn kidney-home [] (organ-home :kidney))
+;(defn lung-home [] (organ-home :lung))
+;(defn kidney-home [] (organ-home :kidney))
 
 (defn sub-page1 []
   [:h1 "This is sub-page 1"])

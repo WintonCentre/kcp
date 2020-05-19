@@ -3,8 +3,8 @@
    [re-frame.core :as rf]
    [day8.re-frame.http-fx]
    [transplants.fx :as fx]
-   [transplants.db :as db]
-   [ajax.core :refer [GET] :as ajax]
+   ;[transplants.db :as db]
+   [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [day8.re-frame.tracing :refer-macros [fn-traced]]))
 

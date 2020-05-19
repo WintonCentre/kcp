@@ -9,7 +9,7 @@
  
  The configuration edn readers are in a separate workspace (alias cfg) to those that read the spreadsheet."
 
-  (:import [org.apache.poi.ss.usermodel Workbook Sheet Cell Row])
+  (:import [org.apache.poi.ss.usermodel Sheet])
   (:require
    [aero.core :as aero]
    [dk.ative.docjure.spreadsheet :as xls]
@@ -528,7 +528,7 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   (def sheet-key :waiting-baseline-cifs)
 
   ;(def sheet-key :waiting-inputs)
-  (def f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv")))
+  (def fl (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv")))
   (def headers (map #(str ":" (name %)) (get-header organ sheet-key)))
   (def rows (get-rows organ sheet-key))
   (take 10 (concat (list headers) rows))

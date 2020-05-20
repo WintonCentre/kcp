@@ -64,12 +64,13 @@ If jacking in from VS-Code be sure to select `leiningen` with `no alias` and the
 Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start 
 that way to avoid duplication.
 
-If jacking in from VS-code, select shadow-cljs and the :app build. 
+If jacking in from VS-code, select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. 
 
 Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. This server does not need hashtag routing.
 
 ## Tests
-To come. See re-frame instructions below.
+Run `lein karma` for cljs unit tests
+Run `lein check` for xlsx configuration tests
 
 # Original Re-frame template README below
 ## Getting Started

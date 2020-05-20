@@ -35,7 +35,6 @@
    (mapv 
     (fn [organ]
       (let [name-organ (name organ)]
-        (println "name-organ " name-organ)
         [name-organ
          {:name      (keyword "transplants.views" name-organ)
           :view      #(views/organ-home organ)

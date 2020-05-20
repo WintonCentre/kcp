@@ -47,6 +47,7 @@
                  "karma-junit-reporter"  "2.0.1"}
   
   :shadow-cljs {:nrepl {:port 8777}
+                :dev-http {8100 "public"}
 
                 :builds {:app {:target :browser
                                :output-dir "resources/public/js/compiled"

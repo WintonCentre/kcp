@@ -53,25 +53,26 @@
        (if-not @tools 
          [:div "loading " (name organ) "/edn/tools.txt"]
          (let [centres (sort-by :description (map-of-vs->v-of-maps @centres))
-               tools (map-of-vs->v-of-maps @tools)]
-           (->> centres
-                (map (fn [centre]
-                       (if (> @window-width 414)
-                         [ui/nav-card {:img-src (:image centre)
-                                       :organ :lung
-                                       :link (:link centre)
-                                       :centre (:name centre)
-                                       :hospital (:description centre)
-                                       :width 200
-                                       :tools tools}]
-                         [ui/phone-card {:img-src (:image centre)
-                                         :organ :lung
-                                         :link (:link centre)
-                                         :centre (:name centre)
-                                         :hospital (:description centre)
-                                         :tools tools
-                                         }])))
-                (into [:> bs/CardDeck])))))]))
+               tools (map-of-vs->v-of-maps @tools)
+               centre-card (fn [centre] [(if (> @window-width ui/mobile-break)
+                                           ui/nav-card
+                                           ui/phone-card)
+                                         {:img-src (:image centre)
+                                          :organ organ
+                                          :link (:link centre)
+                                          :centre (:name centre)
+                                          :hospital (:description centre)
+                                          :width 200
+                                          :tools tools}])]
+
+           (into [:> bs/CardDeck] (map centre-card centres)))))]))
+
+(defn organ-centre
+  "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
+   for that organ and centre."
+  []
+  [:h1 "Organ Centre"]
+  #_[page (pr-str [organ centre])])
 
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))

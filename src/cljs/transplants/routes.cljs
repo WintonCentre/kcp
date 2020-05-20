@@ -2,7 +2,7 @@
   (:require
    [clojure.string :refer [capitalize]]
    [re-frame.core :as rf]
-   #_[reitit.core :as r]
+   [reitit.core :as r]
    [reitit.coercion.spec :as rss]
    [reitit.frontend :as rfr]
    [reitit.frontend.controllers :as rfc]
@@ -15,11 +15,19 @@
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                      Nav Nav.Link]])) 
 
-;["/" 
-;["" {:name :transplants.views/home, :view #object[transplants$views$home_page], :link-text "Trac tools", :controllers [{:start #object[G__72164], :stop #object[G__72167]}]}] 
-;(["lung" {:name :transplants.views/lung, :view [:div "Organ " :lung], :link-text "Lung", :controllers [{:start #object[G__72170], :stop #object[G__72175]}]}] ["kidney" {:name :transplants.views/kidney, :view [:div "Organ " :kidney], :link-text "Kidney", :controllers [{:start #object[G__72170], :stop #object[G__72175]}]}])]
 
-(defn routes [organs]
+(defn routes 
+  "Reitit nested route syntax can be tricky. Only the leaves are valid.
+   This example is helpful:
+   (def route
+     (r/router
+      [\"/api\"
+       [\"\" ::api] ; <-- necessary to make \"/api\" a valid leaf route
+       [\"/ping\" ::ping]
+       [\"/user/:id\" ::user]]))
+                   
+   as it defines valid routes for /api, /ping, and /user/fred"
+  [organs]
   (into 
    ["/"
     [""
@@ -36,53 +44,67 @@
     (fn [organ]
       (let [name-organ (name organ)]
         [name-organ
-         {:name      (keyword "transplants.views" name-organ)
-          :view      #(views/organ-home organ)
-          :link-text (capitalize name-organ)
-          :controllers [{;; Do whatever initialization needed for lung home page
-                         :start (fn [& params]
-                                  (rf/dispatch [::events/load-data-xhrio [(paths/centres-path organ) [organ :centres]]])
-                                  (rf/dispatch [::events/load-data-xhrio [(paths/tools-path organ) [organ :tools]]])
-                                  (js/console.log (str "Entering " name-organ " Home")))
-       ;; Teardown can be done here.
-                         :stop  (fn [& params] (js/console.log (str "Leaving " name-organ " Home")))}]}]))
-    organs)
-   
-   #_["kidney"
-      {:name      ::views/kidney
-       :view      views/kidney-home
-       :link-text "Kidney"
-       :controllers [{;; Do whatever initialization needed for home page
+         ["" {:name      (keyword "transplants.views" name-organ)
+              :view      #(views/organ-home organ)
+              :link-text (capitalize name-organ)
+              :controllers [{:start (fn [& params]
+                                      (rf/dispatch [::events/load-data-xhrio [(paths/centres-path organ) [organ :centres]]])
+                                      (rf/dispatch [::events/load-data-xhrio [(paths/tools-path organ) [organ :tools]]])
+                                      (js/console.log (str "Entering " name-organ " Home")))
+                             :stop  (fn [& params] (js/console.log (str "Leaving " name-organ " Home")))}]}]
+         ["/centre" {:name (keyword "transplants.views" (str name-organ "-centre"))
+                     :view views/organ-centre #_#_organ 2
+                     :link-text (str (name organ) "-centre")
+                     :controllers [{:start (fn [& params] (js/console.log "Entering " organ "-centre"))
+                                    :stop (fn [& params] (js/console.log "Leaving " organ "-centre"))}]}]]))
+    organs)))
+  
+  
+  #_["kidney"
+     {:name      ::views/kidney
+      :view      views/kidney-home
+      :link-text "Kidney"
+      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (rf/dispatch [::events/load-something-with-ajax])
-                      :start (fn [& params] 
-                               (rf/dispatch [::events/load-data-xhrio [(paths/centres-path :kidney) [:kidney :centres]]])
-                               (rf/dispatch [::events/load-data-xhrio [(paths/tools-path :kidney) [:kidney :tools]]])
-                               (js/console.log "Entering Kidney Home"))
+                     :start (fn [& params] 
+                              (rf/dispatch [::events/load-data-xhrio [(paths/centres-path :kidney) [:kidney :centres]]])
+                              (rf/dispatch [::events/load-data-xhrio [(paths/tools-path :kidney) [:kidney :tools]]])
+                              (js/console.log "Entering Kidney Home"))
        ;; Teardown can be done here.
-                      :stop  (fn [& params] (js/console.log "Leaving Kidney Home"))}]}]
-   #_["About"
-      {:name ::views/about
-       :view      views/about
-       :link-text "About"
-       :controllers [{:start (fn [& params] (js/console.log "Entering About"))
-                      :stop  (fn [& params] (js/console.log "Leaving About"))}]}]
+                     :stop  (fn [& params] (js/console.log "Leaving Kidney Home"))}]}]
+  #_["About"
+     {:name ::views/about
+      :view      views/about
+      :link-text "About"
+      :controllers [{:start (fn [& params] (js/console.log "Entering About"))
+                     :stop  (fn [& params] (js/console.log "Leaving About"))}]}]
 
-   #_["Waiting"
-      {:name      ::views/waiting
-       :view      views/waiting
-       :link-text "Competing Risks"
-       :controllers [{:start (fn [& params]
-                               (js/console.log "Start Waiting")
-                               #_(rf/dispatch [::events/load-waiting-data :tool-key]))
-                      :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
-   
-   #_["Surviving" {:name      ::views/surviving
-                   :view      views/surviving
-                   :link-text "Survival"
-                   :controllers
-                   [{:start (fn [& params] (js/console.log "Start Surviving"))
-                     :stop  (fn [& params] (js/console.log "Leaving Surving"))}]}]))
+  #_["Waiting"
+     {:name      ::views/waiting
+      :view      views/waiting
+      :link-text "Competing Risks"
+      :controllers [{:start (fn [& params]
+                              (js/console.log "Start Waiting")
+                              #_(rf/dispatch [::events/load-waiting-data :tool-key]))
+                     :stop  (fn [& params] (js/console.log "Leaving Waiting"))}]}]
+  
+  #_["Surviving" {:name      ::views/surviving
+                  :view      views/surviving
+                  :link-text "Survival"
+                  :controllers
+                  [{:start (fn [& params] (js/console.log "Start Surviving"))
+                    :stop  (fn [& params] (js/console.log "Leaving Surving"))}]}]
 
+(comment
+  (def rts (r/router (routes [:lung :kidney])))
+  (get-in (r/match-by-path rts "/lung") [:data :link-text])
+  (get-in (r/match-by-path rts "/kidney") [:data :result])
+  (get-in (r/match-by-path rts "/lung/centre") [:data :name])
+  (get-in (r/match-by-name rts :transplants.views/lung-centre) [:data :link-text])
+
+
+  
+  )
 
 (defn on-navigate [new-match]
   (let [old-match (rf/subscribe [::subs/current-route])]
@@ -101,7 +123,7 @@
   (rfe/start!
    router
    on-navigate
-   {:use-fragment false}))
+   {:use-fragment true}))
 
 (comment 
   (routes [:lung :kidney])

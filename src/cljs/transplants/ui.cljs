@@ -15,6 +15,10 @@ the low level ui."
 (def button (rc/adapt-react-class bs/Button))
 (def card-header (rc/adapt-react-class bs/Card.Header))
 
+(def mobile-break 
+  "Screens of this size or smaller are rendered with mobile orientedt views"
+  414)
+
 
 (def themes
   "Very provisional colour palette. "
@@ -90,11 +94,11 @@ It works but application and generic navbar code need to be separated."
               :logo "/assets/nhsbt-left-align_scaled.svg"
               :tool-name "Lung Transplants"}]
 
-     (if current-route
+     (when current-route
        [:div {:style {:margin-top "0px" :padding-top 20}}
         [(-> current-route :data :view)]
         [footer]]
-       [:div
+       #_[:div
         [:h2 "The current route is invalid"]])]))
 
 

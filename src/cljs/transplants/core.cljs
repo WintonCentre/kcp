@@ -38,6 +38,6 @@
   "Initialise the database, sense window-width, and mount root of component tree"
   []
   (rf/dispatch-sync [::events/initialize-db])
-  ;(.addEventListener js/window "resize" on-window-resize)
+  (.addEventListener js/window "resize" on-window-resize)
   (dev-setup)
   (mount-root)) 

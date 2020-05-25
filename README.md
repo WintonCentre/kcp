@@ -1,5 +1,9 @@
 # Transplants
 
+## WARNING: 
+If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
+** TODO: Add exception handling for this condition. **
+
 ## Contents
 This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
 

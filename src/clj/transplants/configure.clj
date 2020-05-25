@@ -394,9 +394,6 @@
 
   ([organ centre tool-key]
 
-   #_(let [cf (io/file (centres-path organ))]
-     (io/make-parents cf)
-     (spit cf (get-centres organ)))
    (let [f (io/file (bundle-path organ centre tool-key))]
      (io/make-parents f)
      (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
@@ -446,8 +443,7 @@
   []
   (doseq [organ [:lung :kidney]
           sheet [:tools :centres]]
-    (write-sheet organ sheet)
-    )
+    (write-sheet organ sheet))
   
   (doseq [organ [:lung :kidney]
           :let [centres (get-centres organ)]
@@ -475,8 +471,6 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 ;----------------------------------------------
 ;
 (comment
-
-  
   (-main) ; Run this
   
   (export-all-edn-bundles)
@@ -500,9 +494,6 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 
   (cfg/get-bundle :lung)
 
-
-
-
   (write-edn-bundle :kidney "Edinburgh" :waiting)
 
   ; All 
@@ -512,8 +503,6 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 
 
 (comment
-
-
   (get-sheet-names :lung)
   (get-rows :kidney :waiting-baseline-cifs)
   (get-row-maps :kidney :waiting-baseline-cifs)

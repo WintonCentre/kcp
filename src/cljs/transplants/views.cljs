@@ -29,7 +29,11 @@
       [button {:variant "primary"
     ;; Dispatch navigate event that triggers a (side)effect.
                :key 1
-               :on-click #(rf/dispatch [::events/navigate ::lung])}
+               ;:on-click #(rf/dispatch [::events/navigate ::lung])
+               ;
+               ;See syntax at https://github.com/metosin/reitit/blob/master/examples/frontend-controllers/src/frontend/core.cljs
+               :on-click #(rf/dispatch [::events/navigate ::organ {:organ "lung"}])
+               }
        "Lung transplant centres"]]
      [:div
       [button {:variant "primary"
@@ -38,22 +42,26 @@
                :on-click #(rf/dispatch [::events/navigate ::kidney])}
        "Kidney transplant centres"]]]]])
 
+(defn organ-home*
+  []
+  [:div "Organ " @(rf/subscribe [::subs/organ])])
+
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens"
   [organ]
 
   #_[:div "Organ " organ]
   (let [window-width (rf/subscribe [::subs/window-width])
-        tools (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-tools"))])
-        centres (rf/subscribe [(keyword "transplants.subs" (str (name organ) "-centres"))])]
+        tools (rf/subscribe [:transplants.subs/tools])
+        centres (rf/subscribe [:transplants.subs/centres])]
     
     [ui/card-page "Choose your transplant centre"
      (if-not @centres
        [:div "loading " (name organ) "/edn/centres.txt"]
        (if-not @tools 
          [:div "loading " (name organ) "/edn/tools.txt"]
-         (let [centres (sort-by :description (map-of-vs->v-of-maps @centres))
-               tools (map-of-vs->v-of-maps @tools)
+         (let [centres (sort-by :description @centres)
+               tools @tools
                centre-card (fn [centre] [(if (> @window-width ui/mobile-break)
                                            ui/nav-card
                                            ui/phone-card)
@@ -71,7 +79,9 @@
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
   []
-  [:h1 "Organ Centre"]
+  (let [centre @(rf/subscribe [::subs/centre])]
+    (when centre
+      [:h1 "Organ Centre: " centre]))
   #_[page (pr-str [organ centre])])
 
 ;(defn lung-home [] (organ-home :lung))

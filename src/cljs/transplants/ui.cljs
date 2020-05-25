@@ -1,7 +1,8 @@
 (ns transplants.ui
   "This should become the high level ui interface and should have all ns references factored out into 
 the low level ui."
-  (:require [reagent.core :as rc]
+  (:require [clojure.string :refer [ends-with?]]
+             [reagent.core :as rc]
             [reitit.core :as r]
             [reitit.frontend.easy :as rfe]
             ["react-bootstrap" :as bs]
@@ -58,48 +59,62 @@ in the routes table."
       ;; Create a normal link that user can click
       [:a {:href (href route-name)} text]])))
 
+
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in.
 It works but application and generic navbar code need to be separated."
   [{:keys [home-url logo router current-route theme]
     :or {theme (:lung themes)}}]
-  [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
-                 :style {:border-bottom "1px solid black" :opacity "0.8"}}
-   [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
-   [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
-   [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
-    (into [:> bs/Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
-          (for [route-name (r/route-names router)
-                :let       [route (r/match-by-name router route-name)
-                            text (-> route :data :link-text)]]
-            [:> bs/Nav.Link
-             {:class (if (= route-name (-> current-route :data :name)) "active" "")
-              :href (href route-name)
-              :key  route-name}
-             text]))]])
+  (let [navbar-routes (remove (comp #(ends-with? % "centre") name) (r/route-names router))
+        centres @(rf/subscribe [:transplants.subs/centres])]
+    (println "navbar-routes " navbar-routes)
+    [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
+                   :style {:border-bottom "1px solid black" :opacity "0.8"}}
+     [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
+     [:> bs/Navbar.Toggle "basic-navbar-nav"]
+     [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
+
+      (into [:> bs/Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
+            (conj
+             (mapv (fn [route-name]
+                     (let [route (r/match-by-name router route-name)
+                           text (-> route :data :link-text)]
+                       [:> bs/Nav.Link
+                        {:class (if (= route-name (-> current-route :data :name)) "active" "")
+                         :href (href route-name)
+                         :key  route-name}
+                        text]))
+                   navbar-routes)
+             (when centres
+               (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown" }
+                      (map (fn [centre]
+                             [:> bs/NavDropdown.Item {:href (str "#/lung/centre/" (name (:key centre)))
+                                                      :key (name (:key centre))} (:name centre)])
+                           centres)
+                      ]))))
+      ]]))
 
 (defn footer []
   [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"
                  :display "flex" :align-items "center" :justify-content "center"}}
-   [:div {:flex 1 :style {:margin "20px"}} "Footer"]])
+   [:div {:style {:margin "20px"}} "Footer"]])
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
   [{:keys [router subscribe-current-route]}]
   (let [current-route @(subscribe-current-route)]
-    [:div
-     [navbar {:router router
+    [:div {:style {:display :flex :flex-direction "column-reverse"}}
+     (when current-route
+       [:div {:style {:margin-top "0px" :padding-top 20 }}
+        [(-> current-route :data :view)]
+        [footer]])
+     #_[navbar {:router router
               :current-route current-route
               :home-url "https://www.nhsbt.nhs.uk/"
               :logo "/assets/nhsbt-left-align_scaled.svg"
               :tool-name "Lung Transplants"}]
 
-     (when current-route
-       [:div {:style {:margin-top "0px" :padding-top 20}}
-        [(-> current-route :data :view)]
-        [footer]]
-       #_[:div
-        [:h2 "The current route is invalid"]])]))
+     ]))
 
 
 (defn card-page

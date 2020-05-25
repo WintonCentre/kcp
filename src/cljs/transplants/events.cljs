@@ -1,5 +1,6 @@
 (ns transplants.events
   (:require
+   (winton-utils.data-frame :refer [map-of-vs->v-of-maps])
    [re-frame.core :as rf]
    [day8.re-frame.http-fx]
    [transplants.fx :as fx]
@@ -13,8 +14,8 @@
 (rf/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
-   {:current-route nil
-    :window-width (.-innerWidth js/window)}))
+            {:current-route nil
+             :window-width (.-innerWidth js/window)}))
 
 (rf/reg-event-db
  ::update-window-width
@@ -23,14 +24,26 @@
 
 (rf/reg-event-fx
  ::navigate
- (fn-traced [{:keys [db]} [_ route]]
+ (fn-traced [{:keys [db]} [_ route params query]]
    ;; See `navigate` effect in routes.cljs
-   {::fx/navigate! route}))
+            {::fx/navigate! [route params query]}))
 
 (rf/reg-event-db
  ::navigated
  (fn-traced [db [_ new-match]]
-   (assoc db :current-route new-match)))
+            (assoc db :current-route new-match)))
+
+(rf/reg-event-db
+ ; active organ
+ ::organ
+ (fn-traced [db [_ organ]]
+            (assoc db :organ organ)))
+
+(rf/reg-event-db
+ ; active centre
+ ::centre
+ (fn-traced [db [_ c]]
+            (assoc db :centre c)))
 
 ;;
 ;; Load data sequences
@@ -40,30 +53,31 @@
  (fn-traced
   [db [_ data-path response]]
   (-> db
-      (assoc-in data-path (edn/read-string response))
+      (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response)))
       (assoc :loading-data-path nil))))
 
 (rf/reg-event-db
  ::bad-response
  (fn-traced
   [db [_ data-path response]]
-  (js/alert "bad-response loading while loading " data-path "response = "response)
+  (js/alert "bad-response loading while loading " data-path "response = " response)
   (-> db
       (assoc :loading-data-path nil))))
 
 #_(rf/reg-event-db
- ::load-data
- (fn-traced [db [evt [path data-path]]]
+   ::load-data
+   (fn-traced [db [evt [path data-path]]]
             ;(println "event =" evt "path =" path "data-path =" data-path)
-            (GET path
-              {:handler #(rf/dispatch [::process-response %1])
-               :error-handler #(rf/dispatch [::bad-response %1])})
-            db))
+              (GET path
+                {:handler #(rf/dispatch [::process-response %1])
+                 :error-handler #(rf/dispatch [::bad-response %1])})
+              db))
 
 (rf/reg-event-fx
  ::load-data-xhrio
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             (println "event =" evt "path =" path "data-path =" data-path)
+            ; do not load config data twice!
             {:http-xhrio {:method :get
                           :uri path
                           :timeout 8000
@@ -71,6 +85,20 @@
                           :response-format (ajax/text-response-format)
                           :on-success [::process-response data-path]
                           :on-failure [::bad-response data-path]}}))
+
+(rf/reg-event-fx
+ ::load-data-xhrio-once
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            (println "event =" evt "path =" path "data-path =" data-path)
+            ; do not load config data twice!
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::process-response data-path]
+                            :on-failure [::bad-response data-path]}})))
 
 
 

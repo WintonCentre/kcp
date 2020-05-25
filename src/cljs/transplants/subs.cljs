@@ -12,8 +12,10 @@
 (rf/reg-sub ::window-width (fn [db] (:window-width db)))
 (rf/reg-sub ::current-route (fn [db] (:current-route db)))
 
-(rf/reg-sub ::lung-centres (fn [db] (get-in db [:lung :centres])))
-(rf/reg-sub ::kidney-centres (fn [db] (get-in db [:kidney :centres])))
+(rf/reg-sub ::organ (fn [db] (:organ db)))
 
-(rf/reg-sub ::lung-tools (fn [db] (get-in db [:lung :tools])))
-(rf/reg-sub ::kidney-tools (fn [db] (get-in db [:kidney :tools])))
+(rf/reg-sub ::centres (fn [db] (get-in db [:centres])))
+
+(rf/reg-sub ::tools (fn [db] (get-in db [:tools])))
+
+(rf/reg-sub ::centre (fn [db] (get-in db [:centre])))

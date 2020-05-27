@@ -1,0 +1,7 @@
+:label,Donor BMI Calculator,Donor Height (cm),Donor Weight (Kg),OK,,,
+:factor,:bmi-calculator-title,:donor-height,:donor-weight,:bmi,,,
+:level,,:h,:w,[:bmi-level :w :h],,,
+:min,,60.0,2.0,,,,
+:max,,280.0,640.0,,,,
+:dps,,0.0,1.0,,,,
+:type,:modal,:numeric,:numeric,:button,,,

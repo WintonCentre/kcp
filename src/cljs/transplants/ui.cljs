@@ -140,7 +140,7 @@ It works but application and generic navbar code need to be separated."
                              :flex-direction "column"
                              :justify-content "flex-end"
                              :padding-top 10}}
-    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href link :target "_blank"} hospital]]
+    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link) :target "_blank"} hospital]]
     (->> tools
          (map (fn [{:keys [key label description]}]
                 (let [view (keyword "transplants.views" (name key))]

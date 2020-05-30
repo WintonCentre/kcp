@@ -42,16 +42,11 @@
                :on-click #(rf/dispatch [::events/navigate ::kidney])}
        "Kidney transplant centres"]]]]])
 
-(defn organ-home*
-  []
-  [:div "Organ " @(rf/subscribe [::subs/organ])])
-
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens"
-  [organ]
-
-  #_[:div "Organ " organ]
+  []
   (let [window-width (rf/subscribe [::subs/window-width])
+        organ @(rf/subscribe [::subs/organ])
         tools (rf/subscribe [:transplants.subs/tools])
         centres (rf/subscribe [:transplants.subs/centres])]
     
@@ -67,7 +62,7 @@
                                            ui/phone-card)
                                          {:img-src (:image centre)
                                           :organ organ
-                                          :link (:link centre)
+                                          :link [::organ-centre {:organ organ :centre (name (:key centre))}]
                                           :centre (:name centre)
                                           :hospital (:description centre)
                                           :width 200
@@ -79,9 +74,10 @@
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
   []
-  (let [centre @(rf/subscribe [::subs/centre])]
+  (let [organ @(rf/subscribe [::subs/organ])
+        centre @(rf/subscribe [::subs/centre])]
     (when centre
-      [:h1 "Organ Centre: " centre]))
+      [:h1 (name organ) " centre: " centre]))
   #_[page (pr-str [organ centre])])
 
 ;(defn lung-home [] (organ-home :lung))

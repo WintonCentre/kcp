@@ -66,6 +66,7 @@ It works but application and generic navbar code need to be separated."
   [{:keys [home-url logo router current-route theme]
     :or {theme (:lung themes)}}]
   (let [navbar-routes (remove (comp #(ends-with? % "centre") name) (r/route-names router))
+        organ @(rf/subscribe [:transplants.subs/organ])
         centres @(rf/subscribe [:transplants.subs/centres])]
     (println "navbar-routes " navbar-routes)
     [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
@@ -89,8 +90,8 @@ It works but application and generic navbar code need to be separated."
              (when centres
                (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown" }
                       (map (fn [centre]
-                             [:> bs/NavDropdown.Item {:href (str "#/lung/centre/" (name (:key centre)))
-                                                      :key (name (:key centre))} (:name centre)])
+                             [:> bs/NavDropdown.Item {:href (href :transplants.views/organ-centre {:organ organ :centre (name (:key centre))})
+                                                        :key (name (:key centre))} (:name centre)])
                            centres)
                       ]))))
       ]]))

@@ -76,7 +76,8 @@ It works but application and generic navbar code need to be separated."
 
       (into [:> bs/Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
             (conj
-             (mapv (fn [route-name]
+             nil
+             #_(mapv (fn [route-name]
                      (let [route (r/match-by-name router route-name)
                            text (-> route :data :link-text)]
                        [:> bs/Nav.Link
@@ -108,7 +109,7 @@ It works but application and generic navbar code need to be separated."
        [:div {:style {:margin-top "0px" :padding-top 20 }}
         [(-> current-route :data :view)]
         [footer]])
-     #_[navbar {:router router
+     [navbar {:router router
               :current-route current-route
               :home-url "https://www.nhsbt.nhs.uk/"
               :logo "/assets/nhsbt-left-align_scaled.svg"
@@ -140,7 +141,7 @@ It works but application and generic navbar code need to be separated."
                              :flex-direction "column"
                              :justify-content "flex-end"
                              :padding-top 10}}
-    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link) :target "_blank"} hospital]]
+    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
     (->> tools
          (map (fn [{:keys [key label description]}]
                 (let [view (keyword "transplants.views" (name key))]

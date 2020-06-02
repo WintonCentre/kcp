@@ -11,7 +11,7 @@
 (rf/reg-fx
  ::navigate!
  (fn [[k params query]]
-   (println "NAVIGATE!" k params query)
+   ;(println "NAVIGATE!" k params query)
    (rfe/push-state k params query)))
 
 

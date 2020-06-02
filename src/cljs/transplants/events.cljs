@@ -31,7 +31,10 @@
 (rf/reg-event-db
  ::navigated
  (fn-traced [db [_ new-match]]
-            (assoc db :current-route new-match)))
+          
+            (assoc db 
+                   :current-route new-match
+                   )))
 
 (rf/reg-event-db
  ; active organ
@@ -44,6 +47,12 @@
  ::centre
  (fn-traced [db [_ c]]
             (assoc db :centre c)))
+
+(rf/reg-event-db
+ ; active centre
+ ::centres
+ (fn-traced [db [_ c]]
+            (assoc db :centres c)))
 
 ;;
 ;; Load data sequences
@@ -64,19 +73,9 @@
   (-> db
       (assoc :loading-data-path nil))))
 
-#_(rf/reg-event-db
-   ::load-data
-   (fn-traced [db [evt [path data-path]]]
-            ;(println "event =" evt "path =" path "data-path =" data-path)
-              (GET path
-                {:handler #(rf/dispatch [::process-response %1])
-                 :error-handler #(rf/dispatch [::bad-response %1])})
-              db))
-
 (rf/reg-event-fx
  ::load-data-xhrio
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            (println "event =" evt "path =" path "data-path =" data-path)
             ; do not load config data twice!
             {:http-xhrio {:method :get
                           :uri path
@@ -89,7 +88,6 @@
 (rf/reg-event-fx
  ::load-data-xhrio-once
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            (println "event =" evt "path =" path "data-path =" data-path)
             ; do not load config data twice!
             (when (nil? (get-in db data-path))
               {:http-xhrio {:method :get

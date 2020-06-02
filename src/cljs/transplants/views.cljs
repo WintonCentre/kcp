@@ -38,7 +38,7 @@
       [button {:variant "primary"
     ;; Dispatch navigate event that triggers a (side)effect.
                :key 1
-               :on-click #(rf/dispatch [::events/navigate ::kidney])}
+               :on-click #(rf/dispatch [::events/navigate ::organ {:organ "kidney"}])}
        "Kidney transplant centres"]]]]])
 
 (defn organ-home

@@ -6,6 +6,7 @@
    [transplants.events :as events]
    [transplants.subs :as subs]
    [transplants.ui :as ui]
+   [error-boundary.error-boundary :refer [err-boundary]]
    ))
 
 ;;; Setup ;;;
@@ -21,8 +22,9 @@
   []
   (rf/clear-subscription-cache!)
   (routes/init-routes!) ;; Reset routes on figwheel reload
-  (rd/render [ui/root-component {:router routes/router
-                                 :subscribe-current-route #(rf/subscribe [::subs/current-route])}]
+  (rd/render [err-boundary
+              [ui/root-component {:router routes/router
+                                  :subscribe-current-route #(rf/subscribe [::subs/current-route])}]]
              (.getElementById js/document "app")))
 
 (comment

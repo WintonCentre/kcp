@@ -12,6 +12,8 @@
 (rf/reg-sub ::window-width (fn [db] (:window-width db)))
 (rf/reg-sub ::current-route (fn [db] (:current-route db)))
 
+(rf/reg-sub ::organs (fn [db] (:organs db)))
+
 (rf/reg-sub ::organ (fn [db] (:organ db)))
 
 (rf/reg-sub ::centres (fn [db] (get-in db [:centres])))

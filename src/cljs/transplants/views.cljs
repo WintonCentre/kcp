@@ -21,25 +21,18 @@
 ;;; Views ;;;
 (defn home-page
   []
-  [page ""
-   [row
-    [col
-     [:div {:style {:margin-bottom 20}}
-      [button {:variant "primary"
-    ;; Dispatch navigate event that triggers a (side)effect.
-               :key 1
-               ;:on-click #(rf/dispatch [::events/navigate ::lung])
-               ;
-               ;See syntax at https://github.com/metosin/reitit/blob/master/examples/frontend-controllers/src/frontend/core.cljs
-               :on-click #(rf/dispatch [::events/navigate ::organ {:organ "lung"}])
-               }
-       "Lung transplant centres"]]
-     [:div
-      [button {:variant "primary"
-    ;; Dispatch navigate event that triggers a (side)effect.
-               :key 1
-               :on-click #(rf/dispatch [::events/navigate ::organ {:organ "kidney"}])}
-       "Kidney transplant centres"]]]]])
+  (let [organs (rf/subscribe [::subs/organs])]
+    [page "Trac tools"
+     [row
+      [col
+       (into [:div {:style {:margin-bottom 20}}
+              (map (fn [organ]
+                     [:div {:key (:text organ)
+                            :style {:margin-bottom 20}}
+                      [button {:variant "primary"
+                               :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:key organ)}])}
+                       (:label organ)]])
+                   @organs)])]]]))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens"

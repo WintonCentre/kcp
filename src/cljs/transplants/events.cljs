@@ -58,7 +58,15 @@
 ;; Load data sequences
 ;;
 (rf/reg-event-db
- ::process-response
+ ::store-response
+ (fn-traced
+  [db [_ data-path response]]
+  (-> db
+      (assoc-in data-path (edn/read-string response))
+      (assoc :loading-data-path nil))))
+
+(rf/reg-event-db
+ ::transpose-response
  (fn-traced
   [db [_ data-path response]]
   (-> db
@@ -74,15 +82,26 @@
       (assoc :loading-data-path nil))))
 
 (rf/reg-event-fx
+ ::load-edn
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::store-response data-path]
+                            :on-failure [::bad-response data-path]}})))
+
+(rf/reg-event-fx
  ::load-data-xhrio
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ; do not load config data twice!
             {:http-xhrio {:method :get
                           :uri path
                           :timeout 8000
                           :format          (ajax/text-request-format)
                           :response-format (ajax/text-response-format)
-                          :on-success [::process-response data-path]
+                          :on-success [::transpose-response data-path]
                           :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx
@@ -95,7 +114,7 @@
                             :timeout 8000
                             :format          (ajax/text-request-format)
                             :response-format (ajax/text-response-format)
-                            :on-success [::process-response data-path]
+                            :on-success [::transpose-response data-path]
                             :on-failure [::bad-response data-path]}})))
 
 

@@ -7,6 +7,9 @@
   [organ]
   (str (name organ) slash "edn" slash))
 
+
+(def organs-path (str slash "organs.txt"))
+
 (defn tools-path 
   [organ]
   (str (prefix organ) "tools.txt"))

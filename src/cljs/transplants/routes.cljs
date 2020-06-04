@@ -1,6 +1,5 @@
 (ns transplants.routes
   (:require
-   [clojure.string :refer [capitalize]]
    [re-frame.core :as rf]
    [reitit.core :as r]
    [reitit.coercion.spec :as rss]
@@ -33,6 +32,7 @@
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (js/console.log "Entering Home")
+                             (rf/dispatch [::events/load-edn [paths/organs-path [:organs]]])
                              (rf/dispatch [::events/centres nil])
                              (rf/dispatch [::events/organ nil])
                              )
@@ -65,10 +65,10 @@
 )
 
 (comment
-  (def rts* (r/router routes))
-  (r/match-by-path rts* "/lung")
-  (r/route-names rts*)
-  (def rts (r/router (routes [:lung :kidney])))
+  (def rts (r/router routes))
+  (r/match-by-path rts "/lung")
+  (r/route-names rts)
+
   (get-in (r/match-by-path rts "/lung") [:data :link-text])
   (get-in (r/match-by-path rts "/kidney") [:data :result])
   (get-in (r/match-by-path rts "/lung/centre") [:data :name])

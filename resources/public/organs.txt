@@ -1,0 +1,3 @@
+; List of organ transplants options that may appear in the navbar when none are selected
+[{:organ :lung :text "Lung" :label "Lung Transplants"}
+ {:organ :kidney :text "Kidney" :label "Kidney Transplants"}]

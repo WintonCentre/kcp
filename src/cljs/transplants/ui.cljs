@@ -167,8 +167,10 @@ in the routes table."
                           :href (href :transplants.views/organ)} (capitalize (name organ))]
         [:<>
          [:> bs/Nav.Link {:event-key "lung"
+                          :key "lung"
                           :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
          [:> bs/Nav.Link  {:event-key "kidney"
+                           :key "kidney"
                            :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]])
       (when centres
         (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
@@ -177,32 +179,6 @@ in the routes table."
                                                                                            :centre (name (:key centre))})
                                               :key (name (:key centre))} (:name centre)])
                    centres)))]
-      
-
-      #_(into [:> bs/Nav {:class "mr-auto" :style {:height "100%" :vertical-align "middle"}}]
-              
-              (if centres
-                (into [[:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
-                       (map (fn [centre]
-                              [:> bs/NavDropdown.Item {:href (href :transplants.views/organ-centre {:organ (name organ)
-                                                                                                    :centre (name (:key centre))})
-                                                       :key (name (:key centre))} (:name centre)])
-                            centres)])
-                [[:> bs/Nav.Link  {:href "#"} "Foo"]]
-                )
-              
-              #_(conj
-                 nil
-                 #_(mapv (fn [route-name]
-                           (let [route (r/match-by-name router route-name)
-                                 text (link-text current-route) #_(-> route :data :link-text)]
-                             [:> bs/Nav.Link
-                              {:class (if (= route-name (-> current-route :data :name)) "active" "")
-                               :href (href route-name)
-                               :key  route-name}
-                              text]))
-                         navbar-routes)
-                 ))
       ]]))
 
 (defn footer []

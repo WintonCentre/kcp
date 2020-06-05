@@ -30,7 +30,7 @@
                      [:div {:key (:text organ)
                             :style {:margin-bottom 20}}
                       [button {:variant "primary"
-                               :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:key organ)}])}
+                               :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
                        (:label organ)]])
                    @organs)])]]]))
 

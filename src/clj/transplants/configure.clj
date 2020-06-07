@@ -17,7 +17,9 @@
    [clojure.string :as string]
    [clojure.data.csv :as csv]
    [transplants.utils :as utils]
-   [transplants.config :as cfg])
+   [transplants.config :as cfg]
+   [transplants.shared :refer [underscore]]
+   )
   (:gen-class))
 
 (def slash java.io.File/separator)
@@ -315,7 +317,7 @@
   )
 
 
-(defn underscore
+#_(defn underscore
   "replace special chars in file paths with underscore"
   [s]
   (string/replace (if (keyword? s) (name s) s) #"-|\s+|'|\." "_"))

@@ -51,18 +51,6 @@ in the routes table."
     {:left (.-left r), :top (.-top r) :right (.-right r) :bottom (.-bottom r) :width (.-width r) :height (.-height r)}))
 
 
-#_(defn nav [{:keys [router current-route]}]
-  (into
-   [:ul]
-   (for [route-name (r/route-names router)
-         :let       [route (r/match-by-name router route-name)
-                     text (-> route :data :link-text)]]
-     [:li
-      (when (= route-name (-> current-route :data :name))
-        "> ")
-      ;; Create a normal link that user can click
-      [:a {:href (href route-name)} text]])))
-
 (defn link-text
   "The route :data :link-text gives an indication of link text for this route, which must be adjusted
    according to its path-params"
@@ -75,6 +63,7 @@ in the routes table."
     (if organ
       organ
       "Home")))
+
 (comment
 ;;;;;
 ;;
@@ -139,11 +128,6 @@ in the routes table."
     ak)
   )
 
-(comment 
-  
-  
-  )
-
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
   [{:keys [home-url logo router current-route theme]
@@ -162,17 +146,19 @@ in the routes table."
                  }
       [:> bs/Nav.Link {:event-key :home
                        :href (href :transplants.views/home)} "Home"]
-      (if organ
-        [:> bs/Nav.Link  {:event-key (name organ)
-                          :href (href :transplants.views/organ)} (capitalize (name organ))]
-        [:<>
-         [:> bs/Nav.Link {:event-key "lung"
-                          :key "lung"
-                          :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
-         [:> bs/Nav.Link  {:event-key "kidney"
-                           :key "kidney"
-                           :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]])
-      (when centres
+      (when organ
+        (if organ
+          [:> bs/Nav.Link  {:event-key (name organ)
+                            :href (href :transplants.views/organ {:organ organ})} (capitalize (name organ))]
+          [:<>
+           [:> bs/Nav.Link {:event-key "lung"
+                            :key "lung"
+                            :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
+           [:> bs/Nav.Link  {:event-key "kidney"
+                             :key "kidney"
+                             :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]]))
+      
+      (when (and organ centres)
         (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
               (map (fn [centre]
                      [:> bs/NavDropdown.Item {:href (href :transplants.views/organ-centre {:organ (name organ)
@@ -180,6 +166,11 @@ in the routes table."
                                               :key (name (:key centre))} (:name centre)])
                    centres)))]
       ]]))
+
+(comment 
+  (transplants.ui/href :transplants.views/organ-centre {:organ (name :kidney)
+                                         :centre "card"})
+  )
 
 (defn footer []
   [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"
@@ -215,23 +206,24 @@ in the routes table."
    [row
     [col
      (if (> @(rf/subscribe [:transplants.subs/window-width]) 441)
-       [:h2 {:style {:color "#fff" :margin-bottom 30}} title]
+       [:h2 {:style {:color "#355" :margin-bottom 30}} title]
        [:h5 {:style {:color "#fff" :margin-bottom 20}} title])
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
 (defn nav-card
   [{:keys [img-src organ centre hospital link width tools]}]
-  [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 20}}
-   [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]
-   [:> bs/Card.ImgOverlay {:style {:pointer-events "none"}}
-    [:> bs/Card.Title {:style {:color "white";
-                               :font-size "1.6rem"
-                               :font-weight "bold"
-                               }} centre]]
+  [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
+   #_[:<> 
+    [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]
+    [:> bs/Card.ImgOverlay {:style {:pointer-events "none"}}
+     [:> bs/Card.Title {:style {:color "white";
+                                :font-size "1.6rem"
+                                :font-weight "bold"
+                                }}centre]]]
    [:> bs/Card.Body {:style {:display "flex"
                              :flex-direction "column"
-                             :justify-content "flex-end"
-                             :padding-top 10}}
+                             :justify-content "space-around";"flex-end"
+                             :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
     (->> tools
          (map (fn [{:keys [key label description]}]

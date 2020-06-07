@@ -50,12 +50,13 @@
                                         (rf/dispatch [::events/load-data-xhrio [(paths/centres-path organ) [:centres]]])
                                         (rf/dispatch [::events/load-data-xhrio [(paths/tools-path organ) [:tools]]])))
                              :stop  (fn [& params] (js/console.log (str "Leaving " :organ " Home")))}]}
-    ["" ] ; required to make [":organ"] a leaf route
+    [""] ; required to make [":organ"] a leaf route
     ["/:centre" {:name ::views/organ-centre
                  :view views/organ-centre
                  :link-text "organ-centre"
-                 :controllers [{:parameters {:path [:centre]}
+                 :controllers [{:parameters {:path [:organ :centre]}
                                 :start (fn [& params]
+                                         (js/console.log "params " params)
                                          (let [centre (keyword (get-in (first params) [:path :centre]))]
                                            (js/console.log "Entering organ-centre: " params)
                                            (rf/dispatch [::events/centre centre]))

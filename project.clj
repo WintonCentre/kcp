@@ -23,7 +23,7 @@
 
   :min-lein-version "2.9.0"
 
-  :source-paths ["src/cljs"]
+  :source-paths ["src/cljs" "src/cljc"]
   :test-paths ["test/cljs"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
                                     "test/js"]
@@ -105,7 +105,7 @@
              :karma {:source-paths ["src/cljs" "test/cljs"]
                      :test-paths ["test/cljs"]}
 
-             :configure {:source-paths ["src/clj" "data"]
+             :configure {:source-paths ["src/clj" "src/cljc" "data"]
                          :test-paths ["test/clj" "src/clj" "data"]
                          :dependencies [[aero "1.1.6"]
                                         [org.apache.poi/poi "3.17"]

@@ -1,6 +1,7 @@
 (ns transplants.views
   (:require
 ;   [reagent.dom :as rd]
+   [clojure.string :as string]
    [reagent.core :as rc]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
@@ -67,10 +68,16 @@
    for that organ and centre."
   []
   (let [organ @(rf/subscribe [::subs/organ])
-        centre @(rf/subscribe [::subs/centre])]
-    (when centre
-      [:h1 (name organ) " centre: " centre]))
-  #_[page (pr-str [organ centre])])
+        centre @(rf/subscribe [::subs/centre])
+        centres @(rf/subscribe [::subs/centres])]
+    (when (and organ centre centres)
+      (let [centre-info (first (get (group-by :key centres) (name centre)))]
+        [:div (pr-str centre-info)]
+        [page (:description centre-info) 
+         [row
+          [col
+           [:h2 (str (string/capitalize (name organ)) " transplant centre")]]
+          ]]))))
 
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))

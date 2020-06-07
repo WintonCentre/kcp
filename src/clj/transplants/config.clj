@@ -18,7 +18,6 @@
 (def memo-config 
   (if utils/MEMO (memoize get-config) get-config))
 
-
 (defn get-sheet-spec
   "get sheet spec given sheet-key"
   [organ sheet-key]

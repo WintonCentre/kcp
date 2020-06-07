@@ -20,4 +20,6 @@
 
 (rf/reg-sub ::tools (fn [db] (get-in db [:tools])))
 
+(rf/reg-sub ::tool (fn [db] (get-in db [:tool])))
+
 (rf/reg-sub ::centre (fn [db] (get-in db [:centre])))

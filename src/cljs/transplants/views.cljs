@@ -21,6 +21,8 @@
 
 ;;; Views ;;;
 (defn home-page
+  "Display a generic home page. 
+   Minimally, navigation from here to an organ home page."
   []
   (let [organs (rf/subscribe [::subs/organs])]
     [page "Trac tools"
@@ -36,7 +38,8 @@
                    @organs)])]]]))
 
 (defn organ-home
-  "The organ home pages need organ centres data to render. And it's handy to detect small screens"
+  "The organ home pages need organ centres data to render. And it's handy to detect small screens.
+   Minimally, navigate to an organ centre home page."
   []
   (let [window-width (rf/subscribe [::subs/window-width])
         organ @(rf/subscribe [::subs/organ])
@@ -65,19 +68,46 @@
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
+   for that organ and centre.
+   Minimally, navigate to an organ-centre-tool home page."
+  []
+  (let [organ @(rf/subscribe [::subs/organ])
+        centre @(rf/subscribe [::subs/centre])
+        centres @(rf/subscribe [::subs/centres])
+        tools @(rf/subscribe [::subs/tools])]
+    (when (and organ centre centres tools)
+      (let [centre-info (first (get (group-by :key centres) (name centre)))]
+        [page (:description centre-info) 
+         [row
+          [col
+           [:h2 (str (string/capitalize (name organ)) " transplant centre")]
+           [:h3 "Available trac tools"]
+           (->> tools
+                (map #(conj % [:organ organ]))
+                (map #(conj % [:centre centre]))
+                (map #(conj % [:tool (:key %)]))
+               (map ui/tool-buttons)
+               (into [:> bs/ButtonGroup {:vertical false}]))]
+          ]]))))
+
+(defn organ-centre-tool
+  "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
   []
   (let [organ @(rf/subscribe [::subs/organ])
         centre @(rf/subscribe [::subs/centre])
-        centres @(rf/subscribe [::subs/centres])]
-    (when (and organ centre centres)
+        centres @(rf/subscribe [::subs/centres])
+        tool @(rf/subscribe [::subs/tool])]
+    (when (and organ centre centres tool)
       (let [centre-info (first (get (group-by :key centres) (name centre)))]
-        [:div (pr-str centre-info)]
-        [page (:description centre-info) 
+        [page (:description centre-info)
          [row
           [col
-           [:h2 (str (string/capitalize (name organ)) " transplant centre")]]
-          ]]))))
+           [:h2 (str (string/capitalize (name organ)) " transplant centre")]
+           [:h3 (name tool)]
+           ]]]))))
+
+
 
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))

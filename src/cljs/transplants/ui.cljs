@@ -194,7 +194,7 @@ in the routes table."
 
      ]))
 
-(defn breadcrumb
+#_(defn breadcrumb
   [route]
   [:> bs/Breadcrumb
     [:> bs/Breadcrumb.Item {:href "#"} "Home"]]
@@ -209,6 +209,20 @@ in the routes table."
        [:h2 {:style {:color "#355" :margin-bottom 30}} title]
        [:h5 {:style {:color "#fff" :margin-bottom 20}} title])
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
+
+(defn tool-buttons
+  "Create buttons for each transplant tool"
+  [{:keys [key label description organ centre tool] :as tool-button-params}]
+  (println "tool-button-params: " tool-button-params)
+  [button {:variant "primary"
+           :style {:margin-bottom 2
+                   :margin-right 2}
+           :key key
+           :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                    {:organ organ
+                                     :centre centre
+                                     :tool tool}])}
+   label])
 
 (defn nav-card
   [{:keys [img-src organ centre hospital link width tools]}]
@@ -226,13 +240,7 @@ in the routes table."
                              :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
     (->> tools
-         (map (fn [{:keys [key label description]}]
-                (let [view (keyword "transplants.views" (name key))]
-                  [button {:variant "primary"
-                           :style {:margin-bottom 2}
-                           :key key
-                           :on-click #(rf/dispatch [::events/navigate view])}
-                   label])))
+         (map tool-buttons)
          (into [:> bs/ButtonGroup {:vertical true}]))]])
 
 (defn phone-card
@@ -261,7 +269,7 @@ in the routes table."
                              :margin-bottom 20}}  
    [row
     [col
-     [:h1 title]
+     [:h1 {:style {:margin-top 20}} title]
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
 

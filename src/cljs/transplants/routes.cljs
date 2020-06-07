@@ -59,13 +59,27 @@
                                          (js/console.log "params " params)
                                          (let [centre (keyword (get-in (first params) [:path :centre]))]
                                            (js/console.log "Entering organ-centre: " params)
-                                           (rf/dispatch [::events/centre centre]))
-                                         )
-                                :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre]) ))}]}
-     [""]]]]
+                                           (rf/dispatch [::events/centre centre])))
+                                :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}
+     [""]
+     ["/:tool" {:name ::views/organ-centre-tool
+                :view views/organ-centre-tool
+                :link-text "organ-centre-tool"
+                :controllers [{:parameters {:path [:organ :centre :tool]}
+                               :start (fn [& params]
+                                        (js/console.log "params " params)
+                                        (let [tool (keyword (get-in (first params) [:path :tool]))]
+                                        (js/console.log "Entering organ-centre-tool: " params)
+                                        (rf/dispatch [::events/tool tool])))
+                               :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}]]]]
 )
 
+
 (comment
+  (def m [[[:a 1] [:b 2]] [[:a 3] [:b 4]]])
+  m
+  (map (partial into {}) m)
+  (+ 1 1)
   (def rts (r/router routes))
   (r/match-by-path rts "/lung")
   (r/route-names rts)

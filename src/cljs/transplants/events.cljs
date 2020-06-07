@@ -54,6 +54,12 @@
  (fn-traced [db [_ c]]
             (assoc db :centres c)))
 
+(rf/reg-event-db
+ ; active centre
+ ::tool
+ (fn-traced [db [_ t]]
+            (assoc db :tool t)))
+
 ;;
 ;; Load data sequences
 ;;

@@ -32,9 +32,7 @@
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (js/console.log "Entering Home")
-                             (rf/dispatch [::events/load-edn [paths/organs-path [:organs]]])
                              (rf/dispatch [::events/centres nil])
-                             (rf/dispatch [::events/organ nil])
                              )
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
@@ -46,9 +44,8 @@
                              :start (fn [& [params]]
                                       (js/console.log "Entering organ:" params)
                                       (let [organ (keyword (get-in params [:path :organ]))]
-                                        (rf/dispatch [::events/organ organ])
-                                        (rf/dispatch [::events/load-data-xhrio [(paths/centres-path organ) [:centres]]])
-                                        (rf/dispatch [::events/load-data-xhrio [(paths/tools-path organ) [:tools]]])))
+                                        (rf/dispatch [::events/load-and-transpose [(paths/centres-path organ) [:centres]]])
+                                        (rf/dispatch [::events/load-and-transpose [(paths/tools-path organ) [:tools]]])))
                              :stop  (fn [& params] (js/console.log (str "Leaving " :organ " Home")))}]}
     [""] ; required to make [":organ"] a leaf route
     ["/:centre" {:name ::views/organ-centre
@@ -59,7 +56,7 @@
                                          (js/console.log "params " params)
                                          (let [centre (keyword (get-in (first params) [:path :centre]))]
                                            (js/console.log "Entering organ-centre: " params)
-                                           (rf/dispatch [::events/centre centre])))
+                                           #_(rf/dispatch [::events/centre centre])))
                                 :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}
      [""]
      ["/:tool" {:name ::views/organ-centre-tool
@@ -67,15 +64,18 @@
                 :link-text "organ-centre-tool"
                 :controllers [{:parameters {:path [:organ :centre :tool]}
                                :start (fn [& params]
-                                        (js/console.log "params " params)
                                         (let [tool (keyword (get-in (first params) [:path :tool]))]
-                                        (js/console.log "Entering organ-centre-tool: " params)
-                                        (rf/dispatch [::events/tool tool])))
+                                          ;(js/console.log "Entering organ-centre-tool: " params)
+                                          ;(rf/dispatch [::events/tool tool])
+                                          )
+                                        )
                                :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}]]]]
 )
 
 
 (comment
+  (paths/tools-path :lung)
+  
   (def m [[[:a 1] [:b 2]] [[:a 3] [:b 4]]])
   m
   (map (partial into {}) m)

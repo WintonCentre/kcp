@@ -1,0 +1,12 @@
+{; List of organ metadata
+ :organ-meta [{:organ :lung :text "Lung" :label "Lung Transplants"}
+              {:organ :kidney :text "Kidney" :label "Kidney Transplants"}]
+
+ ; Spreadsheet columns which are useful as keys once the rows have been grouped by these keys.
+ ; If two keys are given, the second is a possible sub-key.
+ :sheet-meta [{:sheet "centres" :keys [:key :name]}
+              {:sheet "tools"  :keys [:key]}
+              {:sheet "*-baseline-cifs" :keys [:centre :days]}
+              {:sheet "*-baseline-vars" :keys [:baseline-factor]}
+              {:sheet "*-inputs" :keys [:factor :level]}
+              {:sheet "bmi-calculator" :keys [:factor :level]}]}

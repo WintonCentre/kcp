@@ -24,7 +24,7 @@
   "Display a generic home page. 
    Minimally, navigation from here to an organ home page."
   []
-  (let [organs (rf/subscribe [::subs/organs])]
+  (let [metadata (rf/subscribe [::subs/metadata])]
     [page "Trac tools"
      [row
       [col
@@ -35,16 +35,17 @@
                       [button {:variant "primary"
                                :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
                        (:label organ)]])
-                   @organs)])]]]))
+                   (:organ-meta @metadata))])]]]))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
    Minimally, navigate to an organ centre home page."
   []
   (let [window-width (rf/subscribe [::subs/window-width])
-        organ @(rf/subscribe [::subs/organ])
         tools (rf/subscribe [:transplants.subs/tools])
-        centres (rf/subscribe [:transplants.subs/centres])]
+        centres (rf/subscribe [:transplants.subs/centres])
+        organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
+        ]
     
     [ui/card-page "Choose your transplant centre"
      (if-not @centres
@@ -71,10 +72,12 @@
    for that organ and centre.
    Minimally, navigate to an organ-centre-tool home page."
   []
-  (let [organ @(rf/subscribe [::subs/organ])
-        centre @(rf/subscribe [::subs/centre])
+  (let [route @(rf/subscribe [::subs/current-route])
         centres @(rf/subscribe [::subs/centres])
-        tools @(rf/subscribe [::subs/tools])]
+        tools @(rf/subscribe [::subs/tools])
+        organ (get-in route [:path-params :organ])
+        centre (get-in route [:path-params :centre])
+        ]
     (when (and organ centre centres tools)
       (let [centre-info (first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info) 
@@ -94,20 +97,29 @@
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
   []
-  (let [organ @(rf/subscribe [::subs/organ])
-        centre @(rf/subscribe [::subs/centre])
+  (let [route @(rf/subscribe [::subs/current-route])
+        tools @(rf/subscribe [::subs/tools])
         centres @(rf/subscribe [::subs/centres])
-        tool @(rf/subscribe [::subs/tool])]
+        organ (get-in route [:path-params :organ])
+        centre (get-in route [:path-params :centre])
+        tool (get-in route [:path-params :tool])]
     (when (and organ centre centres tool)
       (let [centre-info (first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info)
          [row
           [col
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
-           [:h3 (name tool)]
+           (println "tools" tools)
+           [:h3 (get-in tools [1 :label])]
+           (->> tools
+                (map #(conj % [:organ organ]))
+                (map #(conj % [:centre centre]))
+                (map #(conj % [:tool (:key %)]))
+                (map ui/tool-buttons)
+                (into [:> bs/ButtonGroup {:vertical false}]))
            ]]]))))
 
-
+;-------------- Text views below --------------
 
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))

@@ -8,7 +8,8 @@ the low level ui."
             [reitit.frontend :as rfr]
             ["react-bootstrap" :as bs]
             [re-frame.core :as rf]
-            [transplants.events :as events]))
+            [transplants.events :as events]
+            [transplants.subs :as subs]))
 
 (enable-console-print!)
 
@@ -133,10 +134,13 @@ in the routes table."
   [{:keys [home-url logo router current-route theme]
     :or {theme (:lung themes)}}]
   (let [navbar-routes (remove (comp #(ends-with? % "centre") name) (r/route-names router))
-        organ @(rf/subscribe [:transplants.subs/organ])
-        centres @(rf/subscribe [:transplants.subs/centres])]
+        route @(rf/subscribe [::subs/current-route])
+        tools @(rf/subscribe [::subs/tools])
+        centres @(rf/subscribe [::subs/centres])
+        organ (get-in route [:path-params :organ])
+        ]
     [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
-                   :style {:border-bottom "1px solid black" :opacity "0.8"}}
+                   :style {:border-bottom "1px solid black" :opacity "1"}}
      [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
      [:> bs/Navbar.Toggle "basic-navbar-nav"]
      [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
@@ -146,17 +150,17 @@ in the routes table."
                  }
       [:> bs/Nav.Link {:event-key :home
                        :href (href :transplants.views/home)} "Home"]
-      (when organ
-        (if organ
-          [:> bs/Nav.Link  {:event-key (name organ)
-                            :href (href :transplants.views/organ {:organ organ})} (capitalize (name organ))]
-          [:<>
-           [:> bs/Nav.Link {:event-key "lung"
-                            :key "lung"
-                            :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
-           [:> bs/Nav.Link  {:event-key "kidney"
-                             :key "kidney"
-                             :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]]))
+      #_(when organ)
+      (if organ
+        [:> bs/Nav.Link  {:event-key (name organ)
+                          :href (href :transplants.views/organ {:organ organ})} (capitalize (name organ))]
+        [:<>
+         [:> bs/Nav.Link {:event-key "lung"
+                          :key "lung"
+                          :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
+         [:> bs/Nav.Link  {:event-key "kidney"
+                           :key "kidney"
+                           :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]])
       
       (when (and organ centres)
         (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
@@ -236,7 +240,7 @@ in the routes table."
                                 }}centre]]]
    [:> bs/Card.Body {:style {:display "flex"
                              :flex-direction "column"
-                             :justify-content "space-around";"flex-end"
+                             :justify-content "space-around"
                              :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
     (->> tools

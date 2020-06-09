@@ -7,7 +7,9 @@
    ;[transplants.db :as db]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]))
+   [day8.re-frame.tracing :refer-macros [fn-traced]]
+   [clojure.string :as string]
+   [clojure.set :as rel]))
 
 ;;; Events ;;;
 
@@ -71,6 +73,88 @@
       (assoc-in data-path (edn/read-string response))
       (assoc :loading-data-path nil))))
 
+
+(defn get-sheet-keys
+  [sheet-metas sheet-name]
+  (-> (filter (fn [meta] 
+                (as-> meta x
+                  (:sheet x)
+                  (clojure.string/replace x #"\*" "")
+                  (clojure.string/ends-with? (name sheet-name) x)
+                  )
+                
+                #_(clojure.string/ends-with? (name sheet-name)))
+              sheet-metas)
+      first
+      :keys))
+
+(rf/reg-event-db
+ ::store-indexed-response
+ (fn-traced
+  [db [_ data-path response]]
+  (let [sheet-metas (get-in db [:metadata :sheet-meta])
+        sheet-name (name (first data-path))
+        indexes (get-sheet-keys sheet-metas (first data-path))]
+    (comment "Use the sheet metadata to discover which columns can be used as indexes, then index the
+              response by those keys in order. The indexes are themselves maps of {key1 val1} or if there
+              are two keys, {key1 val1 key2 val2}."
+             
+             "It's not yet clear whether it's optimal to index this way, or by using nested group-by, or not
+              at all at this stage - in which case simply use store-response")
+    ;(println "INDEXES " indexes)
+    (-> db
+        ;(assoc-in data-path (edn/read-string response))
+        (assoc-in data-path 
+                  (as-> (edn/read-string response) x
+                       (map-of-vs->v-of-maps x)
+                       (into #{} x)
+                       (rel/index x indexes)
+                    ;(group-by (first indexes) x)
+                    ;(into {} x)
+                       ))
+        (assoc :loading-data-path nil)))))
+
+(comment
+  (def tool-meta-match string/ends-with?)
+  (clojure.string/ends-with? "abcd" "d")
+
+  (def sheet-key-name :tools)
+  (def sheet-meta [{:sheet "centres", :keys [:key :name]}
+                   {:sheet "tools", :keys [:key]}
+                   {:sheet "*-baseline-cifs", :keys [:centre :days]}
+                   {:sheet "*-baseline-vars", :keys [:baseline-factor]}
+                   {:sheet "*-inputs", :keys [:factor :level]}
+                   {:sheet "bmi-calculator", :keys [:factor :level]}])
+  (filter (fn [meta] (clojure.string/ends-with? (:sheet meta) "waiting-baseline-cifs"))
+          sheet-meta)
+
+  (get-sheet-keys sheet-meta :waiting-baseline-cifs)
+  ;=> [:centre :days]
+  
+  (get-sheet-keys sheet-meta :tools)
+  ;=> [:key]
+  ;
+  
+  (def relation #{{:a 1 :b 2 :c 3}
+                  {:a 1 :b 3 :c 3}
+                  {:a 2 :b 1 :c 4}
+                  {:a 2 :b 2 :c 4}})
+  (def v [{:a 1 :b 2 :c 3}
+          {:a 1 :b 3 :c 3}
+          {:a 2 :b 1 :c 4}
+          {:a 2 :b 2 :c 4}])
+  (group-by :a v)
+  (require 'clojure.set)
+  (clojure.set/index relation [:a :b])
+  (clojure.set/index relation [:a])
+  (filter (fn [[m s]] (= 1 (:a m))) (clojure.set/index relation [:a :b]))
+  
+  )
+  
+
+
+
+
 (rf/reg-event-db
  ::transpose-response
  (fn-traced
@@ -100,7 +184,31 @@
                             :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
- ::load-data-xhrio
+ ::load-sheet-and-index
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::store-indexed-response data-path]
+                            :on-failure [::bad-response data-path]}})))
+
+(rf/reg-event-fx
+ ::load-sheet
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::store-response data-path]
+                            :on-failure [::bad-response data-path]}})))
+
+(rf/reg-event-fx
+ ::load-and-transpose
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             {:http-xhrio {:method :get
                           :uri path
@@ -111,7 +219,7 @@
                           :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx
- ::load-data-xhrio-once
+ ::load-and-transpose-once
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             ; do not load config data twice!
             (when (nil? (get-in db data-path))

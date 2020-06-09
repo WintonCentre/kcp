@@ -5,6 +5,7 @@
    [transplants.routes :as routes]
    [transplants.events :as events]
    [transplants.subs :as subs]
+   [transplants.paths :as paths]
    [transplants.ui :as ui]
    [error-boundary.error-boundary :refer [err-boundary]]
    ))
@@ -40,6 +41,7 @@
   "Initialise the database, sense window-width, and mount root of component tree"
   []
   (rf/dispatch-sync [::events/initialize-db])
+  (rf/dispatch-sync [::events/load-edn [paths/metadata-path [:metadata]]])
   (.addEventListener js/window "resize" on-window-resize)
   (dev-setup)
   (mount-root)) 

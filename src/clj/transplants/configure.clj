@@ -316,12 +316,6 @@
   (collect-tool-bundle :lung "Papworth" nil)
   )
 
-
-#_(defn underscore
-  "replace special chars in file paths with underscore"
-  [s]
-  (string/replace (if (keyword? s) (name s) s) #"-|\s+|'|\." "_"))
-
 (defn centres-path [organ]
   (str (get-in (cfg/memo-config organ) [:export :edn-path])
        slash "centres.txt"))

@@ -4,6 +4,9 @@
 If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
 ** TODO: Add exception handling for this condition. **
 
+## MOCKUP
+See https://docs.google.com/presentation/d/1uKk0HyclaTMCb-EIZiyVdJPBjzzHflArWoq8ukwbMGE/edit?usp=sharing
+
 ## Contents
 This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
 

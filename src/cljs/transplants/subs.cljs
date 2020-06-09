@@ -13,7 +13,7 @@
 
 (rf/reg-sub ::current-route (fn [db] (:current-route db)))
 
-(rf/reg-sub ::organs (fn [db] (:organs db)))
+(rf/reg-sub ::metadata (fn [db] (:metadata db)))
 
 (rf/reg-sub ::organ (fn [db] (:organ db)))
 

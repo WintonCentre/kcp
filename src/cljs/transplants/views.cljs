@@ -60,7 +60,7 @@
                                          {:img-src (:image centre)
                                           :organ organ
                                           :link [::organ-centre {:organ organ :centre (name (:key centre))}]
-                                          :centre (:name centre)
+                                          :centre (:key centre)
                                           :hospital (:description centre)
                                           :width 200
                                           :tools tools}])]
@@ -93,6 +93,16 @@
                (into [:> bs/ButtonGroup {:vertical false}]))]
           ]]))))
 
+  (defn get-tool-meta 
+    [tools tool-key]
+    @(rf/subscribe [::subs/tools])
+    (first (filter (fn [{:keys [key label description]}]
+                     (= tool-key key))
+                   tools)))
+
+  
+  
+
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
@@ -104,13 +114,14 @@
         centre (get-in route [:path-params :centre])
         tool (get-in route [:path-params :tool])]
     (when (and organ centre centres tool)
-      (let [centre-info (first (get (group-by :key centres) (name centre)))]
+      (let [centre-info (first (get (group-by :key centres) (name centre)))
+            tool-meta (get-tool-meta tools (keyword tool))]
         [page (:description centre-info)
          [row
           [col
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
-           (println "tools" tools)
-           [:h3 (get-in tools [1 :label])]
+           [:h4 (:label tool-meta)]
+           [:p  (:description tool-meta)]
            (->> tools
                 (map #(conj % [:organ organ]))
                 (map #(conj % [:centre centre]))

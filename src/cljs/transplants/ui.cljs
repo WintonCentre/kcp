@@ -65,7 +65,7 @@ in the routes table."
       organ
       "Home")))
 
-(comment
+#_(comment
 ;;;;;
 ;;
 ;;
@@ -217,10 +217,10 @@ in the routes table."
 (defn tool-buttons
   "Create buttons for each transplant tool"
   [{:keys [key label description organ centre tool] :as tool-button-params}]
-  (println "tool-button-params: " tool-button-params)
   [button {:variant "primary"
            :style {:margin-bottom 2
                    :margin-right 2}
+           :active (= tool (keyword (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])))
            :key key
            :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
                                     {:organ organ

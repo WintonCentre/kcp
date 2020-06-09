@@ -142,7 +142,7 @@ in the routes table."
     [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
                    :style {:border-bottom "1px solid black" :opacity "1"}}
      [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
-     [:> bs/Navbar.Toggle "basic-navbar-nav"]
+     [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
      [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
 
      [:> bs/Nav {:active-key (if organ (name organ) "home")
@@ -211,7 +211,7 @@ in the routes table."
     [col
      (if (> @(rf/subscribe [:transplants.subs/window-width]) 441)
        [:h2 {:style {:color "#355" :margin-bottom 30}} title]
-       [:h5 {:style {:color "#fff" :margin-bottom 20}} title])
+       [:h5 {:style {:color "#355" :margin-bottom 20}} title])
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
 (defn tool-buttons
@@ -244,6 +244,9 @@ in the routes table."
                              :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
     (->> tools
+         (map #(conj % [:organ organ]))
+         (map #(conj % [:centre centre]))
+         (map #(conj % [:tool (:key %)]))
          (map tool-buttons)
          (into [:> bs/ButtonGroup {:vertical true}]))]])
 
@@ -252,14 +255,21 @@ in the routes table."
   [:> bs/Accordion {:defaultActiveKey nil}
    [:> bs/Card
     (->> tools
-         (map (fn [{:keys [key label description]}]
+         (map #(conj % [:organ organ]))
+         (map #(conj % [:centre centre]))
+         (map #(conj % [:tool (:key %)]))
+         (map tool-buttons)
+         (map (fn [button #_{:keys [key label description]}]
                 [:> bs/Accordion.Collapse {:eventKey 0}
-                 [:> bs/Card.Body {:style {:background-color "white"
-                                           :margin-bottom 2
-                                           :border "1px solid white"
-                                           :border-radius 5
-                                           :opacity 0.5
-                                           :color "black"}} label]]))
+                 button
+                 #_[:> bs/Card.Body 
+                  {:style {:background-color "white"
+                           :margin-bottom 2
+                           :padding 0
+                           :border "1px solid white"
+                           :border-radius 5
+                           :opacity 1
+                           :color "white"}} button]]))
          (into [:> bs/Accordion.Toggle {:as bs/Card.Header
                                         :eventKey 0
                                         :style {:background-color "#007bff"
@@ -268,7 +278,7 @@ in the routes table."
 
 (defn page
   [title & children]
-  [container {:key 1 :style {:min-height "calc(100vh - 180px"
+  [container {:key 1 :style {:min-height "calc(100vh - 165px"
                              :background-color "#ffffffbb"
                              :margin-bottom 20}}  
    [row

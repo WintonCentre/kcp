@@ -230,6 +230,19 @@
                             :response-format (ajax/text-response-format)
                             :on-success [::transpose-response data-path]
                             :on-failure [::bad-response data-path]}})))
+(rf/reg-event-fx
+ ::load-organ-centre-tool-bundle
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            ; do not load config data twice!
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::transpose-response data-path]
+                            :on-failure [::bad-response data-path]}})))
+
 
 
 

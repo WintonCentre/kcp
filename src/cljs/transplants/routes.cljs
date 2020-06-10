@@ -32,7 +32,7 @@
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (js/console.log "Entering Home")
-                             (rf/dispatch [::events/centres nil])
+                             ;(rf/dispatch [::events/centres nil])
                              )
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]

@@ -6,6 +6,7 @@
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
 ;   [transplants.dev-utils :as dev-utils]
+   [transplants.utils :as utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
    [transplants.bsio :as bsio :refer [radio-button-group]]
@@ -79,18 +80,39 @@
         centre (get-in route [:path-params :centre])
         ]
     (when (and organ centre centres tools)
-      (let [centre-info (first (get (group-by :key centres) (name centre)))]
+      (let [centre-info (utils/get-centre-info centres centre) #_(first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info) 
          [row
           [col
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
-           [:h3 "Available trac tools"]
+           [:h3 {:style {:margin-top 40}} "Available trac tools"]
            (->> tools
                 (map #(conj % [:organ organ]))
                 (map #(conj % [:centre centre]))
                 (map #(conj % [:tool (:key %)]))
                (map ui/tool-buttons)
-               (into [:> bs/ButtonGroup {:vertical false}]))]
+               (into [:> bs/ButtonGroup {:vertical false}]))
+           [row
+            [col
+             [:h3 {:style {:margin-top 40}} "Background guidance"]
+             [:h4 "Examples of:"]
+             [:ul
+              [:li "Donor decisions"]
+              [:li "Matching criteria"]
+              [:li "What happens if you're called in"]
+              [:li "What happens after transplant"]
+              [:ul
+               [:li "Visit schedule"]
+               [:li "Drug regime"]]
+              ]]
+            [col
+             [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
+             [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
+            [col
+             [:h3 {:style {:margin-top 40}} "The Window"]
+             [:p "ILL ENOUGH / WELL ENOUGH?"]
+             [:p "Graph of ‘the window’?"]
+             [:p "Graph of disease trajectory?"]]]]
           ]]))))
 
   (defn get-tool-meta 

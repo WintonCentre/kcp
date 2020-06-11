@@ -14,6 +14,7 @@
                                   row
                                   col
                                   button]]
+   [transplants.paths :as paths]
    ))
 
 (comment
@@ -75,12 +76,13 @@
   []
   (let [route @(rf/subscribe [::subs/current-route])
         centres @(rf/subscribe [::subs/centres])
+        organ-centres @(rf/subscribe [::subs/organ-centres])
         tools @(rf/subscribe [::subs/tools])
         organ (get-in route [:path-params :organ])
         centre (get-in route [:path-params :centre])
         ]
     (when (and organ centre centres tools)
-      (let [centre-info (utils/get-centre-info centres centre) #_(first (get (group-by :key centres) (name centre)))]
+      (let [centre-info (utils/get-centre-info organ-centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info) 
          [row
           [col
@@ -132,12 +134,18 @@
   (let [route @(rf/subscribe [::subs/current-route])
         tools @(rf/subscribe [::subs/tools])
         centres @(rf/subscribe [::subs/centres])
+        organ-centres @(rf/subscribe [::subs/organ-centres])
         organ (get-in route [:path-params :organ])
         centre (get-in route [:path-params :centre])
         tool (get-in route [:path-params :tool])]
-    (when (and organ centre centres tool)
-      (let [centre-info (first (get (group-by :key centres) (name centre)))
+   
+    (when (and organ centre organ-centres tool)
+      (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools (keyword tool))]
+        (println "organ centre-info: " centre-info)
+        (println "centre-name: " (:name centre-info))
+        (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ (:name centre-info) tool)
+                                           [:bundle]]])  ;need this here 
         [page (:description centre-info)
          [row
           [col
@@ -149,8 +157,7 @@
                 (map #(conj % [:centre centre]))
                 (map #(conj % [:tool (:key %)]))
                 (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))
-           ]]]))))
+                (into [:> bs/ButtonGroup {:vertical false}]))]]]))))
 
 ;-------------- Text views below --------------
 

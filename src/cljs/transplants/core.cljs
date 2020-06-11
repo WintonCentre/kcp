@@ -42,6 +42,9 @@
   []
   (rf/dispatch-sync [::events/initialize-db])
   (rf/dispatch-sync [::events/load-edn [paths/metadata-path [:metadata]]])
+  (rf/dispatch [::events/load-and-transpose [(paths/centres-path :lung) [:organ-centres :lung]]])
+  (rf/dispatch [::events/load-and-transpose [(paths/centres-path :kidney) [:organ-centres :kidney]]])
+
   (.addEventListener js/window "resize" on-window-resize)
   (dev-setup)
   (mount-root)) 

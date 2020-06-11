@@ -1,6 +1,7 @@
 (ns transplants.paths
-  "Configuration file paths"
-  (:require [transplants.utils :as utils]))
+ ; "Configuration file paths"
+  (:require [transplants.utils :as utils]
+            [re-frame.core :as rf]))
 
 (def slash "/")
 
@@ -19,15 +20,15 @@
   [organ]
   (str (prefix organ) "centres.txt"))
 
-(defn organ-centre-tools-path
-  [{:keys [organ centre tool] :as path-params} centres]
-  (println "centre-info " (utils/get-centre-info centres centre))
+(defn organ-centre-name-tool
+  [organ centre-name tool]
   (str (prefix organ)
-       centre slash
+       centre-name slash
        tool ".txt"))
 
 (comment
   (prefix "lung")
+  (centres-path :lung)
 
   (organ-centre-tools-path {:organ "lung" 
                             :centre "birm" 

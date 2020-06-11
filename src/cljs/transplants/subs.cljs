@@ -19,6 +19,8 @@
 
 (rf/reg-sub ::centres (fn [db] (get-in db [:centres])))
 
+(rf/reg-sub ::organ-centres (fn [db] (get-in db [:organ-centres])))
+
 (rf/reg-sub ::tools (fn [db] (get-in db [:tools])))
 
 (rf/reg-sub ::tool (fn [db] (get-in db [:tool])))

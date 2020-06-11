@@ -13,6 +13,9 @@
    [transplants.paths :as paths]
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                        Nav Nav.Link]]))
+(comment
+  (paths/centres-path :lung)
+  )
 
 (def routes
   "Reitit nested route syntax can be tricky. Only the leaves are valid.
@@ -31,9 +34,7 @@
      :link-text "Trac tools"
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
-                    :start (fn [& params] (js/console.log "Entering Home")
-                             ;(rf/dispatch [::events/centres nil])
-                             )
+                    :start (fn [& params] (js/console.log "Entering Home"))
        ;; Teardown can be done here.
                     :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
    
@@ -66,7 +67,6 @@
                                :start (fn [& params]
                                         (let [tool (keyword (get-in (first params) [:path :tool]))]
                                           ;(js/console.log "Entering organ-centre-tool: " params)
-                                          ;(rf/dispatch [::events/tool tool])
                                           )
                                         )
                                :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}]]]]

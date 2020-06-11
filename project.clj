@@ -4,15 +4,14 @@
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs "2.10.0"] ; was "2.9.3"
+                 [thheller/shadow-cljs "2.9.3"] ; was "2.9.3"
                  [reagent "0.10.0"]
                  [re-frame "0.12.0"]
                  [day8.re-frame/tracing "0.5.5"]
                  [day8.re-frame/http-fx "v0.2.0"]
                  [metosin/reitit "0.4.2"]
                  [cljs-ajax "0.7.3"]
-                 [winton-utils "0.2.1"]
-                 ]
+                 [winton-utils "0.2.1"]]
 
   :plugins [[lein-shell "0.5.0"]
             [lein-shadow "0.2.0"]
@@ -31,21 +30,20 @@
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
                              :linux   "xdg-open"}}}
-  
+
   :main  transplants.configure/-main
-  
+
   :npm-deps {;"bootstrap" "^4.5.0"
              "highlight.js" "9.18.1"
              "react" "16.13.0"
              "react-dom" "16.13.0"
-             "react-bootstrap" "^1.0.1"
-             }
+             "react-bootstrap" "^1.0.1"}
   :npm-dev-deps {"shadow-cljs"           "2.9.3"
                  "karma"                 "4.4.1"
                  "karma-chrome-launcher" "3.1.0"
                  "karma-cljs-test"       "0.1.0"
                  "karma-junit-reporter"  "2.0.1"}
-  
+
   :shadow-cljs {:nrepl {:port 8777}
                 :dev-http {8100 "public"}
 
@@ -76,8 +74,8 @@
                          {:target :karma
                           :ns-regexp "-test$"
                           :output-to "target/karma-test.js"}}}
-  
-  
+
+
   :aliases {"check" ["with-profile" "configure" "auto" "eftest"]
             "config" ["with-profile" "configure" "do" "run" "-m" "transplants.configure"]
             "dev"          ["with-profile" "dev" "do"
@@ -101,7 +99,7 @@
                                    [eftest "0.5.9"]]
                     :source-paths ["dev"]
                     :test-paths   ["test/cljs"]}
-             
+
              :karma {:source-paths ["src/cljs" "test/cljs"]
                      :test-paths ["test/cljs"]}
 

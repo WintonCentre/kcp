@@ -21,20 +21,6 @@
 (fn [[event-key event-params]]
   (rf/dispatch [event-key event-params]))
 
-(defn path-to-tool-data 
-  [tool-key]
-  "/lung/edn/centres.txt"
-  )
-
-
-#_(rf/reg-fx
- ::get-data
- (fn [[path data-key]] 
-   (GET path
-     {:error-handler #(js/alert "error loading " path)
-      :handler #(rf/dispatch [:events/navigate route])
-      :format :transit})))
-
 (comment
   ; from predict code
   #_(defn get-dictionary

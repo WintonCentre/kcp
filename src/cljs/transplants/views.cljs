@@ -46,16 +46,16 @@
   []
   (let [window-width (rf/subscribe [::subs/window-width])
         tools (rf/subscribe [:transplants.subs/tools])
-        centres (rf/subscribe [:transplants.subs/centres])
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
+        centres (rf/subscribe [:transplants.subs/organ-centres])
         ]
     
     [ui/card-page "Choose your transplant centre"
      (if-not @centres
-       [:div "loading " (name organ) "/edn/centres.txt"]
+       [:div "loading " organ "centres"]
        (if-not @tools 
-         [:div "loading " (name organ) "/edn/tools.txt"]
-         (let [centres (sort-by :description @centres)
+         [:div "loading " organ "/edn/tools.txt"]
+         (let [centres (sort-by :description ((keyword organ) @centres))
                tools @tools
                centre-card (fn [centre] [(if (> @window-width ui/mobile-break)
                                            ui/nav-card
@@ -76,14 +76,13 @@
    Minimally, navigate to an organ-centre-tool home page."
   []
   (let [route @(rf/subscribe [::subs/current-route])
-        centres @(rf/subscribe [::subs/centres])
-        organ-centres @(rf/subscribe [::subs/organ-centres])
+        centres @(rf/subscribe [::subs/organ-centres])
         tools @(rf/subscribe [::subs/tools])
         organ (get-in route [:path-params :organ])
         centre (get-in route [:path-params :centre])
         ]
     (when (and organ centre centres tools)
-      (let [centre-info (utils/get-centre-info organ-centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
+      (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info) 
          [row
           [col
@@ -134,21 +133,21 @@
   []
   (let [route @(rf/subscribe [::subs/current-route])
         tools @(rf/subscribe [::subs/tools])
-        centres @(rf/subscribe [::subs/centres])
         organ-centres @(rf/subscribe [::subs/organ-centres])
         organ (get-in route [:path-params :organ])
         centre (get-in route [:path-params :centre])
-        tool (get-in route [:path-params :tool])]
-   
+        tool (get-in route [:path-params :tool])
+        bundles @(rf/subscribe [::subs/bundles])]
+    (println "Switch tool: " tool)
     (when (and organ centre organ-centres tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools (keyword tool))]
         (println "organ centre-info: " centre-info)
         (println "centre-name: " (:name centre-info))
-        (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ 
-                                                                         (:name centre-info) 
+        (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ
+                                                                         (:name centre-info)
                                                                          (underscore tool))
-                                           [:bundle]]])  ;need this here 
+                                           [:bundles (keyword tool)]]])  ;need this here 
         [page (:description centre-info)
          [row
           [col

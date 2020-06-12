@@ -45,7 +45,6 @@
                              :start (fn [& [params]]
                                       (js/console.log "Entering organ:" params)
                                       (let [organ (keyword (get-in params [:path :organ]))]
-                                        (rf/dispatch [::events/load-and-transpose [(paths/centres-path organ) [:centres]]])
                                         (rf/dispatch [::events/load-and-transpose [(paths/tools-path organ) [:tools]]])))
                              :stop  (fn [& params] (js/console.log (str "Leaving " :organ " Home")))}]}
     [""] ; required to make [":organ"] a leaf route

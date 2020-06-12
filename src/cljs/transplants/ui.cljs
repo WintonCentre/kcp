@@ -136,40 +136,37 @@ in the routes table."
   (let [navbar-routes (remove (comp #(ends-with? % "centre") name) (r/route-names router))
         route @(rf/subscribe [::subs/current-route])
         tools @(rf/subscribe [::subs/tools])
-        centres @(rf/subscribe [::subs/centres])
-        organ (get-in route [:path-params :organ])
-        ]
+        organ (get-in route [:path-params :organ])]
     [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
                    :style {:border-bottom "1px solid black" :opacity "1"}}
      [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
      [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
      [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
 
-     [:> bs/Nav {:active-key (if organ (name organ) "home")
+      [:> bs/Nav {:active-key (if organ (name organ) "home")
                  ;:class "mr-auto" :style {:height "100%" :vertical-align "middle"}
-                 }
-      [:> bs/Nav.Link {:event-key :home
-                       :href (href :transplants.views/home)} "Home"]
-      #_(when organ)
-      (if organ
-        [:> bs/Nav.Link  {:event-key (name organ)
-                          :href (href :transplants.views/organ {:organ organ})} (capitalize (name organ))]
-        [:<>
-         [:> bs/Nav.Link {:event-key "lung"
-                          :key "lung"
-                          :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
-         [:> bs/Nav.Link  {:event-key "kidney"
-                           :key "kidney"
-                           :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]])
-      
-      (when (and organ centres)
-        (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
-              (map (fn [centre]
-                     [:> bs/NavDropdown.Item {:href (href :transplants.views/organ-centre {:organ (name organ)
-                                                                                           :centre (name (:key centre))})
-                                              :key (name (:key centre))} (:name centre)])
-                   centres)))]
-      ]]))
+                  }
+       [:> bs/Nav.Link {:event-key :home
+                        :href (href :transplants.views/home)} "Home"]
+       (if organ
+         [:> bs/Nav.Link  {:event-key (name organ)
+                           :href (href :transplants.views/organ {:organ organ})} (capitalize (name organ))]
+         [:<>
+          [:> bs/Nav.Link {:event-key "lung"
+                           :key "lung"
+                           :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
+          [:> bs/Nav.Link  {:event-key "kidney"
+                            :key "kidney"
+                            :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]])
+       
+       (when-let [centres (and organ ((keyword organ) @(rf/subscribe [::subs/organ-centres])))]
+         #_(when (and organ centres))
+         (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
+               (map (fn [centre]
+                      [:> bs/NavDropdown.Item {:href (href :transplants.views/organ-centre {:organ (name organ)
+                                                                                            :centre (name (:key centre))})
+                                               :key (name (:key centre))} (:name centre)])
+                    centres)))]]]))
 
 (comment 
   (transplants.ui/href :transplants.views/organ-centre {:organ (name :kidney)
@@ -197,12 +194,6 @@ in the routes table."
               :tool-name "Lung Transplants"}]
 
      ]))
-
-#_(defn breadcrumb
-  [route]
-  [:> bs/Breadcrumb
-    [:> bs/Breadcrumb.Item {:href "#"} "Home"]]
-  )
 
 (defn card-page
   [title & children]
@@ -286,12 +277,8 @@ in the routes table."
      [:h1 {:style {:margin-top 20}} title]
      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
 
-
 (defn titled-panel
   [title & children]
   [:<>
    [:h2 title]
    (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))])
-
-
-

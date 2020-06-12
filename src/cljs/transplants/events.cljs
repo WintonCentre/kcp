@@ -49,17 +49,12 @@
  (fn-traced [db [_ c]]
             (assoc db :centre c)))
 
-(rf/reg-event-db
- ; active centre
- ::centres
- (fn-traced [db [_ c]]
-            (assoc db :centres c)))
 
 (rf/reg-event-db
- ; active centre
- ::centres
- (fn-traced [db [_ c]]
-            (assoc db :centres c)))
+ ; organ centres
+ ::organ-centres
+ (fn-traced [db [_ ocs]]
+            (assoc db :organ-centres ocs)))
 
 #_(comment
     (rf/reg-event-db
@@ -76,8 +71,7 @@
  (fn-traced
   [db [_ data-path response]]
   (-> db
-      (assoc-in data-path (edn/read-string response))
-      (assoc :loading-data-path nil))))
+      (assoc-in data-path (edn/read-string response)))))
 
 
 (defn get-sheet-keys
@@ -118,8 +112,7 @@
                     (rel/index x indexes)
                     ;(group-by (first indexes) x)
                     ;(into {} x)
-                    ))
-        (assoc :loading-data-path nil)))))
+                    ))))))
 
 (comment
   (def tool-meta-match string/ends-with?)
@@ -156,37 +149,19 @@
   (clojure.set/index relation [:a])
   (filter (fn [[m s]] (= 1 (:a m))) (clojure.set/index relation [:a :b])))
 
-#_(comment
-  (rf/reg-event-fx
-   ::transpose-response*
-   (fn-traced
-    "Store a transposed response"
-    [db [_ data-path response]]
-    (-> db
-        (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response)))
-        (assoc :loading-data-path nil)))
-   
-   (fn-traced [{:keys [db]} [evt [path data-path]]]
-              (when (and (:current-route db) (:centres db))
-                (let [path-params (get-in db [:current-route :path-params])]
-                  {})))))
-
-
 (rf/reg-event-db
  ::transpose-response
  (fn-traced
   [db [_ data-path response]]
   (-> db
-      (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response)))
-      (assoc :loading-data-path nil))))
+      (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response))))))
 
 (rf/reg-event-db
  ::bad-response
  (fn-traced
   [db [_ data-path response]]
   (js/alert "bad-response loading while loading " data-path "response = " response)
-  (-> db
-      (assoc :loading-data-path nil))))
+  db))
 
 
 (rf/reg-event-fx
@@ -214,6 +189,17 @@
                             :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
+ ::load-sheet-always
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            {:http-xhrio {:method :get
+                          :uri path
+                          :timeout 8000
+                          :format          (ajax/text-request-format)
+                          :response-format (ajax/text-response-format)
+                          :on-success [::store-response data-path]
+                          :on-failure [::bad-response data-path]}}))
+
+(rf/reg-event-fx
  ::load-sheet
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             (when (nil? (get-in db data-path))
@@ -238,18 +224,6 @@
 
 (rf/reg-event-fx
  ::load-and-transpose-once
- (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ; do not load config data twice!
-            (when (nil? (get-in db data-path))
-              {:http-xhrio {:method :get
-                            :uri path
-                            :timeout 8000
-                            :format          (ajax/text-request-format)
-                            :response-format (ajax/text-response-format)
-                            :on-success [::transpose-response data-path]
-                            :on-failure [::bad-response data-path]}})))
-(rf/reg-event-fx
- ::load-organ-centre-tool-bundle
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             ; do not load config data twice!
             (when (nil? (get-in db data-path))

@@ -160,9 +160,8 @@
  ::bad-response
  (fn-traced
   [db [_ data-path response]]
-  (js/alert "bad-response loading while loading " data-path "response = " response)
+  (js/alert "bad-response while loading " data-path "response = " response)
   db))
-
 
 (rf/reg-event-fx
  ::load-edn

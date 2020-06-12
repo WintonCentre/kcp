@@ -15,6 +15,7 @@
                                   col
                                   button]]
    [transplants.paths :as paths]
+   [transplants.shared :refer [underscore]]
    ))
 
 (comment
@@ -144,7 +145,9 @@
             tool-meta (get-tool-meta tools (keyword tool))]
         (println "organ centre-info: " centre-info)
         (println "centre-name: " (:name centre-info))
-        (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ (:name centre-info) tool)
+        (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ 
+                                                                         (:name centre-info) 
+                                                                         (underscore tool))
                                            [:bundle]]])  ;need this here 
         [page (:description centre-info)
          [row

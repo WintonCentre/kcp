@@ -30,9 +30,9 @@
   (prefix "lung")
   (centres-path :lung)
 
-  (organ-centre-tools-path {:organ "lung" 
-                            :centre "birm" 
-                            :tool "post-transplant"} 3)
+  (organ-centre-name-tool  "lung"
+                            "birm"
+                            "post-transplant")
   
   (require 'reframe.core)
   (reframe.core/subscribe [:transplants.subs/centres])

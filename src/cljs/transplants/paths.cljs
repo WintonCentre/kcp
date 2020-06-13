@@ -34,7 +34,5 @@
                             "birm"
                             "post-transplant")
   
-  (require 'reframe.core)
-  (reframe.core/subscribe [:transplants.subs/centres])
   )
   

@@ -15,12 +15,10 @@
                                   col
                                   button]]
    [transplants.paths :as paths]
-   [transplants.shared :refer [underscore]]
-   ))
+   [transplants.shared :refer [underscore]]))
 
 (comment
-(rf/dispatch [::events/initialize-db])
-  )
+  (rf/dispatch [::events/initialize-db]))
 
 ;;; Views ;;;
 (defn home-page
@@ -47,13 +45,12 @@
   (let [window-width (rf/subscribe [::subs/window-width])
         tools (rf/subscribe [:transplants.subs/tools])
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
-        centres (rf/subscribe [:transplants.subs/organ-centres])
-        ]
-    
+        centres (rf/subscribe [:transplants.subs/organ-centres])]
+
     [ui/card-page "Choose your transplant centre"
      (if-not @centres
        [:div "loading " organ "centres"]
-       (if-not @tools 
+       (if-not @tools
          [:div "loading " organ "/edn/tools.txt"]
          (let [centres (sort-by :description ((keyword organ) @centres))
                tools @tools
@@ -79,11 +76,10 @@
         centres @(rf/subscribe [::subs/organ-centres])
         tools @(rf/subscribe [::subs/tools])
         organ (get-in route [:path-params :organ])
-        centre (get-in route [:path-params :centre])
-        ]
+        centre (get-in route [:path-params :centre])]
     (when (and organ centre centres tools)
       (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
-        [page (:description centre-info) 
+        [page (:description centre-info)
          [row
           [col
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
@@ -92,8 +88,8 @@
                 (map #(conj % [:organ organ]))
                 (map #(conj % [:centre centre]))
                 (map #(conj % [:tool (:key %)]))
-               (map ui/tool-buttons)
-               (into [:> bs/ButtonGroup {:vertical false}]))
+                (map ui/tool-buttons)
+                (into [:> bs/ButtonGroup {:vertical false}]))
            [row
             [col
              [:h3 {:style {:margin-top 40}} "Background guidance"]
@@ -105,8 +101,7 @@
               [:li "What happens after transplant"]
               [:ul
                [:li "Visit schedule"]
-               [:li "Drug regime"]]
-              ]]
+               [:li "Drug regime"]]]]
             [col
              [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
              [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
@@ -114,18 +109,26 @@
              [:h3 {:style {:margin-top 40}} "The Window"]
              [:p "ILL ENOUGH / WELL ENOUGH?"]
              [:p "Graph of ‘the window’?"]
-             [:p "Graph of disease trajectory?"]]]]
-          ]]))))
+             [:p "Graph of disease trajectory?"]]]]]]))))
 
-  (defn get-tool-meta 
-    [tools tool-key]
-    @(rf/subscribe [::subs/tools])
-    (first (filter (fn [{:keys [key label description]}]
-                     (= tool-key key))
-                   tools)))
+(defn get-tool-meta
+  [tools tool-key]
+  @(rf/subscribe [::subs/tools])
+  (first (filter (fn [{:keys [key label description]}]
+                   (= tool-key key))
+                 tools)))
 
+(comment
   
+  (def organ "kidney")
+  (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
+  (def tool (underscore :waiting))
+  (paths/organ-centre-name-tool organ
+                                "Belfast"
+                                (underscore tool))
   
+  )
+
 
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
@@ -139,7 +142,7 @@
         tool (get-in route [:path-params :tool])
         bundles @(rf/subscribe [::subs/bundles])]
     (println "Switch tool: " tool)
-    (when (and organ centre organ-centres tool)
+    (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools (keyword tool))]
         (println "organ centre-info: " centre-info)
@@ -147,8 +150,8 @@
         (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ
                                                                          (:name centre-info)
                                                                          (underscore tool))
-                                           [:bundles (keyword organ)(keyword tool)]]])  ;need this here 
-        
+                                           [:bundles (keyword organ) (keyword tool)]]])  ;need this here 
+
         [page (:description centre-info)
          [row
           [col
@@ -171,8 +174,7 @@
   [:h1 "This is sub-page 1"])
 
 (defn about []
-  [page "About"]
-)
+  [page "About"])
 
 (defn about-technical
   "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
@@ -184,8 +186,7 @@ In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
 (defonce sex (rc/atom nil))
 
 (defn event-handler [k v]
-  (if (= v "male") (reset! sex :male) (reset! sex :female))
-  )
+  (if (= v "male") (reset! sex :male) (reset! sex :female)))
 
 (comment
   (reset! sex :female)
@@ -238,6 +239,5 @@ In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
       [:div {:key 1} "survival inputs"]]]
     [col
      [ui/titled-panel "Results"
-      [:div {:key 1} "survival results"]]]]]
-  )
+      [:div {:key 1} "survival results"]]]]])
 

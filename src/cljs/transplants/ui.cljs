@@ -268,14 +268,14 @@ in the routes table."
                 hospital]))]])
 
 (defn page
-  [title & children]
-  [container {:key 1 :style {:min-height "calc(100vh - 165px"
-                             :background-color "#ffffffbb"
-                             :margin-bottom 20}}  
-   [row
-    [col
-     [:h1 {:style {:margin-top 20}} title]
-     (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]])
+  ([title & children]
+   [container {:key 1 :style {:min-height "calc(100vh - 165px"
+                              :background-color "#ffffffbb"
+                              :margin-bottom 20}}
+    [row
+     [col
+      [:h1 {:style {:margin-top 20}} title]
+      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 
 (defn titled-panel
   [title & children]

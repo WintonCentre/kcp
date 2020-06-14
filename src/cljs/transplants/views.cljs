@@ -15,7 +15,10 @@
                                   col
                                   button]]
    [transplants.paths :as paths]
-   [transplants.shared :refer [underscore]]))
+   [transplants.shared :refer [underscore]]
+   [transplants.widgets :as widg]
+   [transplants.transforms :as xf]
+   (winton-utils.data-frame :refer [map-of-vs->v-of-maps])))
 
 (comment
   (rf/dispatch [::events/initialize-db]))
@@ -119,15 +122,13 @@
                  tools)))
 
 (comment
-  
+
   (def organ "kidney")
   (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
   (def tool (underscore :waiting))
   (paths/organ-centre-name-tool organ
                                 "Belfast"
-                                (underscore tool))
-  
-  )
+                                (underscore tool)))
 
 
 (defn organ-centre-tool
@@ -137,23 +138,20 @@
   (let [route @(rf/subscribe [::subs/current-route])
         tools @(rf/subscribe [::subs/tools])
         organ-centres @(rf/subscribe [::subs/organ-centres])
+        bundles @(rf/subscribe [::subs/bundles])
         organ (get-in route [:path-params :organ])
         centre (get-in route [:path-params :centre])
         tool (get-in route [:path-params :tool])
-        bundles @(rf/subscribe [::subs/bundles])]
+        ]
     (println "Switch tool: " tool)
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools (keyword tool))]
         (println "organ centre-info: " centre-info)
         (println "centre-name: " (:name centre-info))
-        (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ
-                                                                         (:name centre-info)
-                                                                         (underscore tool))
-                                           [:bundles (keyword organ) (keyword tool)]]])  ;need this here 
-
-        [page (:description centre-info)
-         [row
+        [page  
+         (:description centre-info)
+         [row {:style {:margin-bottom 20}}
           [col
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
            [:h4 (:label tool-meta)]
@@ -163,7 +161,30 @@
                 (map #(conj % [:centre centre]))
                 (map #(conj % [:tool (:key %)]))
                 (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))]]]))))
+                (into [:> bs/ButtonGroup {:vertical false}]))]]
+         [row 
+          [col {:height "100%"}
+           (if-let [tool-bundle (get-in bundles [(keyword organ) (keyword tool)])]
+
+              (let [tool-inputs-key (keyword (str tool "-inputs"))]
+                ;(pr-str tool-inputs-key)
+                (into [:<>]
+                      (map
+                       (fn [w] ^{:key (:factor w)}(widg/widget w))
+                       (->> tool-bundle
+                         (tool-inputs-key)
+                         (xf/inputs->widget-map)
+                         (map #(assoc % :type :radio))
+                         ))))
+             (do
+               (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ
+                                                                                (:name centre-info)
+                                                                                (underscore tool))
+                                                  [:bundles (keyword organ) (keyword tool)]]])
+               [:div "Loading " (paths/organ-centre-name-tool organ
+                                                              (:name centre-info)
+                                                              (underscore tool))]))]]
+          [col]]))))
 
 ;-------------- Text views below --------------
 
@@ -199,7 +220,7 @@ In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
    [col
     [ui/titled-panel "Inputs"
      [row {:key 1}
-      [col {:style {:justify-content :flex-end}}
+      [col 
        [:label  "Sex"]]
       [col
        [:div {:style {:margin-bottom 5}}

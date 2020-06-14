@@ -10,7 +10,7 @@
   ; Transform an inputs sheet into a set of widget input maps
   (def widget-inputs-map
     "Example of a widget-inputs-map"
-    {:factor-path [:kidney :waiting-inputs :sex]
+    {:factor-path [:kidney :sex]
      :levels [{:level :male
                :label "Male"}
               {:level :female
@@ -19,7 +19,7 @@
 
 (defn inputs->widget-map
   "Transform an inputs sheet into a set of widget input maps"
-  [tool-inputs]
+  [organ tool-inputs]
   ;(println tool-inputs)
   (let [input-spec (->> tool-inputs
                         (map-of-vs->v-of-maps)
@@ -30,11 +30,11 @@
                         )]
     (map
      (fn [ins]
-       {:factor-path [ (utils/unstring-key (:factor (first ins)))]
+       {:factor-path (keyword organ (utils/unstring-key (:factor (first ins))))
         :levels (map (fn [{:keys [level level-name]}]
                        {:level level
                         :label level-name}) ins)
-        :type (:type ins)})
+        :type (utils/unstring-key (:type (first ins)))})
      input-spec)))
 
 (comment

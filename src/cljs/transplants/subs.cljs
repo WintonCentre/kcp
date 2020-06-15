@@ -31,7 +31,7 @@
 (rf/reg-sub :kidney/sex (fn [db] (get-in db [:kidney/sex])))
 (rf/reg-sub :kidney/age (fn [db] (get-in db [:kidney/age])))
 (rf/reg-sub :kidney/ethnicity (fn [db] (get-in db [:kidney/ethnicity])))
-(rf/reg-sub :kidney/blood-group (fn [db] (get-in db [:kidney :blood-group])))
+(rf/reg-sub :kidney/blood-group (fn [db] (get-in db [:kidney/blood-group])))
 (rf/reg-sub :kidney/matchability (fn [db] (get-in db [:kidney/matchability])))
 (rf/reg-sub :kidney/graft (fn [db] (get-in db [:kidney/graft])))
 (rf/reg-sub :kidney/dialysis (fn [db] (get-in db [:kidney/dialysis])))

@@ -18,7 +18,12 @@
                       {:level :female
                        :label "Female"}]
              :default :male
-             :type :radio}))
+             :type :radio})
+          
+(rf/dispatch [:kidney/diabetes :group-a])
+          
+          
+          )
 
 #_(defn factor-key->db-key
   "A factor path is a vector [organ-key factor-key], which must be concatenated into a single db access key both for
@@ -34,9 +39,10 @@
   )
 
 (defmethod widget :radio
-  [{:keys [factor-name factor-key levels default type]}]
-  (println "factor-name: " factor-name)
-  (println "factor-key: " factor-key)
+  [{:keys [factor-name factor-key levels default type] :as w}]
+  (println "keys w "(keys w))
+  ;(println "factor-name: " factor-name)
+  ;(println "factor-key: " factor-key)
   ;(println "default: " default)
   ;(println "widget-type: " type)
   ;(println "levels " levels)
@@ -48,8 +54,11 @@
                       value)]
     (bsio/radio-button-group {:id (pr-str factor-key)
                               :value-f value-f
-                              :on-change #(rf/dispatch [factor-key
-                                                        (first %)])
+                              :on-change #(do
+                                            (println "store" [factor-key
+                                                      (keyword %)])
+                                           (rf/dispatch [factor-key
+                                                         (keyword %)]))
                               :buttons-f (fn [] levels)})))
 (comment
   (widget {:type :radio})

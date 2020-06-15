@@ -57,9 +57,10 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
   [{:keys [id value-f on-change buttons-f]}]
   [:div
-   (let [value (value-f)] 
+   (let [value (value-f)]
+     (println "radio value " value)
      (into [:> bs/ToggleButtonGroup
-            {:type "checkbox"
+            {:type "radio"
              :name id
              :value value
              :on-change on-change
@@ -67,7 +68,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :border-radius 5
                       :padding 1}}]
            (map (fn [{:keys [label level disabled]}]
-                  [:> bs/ToggleButton {:key level :disabled disabled :value level} 
+                  [:> bs/ToggleButton {:key level :disabled false :value level} 
                    label])
                 (buttons-f))))])
 

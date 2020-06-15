@@ -42,7 +42,7 @@
 
 (map-vals #(* 2 %) {:A 1 :B 3})
 
-(defn inputs->widget-map
+#_(defn inputs->widget-map
   "Transform an inputs sheet into a set of widget input maps"
   [organ tool-inputs]
 

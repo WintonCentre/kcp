@@ -58,9 +58,9 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
   [{:keys [id value-f on-change buttons-f]}]
   [:div
    (let [value (value-f)]
-     (println "radio value " value)
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
+             :id id
              :name id
              :value value
              :on-change on-change
@@ -71,6 +71,33 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                   [:> bs/ToggleButton {:key level :disabled false :value level} 
                    label])
                 (buttons-f))))])
+
+(defn dropdown
+  [{:keys [id value-f on-change buttons-f]}]
+
+  (let [value (value-f)
+        buttons (buttons-f)]
+  
+    [:> bs/Dropdown
+     {:on-select #(on-change (keyword %))}
+     
+     (into [:> bs/DropdownButton
+            {:id id
+             :value value
+             :title  (:label (first (if-let [x (seq (filter (fn [{:keys [level]}]
+                                                              (= value level)) buttons))]
+                                      x (buttons-f))))
+             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
+                      :border-radius 5
+                      :padding 1
+                      :width "max-content"}}]
+           (map (fn [{:keys [label level disabled]}]
+                  [:> bs/Dropdown.Item {:key level :as "button" 
+                                        :eventKey level 
+                                        :on-click #(.preventDefault %)}
+                   label])
+                (buttons-f)))]))
+
 
 (comment
   ; white border when there is a value

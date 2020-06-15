@@ -60,6 +60,29 @@
                                            (rf/dispatch [factor-key
                                                          (keyword %)]))
                               :buttons-f (fn [] levels)})))
+
+(defmethod widget :dropdown
+  [{:keys [factor-name factor-key levels default type] :as w}]
+  ;(println "keys w "(keys w))
+  ;(println "factor-name: " factor-name)
+  ;(println "factor-key: " factor-key)
+  ;(println "default: " default)
+  ;(println "widget-type: " type)
+  ;(println "levels " levels)
+  ;(println "value " @(rf/subscribe [factor-key]))
+  (let [value-f (fn [] @(rf/subscribe [factor-key]))]
+    (println "factor-key" factor-key)
+    (println "caller v "(value-f))
+    (bsio/dropdown {:id (pr-str factor-key)
+                    :value-f value-f
+                    :on-change #(do
+                                  (println "store" [factor-key
+                                                    (keyword %)])
+                                  (rf/dispatch [factor-key
+                                                (keyword %)]))
+                    :buttons-f (fn [] levels)})))
+
+
 (comment
   (widget {:type :radio})
   (widget {:type :foo}))

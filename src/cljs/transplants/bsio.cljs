@@ -5,7 +5,7 @@ where we can work on defining a common interface.
   (:require ["react-bootstrap" :as bs]))
 
 (comment
-  
+
   (defn example
     "This example defines an interface for reading and writing application state. 
 It borrows some language from re-frame.
@@ -46,23 +46,43 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
     [value-k value-f event-f & [options]]
     (let [handle-change (fn [e] (event-f [value-k (-> e .-target .-value)]))]
       [:input {:type "text" :value (value-f) :on-change handle-change}])))
-          
-          
+
 (defn radio-button-group
-  "Add in correct toggle operation. 
+  "Add in correct toggle operation.
+   The id may be used to locate this widget in E2E tests.
+   value-f is a function which, when called returns the current value of the widget.
+   event-f is an event handler which is called when the selected level changes
    Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
-  [{:keys [value-k value-f event-f buttons-f]}]
+  [{:keys [id value-f on-change buttons-f]}]
   [:div
-   (let [value (value-f)]
+   (let [value (value-f)]  
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
-             :name value-k
+             :name id
              :value value
-             :on-change #(event-f value-k %)
+             :on-change on-change
              :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
                       :border-radius 5
-                      :padding 1}}
-            ]
+                      :padding 1}}]
            (map (fn [{:keys [label level disabled]}]
-                  [:> bs/ToggleButton {:key level :disabled disabled :value level} label])
+                  [:> bs/ToggleButton {:key level :disabled disabled :level level} label])
                 (buttons-f))))])
+
+(comment
+  ; white border when there is a value
+  (:border (:style (nth (second (radio-button-group {:value-path [:sex]
+                                                     :value-f (fn [] :male)
+                                                     :on-change identity
+                                                     :buttons-f (fn [] [{:level :male :label "Male"}
+                                                                        {:level :female :label "Female"}])}))
+                        2)))
+
+  ; red border when there isn't
+  (:border (:style (nth (second (radio-button-group {:value-path [:sex]
+                                                     :value-f (fn [] nil)
+                                                     :on-change identity
+                                                     :buttons-f (fn [] [{:level :male :label "Male"}
+                                                                        {:level :female :label "Female"}])}))
+                        2)))
+  )
+

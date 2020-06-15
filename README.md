@@ -1,5 +1,12 @@
 # Transplants
 
+## WARNING: 
+If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
+** TODO: Add exception handling for this condition. **
+
+## MOCKUP
+See https://docs.google.com/presentation/d/1uKk0HyclaTMCb-EIZiyVdJPBjzzHflArWoq8ukwbMGE/edit?usp=sharing
+
 ## Contents
 This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
 
@@ -18,20 +25,42 @@ I'm working on the premise that we can generate all the organ transplant tools f
 
 See the config files in the data folder. 
 
-
-
 ## Configuration tools and data
   Tools are in `src/clj/transplants/configure`.
   Configuration is in `data` and is controlled by `config.edn`
 
+  Run `lein check` to check that the xlsx spreadsheets are not too crazy. This catches a lot of potential problems, but probably not all problems as yet. 
+  Configuration tests run under the `configure` leiningen profile. 
+
+  Run `lein config` to generate a complete set of edn and csv files in the resources/public directory. This
+  also uses the `configure` profile.
+
   The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
 
-  Configuration tests run under the `configure` leiningen profile. Launch these using the `check` alias i.e. Run `lein check` in a terminal.
-
 ### Configuration Development
-All data is stored in the configuration folder. 
+All data is stored in the `data` folder.
+```
+data
+├── config.edn
+├── incoming-kidney
+│   ├── Competing\ risks\ CIF\ kidney.xlsx
+│   ├── Formal\ post\ tx\ patient\ and\ graft\ survival.xlsx
+│   └── post\ tx\ patient\ and\ graft\ survival.xlsx
+├── incoming-lung
+│   ├── About\ the\ TRAC\ tool\ FINAL.docx
+│   ├── Competing\ risks\ CIF\ lung.xlsx
+│   ├── Data\ for\ lung\ TRAC\ tool.pdf
+│   ├── Post-transplant\ information.xlsx
+│   ├── Survival\ from\ listing\ information.xlsx
+│   └── leila-ucd.xlsx
+├── kidney-models-master.xlsx
+└── lung-models-master.xlsx
+```
 
-The job of the clojure configuration app is to read this data and validate it, and then write it out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code. 
+The `incoming-...` files were received from NHSBT. These have now 
+been reformatted and transcribed into `kidney-models-master.xlsx` and `lung-models-master.xlsx`.
+
+The job of the clojure configuration app is to read these spreadsheets and validate then, and then write them out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code. 
 
 The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing. 
 
@@ -42,13 +71,13 @@ If jacking in from VS-Code be sure to select `leiningen` with `no alias` and the
 Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start 
 that way to avoid duplication.
 
-If jacking in from VS-code, select shadow-cljs and the :app build. 
+If jacking in from VS-code, select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. 
 
 Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. This server does not need hashtag routing.
 
 ## Tests
-To come. See re-frame instructions below.
-
+Run `lein karma` for cljs unit tests
+Run `lein check` for xlsx configuration tests
 
 # Original Re-frame template README below
 ## Getting Started

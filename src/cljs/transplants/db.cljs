@@ -1,10 +1,5 @@
 (ns transplants.db)
 
-(defn path-to-tool-data
-  [tool-key]
-  )
-
-
 (def default-db
-  {:name "re-frame"})
+  {:window-width 800 #_(.innerWidth js/Window)})
 

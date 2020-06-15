@@ -1,3 +1,6 @@
 #!/bin/bash
 
-echo "Please add appropriate build"
+# Should we generate the data files on the server? 
+lein config
+
+lein prod

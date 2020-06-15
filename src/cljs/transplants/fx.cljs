@@ -1,19 +1,17 @@
 (ns transplants.fx
   (:require [re-frame.core :as rf]
-            [reitit.frontend.easy :as rfe]
-            [ajax.core :refer [GET]])
-  )
+            [reitit.frontend.easy :as rfe]))
 
 ;;; Effects ;;;
 
 ;; Triggering navigation from events.
 ;; k is the route :name as defined in routes/routes
 ;; params are any url parameters
-;; query are any query parameters
+;; query is any query parameters
 (rf/reg-fx
  ::navigate!
- (fn [k params query]
-   (println "NAVIGATE!" k params query)
+ (fn [[k params query]]
+   ;(println "NAVIGATE!" k params query)
    (rfe/push-state k params query)))
 
 
@@ -22,20 +20,6 @@
 ::dispatch
 (fn [[event-key event-params]]
   (rf/dispatch [event-key event-params]))
-
-(defn path-to-tool-data 
-  [tool-key]
-  "/numerics.edn"
-  )
-
-(rf/reg-fx
- ::load
- (fn [[tool-key route]]
-   (let [url (path-to-tool-data tool-key)]
-     (GET url
-       {:error-handler #(js/alert "error loading " url)
-        :handler #(rf/dispatch [:events/navigate route])
-        :format :transit}))))
 
 (comment
   ; from predict code

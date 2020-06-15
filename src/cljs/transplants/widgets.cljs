@@ -78,11 +78,11 @@
 
   (def widget-inputs-map
     "Example of a widget-inputs-map"
-    {:factor-path [:kidney :waiting-inputs :sex]
+    {:factor-path :kidney/sex
      :levels [{:level :male
                :label "Male"}
               {:level :female
                :label "Female"}]
-     :default :male})
+     :type :radio})
 )
 

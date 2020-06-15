@@ -27,7 +27,7 @@
 
 (rf/reg-sub ::bundles (fn [db] (get-in db [:bundles])))
 
-;:waiting-inputs
+;:kidney waiting-inputs
 (rf/reg-sub :kidney/sex (fn [db] (get-in db [:kidney :sex])))
 (rf/reg-sub :kidney/age (fn [db] (get-in db [:kidney :age])))
 (rf/reg-sub :kidney/ethnicity (fn [db] (get-in db [:kidney :ethnicity])))
@@ -37,3 +37,19 @@
 (rf/reg-sub :kidney/dialysis (fn [db] (get-in db [:kidney :dialysis])))
 (rf/reg-sub :kidney/sensitised (fn [db] (get-in db [:kidney :sensitised])))
 (rf/reg-sub :kidney/diabetes (fn [db] (get-in db [:kidney :diabetes])))
+
+;:lung waiting-inputs
+(rf/reg-sub :lung/thoracotomy (fn [db] (get-in db [:lung :sex])))
+(rf/reg-sub :lung/thoracotomy (fn [db] (get-in db [:lung :thoracotomy])))
+(rf/reg-sub :lung/d-gp (fn [db] (get-in db [:lung :d-gp])))
+(rf/reg-sub :lung/dd-pred (fn [db] (get-in db [:lung :dd-pred])))
+(rf/reg-sub :lung/in-hosp (fn [db] (get-in db [:lung :in-hosp])))
+(rf/reg-sub :lung/nyha-class (fn [db] (get-in db [:lung :nyha-class])))
+(rf/reg-sub :lung/ethnicity (fn [db] (get-in db [:lung :ethnicity])))
+(rf/reg-sub :lung/fvc (fn [db] (get-in db [:lung :fvc])))
+(rf/reg-sub :lung/age (fn [db] (get-in db [:lung :age])))
+(rf/reg-sub :lung/bmi (fn [db] (get-in db [:lung :bmi])))
+(rf/reg-sub :lung/bilirubin (fn [db] (get-in db [:lung :bilirubin])))
+(rf/reg-sub :lung/blood-group (fn [db] (get-in db [:lung :blood-group])))
+(rf/reg-sub :lung/centre-d-gp (fn [db] (get-in db [:lung :centre-d-gp])))
+

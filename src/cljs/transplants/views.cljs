@@ -167,14 +167,16 @@
            ;[:div (pr-str "organ " organ)]
            (if-let [tool-bundle (get-in bundles [(keyword organ) (keyword tool)])]
              (let [tool-inputs-key (keyword (str tool "-inputs"))]
-                ;(pr-str tool-inputs-key)
-               (into [:<>]
-                     (map
-                      (fn [w] ^{:key (:factor w)} (widg/widget w))
-                      (->> tool-bundle
-                           (tool-inputs-key)
-                           (xf/inputs->widget-map (keyword organ))
-                           #_(map #(assoc % :type :radio))))))
+               ;(pr-str tool-inputs-key)
+               (pr-str (->> tool-bundle
+                            (tool-inputs-key)
+                            (xf/inputs->widget-map (keyword organ))))
+               #_(into [:<>]
+                       (map
+                        (fn [w] ^{:key (:factor w)} (widg/widget w))
+                        (->> tool-bundle
+                             (tool-inputs-key)
+                             (xf/inputs->widget-map (keyword organ))))))
              (do
                (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ
                                                                                 (:name centre-info)

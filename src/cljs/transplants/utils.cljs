@@ -8,7 +8,10 @@
 (defn unstring-key
   "ks is a string starting with a colon. Convert it to a true keyword"
   [ks]
-  (keyword (subs ks 1)))
+  (if ks
+    (keyword (subs ks 1))
+    :hidden)
+  )
 
 (comment
   (unstring-key ":hello"))

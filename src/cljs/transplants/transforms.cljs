@@ -17,10 +17,12 @@
                :label "Female"}]
      :default :male}))
 
+; todo: Move utils/unstring-key calls - they should happend soon after data is acquired
+
 (defn inputs->widget-map
   "Transform an inputs sheet into a set of widget input maps"
   [organ tool-inputs]
-  ;(println tool-inputs)
+  ;(println "inputs" organ " " tool-inputs)
   (let [input-spec (->> tool-inputs
                         (map-of-vs->v-of-maps)
                         (filter :factor)
@@ -30,14 +32,18 @@
                         )]
     (map
      (fn [ins]
-       {:factor-path (keyword organ (utils/unstring-key (:factor (first ins))))
-        :levels (map (fn [{:keys [level level-name]}]
-                       {:level level
-                        :label level-name}) ins)
-        :type (utils/unstring-key (:type (first ins)))})
+       (if (:factor (first ins))
+         {:factor-path (keyword organ (utils/unstring-key (:factor (first ins))))
+          :levels (map (fn [{:keys [level level-name]}]
+                         {:level level
+                          :label level-name}) ins)
+          :type (utils/unstring-key (:type (first ins)))}
+         (println "nil FACTOR " (first ins))))
      input-spec)))
 
 (comment
+  (utils/unstring-key nil)
+  
   (def tool-inputs {:beta-transplant '(nil nil 0 -0.06289 nil 0.60387 0.46442 0.26097 0 -0.28334 -0.77722 nil 0 -0.01539 nil 0 0.54305 0.00727 0.54305 nil 0 -0.28893 -0.61033 nil 0 -0.35381 nil 0 0.29132 nil 0 -0.74768 nil 0 -0.32635 nil nil nil nil nil)
                     :beta-death '(nil nil 0 -0.10852 nil -1.43819 -1.04978 -0.57859 0 0.09774 0.13967 nil 0 -0.26636 nil 0 -0.19369 0.03454 -0.19369 nil 0 0.09036 0.14314 nil 0 0.46463 nil 0 -0.50041 nil 0 0.33496 nil 0.86605 0 nil nil nil nil nil)
                     :info-box? '(nil nil "Male" "Female" nil nil nil nil nil nil nil nil :yes nil nil nil nil nil nil nil :yes nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)

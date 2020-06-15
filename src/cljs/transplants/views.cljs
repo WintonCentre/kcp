@@ -143,12 +143,11 @@
         centre (get-in route [:path-params :centre])
         tool (get-in route [:path-params :tool])
         ]
-    (println "Switch tool: " tool)
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools (keyword tool))]
-        (println "organ centre-info: " centre-info)
-        (println "centre-name: " (:name centre-info))
+        ;(println "organ centre-info: " centre-info)
+        ;(println "centre-name: " (:name centre-info))
         [page  
          (:description centre-info)
          [row {:style {:margin-bottom 20}}
@@ -168,20 +167,19 @@
            (if-let [tool-bundle (get-in bundles [(keyword organ) (keyword tool)])]
              (let [tool-inputs-key (keyword (str tool "-inputs"))]
                ;(pr-str tool-inputs-key)
-               (pr-str (->> tool-bundle
-                            (tool-inputs-key)
-                            (xf/inputs->widget-map (keyword organ))))
-               #_(into [:<>]
+               (into [:<>]
                        (map
-                        (fn [w] ^{:key (:factor w)} (widg/widget w))
-                        (->> tool-bundle
+                        (fn [w] ^{:key (:factor w)} (println w) (widg/widget w))
+                        (get tool-bundle tool-inputs-key)
+                        #_(->> tool-bundle
                              (tool-inputs-key)
-                             (xf/inputs->widget-map (keyword organ))))))
+                             (xf/inputs->widget-map (keyword organ)))
+                        )))
              (do
-               (rf/dispatch [::events/load-sheet [(paths/organ-centre-name-tool organ
-                                                                                (:name centre-info)
-                                                                                (underscore tool))
-                                                  [:bundles (keyword organ) (keyword tool)]]])
+               (rf/dispatch [::events/load-bundles [(paths/organ-centre-name-tool organ
+                                                                                  (:name centre-info)
+                                                                                  (underscore tool))
+                                                    [:bundles (keyword organ) (keyword tool)]]])
                [:div "Loading " (paths/organ-centre-name-tool organ
                                                               (:name centre-info)
                                                               (underscore tool))]))]]

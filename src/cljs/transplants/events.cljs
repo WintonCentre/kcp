@@ -4,6 +4,8 @@
    [re-frame.core :as rf]
    [day8.re-frame.http-fx]
    [transplants.fx :as fx]
+   [transplants.utils :as utils]
+   [transplants.transforms :as xf]
    ;[transplants.db :as db]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
@@ -63,6 +65,72 @@
      (fn-traced [db [_ td]]
                 (assoc db :require-tool-data td))))
 
+;;;
+;; Input values: These are both stored and registered on the same namespaced key
+;;;
+(defn reg-input [nsk]
+  (rf/reg-event-db
+   nsk
+   (fn-traced [db [_ v]] (assoc db nsk v))))
+
+;:kidney waiting-inputs
+(reg-input :kidney/sex)
+(reg-input :kidney/age)
+(reg-input :kidney/ethnicity)
+(reg-input :kidney/blood-group)
+(reg-input :kidney/matchability)
+(reg-input :kidney/graft)
+(reg-input :kidney/dialysis)
+(reg-input :kidney/sensitised)
+(reg-input :kidney/diabetes)
+
+;:lung waiting-inputs
+(reg-input :lung/thoracotomy)
+(reg-input :lung/thoracotomy)
+(reg-input :lung/d-gp)
+(reg-input :lung/dd-pred)
+(reg-input :lung/in-hosp)
+(reg-input :lung/nyha-class)
+(reg-input :lung/ethnicity)
+(reg-input :lung/fvc)
+(reg-input :lung/age)
+(reg-input :lung/bmi)
+(reg-input :lung/bilirubin)
+(reg-input :lung/blood-group)
+(reg-input :lung/centre-d-gp)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Process tool bundles into db
+;;;
+(rf/reg-event-db
+ ::store-bundles-response
+ (fn-traced
+  [db [_ data-path response]]
+  (let [route (:current-route db)
+        path-params (get-in route [:path-params])
+        [organ centre tool] (utils/path-keys path-params)
+        raw (edn/read-string response)
+       ; waiting-inputs (:waiting-inputs raw)
+       ; waiting-baseline-cifs (:waiting-baseline-cifs raw)
+       ; waiting-baseline-vars (:waiting-baseline-vars raw)
+        processed (assoc-in raw [:waiting-inputs]
+                            (xf/inputs->factor-maps organ (:waiting-inputs raw)))]
+
+    
+    (-> db
+        (assoc-in data-path processed #_(merge (edn/read-string response)
+                                   {:inputs (xf/inputs->factor-maps (:waiting-inputs raw))})))
+    #_(-> db
+        (assoc-in data-path (merge (edn/read-string response)
+                                   {:inputs (xf/inputs->factor-maps (:waiting-inputs raw))}))))))
+
+
+
+;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;;
 ;; Load data sequences
 ;;
@@ -74,18 +142,19 @@
       (assoc-in data-path (edn/read-string response)))))
 
 
+
 (defn get-sheet-keys
   [sheet-metas sheet-name]
   (-> (filter (fn [meta]
                 (as-> meta x
                   (:sheet x)
                   (clojure.string/replace x #"\*" "")
-                  (clojure.string/ends-with? (name sheet-name) x))
+                  (clojure.string/ends-with? (name sheet-name) x)))
 
                 #_(clojure.string/ends-with? (name sheet-name)))
               sheet-metas)
       first
-      :keys))
+      :keys)
 
 
 
@@ -209,6 +278,18 @@
                             :format          (ajax/text-request-format)
                             :response-format (ajax/text-response-format)
                             :on-success [::store-response data-path]
+                            :on-failure [::bad-response data-path]}})))
+
+(rf/reg-event-fx
+ ::load-bundles
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::store-bundles-response data-path]
                             :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx

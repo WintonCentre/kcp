@@ -1,5 +1,6 @@
 (ns transplants.widgets
   (:require [re-frame.core :as rf]
+            ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
             [transplants.utils :as utils]))
 
@@ -40,7 +41,7 @@
 
 (defmethod widget :radio
   [{:keys [factor-name factor-key levels default type] :as w}]
-  (println "keys w "(keys w))
+  ;(println "keys w " (keys w))
   ;(println "factor-name: " factor-name)
   ;(println "factor-key: " factor-key)
   ;(println "default: " default)
@@ -52,13 +53,14 @@
         #_#_value-f (if (and default (nil? value))
                       (fn [] default)
                       value)]
+
     (bsio/radio-button-group {:id (pr-str factor-key)
                               :value-f value-f
                               :on-change #(do
                                             (println "store" [factor-key
-                                                      (keyword %)])
-                                           (rf/dispatch [factor-key
-                                                         (keyword %)]))
+                                                              (keyword %)])
+                                            (rf/dispatch [factor-key
+                                                          (keyword %)]))
                               :buttons-f (fn [] levels)})))
 
 (defmethod widget :dropdown

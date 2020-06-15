@@ -56,11 +56,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    event-f is an event handler which is called when the selected level changes
    Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
   [{:keys [id value-f on-change buttons-f]}]
-  [:div
+  [:<>
    (let [value (value-f)]
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
              :id id
+             :inline true
              :name id
              :value value
              :on-change on-change

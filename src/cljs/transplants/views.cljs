@@ -166,12 +166,18 @@
            ;[:div (pr-str "organ " organ)]
            (if-let [tool-bundle (get-in bundles [(keyword organ) (keyword tool)])]
              (let [tool-inputs-key (keyword (str tool "-inputs"))]
-               ;(pr-str tool-inputs-key)
+
                (into [:<>]
-                       (map
-                        (fn [w] ^{:key (:factor w)} (println w) (widg/widget w))
-                        (get tool-bundle tool-inputs-key)
-                        )))
+                     (map
+                      (fn [w] ^{:key (:factor w)}
+                        [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
+                         [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+                          [:> bs/Form.Label {:style {:font-weight "bold"}} 
+                           (:factor-name w)]]
+                         [:> bs/Col
+                          (widg/widget w)]])
+                      (get tool-bundle tool-inputs-key)
+                      )))
              (do
                (rf/dispatch [::events/load-bundles [(paths/organ-centre-name-tool organ
                                                                                   (:name centre-info)
@@ -179,7 +185,8 @@
                                                     [:bundles (keyword organ) (keyword tool)]]])
                [:div "Loading " (paths/organ-centre-name-tool organ
                                                               (:name centre-info)
-                                                              (underscore tool))]))]]
+                                                              (underscore tool))]))]
+          [col]]
           [col]]))))
 
 ;-------------- Text views below --------------

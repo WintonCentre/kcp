@@ -171,9 +171,6 @@
                        (map
                         (fn [w] ^{:key (:factor w)} (println w) (widg/widget w))
                         (get tool-bundle tool-inputs-key)
-                        #_(->> tool-bundle
-                             (tool-inputs-key)
-                             (xf/inputs->widget-map (keyword organ)))
                         )))
              (do
                (rf/dispatch [::events/load-bundles [(paths/organ-centre-name-tool organ

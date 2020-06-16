@@ -92,9 +92,9 @@
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
            [:h3 {:style {:margin-top 40}} "Available trac tools"]
            (->> tools
-                (map #(conj % [:organ organ]))
-                (map #(conj % [:centre centre]))
-                (map #(conj % [:tool (:key %)]))
+                (map #(conj % [:organ organ-name]))
+                (map #(conj % [:centre centre-name]))
+                (map #(conj % [:tool (name (:key %))]))
                 (map ui/tool-buttons)
                 (into [:> bs/ButtonGroup {:vertical false}]))
            [row
@@ -157,8 +157,8 @@
            [:p  (:description tool-meta)]
            (->> tools
                 (map #(conj % [:organ organ-name]))
-                (map #(conj % [:centre centre]))
-                (map #(conj % [:tool (:key %)]))
+                (map #(conj % [:centre centre-name]))
+                (map #(conj % [:tool (name (:key %))]))
                 (map ui/tool-buttons)
                 (into [:> bs/ButtonGroup {:vertical false}]))]]
          [row 

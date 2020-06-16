@@ -61,7 +61,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
              :id id
-             :inline true
+             :inline "true"
              :name id
              :value value
              :on-change on-change

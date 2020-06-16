@@ -83,8 +83,6 @@
   ;(println "levels " levels)
   ;(println "value " @(rf/subscribe [factor-key]))
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
-    (println "factor-key" factor-key)
-    (println "caller v "(value-f))
     
     [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
@@ -104,7 +102,7 @@
   [{:keys [factor-name factor-key levels default type] :as w}]
   ;(println "keys w "(keys w))
   ;(println "factor-name: " factor-name)
-  (println "factor-key: " factor-key)
+  ;(println "factor-key: " factor-key)
   ;(println "default: " default)
   ;(println "widget-type: " type)
   ;(println "levels " levels)
@@ -129,11 +127,12 @@
       [num/numeric-input {:key (pr-str factor-key)
                           :value-f value-f
                           :on-change #(rf/dispatch [factor-key %])
-                          :nmin 0 :nmax 100 :step 1 :precision 1}]]]))
+                          :min 20 :max 100 :step 1 :precision 1}]]]))
 
 
 (comment
   (def value-f (fn [] @(rf/subscribe [:lung/bmi])))
+  (#(rf/dispatch [:lung/bmi %]) 60)
   (value-f)
   
   (widget {:type :radio})

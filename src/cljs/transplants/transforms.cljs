@@ -26,7 +26,6 @@
   [organ inputs]
   (map
         (fn [ins]
-       (println (:factor (first ins)))
           {:factor-key (keyword organ (utils/unstring-key (:factor (first ins))))
            :factor-name (:factor-name (first ins))
            :levels (map (fn [{:keys [level level-name]}]

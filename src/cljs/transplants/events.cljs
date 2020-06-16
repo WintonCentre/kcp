@@ -103,8 +103,8 @@
 (reg-input :lung/ethnicity)
 (reg-input :lung/fvc)
 (reg-input :lung/age)
-;(reg-input :lung/bmi)
-(rf/reg-event-db
+(reg-input :lung/bmi)
+#_(rf/reg-event-db
  :lung/bmi
  (fn-traced [db [_ v]] (assoc db :lung/bmi v)))
 (reg-input :lung/bilirubin)

@@ -38,10 +38,12 @@
   (factor-key->organ-factor [:foo :bar])
   ;=> :foo/bar
   )
+
+; factors with a nil type field have no widget
 (defmethod widget nil [_]
   nil)
 
-
+; radio buttons allow fast selection between options
 (defmethod widget :radio
   [{:keys [factor-name factor-key levels default type] :as w}]
   ;(println "keys w " (keys w))
@@ -71,6 +73,9 @@
                                                             (keyword %)]))
                                 :buttons-f (fn [] levels)})]]))
 
+
+; dropdowns are similar to radio buttons but are useful when a radio-button-group
+; would is too wide
 (defmethod widget :dropdown
   [{:keys [factor-name factor-key levels default type] :as w}]
   ;(println "keys w "(keys w))

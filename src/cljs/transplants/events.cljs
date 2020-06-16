@@ -158,7 +158,7 @@
 
 
 
-(rf/reg-event-db
+#_(rf/reg-event-db
  ::store-indexed-response
  (fn-traced
   [db [_ data-path response]]
@@ -245,7 +245,7 @@
                             :on-success [::store-response data-path]
                             :on-failure [::bad-response data-path]}})))
 
-(rf/reg-event-fx
+#_(rf/reg-event-fx
  ::load-sheet-and-index
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             (when (nil? (get-in db data-path))

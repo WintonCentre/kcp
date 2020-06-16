@@ -34,10 +34,6 @@
   (apply keyword factor-key)
   )
 
-#_(comment
-  (factor-key->organ-factor [:foo :bar])
-  ;=> :foo/bar
-  )
 
 ; factors with a nil type field have no widget
 (defmethod widget nil [_]

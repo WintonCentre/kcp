@@ -15,7 +15,6 @@
                                   col
                                   button]]
    [transplants.paths :as paths]
-   [transplants.shared :refer [underscore]]
    [transplants.widgets :as widg]
    [transplants.transforms :as xf]
    (winton-utils.data-frame :refer [map-of-vs->v-of-maps])))
@@ -81,7 +80,10 @@
         organ (get-in route [:path-params :organ])
         centre (get-in route [:path-params :centre])]
     (when (and organ centre centres tools)
-      (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
+      
+      ;;; TODO: Tidy organ centre tool up here
+      
+      (let [centre-info (utils/get-centre-info centres organ (keyword centre)) #_(first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info)
          [row
           [col
@@ -125,10 +127,9 @@
 
   (def organ "kidney")
   (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
-  (def tool (underscore :waiting))
   (paths/organ-centre-name-tool organ
                                 "Belfast"
-                                (underscore tool)))
+                                "waiting"))
 
 
 (defn organ-centre-tool
@@ -139,24 +140,27 @@
         tools @(rf/subscribe [::subs/tools])
         organ-centres @(rf/subscribe [::subs/organ-centres])
         bundles @(rf/subscribe [::subs/bundles])
-        organ (get-in route [:path-params :organ])
-        centre (get-in route [:path-params :centre])
-        tool (get-in route [:path-params :tool])
+        ;organ (get-in route [:path-params :organ])
+        ;centre (get-in route [:path-params :centre])
+        ;tool (get-in route [:path-params :tool])
+        [organ-name centre tool-name] ((juxt :organ :centre :tool) (:path-params route))
+        organ (keyword organ-name)
+        tool (keyword tool-name)
         ]
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
-            tool-meta (get-tool-meta tools (keyword tool))]
+            tool-meta (get-tool-meta tools tool)]
         ;(println "organ centre-info: " centre-info)
         ;(println "centre-name: " (:name centre-info))
         [page  
          (:description centre-info)
          [row {:style {:margin-bottom 20}}
           [col
-           [:h2 (str (string/capitalize (name organ)) " transplant centre")]
+           [:h2 (str (string/capitalize organ-name) " transplant centre")]
            [:h4 (:label tool-meta)]
            [:p  (:description tool-meta)]
            (->> tools
-                (map #(conj % [:organ organ]))
+                (map #(conj % [:organ organ-name]))
                 (map #(conj % [:centre centre]))
                 (map #(conj % [:tool (:key %)]))
                 (map ui/tool-buttons)
@@ -164,8 +168,8 @@
          [row 
           [col 
            ;[:div (pr-str "organ " organ)]
-           (if-let [tool-bundle (get-in bundles [(keyword organ) (keyword tool)])]
-             (let [tool-inputs-key (keyword (str tool "-inputs"))]
+           (if-let [tool-bundle (get-in bundles [organ tool])]
+             (let [tool-inputs-key (keyword (str tool-name "-inputs"))]
 
                (into [:<>]
                      (map
@@ -173,19 +177,19 @@
                           (widg/widget w))
                       (get tool-bundle tool-inputs-key)
                       )))
-             (do
-               (rf/dispatch [::events/load-bundles [(paths/organ-centre-name-tool organ
-                                                                                  (:name centre-info)
-                                                                                  (underscore tool))
-                                                    [:bundles (keyword organ) (keyword tool)]]])
-               [:div "Loading " (paths/organ-centre-name-tool organ
-                                                              (:name centre-info)
-                                                              (underscore tool))]))]
+             (let [path (paths/organ-centre-name-tool organ-name
+                                                      (:name centre-info)
+                                                      tool-name)]
+               (rf/dispatch [::events/load-bundles [path
+                                                    [:bundles organ tool]]])
+               [:div "Loading " path]))]
           [col]]
           [col]]))))
 
 ;-------------- Text views below --------------
-
+;
+; Needs replacing with a text system that supports editable rich text somewhere
+;
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))
 
@@ -200,63 +204,3 @@
 In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
   []
   [page "Technical"])
-
-
-(defonce sex (rc/atom nil))
-
-(defn event-handler [k v]
-  (if (= v "male") (reset! sex :male) (reset! sex :female)))
-
-(comment
-  (reset! sex :female)
-  @sex)
-
-
-(defn waiting []
-
-  [page "Waiting for a transplant"
-   [col
-    [ui/titled-panel "Inputs"
-     [row {:key 1}
-      [col 
-       [:label  "Sex"]]
-      [col
-       [:div {:style {:margin-bottom 5}}
-        [radio-button-group {:value-k "Sex"
-                             :value-f (fn [] @sex)
-                             :event-f event-handler
-                             :buttons-f (fn [] [{:label "Male"
-                                                 :level :male}
-                                                {:label "Female"
-                                                 :level :female}])}]]
-       [:div
-        [radio-button-group {:value-k "Sex"
-                             :value-f (fn [] @sex)
-                             :event-f event-handler
-                             :buttons-f (fn [] [{:label "Male"
-                                                 :level :male}
-                                                {:label "Female"
-                                                 :level :female}])}]]
-
-
-       #_[radio-button-group* {:value-k "Sex"
-                               :value-f (fn [] @sex)
-                               :event-f identity
-                               :buttons-f (fn [] [{:label "Male"
-                                                   :level :male}
-                                                  {:label "Female"
-                                                   :level :female}])}]]]]]
-   [col {:xs 7}
-    [ui/titled-panel "Results"
-     [:div {:key 1} "waiting results"]]]])
-
-(defn surviving []
-  [page "Survival Post Transplant"
-   [row
-    [col
-     [ui/titled-panel "Inputs"
-      [:div {:key 1} "survival inputs"]]]
-    [col
-     [ui/titled-panel "Results"
-      [:div {:key 1} "survival results"]]]]])
-

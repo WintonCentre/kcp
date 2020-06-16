@@ -4,6 +4,11 @@
 (defn get-centre-info
   "Locate the info for an organ & centre from organ-centres"
   [organ-centres organ centre]
+  (first (get (group-by (comp keyword :key) (organ organ-centres)) centre)))
+
+(defn get-centre-info*
+  "Locate the info for an organ & centre from organ-centres"
+  [organ-centres organ centre]
   (first (get (group-by :key ((keyword organ) organ-centres)) (name centre))))
 
 (defn unstring-key
@@ -17,11 +22,16 @@
   (unstring-key ":hello"))
   ;=> :hello)
 
+(defn path-names
+  "Given reitit path-params, return the organ/centre/tool path keys"
+  [path-params]
+  ((juxt :organ :centre :tool) path-params))
+
 (defn path-keys
-  "Given reitit path-params, return the organ/centre/tool patgh keys"
+  "Given reitit path-params, return the organ/centre/tool path keys"
   [path-params]
   (->> path-params
-       ((juxt :organ :centre :tool))
+       (path-names)
        (map keyword)))
 
   (comment

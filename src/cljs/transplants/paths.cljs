@@ -1,6 +1,7 @@
 (ns transplants.paths
  ; "Configuration file paths"
   (:require [transplants.utils :as utils]
+            [transplants.shared :refer [underscore]]
             [re-frame.core :as rf]))
 
 (def slash "/")
@@ -24,7 +25,7 @@
   [organ centre-name tool]
   (str (prefix organ)
        centre-name slash
-       tool ".txt"))
+       (underscore tool) ".txt"))
 
 (comment
   (prefix "lung")

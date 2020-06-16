@@ -2,15 +2,7 @@
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
 where we can work on defining a common interface. 
 "
-  (:require ["react-bootstrap" :as bs]
-            ;["react-numeric-input" :refer ()]
-            ;["react-numeric-input" :default NumericInput]
-            ;["react-numeric-input" :refer (NumericInput)]
-            ["react-bootstrap-range-slider" :refer (RangeSlider)]
-            ))
-
-
-
+  (:require ["react-bootstrap" :as bs]))
 
 (comment
 
@@ -76,7 +68,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :padding 1}}]
            (map (fn [{:keys [label level disabled]}]
                   [:> bs/ToggleButton {:key level :disabled false :value level
-                                       :variant "outline-primary"} 
+                                       :variant "outline-secondary"} 
                    label])
                 (buttons-f))))])
 
@@ -88,10 +80,11 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
   
     [:> bs/Dropdown
      {:on-select #(on-change (keyword %))}
-     
+
      (into [:> bs/DropdownButton
             {:id id
              :value value
+             :variant (if (nil? value) "outline-secondary" "secondary")
              :title  (:label (first (if-let [x (seq (filter (fn [{:keys [level]}]
                                                               (= value level)) buttons))]
                                       x (buttons-f))))
@@ -100,27 +93,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :padding 1
                       :width "max-content"}}]
            (map (fn [{:keys [label level disabled]}]
-                  [:> bs/Dropdown.Item {:key level :as "button" 
-                                        :eventKey level 
+                  [:> bs/Dropdown.Item {:key level :as "button"
+                                        :eventKey level
                                         :on-click #(.preventDefault %)}
                    label])
                 (buttons-f)))]))
 
-(defn numeric-input
-  [{:keys [id value-f on-change min max step]}]
-  ;[:div "Hello"]
-  [:> RangeSlider {:value 10}]
-  #_{:id id
-     :name id
-     :defaultValue 10
-     :value 7
-     :min 0
-     :max 100
-     :on-change on-change
-     :style  {:border (str "3px solid " (if (nil? value-f) "#ff8888" "#ffffff"))
-              :border-radius 5
-              :padding 1}}
-  )
 
 
 (comment

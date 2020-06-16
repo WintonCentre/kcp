@@ -19,8 +19,8 @@
  ::initialize-db
  (fn-traced [_ _]
             {:current-route nil
-             :lung/bmi 30
-             :lung/age 50
+             ;:lung/bmi 30
+             ;:lung/age 50
              :window-width (.-innerWidth js/window)}))
 
 (rf/reg-event-db

@@ -120,12 +120,13 @@
   (let [value (str-to-num (value-f))]
     [:span {:class-name "incdec"}
      [:> bs/Button {:class-name  (str (if (pos? increment) "right" "left") " btn btn-default ")
-               :aria-hidden "true"
-               :disabled    (if (pos? increment)
-                              (if (>= value (str-to-num (if (fn? max) (max) max))) "disabled" nil)
-                              (if (<= value min) "disabled" nil))
-               :tab-index   -1
-               :on-click    #(update-value value min max precision increment on-change)}
+                    :variant "secondary"
+                    :aria-hidden "true"
+                    :disabled    (if (pos? increment)
+                                   (if (>= value (str-to-num (if (fn? max) (max) max))) "disabled" nil)
+                                   (if (<= value min) "disabled" nil))
+                    :tab-index   -1
+                    :on-click    #(update-value value min max precision increment on-change)}
       (if (pos? increment) "+" "–")]]))
 
 
@@ -166,7 +167,7 @@
                                            :else 0)
                                          on-change))}
      [:div {:style {:display "flex" :flex-direction "row" :align-items "center"}}
-      (inc-dec-button (assoc props :min min :max max :precision precision :increment -1 :value-f value-f))
+      (inc-dec-button (assoc props :variant "secondary" :min min :max max :precision precision :increment -1 :value-f value-f))
       [:input
        {:type      "text"
         :value     good
@@ -178,7 +179,7 @@
                     :border-left      "2px solid #ddd"
                     :border-bottom       "0px solid #ddd"
                     :border-right      "2px solid #ddd"
-                    :background-color (if (nil? bad) "#007bff" "#dd5533")
+                    :background-color (if (nil? bad) "#6C757D" "#dd5533")
                     :color            "#fff"
                     :padding          "0 0 4px 0"
                     :text-align       "center"

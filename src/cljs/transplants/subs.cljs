@@ -27,7 +27,7 @@
 
 (rf/reg-sub ::bundles (fn [db] (get-in db [:bundles])))
 
-;:kidney waiting-inputs
+;:kidney input factors
 (rf/reg-sub :kidney/sex (fn [db] (get-in db [:kidney/sex])))
 (rf/reg-sub :kidney/age (fn [db] (get-in db [:kidney/age])))
 (rf/reg-sub :kidney/ethnicity (fn [db] (get-in db [:kidney/ethnicity])))
@@ -37,6 +37,13 @@
 (rf/reg-sub :kidney/dialysis (fn [db] (get-in db [:kidney/dialysis])))
 (rf/reg-sub :kidney/sensitised (fn [db] (get-in db [:kidney/sensitised])))
 (rf/reg-sub :kidney/diabetes (fn [db] (get-in db [:kidney/diabetes])))
+(rf/reg-sub :kidney/wait (fn [db] (get-in db [:kidney/wait])))
+(rf/reg-sub :kidney/graft (fn [db] (get-in db [:kidney/graft])))
+(rf/reg-sub :kidney/diabetes (fn [db] (get-in db [:kidney/diabetes])))
+(rf/reg-sub :kidney/donor-age (fn [db] (get-in db [:kidney/donor-age])))
+(rf/reg-sub :kidney/donor-bmi (fn [db] (get-in db [:kidney/donor-bmi])))
+(rf/reg-sub :kidney/donor-hibp (fn [db] (get-in db [:kidney/donor-hibp])))
+(rf/reg-sub :kidney/hla-mismatch (fn [db] (get-in db [:kidney/hla-mismatch])))
 
 ;:lung waiting-inputs and from-listing
 (rf/reg-sub :lung/sex (fn [db] (get-in db [:lung/sex])))

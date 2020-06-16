@@ -125,7 +125,6 @@ in the routes table."
   (let [ak  (cond
               (= {} (:path-params route)) (href :transplants.views/home)
               :else (get-in route [:path-params :organ]))]
-    (js/console.log "ak " ak)
     ak)
   )
 

@@ -3,8 +3,14 @@
 where we can work on defining a common interface. 
 "
   (:require ["react-bootstrap" :as bs]
-            (re-frame.core :as rf)
-            [transplants.subs :as subs]))
+            ;["react-numeric-input" :refer ()]
+            ;["react-numeric-input" :default NumericInput]
+            ;["react-numeric-input" :refer (NumericInput)]
+            ["react-bootstrap-range-slider" :refer (RangeSlider)]
+            ))
+
+
+
 
 (comment
 
@@ -98,6 +104,22 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                         :on-click #(.preventDefault %)}
                    label])
                 (buttons-f)))]))
+
+(defn numeric-input
+  [{:keys [id value-f on-change min max step]}]
+  ;[:div "Hello"]
+  [:> RangeSlider {:value 10}]
+  #_{:id id
+     :name id
+     :defaultValue 10
+     :value 7
+     :min 0
+     :max 100
+     :on-change on-change
+     :style  {:border (str "3px solid " (if (nil? value-f) "#ff8888" "#ffffff"))
+              :border-radius 5
+              :padding 1}}
+  )
 
 
 (comment

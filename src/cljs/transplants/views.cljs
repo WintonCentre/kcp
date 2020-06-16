@@ -77,13 +77,15 @@
   (let [route @(rf/subscribe [::subs/current-route])
         centres @(rf/subscribe [::subs/organ-centres])
         tools @(rf/subscribe [::subs/tools])
-        organ (get-in route [:path-params :organ])
-        centre (get-in route [:path-params :centre])]
+        ; organ (get-in route [:path-params :organ])
+        ; centre (get-in route [:path-params :centre])
+        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        [organ centre tool] (map keyword p-names)]
     (when (and organ centre centres tools)
       
       ;;; TODO: Tidy organ centre tool up here
       
-      (let [centre-info (utils/get-centre-info centres organ (keyword centre)) #_(first (get (group-by :key centres) (name centre)))]
+      (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
         [page (:description centre-info)
          [row
           [col
@@ -140,18 +142,12 @@
         tools @(rf/subscribe [::subs/tools])
         organ-centres @(rf/subscribe [::subs/organ-centres])
         bundles @(rf/subscribe [::subs/bundles])
-        ;organ (get-in route [:path-params :organ])
-        ;centre (get-in route [:path-params :centre])
-        ;tool (get-in route [:path-params :tool])
-        [organ-name centre tool-name] ((juxt :organ :centre :tool) (:path-params route))
-        organ (keyword organ-name)
-        tool (keyword tool-name)
+        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        [organ centre tool] (map keyword p-names)
         ]
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools tool)]
-        ;(println "organ centre-info: " centre-info)
-        ;(println "centre-name: " (:name centre-info))
         [page  
          (:description centre-info)
          [row {:style {:margin-bottom 20}}
@@ -185,6 +181,12 @@
                [:div "Loading " path]))]
           [col]]
           [col]]))))
+
+(comment
+  (paths/organ-centre-name-tool :kidney
+                                "Glasgow"
+                                :waiting)
+  )
 
 ;-------------- Text views below --------------
 ;

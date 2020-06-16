@@ -170,12 +170,7 @@
                (into [:<>]
                      (map
                       (fn [w] ^{:key (:factor w)}
-                        [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
-                         [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
-                          [:> bs/Form.Label {:style {:font-weight "bold"}} 
-                           (:factor-name w)]]
-                         [:> bs/Col
-                          (widg/widget w)]])
+                          (widg/widget w))
                       (get tool-bundle tool-inputs-key)
                       )))
              (do

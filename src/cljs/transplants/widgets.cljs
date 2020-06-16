@@ -38,6 +38,9 @@
   (factor-key->organ-factor [:foo :bar])
   ;=> :foo/bar
   )
+(defmethod widget nil [_]
+  nil)
+
 
 (defmethod widget :radio
   [{:keys [factor-name factor-key levels default type] :as w}]
@@ -49,19 +52,24 @@
   ;(println "levels " levels)
   ;(println "value " @(rf/subscribe [factor-key]))
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        
+
         #_#_value-f (if (and default (nil? value))
                       (fn [] default)
                       value)]
-
-    (bsio/radio-button-group {:id (pr-str factor-key)
-                              :value-f value-f
-                              :on-change #(do
-                                            (println "store" [factor-key
-                                                              (keyword %)])
-                                            (rf/dispatch [factor-key
-                                                          (keyword %)]))
-                              :buttons-f (fn [] levels)})))
+    [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
+     [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+      [:> bs/Form.Label {:style {:font-weight "bold"}}
+       (:factor-name w)]]
+     [:> bs/Col
+  ;(widg/widget w)
+      (bsio/radio-button-group {:id (pr-str factor-key)
+                                :value-f value-f
+                                :on-change #(do
+                                              (println "store" [factor-key
+                                                                (keyword %)])
+                                              (rf/dispatch [factor-key
+                                                            (keyword %)]))
+                                :buttons-f (fn [] levels)})]]))
 
 (defmethod widget :dropdown
   [{:keys [factor-name factor-key levels default type] :as w}]
@@ -75,14 +83,22 @@
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
     (println "factor-key" factor-key)
     (println "caller v "(value-f))
-    (bsio/dropdown {:id (pr-str factor-key)
-                    :value-f value-f
-                    :on-change #(do
-                                  (println "store" [factor-key
-                                                    (keyword %)])
-                                  (rf/dispatch [factor-key
-                                                (keyword %)]))
-                    :buttons-f (fn [] levels)})))
+    
+    [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
+     [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+      [:> bs/Form.Label {:style {:font-weight "bold"}}
+       (:factor-name w)]]
+     [:> bs/Col
+      ;(widg/widget w)
+      
+      (bsio/dropdown {:id (pr-str factor-key)
+                      :value-f value-f
+                      :on-change #(do
+                                    (println "store" [factor-key
+                                                      (keyword %)])
+                                    (rf/dispatch [factor-key
+                                                  (keyword %)]))
+                      :buttons-f (fn [] levels)})]]))
 
 
 (comment

@@ -40,27 +40,22 @@
 (defmethod widget nil [_]
   nil)
 
+(def mb 5)
+(def mt 0)
+
 ; radio buttons allow fast selection between options
 (defmethod widget :radio
   [{:keys [factor-name factor-key levels default type] :as w}]
-  ;(println "keys w " (keys w))
-  ;(println "factor-name: " factor-name)
-  ;(println "factor-key: " factor-key)
-  ;(println "default: " default)
-  ;(println "widget-type: " type)
-  ;(println "levels " levels)
-  ;(println "value " @(rf/subscribe [factor-key]))
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
 
         #_#_value-f (if (and default (nil? value))
                       (fn [] default)
                       value)]
-    [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
+    [:> bs/Row {:style {:display "flex" :align-items  "flex-end" :margin-bottom mb}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
-      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 3}}
+      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
-  ;(widg/widget w)
       (bsio/radio-button-group {:id (pr-str factor-key)
                                 :value-f value-f
                                 :on-change #(do
@@ -75,18 +70,11 @@
 ; would is too wide
 (defmethod widget :dropdown
   [{:keys [factor-name factor-key levels default type] :as w}]
-  ;(println "keys w "(keys w))
-  ;(println "factor-name: " factor-name)
-  ;(println "factor-key: " factor-key)
-  ;(println "default: " default)
-  ;(println "widget-type: " type)
-  ;(println "levels " levels)
-  ;(println "value " @(rf/subscribe [factor-key]))
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
     
-    [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
+    [:> bs/Row {:style {:display "flex" :align-items  "baseline" :margin-bottom mb}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
-      [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" }}
+      [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
       ;(widg/widget w)
@@ -100,34 +88,16 @@
 ; numerics are for numeric input
 (defmethod widget :numeric
   [{:keys [factor-name factor-key levels default type] :as w}]
-  ;(println "keys w "(keys w))
-  ;(println "factor-name: " factor-name)
-  ;(println "factor-key: " factor-key)
-  ;(println "default: " default)
-  ;(println "widget-type: " type)
-  ;(println "levels " levels)
-  ;(println "value " @(rf/subscribe [factor-key]))
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
-    ;(println "factor-key" factor-key)
-    ;(println "caller v " (value-f))
-    [:> bs/Row {:style {:display "flex" :align-items  "flex-end"}}
+    [:> bs/Row {:style {:display "flex" :align-items  "flex-end" :margin-bottom 3}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
-      [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right"}}
+      [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
-      #_(bsio/dropdown {:id (pr-str factor-key)
-                      :value-f value-f
-                      :on-change #(do
-                                    #_(println "store" [factor-key
-                                                      (keyword %)])
-                                    (rf/dispatch [factor-key
-                                                  (keyword %)]))
-                      :buttons-f (fn [] levels)})
-
       [num/numeric-input {:key (pr-str factor-key)
                           :value-f value-f
                           :on-change #(rf/dispatch [factor-key %])
-                          :min 20 :max 100 :step 1 :precision 1}]]]))
+                          :min 0 :max 100 :step 1 :precision 1}]]]))
 
 
 (comment

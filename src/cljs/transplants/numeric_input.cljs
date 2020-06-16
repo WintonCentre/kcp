@@ -1,10 +1,6 @@
 (ns transplants.numeric-input
-  (:require [clojure.string :refer [split trim starts-with?]]
+  (:require [clojure.string :refer [split]]
             ["react-bootstrap" :as bs]))
-
-#_(defn numeric-input
-    [x]
-    [:div "HI"])
 
 (defn error? [value] (or (nil? value) (= "" value) (js/isNaN value)))
 
@@ -53,25 +49,17 @@
 
 (defn num-to-str
   ([n]
-   ; default to integer
    (num-to-str n 0))
   ([n precision]
    (if (string? n)
-     (do
-       ;(println n " returning unchanged string")
-       n)
+     n
      (if (js/isNaN n)
        ""
        (if (near-integer? n)
          (str (js/Math.floor n))
          (if precision
-           (do
-             ;(println "num-to-str precision " n precision)
-             (at-precision n precision))
-           (at-precision n 0))
-         #_(-> n
-               (.toPrecision (js/Number. 3))
-               (trim-trailing-zero)))))))
+           (at-precision n precision)
+           (at-precision n 0)))))))
 
 (defn validate-input [value nmin nmax step]
   #_(js/console.log "in value " value)
@@ -98,7 +86,7 @@
                   val-2))]
     #_(js/console.log "out-value " value)
     (if (js/isNaN value)                                    ; Case when user has deleted value using backspace.
-      " :0"                                                 ; and there is no input there.
+      nmin #_" :0"                                                 ; and there is no input there.
       val-3                                                 ; Otherwise return
       )))
 
@@ -162,8 +150,12 @@
 
     [:div {:class       "numeric-input"
            :style       {:min-width      "100px"
+                         :width "fit-content"
                          :tab-index  1
-                         :selectable true}
+                         :selectable true
+                         :border (str "3px solid " (if (nil? (value-f)) "#ff8888" "#ffffff"))
+                         :border-radius 5
+                         :padding 1}
            :on-key-down #(let [key-code (.. % -nativeEvent -code)]
                            (when (#{"ArrowUp" "ArrowDown"} key-code)
                              (.preventDefault %))
@@ -173,7 +165,7 @@
                                            (= "ArrowDown" key-code) -1
                                            :else 0)
                                          on-change))}
-     [:div
+     [:div {:style {:display "flex" :flex-direction "row" :align-items "center"}}
       (inc-dec-button (assoc props :min min :max max :precision precision :increment -1 :value-f value-f))
       [:input
        {:type      "text"
@@ -181,10 +173,10 @@
         :id        key
         :on-click  mutate
         :on-change mutate
-        :style     {:width            "58px" :height "36px" :font-size "14px"
-                    :border-top       "1px solid #888"
-                    :border-left      "1px solid #888"
-                    :border-bottom       "2px solid #ddd"
+        :style     {:width            "58px" :height "38px" :font-size "16px"
+                    :border-top       "0px solid #888"
+                    :border-left      "2px solid #ddd"
+                    :border-bottom       "0px solid #ddd"
                     :border-right      "2px solid #ddd"
                     :background-color (if (nil? bad) "#007bff" "#dd5533")
                     :color            "#fff"

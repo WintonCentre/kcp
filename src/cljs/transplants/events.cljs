@@ -94,7 +94,7 @@
 (reg-input :kidney/hla-mismatch)
 
 ;:lung input factors
-(reg-input :lung/thoracotomy)
+(reg-input :lung/sex)
 (reg-input :lung/thoracotomy)
 (reg-input :lung/d-gp)
 (reg-input :lung/dd-pred)
@@ -110,7 +110,7 @@
 (reg-input :lung/bilirubin)
 (reg-input :lung/blood-group)
 (reg-input :lung/centre-d-gp)
-(reg-input :lung/donor-smoke)
+(reg-input :lung/donor-smokes)
 (reg-input :lung/donor-cmv)
 (reg-input :lung/type)
 (reg-input :lung/tlc-mismatch)

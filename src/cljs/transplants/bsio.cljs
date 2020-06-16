@@ -75,7 +75,8 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :border-radius 5
                       :padding 1}}]
            (map (fn [{:keys [label level disabled]}]
-                  [:> bs/ToggleButton {:key level :disabled false :value level} 
+                  [:> bs/ToggleButton {:key level :disabled false :value level
+                                       :variant "outline-primary"} 
                    label])
                 (buttons-f))))])
 

@@ -84,7 +84,7 @@
 (reg-input :kidney/sensitised)
 (reg-input :kidney/diabetes)
 
-;:lung waiting-inputs
+;:lung waiting-inputs and post-transplant-inputs
 (reg-input :lung/thoracotomy)
 (reg-input :lung/thoracotomy)
 (reg-input :lung/d-gp)
@@ -99,22 +99,35 @@
 (reg-input :lung/blood-group)
 (reg-input :lung/centre-d-gp)
 
+(reg-input :lung/donor-smoke)
+(reg-input :lung/donor-cmv)
+(reg-input :lung/dd-pred)
+(reg-input :lung/type)
+(reg-input :lung/d-gp)
+(reg-input :lung/age)
+(reg-input :lung/tlc-mismatch)
+(reg-input :lung/fvc)
+(reg-input :lung/bilirubin)
+(reg-input :lung/cholesterol)
+(reg-input :lung:type-d-gp)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Process tool bundles into db
 ;;;
 (rf/reg-event-db
- ::store-bundles-response
+ ::store-bundle-inputs
  (fn-traced
   [db [_ data-path response]]
-  (let [route (:current-route db)
-        path-params (get-in route [:path-params])
-        [organ centre tool] (utils/path-keys path-params)
+  (let [;route (:current-route db)
+        path-params (get-in db [:current-route :path-params])
+        [organ-name centre-name tool-name] (utils/path-names path-params)
         raw (edn/read-string response)
        ; waiting-inputs (:waiting-inputs raw)
        ; waiting-baseline-cifs (:waiting-baseline-cifs raw)
        ; waiting-baseline-vars (:waiting-baseline-vars raw)
-        processed (assoc-in raw [:waiting-inputs]
-                            (xf/inputs->factor-maps organ (:waiting-inputs raw)))]
+        inputs-key (keyword (str tool-name "-inputs")) ;:waiting-inputs
+        processed (assoc-in raw [inputs-key] 
+                            (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw)))]
 
     
     (-> db
@@ -289,7 +302,7 @@
                             :timeout 8000
                             :format          (ajax/text-request-format)
                             :response-format (ajax/text-response-format)
-                            :on-success [::store-bundles-response data-path]
+                            :on-success [::store-bundle-inputs data-path]
                             :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx

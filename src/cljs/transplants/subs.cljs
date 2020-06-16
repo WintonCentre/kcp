@@ -38,7 +38,7 @@
 (rf/reg-sub :kidney/sensitised (fn [db] (get-in db [:kidney/sensitised])))
 (rf/reg-sub :kidney/diabetes (fn [db] (get-in db [:kidney/diabetes])))
 
-;:lung waiting-inputs
+;:lung waiting-inputs and from-listing
 (rf/reg-sub :lung/sex (fn [db] (get-in db [:lung/sex])))
 (rf/reg-sub :lung/thoracotomy (fn [db] (get-in db [:lung/sex])))
 (rf/reg-sub :lung/thoracotomy (fn [db] (get-in db [:lung/thoracotomy])))
@@ -54,3 +54,16 @@
 (rf/reg-sub :lung/blood-group (fn [db] (get-in db [:lung/blood-group])))
 (rf/reg-sub :lung/centre-d-gp (fn [db] (get-in db [:lung :centre-d-gp])))
 
+;:lung post-transplant inputs
+;:donor-cmv
+(rf/reg-sub :lung/donor-cmv (fn [db] (get-in db [:lung/donor-cmv])))
+(rf/reg-sub :lung/donor-smokes (fn [db] (get-in db [:lung/donor-smokes])))
+(rf/reg-sub :lung/dd-pred (fn [db] (get-in db [:lung/dd-pred])))
+(rf/reg-sub :lung/type (fn [db] (get-in db [:lung/type])))
+(rf/reg-sub :lung/d-gp (fn [db] (get-in db [:lung/d-gp])))
+(rf/reg-sub :lung/age (fn [db] (get-in db [:lung/age])))
+(rf/reg-sub :lung/tlc-mismatch (fn [db] (get-in db [:lung/tlc-mismatch])))
+(rf/reg-sub :lung/fvc (fn [db] (get-in db [:lung/fvc])))
+(rf/reg-sub :lung/bilirubin (fn [db] (get-in db [:lung/bilirubin])))
+(rf/reg-sub :lung/cholesterol (fn [db] (get-in db [:lung/cholesterol])))
+(rf/reg-sub :lung:type-d-gp (fn [db] (get-in db [:lung:type-d-gp])))

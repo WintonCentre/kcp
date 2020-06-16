@@ -126,7 +126,6 @@
                  tools)))
 
 (comment
-
   (def organ "kidney")
   (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
   (paths/organ-centre-name-tool organ

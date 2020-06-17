@@ -16,6 +16,7 @@ The websites are also written in clojure - in clojurescript - and they compile t
 
 There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
 
+
 ## Status
 **Work in Progress**
 
@@ -74,6 +75,14 @@ that way to avoid duplication.
 If jacking in from VS-code, select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. 
 
 Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. This server does not need hashtag routing.
+
+### Use of lein shadow
+We have included the lein-shadow plugin which moves all the shadow configuration into the leiningen project file.
+* See https://gitlab.com/nikperic/lein-shadow/-/tree/docs
+* lein shadow compile app
+* lein shadow watch app
+* lein shadow release app
+
 
 ## Tests
 Run `lein karma` for cljs unit tests

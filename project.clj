@@ -14,6 +14,11 @@
                  [winton-utils "0.2.1"]]
 
   :plugins [[lein-shell "0.5.0"]
+            
+            ; See https://gitlab.com/nikperic/lein-shadow/-/tree/docs
+            ; lein shadow compile app
+            ; lein shadow watch app
+            ; lein shadow release app
             [lein-shadow "0.2.0"]
             [lein-eftest "0.5.9"]
             [lein-auto "0.1.3"]

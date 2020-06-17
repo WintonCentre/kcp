@@ -120,7 +120,7 @@
   (let [value (str-to-num (value-f))]
     [:span {:class-name "incdec"}
      [:> bs/Button {:class-name  (str (if (pos? increment) "right" "left") " btn btn-default ")
-                    :variant "secondary"
+                    :variant (if (nil? (value-f)) "outline-secondary" "secondary")
                     :aria-hidden "true"
                     :disabled    (if (pos? increment)
                                    (if (>= value (str-to-num (if (fn? max) (max) max))) "disabled" nil)
@@ -179,7 +179,9 @@
                     :border-left      "2px solid #ddd"
                     :border-bottom       "0px solid #ddd"
                     :border-right      "2px solid #ddd"
-                    :background-color (if (nil? bad) "#6C757D" "#dd5533")
+                    :background-color (if (nil? (value-f))
+                                        "#fff"
+                                        (if (nil? bad) "#6C757D" "#dd5533"))
                     :color            "#fff"
                     :padding          "0 0 4px 0"
                     :text-align       "center"

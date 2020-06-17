@@ -264,8 +264,9 @@ in the routes table."
                            :color "white"}} button]]))
          (into [:> bs/Accordion.Toggle {:as bs/Card.Header
                                         :eventKey 0
-                                        :style {:background-color "#007bff"
-                                                :color "white"}}
+                                        :variant "outline-primary"
+                                        #_#_:style {:background-color "#007bff"
+                                                    :color "white"}}
                 hospital]))]])
 
 (defn page

@@ -152,15 +152,20 @@
          [row {:style {:margin-bottom 20}}
           [col
            [:h2 (str (string/capitalize organ-name) " transplant centre")]
-           [:h4 (:label tool-meta)]
-           [:p  (:description tool-meta)]
            (->> tools
                 (map #(conj % [:organ organ-name]))
                 (map #(conj % [:centre centre-name]))
                 (map #(conj % [:tool (name (:key %))]))
                 (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))]]
+                (into [:> bs/ButtonGroup {:vertical false}]))
+           [:h4 {:style {:margin-top 10}} 
+            (:label tool-meta)]
+           [:p  (:description tool-meta)]]]
          [row 
+          ;
+          ; See https://codepen.io/_yatko/pen/ZJXQxy for hidden cols
+          ;
+          
           [col 
            ;[:div (pr-str "organ " organ)]
            (if-let [tool-bundle (get-in bundles [organ tool])]
@@ -178,7 +183,8 @@
                (rf/dispatch [::events/load-bundles [path
                                                     [:bundles organ tool]]])
                [:div "Loading " path]))]
-          [col]]
+          [:> bs/Col {:class-name "d-none d-md-block"}]
+          ]
           [col]]))))
 
 (comment

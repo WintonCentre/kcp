@@ -157,12 +157,12 @@
                 (map #(conj % [:tool (name (:key %))]))
                 (map ui/tool-buttons)
                 (into [:> bs/ButtonGroup {:vertical false}]))
-           [:h4 {:style {:margin-top 10}} 
+           [:h4 {:style {:margin-top 10}}
             (:label tool-meta)]
            [:p  (:description tool-meta)]]]
          [row 
           [col 
-           ;[:div (pr-str "organ " organ)]
+           (widg/widget {:type :reset})
            (if-let [tool-bundle (get-in bundles [organ tool])]
              (let [tool-inputs-key (keyword (str tool-name "-inputs"))]
 

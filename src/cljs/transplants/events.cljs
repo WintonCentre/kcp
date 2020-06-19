@@ -61,6 +61,12 @@
  (fn-traced [db [_ ocs]]
             (assoc db :organ-centres ocs)))
 
+(rf/reg-event-db
+ ; reset inputs
+ ::reset-inputs
+ (fn-traced [db [_ _]]
+            (assoc db :inputs {})))
+
 #_(comment
     (rf/reg-event-db
  ; flag that tool-data is required after centres have been loaded

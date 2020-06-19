@@ -3,6 +3,7 @@
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
             [transplants.utils :as utils]
+            [transplants.events :as events]
             [transplants.numeric-input :as num]))
 
 (defmulti widget
@@ -42,6 +43,14 @@
 
 (def mb 5)
 (def mt 0)
+
+(defmethod widget :reset
+  [w]
+  [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
+   [:> bs/Col]
+   [:> bs/Col
+    (bsio/reset-button {:event-f #(rf/dispatch [::events/reset-inputs])})]])
+
 
 ; radio buttons allow fast selection between options
 (defmethod widget :radio

@@ -130,7 +130,10 @@
   (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
   (paths/organ-centre-name-tool organ
                                 "Belfast"
-                                "waiting"))
+                                "waiting")
+  
+  )
+  
 
 
 (defn organ-centre-tool
@@ -162,10 +165,6 @@
             (:label tool-meta)]
            [:p  (:description tool-meta)]]]
          [row 
-          ;
-          ; See https://codepen.io/_yatko/pen/ZJXQxy for hidden cols
-          ;
-          
           [col 
            ;[:div (pr-str "organ " organ)]
            (if-let [tool-bundle (get-in bundles [organ tool])]

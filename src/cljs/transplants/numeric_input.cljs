@@ -5,6 +5,17 @@
 (defn error? [value] (or (nil? value) (= "" value) (js/isNaN value)))
 
 ;;
+;; Another fix is needed. The problem is that validating the current (value-f) can caue it to change. This messes up the cursor position and means that simply by tabbing to the text
+;; field or clicking on it causes it to change. 
+;;
+;; A better approach may be to only validate and change a value on-blur.
+;;
+;;
+;;
+
+
+
+;;
 ;; Numeric values are always stored in state as strings, but processed as numerics
 ;;
 (defn str-to-num
@@ -61,14 +72,24 @@
            (at-precision n precision)
            (at-precision n 0)))))))
 
-(defn validate-input [value nmin nmax step]
+(comment
+  (js/isNaN 4.1)
+  (near-integer? 4.1)
+  (at-precision 4.1 2)
+  
+  (num-to-str 4.1 1)
+  
+  (num-to-str (validate-input (str-to-num "4.") 0 100 0) 1)
+  )
+
+(defn validate-input [value nmin nmax step & [stepped?]]
   #_(js/console.log "in value " value)
   (println "nmin " nmin)
   (println "nmax " nmax)
   #_(js/console.log "step " step)
   (let [value (str-to-num value)
-        nmin (if (fn? nmin) @(nmin) nmin)
-        nmax (if (fn? nmax) @(nmax) nmax)                   ;(if (keyword? nmax) @(input-cursor nmax) nmax)
+        nmin (if (fn? nmin) (nmin) nmin)
+        nmax (if (fn? nmax) (nmax) nmax)                   ;(if (keyword? nmax) @(input-cursor nmax) nmax)
         val-1 (if (js/isNaN value)                          ; is value blank?
                 (if (pos? step)                             ; is it an increment?
                   (dec nmin)                                ; yes - go to one less than minimum (we'll increment later)
@@ -77,8 +98,9 @@
                     nmin                                    ; no - check: This inserts nmin into val-1
                     ))
                 value)
-        val-2 (+ step val-1)                                ; do the increment
-
+        val-2 (if stepped?
+                (+ step val-1)
+                val-1)                                ; do the increment
         val-3 (if (< val-2 nmin)                            ; is it too small?
                 (str (num-to-str val-2) ":" val-2)          ; yes
                 (if (> val-2 nmax)                          ; no; is it too big?
@@ -90,20 +112,28 @@
       val-3                                                 ; Otherwise return
       )))
 
-(defn handle-inc [value on-change nmin nmax precision step]
-  (let [v (validate-input value nmin nmax step)]
+(comment
+  (validate-input "4.3" 0 100 0.1)
+
+  )
+
+(defn handle-inc [value on-change nmin nmax precision step] ; 
+  (let [v (validate-input value nmin nmax step true)]
     ;#_(js/console.log "on-change " v)
     (on-change (num-to-str v precision))))
 
 
-(defn handle-typed-input [nmin nmax precision on-change e]
+(defn handle-typed-input [value-f nmin nmax precision on-change e]
   (let [value (.. (-> e .-target) -value)]
     (println "t:" value " " nmin nmax precision)
+    (println "value (value-f) " [value (value-f)] (not= value (value-f)))
     (if (re-matches #"\s*\d*\.?\d*\s*" value)               ; todo: should this be d+ rather than d*?
-      (on-change (num-to-str (validate-input (str-to-num value) nmin nmax 0) precision))
+      (when (not= value (value-f))
+        (on-change (num-to-str (validate-input (str-to-num value) nmin nmax 0) precision)))
       (on-change ""))                                        ; todo: should this be nil or ##NaN?
     ))
 (comment
+  (num-to-str (validate-input (str-to-num "4.1") 0 100 0) 10)
   (re-matches #"\s*\d*\.?\d*\s*" "6")                       ;"6"
   (re-matches #"\s*\d*\.?\d*\s*" "")                        ;""
   (re-matches #"\s*\d*\.?\d*\s*" "0.7")                     ;"0.7"
@@ -124,9 +154,8 @@
                     :aria-hidden "true"
                     :disabled    (if (pos? increment)
                                    (if (>= value (str-to-num (if (fn? max) (max) max))) "disabled" nil)
-                                   (if (<= value min) "disabled" nil))
-                    :tab-index   -1
-                    :on-click    #(update-value value min max precision increment on-change)}
+                                   (if (<= value nmin) "disabled" nil))
+                    :on-click    #(update-value value nmin nmax precision increment on-change)}
       (if (pos? increment) "+" "–")]]))
 
 
@@ -144,6 +173,7 @@
                  ;(js/console.log "nativeEvent " e)
                  ;(js/console.log "inputType " (.. e -nativeEvent -inputType))
                  (handle-typed-input
+                  value-f
                   min
                   max
                   precision
@@ -151,7 +181,7 @@
 
     [:div {:class       "numeric-input"
            :style       {:min-width      "100px"
-                         :width "fit-content"
+                         :width "max-content"
                          :tab-index  1
                          :selectable true
                          :border (str "3px solid " (if (nil? (value-f)) "#ff8888" "#ffffff"))
@@ -167,7 +197,7 @@
                                            :else 0)
                                          on-change))}
      [:div {:style {:display "flex" :flex-direction "row" :align-items "center"}}
-      (inc-dec-button (assoc props :variant "secondary" :min min :max max :precision precision :increment -1 :value-f value-f))
+      (inc-dec-button (assoc props :variant "secondary" :nmin nmin :nmax nmax :precision precision :increment -1 :value-f value-f))
       [:input
        {:type      "text"
         :value     good
@@ -186,7 +216,7 @@
                     :padding          "0 0 4px 0"
                     :text-align       "center"
                     #_#_:font-weight "bold"}}]
-      (inc-dec-button (assoc props :min min :max max :precision precision :increment 1 :value-f value-f))]]))
+      (inc-dec-button (assoc props :nmin nmin :nmax nmax :precision precision :increment 1 :value-f value-f))]]))
 
 
 

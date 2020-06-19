@@ -15,7 +15,18 @@
                :label "Male"}
               {:level :female
                :label "Female"}]
-     :default :male}))
+     :default :male})
+  
+  ; problem2: We need to register subscriptions on the fly - so we need to know what has already been registered
+  ; 
+  (require '[re-frame.registrar :as rfreg])
+  (rfreg/get-handler :subs :kidney/age)
+  (rfreg/get-handler :event :kidney/age)
+  
+  ; or we don't bother checking - in which case the handler will be overwritten and a warning will appear in the js console.
+  ; Unfortunately re-frame.registrar/get-handler is not in the public re-frame API so could change under in future releases
+  ; (However we can freeze for production).
+  )
 
 (defn map-vals [f m]
   (into {} (map (fn [[k v]] [k (f v)]) m)))
@@ -24,45 +35,34 @@
 (defn inputs->factor-maps
   "Preprocess an inputs sheet before storing it"
   [organ inputs]
+  
   (map
-        (fn [ins]
-          {:factor-key (keyword organ (utils/unstring-key (:factor (first ins))))
-           :factor-name (:factor-name (first ins))
-           :levels (map (fn [{:keys [level level-name]}]
-                          {:level level
-                           :label level-name}) ins)
-           :type (:type (first ins))})
-   (->> inputs
-        (map-of-vs->v-of-maps)
-        (filter :factor)
-        (sort-by :order)
-        (map #(map-vals utils/unstring-key %))
-        (partition-by :factor)
-        )))
-
-(map-vals #(* 2 %) {:A 1 :B 3})
-
-#_(defn inputs->widget-map
-  "Transform an inputs sheet into a set of widget input maps"
-  [organ tool-inputs]
-
-  (let [input-spec (->> tool-inputs
-                        (map-of-vs->v-of-maps)
-                        (filter :factor)
-                        (sort-by :order)
-                        (map #(select-keys % [:factor :factor-name :level :level-name :type :order]))
-                        (partition-by :factor))]
-    (map
-     (fn [ins]
-       ;(println (:factor (first ins)))
-       {:factor-key (keyword organ (utils/unstring-key (:factor (first ins))))
+   (fn [ins]
+     (let [f-map (first ins)]
+       {:factor-key (keyword organ (utils/unstring-key (:factor f-map)))
+        :factor-name (:factor-name f-map)
+        :order (:order f-map)
         :levels (map (fn [{:keys [level level-name]}]
                        {:level level
                         :label level-name}) ins)
-        :type (utils/unstring-key (:type (first ins)))})
-     input-spec)))
+        :type (:type f-map)}
+       (assoc f-map 
+              :factor-key (keyword organ (utils/unstring-key (:factor f-map)))
+              :levels (map (fn [{:keys [level level-name]}]
+                             {:level level
+                              :label level-name}) ins))))
+   (->> inputs
+        (map-of-vs->v-of-maps)
+        (filter :factor)
+        (map #(map-vals utils/unstring-key %))
+        (partition-by :factor)
+        (sort-by (comp :order first)))))
+
 
 (comment
+  (map-vals #(* 2 %) {:A 1 :B 3})
+
+  
   (utils/unstring-key nil)
 
   (def tool-inputs {:beta-transplant '(nil nil 0 -0.06289 nil 0.60387 0.46442 0.26097 0 -0.28334 -0.77722 nil 0 -0.01539 nil 0 0.54305 0.00727 0.54305 nil 0 -0.28893 -0.61033 nil 0 -0.35381 nil 0 0.29132 nil 0 -0.74768 nil 0 -0.32635 nil nil nil nil nil)
@@ -77,5 +77,20 @@
                     :factor '(nil nil :sex :sex nil :age :age :age :age :age :age nil :ethnicity :ethnicity nil :blood-group :blood-group :blood-group :blood-group nil :matchability :matchability :matchability nil :graft :graft nil :dialysis :dialysis nil :sensitised :sensitised nil :diabetes :diabetes nil nil nil nil nil)
                     :order '(nil nil 1 1 nil 1.2 1.2 1.2 1.2 1.2 1.2 nil 1.3 1.3 nil 1.4 1.4 1.4 1.4 nil 1.5 1.5 1.5 nil 1.6 1.6 nil 1.7 1.7 nil 1.8 1.8 nil 1.9 1.9 nil nil nil nil nil)
                     :factor-name '(nil nil "Sex" nil nil "Age (years)" nil nil nil nil nil nil "Ethnicity" nil nil "Blood group" nil nil nil nil "Matchability group" nil nil nil "Graft number" nil nil "Dialysis at registration?" nil nil "Highly sensitised?" nil nil "Primary renal disease - diabetes?" nil nil nil nil nil nil)})
-  tool-inputs)
+  tool-inputs
+  
+  (def factor-rows
+    (->> tool-inputs
+         (map-of-vs->v-of-maps)
+         (filter :factor)
+         (sort-by :order)
+         (partition-by :factor)
+         ))
+  (first factor-rows)
+  (comment 
+    ({:beta-transplant 0, :beta-death 0, :info-box? "Male", :beta-removal 0, :level-name "Male", :beta-all-reasons 0, :type :radio, :sub-text "Sex", :level :male, :factor :sex, :order 1, :factor-name "Sex"} 
+     {:beta-transplant -0.06289, :beta-death -0.10852, :info-box? "Female", :beta-removal 0.01097, :level-name "Female", :beta-all-reasons -0.10876, :type nil, :sub-text nil, :level :female, :factor :sex, :order 1, :factor-name nil}))
+)
+  
+  
 

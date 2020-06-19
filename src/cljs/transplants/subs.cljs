@@ -1,6 +1,7 @@
 (ns transplants.subs
   (:require
-   [re-frame.core :as rf]))
+   [re-frame.core :as rf]
+   [day8.re-frame.tracing :refer-macros [fn-traced]]))
 
 ;;; 
 ;; Note that subscription keys are fully qualified in transplants.subs ns, but...
@@ -27,50 +28,76 @@
 
 (rf/reg-sub ::bundles (fn [db] (get-in db [:bundles])))
 
+(defn reg-factor-sub
+  "Register both input factor"
+  [organ-k factor-k]
+  (let [ref-k (keyword (name organ-k) (name factor-k))]
+    (println "ref-k " ref-k)
+    (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))))
+
+(defn reg-factor-event [organ-k factor-k]
+  (let [ref-k (keyword (name organ-k) (name factor-k))]
+    (rf/reg-event-db
+     ref-k
+     (fn-traced [db [_ v]] (assoc-in db [:inputs organ-k factor-k] v)))))
+
+(defn reg-factor 
+  "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause aconsole warning
+   on startup. The final registration overwrites any previous ones. This function can be used to register db keys at run-time.
+   Both subscription and event are registered on the organ-namespaced factor-key."
+  [organ-k factor-k]
+  (let [ref-k (keyword (name organ-k) (name factor-k))]
+    (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
+    (rf/reg-event-db ref-k (fn [db [_ v]] (assoc-in db [:inputs organ-k factor-k] v))))
+  #_(reg-factor-sub organ-k factor-k)
+  #_(reg-factor-event organ-k factor-k))
+
+(comment
+  (keyword (name :kidney) (name :sex))
+  ;=> :kidney/sex
+  )
+
 ;:kidney input factors
-(rf/reg-sub :kidney/sex (fn [db] (get-in db [:kidney/sex])))
-(rf/reg-sub :kidney/age (fn [db] (get-in db [:kidney/age])))
-(rf/reg-sub :kidney/ethnicity (fn [db] (get-in db [:kidney/ethnicity])))
-(rf/reg-sub :kidney/blood-group (fn [db] (get-in db [:kidney/blood-group])))
-(rf/reg-sub :kidney/matchability (fn [db] (get-in db [:kidney/matchability])))
-(rf/reg-sub :kidney/graft (fn [db] (get-in db [:kidney/graft])))
-(rf/reg-sub :kidney/dialysis (fn [db] (get-in db [:kidney/dialysis])))
-(rf/reg-sub :kidney/sensitised (fn [db] (get-in db [:kidney/sensitised])))
-(rf/reg-sub :kidney/diabetes (fn [db] (get-in db [:kidney/diabetes])))
-(rf/reg-sub :kidney/wait (fn [db] (get-in db [:kidney/wait])))
-(rf/reg-sub :kidney/graft (fn [db] (get-in db [:kidney/graft])))
-(rf/reg-sub :kidney/diabetes (fn [db] (get-in db [:kidney/diabetes])))
-(rf/reg-sub :kidney/donor-age (fn [db] (get-in db [:kidney/donor-age])))
-(rf/reg-sub :kidney/donor-bmi (fn [db] (get-in db [:kidney/donor-bmi])))
-(rf/reg-sub :kidney/donor-hibp (fn [db] (get-in db [:kidney/donor-hibp])))
-(rf/reg-sub :kidney/hla-mismatch (fn [db] (get-in db [:kidney/hla-mismatch])))
+(reg-factor :kidney :sex)
+(reg-factor :kidney :age)
+(reg-factor :kidney :ethnicity)
+(reg-factor :kidney :blood-group)
+(reg-factor :kidney :matchability)
+(reg-factor :kidney :graft)
+(reg-factor :kidney :dialysis)
+(reg-factor :kidney :sensitised)
+(reg-factor :kidney :diabetes)
+(reg-factor :kidney :wait)
+(reg-factor :kidney :graft)
+(reg-factor :kidney :diabetes)
+(reg-factor :kidney :donor-age)
+(reg-factor :kidney :donor-bmi)
+(reg-factor :kidney :donor-hibp)
+(reg-factor :kidney :hla-mismatch)
 
 ;:lung waiting-inputs and from-listing
-(rf/reg-sub :lung/sex (fn [db] (get-in db [:lung/sex])))
-(rf/reg-sub :lung/thoracotomy (fn [db] (get-in db [:lung/sex])))
-(rf/reg-sub :lung/thoracotomy (fn [db] (get-in db [:lung/thoracotomy])))
-(rf/reg-sub :lung/d-gp (fn [db] (get-in db [:lung/d-gp])))
-(rf/reg-sub :lung/dd-pred (fn [db] (get-in db [:lung/dd-pred])))
-(rf/reg-sub :lung/in-hosp (fn [db] (get-in db [:lung/in-hosp])))
-(rf/reg-sub :lung/nyha-class (fn [db] (get-in db [:lung/nyha-class])))
-(rf/reg-sub :lung/ethnicity (fn [db] (get-in db [:lung/ethnicity])))
-(rf/reg-sub :lung/fvc (fn [db] (get-in db [:lung/fvc])))
-(rf/reg-sub :lung/age (fn [db] (get-in db [:lung/age])))
-(rf/reg-sub :lung/bmi (fn [db] (get-in db [:lung/bmi])))
-(rf/reg-sub :lung/bilirubin (fn [db] (get-in db [:lung/bilirubin])))
-(rf/reg-sub :lung/blood-group (fn [db] (get-in db [:lung/blood-group])))
-(rf/reg-sub :lung/centre-d-gp (fn [db] (get-in db [:lung :centre-d-gp])))
-
-;:lung post-transplant inputs
-;:donor-cmv
-(rf/reg-sub :lung/donor-cmv (fn [db] (get-in db [:lung/donor-cmv])))
-(rf/reg-sub :lung/donor-smokes (fn [db] (get-in db [:lung/donor-smokes])))
-(rf/reg-sub :lung/dd-pred (fn [db] (get-in db [:lung/dd-pred])))
-(rf/reg-sub :lung/type (fn [db] (get-in db [:lung/type])))
-(rf/reg-sub :lung/d-gp (fn [db] (get-in db [:lung/d-gp])))
-(rf/reg-sub :lung/age (fn [db] (get-in db [:lung/age])))
-(rf/reg-sub :lung/tlc-mismatch (fn [db] (get-in db [:lung/tlc-mismatch])))
-(rf/reg-sub :lung/fvc (fn [db] (get-in db [:lung/fvc])))
-(rf/reg-sub :lung/bilirubin (fn [db] (get-in db [:lung/bilirubin])))
-(rf/reg-sub :lung/cholesterol (fn [db] (get-in db [:lung/cholesterol])))
-(rf/reg-sub :lung:type-d-gp (fn [db] (get-in db [:lung:type-d-gp])))
+(reg-factor :lung :sex)
+(reg-factor :lung :thoracotomy)
+(reg-factor :lung :thoracotomy)
+(reg-factor :lung :d-gp)
+(reg-factor :lung :dd-pred)
+(reg-factor :lung :in-hosp)
+(reg-factor :lung :nyha-class)
+(reg-factor :lung :ethnicity)
+(reg-factor :lung :fvc)
+(reg-factor :lung :age)
+(reg-factor :lung :bmi)
+(reg-factor :lung :bilirubin)
+(reg-factor :lung :blood-group)
+(reg-factor :lung :centre-d-gp)
+(reg-factor :lung :donor-cmv)
+(reg-factor :lung :donor-smokes)
+(reg-factor :lung :dd-pred)
+(reg-factor :lung :type)
+(reg-factor :lung :d-gp)
+(reg-factor :lung :age)
+(reg-factor :lung :tlc-mismatch)
+(reg-factor :lung :fvc)
+(reg-factor :lung :bilirubin)
+(reg-factor :lung :cholesterol)
+(reg-factor :lung :type-d-gp)

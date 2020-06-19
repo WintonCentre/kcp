@@ -51,7 +51,7 @@
         #_#_value-f (if (and default (nil? value))
                       (fn [] default)
                       value)]
-    [:> bs/Row {:style {:display "flex" :align-items  "flex-end" :margin-bottom mb}}
+    [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]]
@@ -72,7 +72,7 @@
   [{:keys [factor-name factor-key levels default type] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
     
-    [:> bs/Row {:style {:display "flex" :align-items  "baseline" :margin-bottom mb}}
+    [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
@@ -89,7 +89,7 @@
 (defmethod widget :numeric
   [{:keys [factor-name factor-key levels default type] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
-    [:> bs/Row {:style {:display "flex" :align-items  "flex-end" :margin-bottom 3}}
+    [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
@@ -97,7 +97,7 @@
       [num/numeric-input {:key (pr-str factor-key)
                           :value-f value-f
                           :on-change #(rf/dispatch [factor-key %])
-                          :min 0 :max 100 :step 1 :precision 1}]]]))
+                          :min 0 :max 100 :precision 2}]]]))
 
 
 (comment

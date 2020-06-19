@@ -19,6 +19,7 @@
  ::initialize-db
  (fn-traced [_ _]
             {:current-route nil
+             :inputs {}
              ;:lung/bmi 30
              ;:lung/age 50
              :window-width (.-innerWidth js/window)}))
@@ -74,48 +75,6 @@
   (rf/reg-event-db
    nsk
    (fn [db [_ v]] (assoc db nsk v))))
-
-;:kidney input factors
-(reg-input :kidney/sex)
-(reg-input :kidney/age)
-(reg-input :kidney/ethnicity)
-(reg-input :kidney/blood-group)
-(reg-input :kidney/matchability)
-(reg-input :kidney/graft)
-(reg-input :kidney/dialysis)
-(reg-input :kidney/sensitised)
-(reg-input :kidney/diabetes)
-(reg-input :kidney/wait)
-(reg-input :kidney/graft)
-(reg-input :kidney/diabetes)
-(reg-input :kidney/donor-age)
-(reg-input :kidney/donor-bmi)
-(reg-input :kidney/donor-hibp)
-(reg-input :kidney/hla-mismatch)
-
-;:lung input factors
-(reg-input :lung/sex)
-(reg-input :lung/thoracotomy)
-(reg-input :lung/d-gp)
-(reg-input :lung/dd-pred)
-(reg-input :lung/in-hosp)
-(reg-input :lung/nyha-class)
-(reg-input :lung/ethnicity)
-(reg-input :lung/fvc)
-(reg-input :lung/age)
-(reg-input :lung/bmi)
-#_(rf/reg-event-db
- :lung/bmi
- (fn-traced [db [_ v]] (assoc db :lung/bmi v)))
-(reg-input :lung/bilirubin)
-(reg-input :lung/blood-group)
-(reg-input :lung/centre-d-gp)
-(reg-input :lung/donor-smokes)
-(reg-input :lung/donor-cmv)
-(reg-input :lung/type)
-(reg-input :lung/tlc-mismatch)
-(reg-input :lung/cholesterol)
-(reg-input :lung:type-d-gp)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Process tool bundles into db

@@ -49,7 +49,7 @@
   [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
    [:> bs/Col]
    [:> bs/Col
-    (bsio/reset-button {:event-f #(rf/dispatch [::events/reset-inputs])})]])
+    (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
 
 ; radio buttons allow fast selection between options

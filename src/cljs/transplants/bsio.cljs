@@ -103,10 +103,10 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                 (buttons-f)))]))
 
 (defn reset-button
-  [{:keys [event-f]}]
+  [{:keys [on-click]}]
   [:> bs/Button {:variant "secondary"
                  :style {:margin-bottom 10}
-                 :on-click event-f} "Reset all"])
+                 :on-click on-click} "Reset all"])
 
 (comment
   ; white border when there is a value

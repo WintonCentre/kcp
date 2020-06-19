@@ -17,19 +17,22 @@
                :label "Female"}]
      :default :male})
   
-  ; problem2: We need to register subscriptions on the fly - so we need to know what has already been registered
+  ; problem2: We need to register subscriptions on the fly. However different tools overlap in their factor requirements and this
+  ; can mean that the same factor is registered multiple times on the same organ. We assume that if factors have the same name, then
+  ; they are in clinical practice the same (if not, change their name!), and so it is OK to use just the one at run-time for all tools 
+  ; that refer to it.
   ; 
-  (require '[re-frame.registrar :as rfreg])
-  (rfreg/get-handler :subs :kidney/age)
-  (rfreg/get-handler :event :kidney/age)
-  
-  ; or we don't bother checking - in which case the handler will be overwritten and a warning will appear in the js console.
-  ; Unfortunately re-frame.registrar/get-handler is not in the public re-frame API so could change under in future releases
-  ; (However we can freeze for production).
+  ; re-frame default behaviour is to warn if a subsscription ore event has been previously registered on a key. 
+  ; That's OK - the warning is useful. In production the warning can be ignored as the most recent registration prevails. There is
+  ; 
   )
 
 (defn map-vals [f m]
   (into {} (map (fn [[k v]] [k (f v)]) m)))
+
+(defn valid-keystring?
+  [s]
+  (and s (string? s) (= (first s) ":")))
 
 ; todo: Move utils/unstring-key calls - they should happend soon after data is acquired
 (defn inputs->factor-maps
@@ -39,13 +42,6 @@
   (map
    (fn [ins]
      (let [f-map (first ins)]
-       {:factor-key (keyword organ (utils/unstring-key (:factor f-map)))
-        :factor-name (:factor-name f-map)
-        :order (:order f-map)
-        :levels (map (fn [{:keys [level level-name]}]
-                       {:level level
-                        :label level-name}) ins)
-        :type (:type f-map)}
        (assoc f-map 
               :factor-key (keyword organ (utils/unstring-key (:factor f-map)))
               :levels (map (fn [{:keys [level level-name]}]
@@ -53,7 +49,7 @@
                               :label level-name}) ins))))
    (->> inputs
         (map-of-vs->v-of-maps)
-        (filter :factor)
+        (filter #(valid-keystring? (:factor %)) )
         (map #(map-vals utils/unstring-key %))
         (partition-by :factor)
         (sort-by (comp :order first)))))

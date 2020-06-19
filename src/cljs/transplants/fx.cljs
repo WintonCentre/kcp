@@ -2,6 +2,8 @@
   (:require [re-frame.core :as rf]
             [reitit.frontend.easy :as rfe]))
 
+
+
 ;;; Effects ;;;
 
 ;; Triggering navigation from events.
@@ -24,13 +26,29 @@
 (comment
   ; from predict code
   #_(defn get-dictionary
-    "read dictionary ops from a url.
+      "read dictionary ops from a url.
   USED IN PRODUCTION DICTIONARY LOAD"
-    ([url {:keys [on-error handler]}]
-     (GET url {:error-handler file-error                      ;on-error
-               :handler       handler
-               :format        :transit                        ;:transit
-               })))
+      ([url {:keys [on-error handler]}]
+       (GET url {:error-handler file-error                      ;on-error
+                 :handler       handler
+                 :format        :transit                        ;:transit
+                 }))))
+  
+(defn reg-factor
+  "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause aconsole warning
+   on startup. The final registration overwrites any previous ones. This function can be used to register db keys at run-time.
+   Both subscription and event are registered on the organ-namespaced factor-key."
+  [organ-k factor-k]
+  (let [ref-k (keyword (name organ-k) (name factor-k))]
+    (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
+    (rf/reg-event-db ref-k (fn [db [_ v]] (assoc-in db [:inputs organ-k factor-k] v)))))
+
+(rf/reg-fx
+ :reg-factors
+ (fn [[organ fmaps]]
+   (doseq [fmap fmaps] 
+     (reg-factor organ (:factor fmap)))))
+  
 
 ;;
 ;; load translation state; Call this to set up the translation system
@@ -50,5 +68,5 @@
 
 
 
-  )
+  
 

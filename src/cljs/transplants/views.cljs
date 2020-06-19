@@ -130,11 +130,7 @@
   (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
   (paths/organ-centre-name-tool organ
                                 "Belfast"
-                                "waiting")
-  
-  )
-  
-
+                                "waiting"))
 
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
@@ -187,8 +183,9 @@
           [col]]))))
 
 (comment
+  (+ 1 1)
   (paths/organ-centre-name-tool :kidney
-                                "Glasgow"
+                                "The Royal Free"
                                 :waiting)
   )
 

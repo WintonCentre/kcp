@@ -79,7 +79,32 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Process tool bundles into db
 ;;;
-(rf/reg-event-db
+(rf/reg-event-fx
+ ::store-bundle-inputs
+ (fn-traced
+  [{:keys [_ db]} [_ data-path response]]
+  (let [;route (:current-route db)
+        path-params (get-in db [:current-route :path-params])
+        [organ-name centre-name tool-name] (utils/path-names path-params)
+        organ (keyword organ-name)
+        raw (edn/read-string response)
+       ; waiting-inputs (:waiting-inputs raw)
+       ; waiting-baseline-cifs (:waiting-baseline-cifs raw)
+       ; waiting-baseline-vars (:waiting-baseline-vars raw)
+        inputs-key (keyword (str tool-name "-inputs")) ;:e.g. waiting-inputs
+        fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
+        processed (assoc-in raw [inputs-key] fmaps)]
+
+    ;; side-effecting - make an fx!
+    ;(doseq [fmap fmaps]
+    ;  (js/console.log "boo " (:factor fmap)))
+
+
+    {:db (assoc-in db data-path processed)
+     :reg-factors [organ fmaps]}
+    )))
+
+#_(rf/reg-event-db
  ::store-bundle-inputs
  (fn-traced
   [db [_ data-path response]]
@@ -90,19 +115,22 @@
        ; waiting-inputs (:waiting-inputs raw)
        ; waiting-baseline-cifs (:waiting-baseline-cifs raw)
        ; waiting-baseline-vars (:waiting-baseline-vars raw)
-        inputs-key (keyword (str tool-name "-inputs")) ;:waiting-inputs
-        processed (assoc-in raw [inputs-key] 
-                            (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw)))]
+        inputs-key (keyword (str tool-name "-inputs")) ;:e.g. waiting-inputs
+        fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
+        processed (assoc-in raw [inputs-key] fmaps)]
 
-    
+    ;; side-effecting - make an fx!
+    (doseq [fmap fmaps]
+      (js/console.log "boo " (:factor fmap)))
+
+
     (-> db
-        (assoc-in data-path processed #_(merge (edn/read-string response)
-                                   {:inputs (xf/inputs->factor-maps (:waiting-inputs raw))})))
-    #_(-> db
-        (assoc-in data-path (merge (edn/read-string response)
-                                   {:inputs (xf/inputs->factor-maps (:waiting-inputs raw))}))))))
+        (assoc-in data-path processed)))))
 
 
+(comment
+  (enable-console-print!)
+  )
 
 ;
 ;;

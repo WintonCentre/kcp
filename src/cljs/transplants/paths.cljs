@@ -24,7 +24,7 @@
 (defn organ-centre-name-tool
   [organ centre-name tool]
   (str (prefix organ)
-       centre-name slash
+       (underscore centre-name) slash
        (underscore tool) ".txt"))
 
 (comment

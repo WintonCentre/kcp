@@ -13,29 +13,16 @@
   )
 
 ; Create a radio-button-group widget given a widget inputs map - for example:
-(comment  (def widget-inputs-map
-            "Example of a widget-inputs-map"
-            {:factor-key :kidney/sex
-             :levels [{:level :male
-                       :label "Male"}
-                      {:level :female
-                       :label "Female"}]
-             :default :male
-             :type :radio})
-          
-(rf/dispatch [:kidney/diabetes :group-a])
-          
-          
-          )
-
-#_(defn factor-key->db-key
-  "A factor path is a vector [organ-key factor-key], which must be concatenated into a single db access key both for
-   writing and reading purposes. It is necessary to qualify factor keys by organ as some factors will have different levels
-   in the differing organ contexts."
-  [factor-key]
-  (apply keyword factor-key)
-  )
-
+(comment
+  (def widget-inputs-map
+    "Example of a widget-inputs-map"
+    {:factor-key :kidney/sex
+     :levels [{:level :male
+               :label "Male"}
+              {:level :female
+               :label "Female"}]
+     :default :male
+     :type :radio}))
 
 ; factors with a nil type field have no widget
 (defmethod widget nil [_]
@@ -86,8 +73,6 @@
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
-      ;(widg/widget w)
-      
       (bsio/dropdown {:id (pr-str factor-key)
                       :value-f value-f
                       :on-change #(rf/dispatch [factor-key
@@ -106,7 +91,7 @@
       [num/numeric-input {:key (pr-str factor-key)
                           :value-f value-f
                           :on-change #(rf/dispatch [factor-key %])
-                          :min 0 :max 100 :precision 2}]]]))
+                          :min 10 :max 100 :dps 1}]]]))
 
 
 (comment

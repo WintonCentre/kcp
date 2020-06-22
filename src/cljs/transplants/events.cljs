@@ -11,7 +11,8 @@
    [cljs.reader :as  edn]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
    [clojure.string :as string]
-   [clojure.set :as rel]))
+   [clojure.set :as rel]
+   [cljs.pprint :refer [pprint]]))
 
 ;;; Events ;;;
 
@@ -88,7 +89,9 @@
    Remove any maps where the primary index is nil.
    Then index by the (orange) index columns which are specified in metadata.edn
    Finally, convert those indexes to keywords."
-  [organ raw indexes]
+  [raw indexes]
+  (js/console.log "raw numerics:")
+  (js/console.log (pr-str raw))
   (as-> raw x
     (map-of-vs->v-of-maps x)
     (filter (comp some? (first indexes)) x)
@@ -99,31 +102,32 @@
     ))
 
 (comment
-  (index-by :lung
-            {:min '(0 16 10 0 16 -2.2 0.35 1 1.3 16 14 nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :knot3 '(2.22 56 nil nil 56 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :knot2 '(1.63 44 nil nil 46 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :knot4 '(3.55 63 nil nil 63 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :max '(5 70 100 100 70 4.5 6.8 77 9 70 35.7 nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :factor '(:fvc :age :bmi :bilirubin :age :tlc-mismatch :fvc :bilirubin :cholesterol :age :bmi nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :dps '(2 0 0 0 0 1 1 0 1 0 1 nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :knot1 '(0.94 21 nil nil 22 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
-             :model '(:waiting :waiting :waiting :waiting :post-transplant :post-transplant :post-transplant :post-transplant :post-transplant :from-listing :from-listing nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-             }
+  (enable-console-print!)
+  (def raw {:min '(0 16 10 0 16 -2.2 0.35 1 1.3 16 14 nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :knot3 '(2.22 56 nil nil 56 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :knot2 '(1.63 44 nil nil 46 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :knot4 '(3.55 63 nil nil 63 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :max '(5 70 100 100 70 4.5 6.8 77 9 70 35.7 nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :factor '(:fvc :age :bmi :bilirubin :age :tlc-mismatch :fvc :bilirubin :cholesterol :age :bmi nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :dps '(2 0 0 0 0 1 1 0 1 0 1 nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :knot1 '(0.94 21 nil nil 22 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+            :model '(:waiting :waiting :waiting :waiting
+                              :post-transplant :post-transplant :post-transplant :post-transplant :post-transplant
+                              :from-listing :from-listing nil nil nil nil nil nil nil nil nil nil nil nil nil nil)})
+  (index-by raw
             [:factor :model])
   ; => Note that the resulting keys are maps containing distinct values of the original keys (:factor and :model in this case).
-  {{:factor :bmi, :model :waiting} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor :bmi, :dps 0, :knot1 nil, :model :waiting}, 
-   {:factor :bilirubin, :model :waiting} {:min 0, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor :bilirubin, :dps 0, :knot1 nil, :model :waiting}, 
-   {:factor :age, :model :from-listing} {:min 16, :knot3 nil, :knot2 nil, :knot4 nil, :max 70, :factor :age, :dps 0, :knot1 nil, :model :from-listing}, 
-   {:factor :cholesterol, :model :post-transplant} {:min 1.3, :knot3 nil, :knot2 nil, :knot4 nil, :max 9, :factor :cholesterol, :dps 1, :knot1 nil, :model :post-transplant}, 
-   {:factor :bilirubin, :model :post-transplant} {:min 1, :knot3 nil, :knot2 nil, :knot4 nil, :max 77, :factor :bilirubin, :dps 0, :knot1 nil, :model :post-transplant}, 
-   {:factor :tlc-mismatch, :model :post-transplant} {:min -2.2, :knot3 nil, :knot2 nil, :knot4 nil, :max 4.5, :factor :tlc-mismatch, :dps 1, :knot1 nil, :model :post-transplant}, 
-   {:factor :age, :model :waiting} {:min 16, :knot3 56, :knot2 44, :knot4 63, :max 70, :factor :age, :dps 0, :knot1 21, :model :waiting}, 
-   {:factor :age, :model :post-transplant} {:min 16, :knot3 56, :knot2 46, :knot4 63, :max 70, :factor :age, :dps 0, :knot1 22, :model :post-transplant}, 
-   {:factor :fvc, :model :waiting} {:min 0, :knot3 2.22, :knot2 1.63, :knot4 3.55, :max 5, :factor :fvc, :dps 2, :knot1 0.94, :model :waiting}, 
-   {:factor :bmi, :model :from-listing} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor :bmi, :dps 1, :knot1 nil, :model :from-listing}, 
-   {:factor :fvc, :model :post-transplant} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor :fvc, :dps 1, :knot1 nil, :model :post-transplant}}  
-  )
+  {{:model :waiting, :factor :bmi} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bmi", :dps 0, :knot1 nil, :model ":waiting"}
+   {:model :waiting, :factor :bilirubin} {:min 0, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bilirubin", :dps 0, :knot1 nil, :model ":waiting"}
+   {:model :from-listing, :factor :age} {:min 16, :knot3 nil, :knot2 nil, :knot4 nil, :max 70, :factor ":age", :dps 0, :knot1 nil, :model ":from-listing"}
+   {:model :post-transplant, :factor :cholesterol} {:min 1.3, :knot3 nil, :knot2 nil, :knot4 nil, :max 9, :factor ":cholesterol", :dps 1, :knot1 nil, :model ":post-transplant"}
+   {:model :post-transplant, :factor :bilirubin} {:min 1, :knot3 nil, :knot2 nil, :knot4 nil, :max 77, :factor ":bilirubin", :dps 0, :knot1 nil, :model ":post-transplant"}
+   {:model :post-transplant, :factor :tlc-mismatch} {:min -2.2, :knot3 nil, :knot2 nil, :knot4 nil, :max 4.5, :factor ":tlc-mismatch", :dps 1, :knot1 nil, :model ":post-transplant"}
+   {:model :waiting, :factor :age} {:min 16, :knot3 56, :knot2 44, :knot4 63, :max 70, :factor ":age", :dps 0, :knot1 21, :model ":waiting"}, {:model :post-transplant, :factor :age}
+   {:min 16, :knot3 56, :knot2 46, :knot4 63, :max 70, :factor ":age", :dps 0, :knot1 22, :model ":post-transplant"}
+   {:model :waiting, :factor :fvc} {:min 0, :knot3 2.22, :knot2 1.63, :knot4 3.55, :max 5, :factor ":fvc", :dps 2, :knot1 0.94, :model ":waiting"}
+   {:model :from-listing, :factor :bmi} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor ":bmi", :dps 1, :knot1 nil, :model ":from-listing"}
+   {:model :post-transplant, :factor :fvc} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor ":fvc", :dps 1, :knot1 nil, :model ":post-transplant"}})
 
 (defn get-sheet-indexes
   "Look up the indexing keys for a spreadsheet. These are the column keys for columns coloured in orange."
@@ -153,14 +157,13 @@
         inputs-key (keyword (str tool-name "-inputs")) ;:e.g. waiting-inputs
         fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
         processed (assoc-in raw [inputs-key] fmaps)
-        ]
-
-    {:db (-> db 
+        numerics (index-by (:numerics raw) (get-sheet-indexes db "numerics"))]
+    (js/console.log "numerics:")
+    (js/console.log (pr-str numerics))
+    {:db (-> db
              (assoc-in data-path processed)
-             (assoc :numerics (index-by organ (:numerics raw) (get-sheet-indexes db "numerics")))
-             )
-     :reg-factors [organ fmaps]}
-    )))
+             (assoc :numerics (index-by (:numerics raw) (get-sheet-indexes db "numerics"))))
+     :reg-factors [organ fmaps]})))
 
 #_(rf/reg-event-db
  ::store-bundle-inputs

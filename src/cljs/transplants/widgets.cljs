@@ -83,11 +83,11 @@
 (defmethod widget :numeric
   [{:keys [factor-name factor-key factor levels default type model] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        _ (js/console.log "W: " w)
-        _ (js/console.log "KEYS: " (select-keys w [:model :factor]))
-        _ (js/console.log "All numerics " @(rf/subscribe [::subs/numerics]))
+        ;_ (js/console.log "W: " w)
+        ;_ (js/console.log "KEYS: " (select-keys w [:model :factor]))
+        ;_ (js/console.log "All numerics " @(rf/subscribe [::subs/numerics]))
         numerics (get @(rf/subscribe [::subs/numerics]) (select-keys w [:model :factor]))]
-    (js/console.log "NUMERICS" numerics)
+    ;(js/console.log "NUMERICS" numerics)
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}

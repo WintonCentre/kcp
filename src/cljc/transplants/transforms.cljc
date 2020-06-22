@@ -1,8 +1,7 @@
 (ns transplants.transforms
   "db value transforms"
   (:require  [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
-             [transplants.shared :as shared]
-             ))
+             [clojure.string :refer [starts-with?]]))
 
 (comment
   ; problem1:
@@ -34,7 +33,25 @@
   [s]
   (and s (string? s) (= (first s) ":")))
 
-; todo: Move shared/unstring-key calls - they should happend soon after data is acquired
+(defn unstring-key
+  "ks is a string starting with a colon. Convert it to a true keyword.
+   Useful when processing ':keyword' values readin from a spreadsheet into true keywords.
+   
+   Single arity returns a global key. Double arity returns a namespaced key"
+  ([ks]
+   (if (and ks (string? ks) (starts-with? ks ":"))
+     (keyword (subs ks 1))
+     ks))
+  ([nsp ks]
+   (if (and ks (string? ks) (starts-with? ks ":"))
+     (keyword nsp (subs ks 1))
+     ks)))
+
+(comment
+  (unstring-key ":hello"))
+  ;=> :hello)
+
+; todo: Move shared/unstring-key calls - they should happen soon after data is acquired
 (defn inputs->factor-maps
   "Preprocess an inputs sheet before storing it"
   [organ inputs]
@@ -43,14 +60,14 @@
    (fn [ins]
      (let [f-map (first ins)]
        (assoc f-map 
-              :factor-key (keyword organ (shared/unstring-key (:factor f-map)))
+              :factor-key (keyword organ (unstring-key (:factor f-map)))
               :levels (map (fn [{:keys [level level-name]}]
                              {:level level
                               :label level-name}) ins))))
    (->> inputs
         (map-of-vs->v-of-maps)
         (filter #(valid-keystring? (:factor %)) )
-        (map #(map-vals shared/unstring-key %))
+        (map #(map-vals unstring-key %))
         (partition-by :factor)
         (sort-by (comp :order first)))))
 
@@ -59,7 +76,7 @@
   (map-vals #(* 2 %) {:A 1 :B 3})
 
   
-  (shared/unstring-key nil)
+  (unstring-key nil)
 
   (def tool-inputs {:beta-transplant '(nil nil 0 -0.06289 nil 0.60387 0.46442 0.26097 0 -0.28334 -0.77722 nil 0 -0.01539 nil 0 0.54305 0.00727 0.54305 nil 0 -0.28893 -0.61033 nil 0 -0.35381 nil 0 0.29132 nil 0 -0.74768 nil 0 -0.32635 nil nil nil nil nil)
                     :beta-death '(nil nil 0 -0.10852 nil -1.43819 -1.04978 -0.57859 0 0.09774 0.13967 nil 0 -0.26636 nil 0 -0.19369 0.03454 -0.19369 nil 0 0.09036 0.14314 nil 0 0.46463 nil 0 -0.50041 nil 0 0.33496 nil 0.86605 0 nil nil nil nil nil)

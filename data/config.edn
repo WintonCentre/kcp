@@ -55,14 +55,14 @@
                                                     :baseline-level {:column :B
                                                                      :match "level"}}
 
-                            :waiting-inputs {:label {:column :A
-                                                     :match "(Factor)|(label)"}
-                                             :button-labels {:column :B
-                                                             :match "(level)|(button)"}
-                                             :factor {:column :C
+                            :waiting-inputs {:factor {:column :A
                                                       :match "factor"}
-                                             :level {:column :D
+                                             :level {:column :B
                                                      :match "level"}
+                                             :label {:column :C
+                                                     :match "(Factor)|(label)"}
+                                             :button-labels {:column :D
+                                                             :match "(level)|(button)"}
                                              :beta-transplant {:column :E
                                                                :match "transplant"}
                                              :beta-removal {:column :F
@@ -92,14 +92,14 @@
                                                   :baseline-level {:column :B
                                                                    :match "level"}}
 
-                            :graft-inputs {:label {:column :A
-                                                   :match "inputs"}
-                                           :button-labels {:column :B
-                                                           :match "(label)|(level)"}
-                                           :factor {:column :C
+                            :graft-inputs {:factor {:column :A
                                                     :match "factor"}
-                                           :level {:column :D
+                                           :level {:column :B
                                                    :match "level"}
+                                           :label {:column :C
+                                                   :match "inputs"}
+                                           :button-labels {:column :D
+                                                           :match "(label)|(level)"}
                                            :beta-graft {:column :E
                                                         :match "graft"}
                                            :type {:column :F
@@ -134,14 +134,14 @@
                                                                        :match "factor"}
                                                      :baseline-level {:column :B
                                                                       :match "level"}}
-                            :survival-inputs {:label {:column :A
-                                                      :match "inputs"}
-                                              :button-labels {:column :B
-                                                              :match "(label)|(level)"}
-                                              :factor {:column :C
+                            :survival-inputs {:factor {:column :A
                                                        :match "factor"}
-                                              :level {:column :D
+                                              :level {:column :B
                                                       :match "level"}
+                                              :label {:column :C
+                                                      :match "inputs"}
+                                              :button-labels {:column :D
+                                                              :match "(label)|(level)"}
                                               :beta-survival {:column :E
                                                               :match "survival"}
                                               :type {:column :F
@@ -178,14 +178,14 @@
                                                   :baseline-level {:column :B
                                                                    :match "level"}}
 
-                          :waiting-inputs {:label {:column :A
-                                                   :match "(Factor)|(label)"}
-                                           :button-labels {:column :B
-                                                           :match "(level)|(button)"}
-                                           :factor {:column :C
+                          :waiting-inputs {:factor {:column :A
                                                     :match "factor"}
-                                           :level {:column :D
+                                           :level {:column :B
                                                    :match "level"}
+                                           :label {:column :C
+                                                   :match "(Factor)|(label)"}
+                                           :button-labels {:column :D
+                                                           :match "(level)|(button)"}
                                            :beta-transplant {:column :E
                                                              :match "transplant"}
                                            :beta-removal {:column :F
@@ -233,14 +233,14 @@
                                                           :baseline-level {:column :B
                                                                            :match "level"}}
 
-                          :post-transplant-inputs {:label {:column :A
-                                                           :match "inputs"}
-                                                   :button-labels {:column :B
-                                                                   :match "(label)|(level)"}
-                                                   :factor {:column :C
+                          :post-transplant-inputs {:factor {:column :A
                                                             :match "factor"}
-                                                   :level {:column :D
+                                                   :level {:column :B
                                                            :match "level"}
+                                                   :label {:column :C
+                                                           :match "inputs"}
+                                                   :button-labels {:column :D
+                                                                   :match "(label)|(level)"}
                                                    :beta-post-transplant {:column :E
                                                                           :match "graft"}
                                                    :type {:column :F
@@ -262,14 +262,14 @@
                                                                          :match "factor"}
                                                        :baseline-level {:column :B
                                                                         :match "level"}}
-                          :from-listing-inputs {:label {:column :A
-                                                        :match "inputs"}
-                                                :button-labels {:column :B
-                                                                :match "(label)|(level)"}
-                                                :factor {:column :C
+                          :from-listing-inputs {:factor {:column :A
                                                          :match "factor"}
-                                                :level {:column :D
-                                                        :match "level"}
+                                                :level {:column :B
+                                                        :match "level"} 
+                                                :label {:column :C
+                                                        :match "inputs"}
+                                                :button-labels {:column :D
+                                                                :match "(label)|(level)"}
                                                 :beta-from-listing {:column :E
                                                                     :match "survival"}
                                                 :type {:column :F

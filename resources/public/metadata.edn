@@ -4,9 +4,29 @@
 
  ; Spreadsheet columns which are useful as keys once the rows have been grouped by these keys.
  ; If two keys are given, the second is a possible sub-key.
- :sheet-meta [{:sheet "centres" :keys [:key :name]}
-              {:sheet "tools"  :keys [:key]}
-              {:sheet "*-baseline-cifs" :keys [:centre :days]}
-              {:sheet "*-baseline-vars" :keys [:baseline-factor]}
-              {:sheet "*-inputs" :keys [:factor :level]}
-              {:sheet "bmi-calculator" :keys [:factor :level]}]}
+ :sheet-meta {"centres" [:key :name]
+              "tools"  [:key]
+              
+              "waiting-baseline-cifs" [:centre :days]
+              "waiting-baseline-vars" [:baseline-factor]
+              "waiting-inputs" [:factor :level]
+              
+              "post-transplant-baseline-cifs" [:centre :days]
+              "post-transplant-baseline-vars" [:baseline-factor]
+              "post-transplant-inputs" [:factor :level]
+              
+              "from-listing-baseline-cifs" [:centre :days]
+              "from-listing-baseline-vars" [:baseline-factor]
+              "from-listing-inputs" [:factor :level]
+              
+              "graft-baseline-cifs" [:centre :days]
+              "graft-baseline-vars" [:baseline-factor]
+              "graft-inputs" [:factor :level]
+              
+              "survival-baseline-cifs" [:centre :days]
+              "survival-baseline-vars" [:baseline-factor]
+              "survival-inputs" [:factor :level]
+            
+              "numerics" [:model :factor]
+              "bmi-calculator" [:factor :modal]}
+ }

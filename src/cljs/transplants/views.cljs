@@ -169,7 +169,9 @@
                (into [:<>]
                      (map
                       (fn [w] ^{:key (:factor w)}
-                          (widg/widget w))
+                        (js/console.log  "widget-map, model:" tool " factor: " (:factor w))
+                        (widg/widget (assoc w :model tool)
+                        ))
                       (get tool-bundle tool-inputs-key)
                       )))
              (let [path (paths/organ-centre-name-tool organ-name

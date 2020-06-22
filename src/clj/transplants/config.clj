@@ -30,6 +30,7 @@
                      :sheet sheet-key}))))
 
 (comment
+  (get-config :lung)
   (get-in (memo-config :lung) [:sheets nil])
   )
 
@@ -48,6 +49,7 @@
 
 (comment
   (get-bundle :kidney)
+  (get-bundle :lung)
   (get-bundle :kidney :waiting)
   )
 
@@ -68,3 +70,6 @@
   "Treating the spreadsheet as a data frame, return a list of keys identifying the variables in the header row"
   get-columns)
 
+(comment
+  (get-columns :lung :numerics)
+  )

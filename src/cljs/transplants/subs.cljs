@@ -27,3 +27,5 @@
 (rf/reg-sub ::centre (fn [db] (get-in db [:centre])))
 
 (rf/reg-sub ::bundles (fn [db] (get-in db [:bundles])))
+
+(rf/reg-sub ::numerics (fn [db] (get-in db [:numerics])))

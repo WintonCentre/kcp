@@ -2,8 +2,8 @@
   (:require [re-frame.core :as rf]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
-            [transplants.utils :as utils]
             [transplants.events :as events]
+            [transplants.subs :as subs]
             [transplants.numeric-input :as num]))
 
 (defmulti widget
@@ -81,8 +81,13 @@
 
 ; numerics are for numeric input
 (defmethod widget :numeric
-  [{:keys [factor-name factor-key levels default type] :as w}]
-  (let [value-f (fn [] @(rf/subscribe [factor-key]))]
+  [{:keys [factor-name factor-key factor levels default type model] :as w}]
+  (let [value-f (fn [] @(rf/subscribe [factor-key]))
+        _ (js/console.log "W: " w)
+        _ (js/console.log "KEYS: " (select-keys w [:model :factor]))
+        _ (js/console.log "All numerics " @(rf/subscribe [::subs/numerics]))
+        numerics (get @(rf/subscribe [::subs/numerics]) (select-keys w [:model :factor]))]
+    (js/console.log "NUMERICS" numerics)
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
@@ -91,7 +96,7 @@
       [num/numeric-input {:key (pr-str factor-key)
                           :value-f value-f
                           :on-change #(rf/dispatch [factor-key %])
-                          :min 10 :max 100 :dps 1}]]]))
+                          :min (:min numerics) :max (:max numerics) :dps (:dps numerics)}]]]))
 
 
 (comment
@@ -111,7 +116,7 @@
 ;
 (comment
   (widget {:factor-key "foo" :type :radio})
-  
+
   (bsio/radio-button-group {:id "Sex"
                             :value-k :sex
                             :value-f (fn [] :male)
@@ -138,6 +143,5 @@
                :label "Male"}
               {:level :female
                :label "Female"}]
-     :type :radio})
-)
+     :type :radio}))
 

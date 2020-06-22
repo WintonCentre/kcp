@@ -82,6 +82,59 @@
    nsk
    (fn [db [_ v]] (assoc db nsk v))))
 
+(defn index-by
+  "Take a raw data table in map of vectors form.
+   Convert it a vector or maps.
+   Remove any maps where the primary index is nil.
+   Then index by the (orange) index columns which are specified in metadata.edn
+   Finally, convert those indexes to keywords."
+  [organ raw indexes]
+  (as-> raw x
+    (map-of-vs->v-of-maps x)
+    (filter (comp some? (first indexes)) x)
+    (into #{} x)
+    (rel/index x indexes)
+    (map (fn [[k v]] [(xf/map-vals utils/unstring-key k) (into {} v)]) x)
+    (into {} x)
+    ))
+
+(comment
+  (index-by :lung
+            {:min '(0 16 10 0 16 -2.2 0.35 1 1.3 16 14 nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :knot3 '(2.22 56 nil nil 56 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :knot2 '(1.63 44 nil nil 46 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :knot4 '(3.55 63 nil nil 63 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :max '(5 70 100 100 70 4.5 6.8 77 9 70 35.7 nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :factor '(:fvc :age :bmi :bilirubin :age :tlc-mismatch :fvc :bilirubin :cholesterol :age :bmi nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :dps '(2 0 0 0 0 1 1 0 1 0 1 nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :knot1 '(0.94 21 nil nil 22 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), 
+             :model '(:waiting :waiting :waiting :waiting :post-transplant :post-transplant :post-transplant :post-transplant :post-transplant :from-listing :from-listing nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+             }
+            [:factor :model])
+  ; => Note that the resulting keys are maps containing distinct values of the original keys (:factor and :model in this case).
+  {{:factor :bmi, :model :waiting} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor :bmi, :dps 0, :knot1 nil, :model :waiting}, 
+   {:factor :bilirubin, :model :waiting} {:min 0, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor :bilirubin, :dps 0, :knot1 nil, :model :waiting}, 
+   {:factor :age, :model :from-listing} {:min 16, :knot3 nil, :knot2 nil, :knot4 nil, :max 70, :factor :age, :dps 0, :knot1 nil, :model :from-listing}, 
+   {:factor :cholesterol, :model :post-transplant} {:min 1.3, :knot3 nil, :knot2 nil, :knot4 nil, :max 9, :factor :cholesterol, :dps 1, :knot1 nil, :model :post-transplant}, 
+   {:factor :bilirubin, :model :post-transplant} {:min 1, :knot3 nil, :knot2 nil, :knot4 nil, :max 77, :factor :bilirubin, :dps 0, :knot1 nil, :model :post-transplant}, 
+   {:factor :tlc-mismatch, :model :post-transplant} {:min -2.2, :knot3 nil, :knot2 nil, :knot4 nil, :max 4.5, :factor :tlc-mismatch, :dps 1, :knot1 nil, :model :post-transplant}, 
+   {:factor :age, :model :waiting} {:min 16, :knot3 56, :knot2 44, :knot4 63, :max 70, :factor :age, :dps 0, :knot1 21, :model :waiting}, 
+   {:factor :age, :model :post-transplant} {:min 16, :knot3 56, :knot2 46, :knot4 63, :max 70, :factor :age, :dps 0, :knot1 22, :model :post-transplant}, 
+   {:factor :fvc, :model :waiting} {:min 0, :knot3 2.22, :knot2 1.63, :knot4 3.55, :max 5, :factor :fvc, :dps 2, :knot1 0.94, :model :waiting}, 
+   {:factor :bmi, :model :from-listing} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor :bmi, :dps 1, :knot1 nil, :model :from-listing}, 
+   {:factor :fvc, :model :post-transplant} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor :fvc, :dps 1, :knot1 nil, :model :post-transplant}}  
+  )
+
+(defn get-sheet-indexes
+  "Look up the indexing keys for a spreadsheet. These are the column keys for columns coloured in orange."
+  [db sheet-name]
+  (get-in db [:metadata :sheet-meta sheet-name]))
+
+
+(comment
+  (get-sheet-indexes re-frame.db/app-db "numerics")
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Process tool bundles into db
 ;;;
@@ -99,14 +152,13 @@
        ; waiting-baseline-vars (:waiting-baseline-vars raw)
         inputs-key (keyword (str tool-name "-inputs")) ;:e.g. waiting-inputs
         fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
-        processed (assoc-in raw [inputs-key] fmaps)]
+        processed (assoc-in raw [inputs-key] fmaps)
+        ]
 
-    ;; side-effecting - make an fx!
-    ;(doseq [fmap fmaps]
-    ;  (js/console.log "boo " (:factor fmap)))
-
-
-    {:db (assoc-in db data-path processed)
+    {:db (-> db 
+             (assoc-in data-path processed)
+             (assoc :numerics (index-by organ (:numerics raw) (get-sheet-indexes db "numerics")))
+             )
      :reg-factors [organ fmaps]}
     )))
 
@@ -155,25 +207,10 @@
 
 
 
-(defn get-sheet-keys
-  [sheet-metas sheet-name]
-  (-> (filter (fn [meta]
-                (as-> meta x
-                  (:sheet x)
-                  (clojure.string/replace x #"\*" "")
-                  (clojure.string/ends-with? (name sheet-name) x)))
-
-                #_(clojure.string/ends-with? (name sheet-name)))
-              sheet-metas)
-      first
-      :keys)
-
-
-
 #_(rf/reg-event-db
  ::store-indexed-response
  (fn-traced
-  [db [_ data-path response]]
+  [db [_ raw-data data-path]]
   (let [sheet-metas (get-in db [:metadata :sheet-meta])
         sheet-name (name (first data-path))
         indexes (get-sheet-keys sheet-metas (first data-path))]
@@ -182,17 +219,14 @@
               are two keys, {key1 val1 key2 val2}."
 
              "It's not yet clear whether it's optimal to index this way, or by using nested group-by, or not
-              at all at this stage - in which case simply use store-response")
+              at all at this stage - in which case simply use store-response, or on a case by case basis.")
     ;(println "INDEXES " indexes)
     (-> db
-        ;(assoc-in data-path (edn/read-string response))
-        (assoc-in data-path
-                  (as-> (edn/read-string response) x
+        (assoc-in data-path (index-by raw-data indexes)
+                  #_(as-> raw-data x
                     (map-of-vs->v-of-maps x)
                     (into #{} x)
                     (rel/index x indexes)
-                    ;(group-by (first indexes) x)
-                    ;(into {} x)
                     ))))))
 
 (comment

@@ -126,6 +126,7 @@
   (get-col-maps :kidney :waiting-baseline-vars)
   (get-col-maps :kidney :waiting-inputs)
   (get-col-maps :kidney :waiting-inputs true)
+  (get-col-maps :lung :numerics)
 
 
   (let [cols (utils/transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
@@ -288,6 +289,10 @@
   (columns->variables (centre-columns :kidney :survival-baseline-cifs  "Belfast"))
   (centre-columns :kidney :waiting-baseline-cifs "Belfast")
   (cfg/get-bundle :kidney :waiting)
+  (cfg/get-bundle :lung :waiting)
+  
+  (cfg/get-columns :lung :numerics)
+  (cfg/get-variables :lung :numerics)
   )
 
 
@@ -314,6 +319,7 @@
   (flatten (vals (cfg/get-bundle :lung nil)))
   (collect-tool-bundle :lung "Papworth" :waiting)
   (collect-tool-bundle :lung "Papworth" nil)
+  (println (collect-tool-bundle :lung "Papworth" :waiting))
   )
 
 (defn centres-path [organ]
@@ -378,6 +384,8 @@
   (string/starts-with? ":centre" ":")
   (keyword (subs ":centre" 1))
   (get-in (cfg/memo-config :lung) [:export :edn-path])
+  (println (collect-mapped-tool-bundle :lung "Birmingham" :waiting))
+
   )
 
 (defn write-edn-bundle

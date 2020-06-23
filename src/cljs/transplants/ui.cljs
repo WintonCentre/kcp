@@ -5,7 +5,6 @@ the low level ui."
             [reagent.core :as rc]
             [reitit.core :as r]
             [reitit.frontend.easy :as rfe]
-            [reitit.frontend :as rfr]
             ["react-bootstrap" :as bs]
             [re-frame.core :as rf]
             [transplants.events :as events]
@@ -207,7 +206,6 @@ in the routes table."
 (defn tool-buttons
   "Create buttons for each transplant tool"
   [{:keys [key label description organ centre tool] :as tool-button-params}]
-  (println "TOOL " tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))
   (let [active (= tool  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
     [button {:variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2

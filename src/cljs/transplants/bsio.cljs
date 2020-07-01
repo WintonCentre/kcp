@@ -69,9 +69,9 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
            (map (fn [{:keys [label level disabled]}]
                   [:> bs/ToggleButton {;:tabindex "-1"
                                        :type "checkbox"
-                                       :key level :disabled false 
+                                       :key level :disabled false
                                        :value level
-                                       :variant "outline-secondary"} 
+                                       :variant "outline-secondary"}
                    label])
                 (buttons-f))))])
 
@@ -80,7 +80,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
 
   (let [value (value-f)
         buttons (buttons-f)]
-  
+
     [:> bs/Dropdown
      {:on-select #(on-change (keyword %))}
 
@@ -123,6 +123,5 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                      :on-change identity
                                                      :buttons-f (fn [] [{:level :male :label "Male"}
                                                                         {:level :female :label "Female"}])}))
-                        2)))
-  )
+                        2))))
 

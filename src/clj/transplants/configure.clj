@@ -25,8 +25,6 @@
 (def slash java.io.File/separator)
 
 (comment
-
-
   ;;;
   ;; following is a docjure example. Keep as a quick check on setup, but it's not used here as it 
   ;; does not respect the application edn configuration file

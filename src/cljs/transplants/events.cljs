@@ -6,7 +6,6 @@
    [transplants.fx :as fx]
    [transplants.utils :as utils]
    [transplants.transforms :as xf]
-   ;[transplants.db :as db]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
@@ -89,15 +88,13 @@
    Then index by the (orange) index columns which are specified in metadata.edn
    Finally, convert those indexes to keywords."
   [raw indexes]
-  (js/console.log "raw numerics:")
-  (js/console.log (pr-str raw))
   (as-> raw x
     (map-of-vs->v-of-maps x)
     (filter (comp some? (first indexes)) x)
     (into #{} x)
     (rel/index x indexes)
     (map (fn [[k v]] [(xf/map-vals xf/unstring-key k) (into {} v)]) x)
-    (into {} x)
+    ;(into {} x)
     ))
 
 (comment
@@ -116,7 +113,7 @@
   (index-by raw
             [:factor :model])
   ; => Note that the resulting keys are maps containing distinct values of the original keys (:factor and :model in this case).
-  {{:model :waiting, :factor :bmi} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bmi", :dps 0, :knot1 nil, :model ":waiting"}
+  #_{{:model :waiting, :factor :bmi} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bmi", :dps 0, :knot1 nil, :model ":waiting"}
    {:model :waiting, :factor :bilirubin} {:min 0, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bilirubin", :dps 0, :knot1 nil, :model ":waiting"}
    {:model :from-listing, :factor :age} {:min 16, :knot3 nil, :knot2 nil, :knot4 nil, :max 70, :factor ":age", :dps 0, :knot1 nil, :model ":from-listing"}
    {:model :post-transplant, :factor :cholesterol} {:min 1.3, :knot3 nil, :knot2 nil, :knot4 nil, :max 9, :factor ":cholesterol", :dps 1, :knot1 nil, :model ":post-transplant"}
@@ -126,14 +123,32 @@
    {:min 16, :knot3 56, :knot2 46, :knot4 63, :max 70, :factor ":age", :dps 0, :knot1 22, :model ":post-transplant"}
    {:model :waiting, :factor :fvc} {:min 0, :knot3 2.22, :knot2 1.63, :knot4 3.55, :max 5, :factor ":fvc", :dps 2, :knot1 0.94, :model ":waiting"}
    {:model :from-listing, :factor :bmi} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor ":bmi", :dps 1, :knot1 nil, :model ":from-listing"}
-   {:model :post-transplant, :factor :fvc} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor ":fvc", :dps 1, :knot1 nil, :model ":post-transplant"}})
+   {:model :post-transplant, :factor :fvc} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor ":fvc", :dps 1, :knot1 nil, :model ":post-transplant"}}
+  
+  (index-by {:factor '(":age" ":sex" ":ethnicity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft" ":centre"), :level '(":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft" ":unused")}
+            [:factor])
+  )
+
+
 
 (defn get-sheet-indexes
   "Look up the indexing keys for a spreadsheet. These are the column keys for columns coloured in orange."
   [db sheet-name]
   (get-in db [:metadata :sheet-meta sheet-name]))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn bundle->sheet-key
+  "Concat a sheet type suffix onto the bundle name to generate a specific sheet key 
+   e.g.
+   ['waiting' '-inputs'] -> :waiting-inputs
+   ['graft' '-baseline-vars'] -> :graft-baseline-vars"
+  [bundle-name tool-suffix]
+  (keyword (str bundle-name tool-suffix)))
+
+(comment
+  (def db @re-frame.db/app-db)
+  )
+
+;;;
 ;; Process tool bundles into db
 ;;;
 (rf/reg-event-fx
@@ -145,86 +160,23 @@
         [organ-name centre-name tool-name] (utils/path-names path-params)
         organ (keyword organ-name)
         raw (edn/read-string response)
-       ; waiting-inputs (:waiting-inputs raw)
-       ; waiting-baseline-cifs (:waiting-baseline-cifs raw)
-       ; waiting-baseline-vars (:waiting-baseline-vars raw)
-        inputs-key (keyword (str tool-name "-inputs")) ;:e.g. waiting-inputs
-        fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
-        processed (assoc-in raw [inputs-key] fmaps)
-        numerics (index-by (:numerics raw) (get-sheet-indexes db "numerics"))]
-    (js/console.log "numerics:")
-    (js/console.log (pr-str numerics))
-    {:db (-> db
-             (assoc-in data-path processed)
-             (assoc :numerics (index-by (:numerics raw) (get-sheet-indexes db "numerics"))))
-     :reg-factors [organ fmaps]})))
-
-#_(rf/reg-event-db
- ::store-bundle-inputs
- (fn-traced
-  [db [_ data-path response]]
-  (let [;route (:current-route db)
-        path-params (get-in db [:current-route :path-params])
-        [organ-name centre-name tool-name] (utils/path-names path-params)
-        raw (edn/read-string response)
-       ; waiting-inputs (:waiting-inputs raw)
-       ; waiting-baseline-cifs (:waiting-baseline-cifs raw)
-       ; waiting-baseline-vars (:waiting-baseline-vars raw)
-        inputs-key (keyword (str tool-name "-inputs")) ;:e.g. waiting-inputs
+        inputs-key (bundle->sheet-key tool-name "-inputs")
         fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
         processed (assoc-in raw [inputs-key] fmaps)]
 
-    ;; side-effecting - make an fx!
-    (doseq [fmap fmaps]
-      (js/console.log "boo " (:factor fmap)))
+    {:db (assoc-in db data-path processed)
+     :reg-factors [organ fmaps]})))
 
 
-    (-> db
-        (assoc-in data-path processed)))))
-
-
-(comment
-  (enable-console-print!)
-  )
-
-;
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;
+;;;
 ;; Load data sequences
-;;
+;;;
 (rf/reg-event-db
  ::store-response
  (fn-traced
   [db [_ data-path response]]
   (-> db
       (assoc-in data-path (edn/read-string response)))))
-
-
-
-#_(rf/reg-event-db
- ::store-indexed-response
- (fn-traced
-  [db [_ raw-data data-path]]
-  (let [sheet-metas (get-in db [:metadata :sheet-meta])
-        sheet-name (name (first data-path))
-        indexes (get-sheet-keys sheet-metas (first data-path))]
-    (comment "Use the sheet metadata to discover which columns can be used as indexes, then index the
-              response by those keys in order. The indexes are themselves maps of {key1 val1} or if there
-              are two keys, {key1 val1 key2 val2}."
-
-             "It's not yet clear whether it's optimal to index this way, or by using nested group-by, or not
-              at all at this stage - in which case simply use store-response, or on a case by case basis.")
-    ;(println "INDEXES " indexes)
-    (-> db
-        (assoc-in data-path (index-by raw-data indexes)
-                  #_(as-> raw-data x
-                    (map-of-vs->v-of-maps x)
-                    (into #{} x)
-                    (rel/index x indexes)
-                    ))))))
 
 (comment
   (def tool-meta-match string/ends-with?)

@@ -87,7 +87,7 @@
                                                   :cif-graft {:column :C
                                                               :match "graft"}}
 
-                            :graft-baseline-vars {:baseline-factor {:column :A
+                            :graft-baseline-vars {:factor {:column :A
                                                                     :match "factor"}
                                                   :level {:column :B
                                                                    :match "level"}}
@@ -130,7 +130,7 @@
                                                             :match "(time)|(days)"}
                                                      :cif-survival {:column :C
                                                                     :match "survival"}}
-                            :survival-baseline-vars {:baseline-factor {:column :A
+                            :survival-baseline-vars {:factor {:column :A
                                                                        :match "factor"}
                                                      :level {:column :B
                                                                       :match "level"}}
@@ -173,7 +173,7 @@
                                                   :cif-all {:column :F
                                                             :match "all"}}
 
-                          :waiting-baseline-vars {:baseline-factor {:column :A
+                          :waiting-baseline-vars {:factor {:column :A
                                                                     :match "factor"}
                                                   :level {:column :B
                                                                    :match "level"}}
@@ -228,7 +228,7 @@
                                                           :cif-survival {:column :C
                                                                          :match "graft"}}
 
-                          :post-transplant-baseline-vars {:baseline-factor {:column :A
+                          :post-transplant-baseline-vars {:factor {:column :A
                                                                             :match "factor"}
                                                           :level {:column :B
                                                                            :match "level"}}
@@ -258,7 +258,7 @@
                                                               :match "(time)|(days)"}
                                                        :cif-from-listing {:column :C
                                                                           :match "survival"}}
-                          :from-listing-baseline-vars {:baseline-factor {:column :A
+                          :from-listing-baseline-vars {:factor {:column :A
                                                                          :match "factor"}
                                                        :level {:column :B
                                                                         :match "level"}}

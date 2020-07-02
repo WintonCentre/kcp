@@ -11,8 +11,7 @@
    [cljs.reader :as  edn]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
    [clojure.string :as string]
-   [clojure.set :as rel]
-   [cljs.pprint :refer [pprint]]))
+   [clojure.set :as rel]))
 
 ;;; Events ;;;
 
@@ -134,11 +133,6 @@
   [db sheet-name]
   (get-in db [:metadata :sheet-meta sheet-name]))
 
-
-(comment
-  (get-sheet-indexes re-frame.db/app-db "numerics")
-  )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Process tool bundles into db
 ;;;
@@ -246,12 +240,6 @@
   (filter (fn [meta] (clojure.string/ends-with? (:sheet meta) "waiting-baseline-cifs"))
           sheet-meta)
 
-  (get-sheet-keys sheet-meta :waiting-baseline-cifs)
-  ;=> [:centre :days]
-
-  (get-sheet-keys sheet-meta :tools)
-  ;=> [:key]
-  ;
 
   (def relation #{{:a 1 :b 2 :c 3}
                   {:a 1 :b 3 :c 3}

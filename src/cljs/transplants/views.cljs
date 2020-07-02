@@ -2,22 +2,21 @@
   (:require
 ;   [reagent.dom :as rd]
    [clojure.string :as string]
-   [reagent.core :as rc]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
 ;   [transplants.dev-utils :as dev-utils]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
-   [transplants.bsio :as bsio :refer [radio-button-group]]
+   ;[transplants.bsio :as bsio :refer [radio-button-group]]
    [transplants.ui :as ui :refer [page
                                   row
                                   col
                                   button]]
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
-   [transplants.transforms :as xf]
-   (winton-utils.data-frame :refer [map-of-vs->v-of-maps])))
+   ;[transplants.transforms :as xf]
+   #_(winton-utils.data-frame :refer [map-of-vs->v-of-maps])))
 
 (comment
   (rf/dispatch [::events/initialize-db]))
@@ -95,7 +94,7 @@
                 (map #(conj % [:organ organ-name]))
                 (map #(conj % [:centre centre-name]))
                 (map #(conj % [:tool (name (:key %))]))
-                (map ui/tool-buttons)
+               (map ui/tool-buttons)
                 (into [:> bs/ButtonGroup {:vertical false}]))
            [row
             [col
@@ -169,7 +168,7 @@
                (into [:<>]
                      (map
                       (fn [w] ^{:key (:factor w)}
-                        (js/console.log  "widget-map, model:" tool " factor: " (:factor w))
+                        (js/console.log  "widget-map: " w " model:" tool " factor: " (:factor w))
                         (widg/widget (assoc w :model tool)
                         ))
                       (get tool-bundle tool-inputs-key)

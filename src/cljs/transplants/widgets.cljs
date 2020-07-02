@@ -1,17 +1,27 @@
 (ns transplants.widgets
   (:require [re-frame.core :as rf]
+            [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
             [transplants.events :as events]
-            [transplants.subs :as subs]
             [transplants.numeric-input :as num]))
 
 (defmulti widget
-  "Create a widget component - dispatching on type. The default type is a radio-button-group"
-  :type
-  :default :unsupported
-  )
-
+  "Create a widget component of a given type.
+   The first argument is the widget map, and the value of its :type slot determines the 
+   widget type. If it's a keyword, dispatch on that. If it's a string, read it into a map and dispatch on that map's :type.
+   This allows us to add parameters to the widget inside the type column in the spreadsheet."
+  ;:type
+  (fn [m] (if (keyword? (:type m))
+            (:type m)
+            (do
+              (js/console.log "Gotcha" (:type m))
+              (let [ms (edn/read-string (:type m))]
+                (:type ms)))
+            ))
+  :default :unsupported)
+  
+(edn/read-string "{:a {:b 2}}")
 ; Create a radio-button-group widget given a widget inputs map - for example:
 (comment
   (def widget-inputs-map
@@ -79,24 +89,23 @@
                                                 (keyword %)])
                       :buttons-f (fn [] levels)})]]))
 
-; numerics are for numeric input
+; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
   [{:keys [factor-name factor-key factor levels default type model] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        ;_ (js/console.log "W: " w)
-        ;_ (js/console.log "KEYS: " (select-keys w [:model :factor]))
-        ;_ (js/console.log "All numerics " @(rf/subscribe [::subs/numerics]))
-        numerics (get @(rf/subscribe [::subs/numerics]) (select-keys w [:model :factor]))]
-    ;(js/console.log "NUMERICS" numerics)
+        numerics (edn/read-string (:type w))]
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
      [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
-      [num/numeric-input {:key (pr-str factor-key)
-                          :value-f value-f
-                          :on-change #(rf/dispatch [factor-key %])
-                          :min (:min numerics) :max (:max numerics) :dps (:dps numerics)}]]]))
+      (if (and (map? numerics)
+               (every? identity (map numerics [:min :max :dps])))
+        [num/numeric-input {:key (pr-str factor-key)
+                            :value-f value-f
+                            :on-change #(rf/dispatch [factor-key %])
+                            :min (:min numerics) :max (:max numerics) :dps (:dps numerics)}]
+        [:div "Check that " (:factor w) " has min, max, and dps parameters"])]]))
 
 
 (comment

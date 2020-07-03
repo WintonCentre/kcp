@@ -168,7 +168,7 @@
                (into [:<>]
                      (map
                       (fn [w] ^{:key (:factor w)}
-                        (js/console.log  "widget-map: " w " model:" tool " factor: " (:factor w))
+                        ;(js/console.log  "widget-map: " w " model:" tool " factor: " (:factor w))
                         (widg/widget (assoc w :model tool)
                         ))
                       (get tool-bundle tool-inputs-key)

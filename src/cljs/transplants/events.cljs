@@ -144,10 +144,6 @@
   [bundle-name tool-suffix]
   (keyword (str bundle-name tool-suffix)))
 
-(comment
-  (def db @re-frame.db/app-db)
-  )
-
 ;;;
 ;; Process tool bundles into db
 ;;;
@@ -202,7 +198,7 @@
           {:a 2 :b 1 :c 4}
           {:a 2 :b 2 :c 4}])
   (group-by :a v)
-  (require 'clojure.set)
+
   (clojure.set/index relation [:a :b])
   (clojure.set/index relation [:a])
   (filter (fn [[m s]] (= 1 (:a m))) (clojure.set/index relation [:a :b])))

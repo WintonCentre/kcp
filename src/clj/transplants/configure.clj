@@ -246,7 +246,11 @@
     (io/make-parents f)
     (spit f variables)))
 
-(comment (remove nil? (:name (get-variables :kidney :centres))))
+(comment 
+  (remove nil? (:name (get-variables :kidney :centres)))
+  (get-row-maps :kidney :waiting-baseline-vars)
+  (centre-row-maps :kidney :waiting-baseline-vars "Birmingham")
+  )
 
 (defn export
   "Write out organ data using a write function wf. wf is typically write-edn."
@@ -260,7 +264,11 @@
   "Return row-maps, filtered by centre. If centre is nil, return all"
   [organ sheet-key centre]
   (let [cset (into #{} centre)
-        row-maps (get-row-maps organ sheet-key)
+        row-maps (->> (get-row-maps organ sheet-key)
+                      (map (fn [ms]
+                             (into {} (map 
+                                       (fn [[k v]] [k (xf/unstring-key v)])
+                                       ms)))))
         header-map (first row-maps)
         header-set (into #{} (keys header-map))
         f #(if (contains? header-set :centre)

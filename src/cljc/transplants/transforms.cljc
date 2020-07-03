@@ -66,7 +66,7 @@
                               :label level-name}) ins))))
    (->> inputs
         (map-of-vs->v-of-maps)
-        (filter #(valid-keystring? (:factor %)) )
+        (filter #(keyword? #_valid-keystring? (:factor %)) )
         (map #(map-vals unstring-key %))
         (partition-by :factor)
         (sort-by (comp :order first)))))

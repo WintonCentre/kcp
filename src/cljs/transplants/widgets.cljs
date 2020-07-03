@@ -6,6 +6,9 @@
             [transplants.events :as events]
             [transplants.numeric-input :as num]))
 
+(defn bad-widget-type [msg]
+  (js/alert msg))
+
 (defmulti widget
   "Create a widget component of a given type.
    The first argument is the widget map, and the value of its :type slot determines the 
@@ -14,12 +17,24 @@
   ;:type
   (fn [m] (if (keyword? (:type m))
             (:type m)
-            (do
-              (js/console.log "Gotcha" (:type m))
+            (try
               (let [ms (edn/read-string (:type m))]
-                (:type ms)))
-            ))
+                (if (and (map? ms) (= (:type ms) :numeric))
+                  :numeric
+                  (do 
+                    (bad-widget-type ":type :numeric should be like {:type :numeric :dps 0 :min 0 :max 100}" )
+                    (js/console.log "culprit is: " (pr-str m))
+                      :unsupported)))
+              (catch :default e
+                (bad-widget-type "Invalid type")
+                :unsupported))))
   :default :unsupported)
+
+(comment
+  (map? nil)
+  (edn/read-string "{:a 1}")
+  (nil? (edn/read-string "{:a}"))
+  )
   
 (edn/read-string "{:a {:b 2}}")
 ; Create a radio-button-group widget given a widget inputs map - for example:
@@ -117,10 +132,17 @@
   (widget {:type :foo}))
 
 (defmethod widget :unsupported
-  [{:keys [type]}]
-   (println "unsupported widget-type: "  type)
-  [:div  type " not yet implemented"])
+  [{:keys [type :as m]}]
+   (js/console.log "unsupported widget-type: "  m)
+  [:div  type " widget badly configured"])
 
+(defmethod widget :param
+  [_]
+  nil)
+
+(defmethod widget :none
+  [_]
+  nil)
 ;------------------------
 ;
 (comment

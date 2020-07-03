@@ -8,10 +8,9 @@
 (defn d3+ [x n] (cube+ (- x n)))
 
 (defn spline
-  "Calculates a spline value given 4 knots and 3 betas and "
+  "Calculates a spline value given 4 knots and 3 betas according to the method given by "
   [{:keys [knots betas x0]} x]
-  (let [[knot1 knot2 knot3 knot4] knots
-        
+  (let [[knot1 knot2 knot3 knot4] knots 
         term (fn [n x] (/ (- (d3+ x n) (d3+ x knot4)) (- knot4 n)))
 
         f1 (fn [x] (- (term knot1 x) (term knot3 x)))

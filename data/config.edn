@@ -25,9 +25,9 @@
                              :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]}
                     :lung {:centres [:centres]
                            :tools [:tools]
-                           :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs #_:numerics]
-                           :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs #_:numerics]
-                           :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs #_:numerics]}}
+                           :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
+                           :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]
+                           :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs]}}
 
  :sheets #profile {:kidney {:centres {:key {:column :A :match "key"}
                                       :name {:column :B :match "name"}

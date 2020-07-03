@@ -129,8 +129,6 @@
             [:factor])
   )
 
-
-
 (defn get-sheet-indexes
   "Look up the indexing keys for a spreadsheet. These are the column keys for columns coloured in orange."
   [db sheet-name]
@@ -162,7 +160,6 @@
 
     {:db (assoc-in db data-path processed)
      :reg-factors [organ fmaps]})))
-
 
 ;;;
 ;; Load data sequences

@@ -10,12 +10,17 @@
   [path profile]
   (aero/read-config (io/resource path) {:profile profile}))
 
+;**
 (defn get-config
   "Read the configuration file, profiled by organ - either :lung or :kidney"
   [profile]
   (aero/read-config "data/config.edn" {:profile profile}))
 
+;**
 (def memo-config 
+  "A function that memoizes a call to get-config.
+  Things run faster when utils/MEMO is true. 
+  Debugging can be easier when it's false."
   (if utils/MEMO (memoize get-config) get-config))
 
 (defn get-sheet-spec
@@ -34,6 +39,7 @@
   (get-in (memo-config :lung) [:sheets nil])
   )
 
+;**
 (defn get-bundle
   "Return the bundles of sheet-keys associated with a tool, or if no tool is given, returns a map of
    tool-key bundles"
@@ -43,9 +49,7 @@
    (let [bs (get (memo-config organ) :bundles)]
      (if tool-key
        (into {} [(find bs tool-key)])
-       bs #_(flatten (vals bs)))
-     #_(get-in (memo-config organ) 
-               [:bundles tool-key]))))
+       bs))))
 
 (comment
   (get-bundle :kidney)

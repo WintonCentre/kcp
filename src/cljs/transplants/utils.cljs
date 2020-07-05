@@ -23,9 +23,17 @@
        (path-names)
        (map keyword)))
 
-  (comment
-    (path-keys {:organ "k" :centre "c" :tool "t"})
-    ;=> (:k :c :t)
-    )
+(comment
+  (path-keys {:organ "k" :centre "c" :tool "t"})
+  ;=> (:k :c :t)
+  )
+
+
+(defn make-sheet-key
+  "Reconsruct a sheet key from a tool key and the sheet type suffix
+   e.g. :waiting '-inputs' -> :waiting-inputs"
+  [tool suffix]
+  (keyword (str (name tool) suffix)))
+
 
 

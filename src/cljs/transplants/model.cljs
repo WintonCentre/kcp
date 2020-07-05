@@ -10,7 +10,7 @@
 (defn spline
   "Calculates a spline value given 4 knots and 3 betas according to the method given by "
   [{:keys [knots betas x0]} x]
-  (let [[knot1 knot2 knot3 knot4] knots 
+  (let [[knot1 knot2 knot3 knot4] knots
         term (fn [n x] (/ (- (d3+ x n) (d3+ x knot4)) (- knot4 n)))
 
         f1 (fn [x] (- (term knot1 x) (term knot3 x)))
@@ -31,7 +31,7 @@
 
 (comment
   ; This is code from previously verified apline
-  
+
   ; Age knots
   (def k1 22)
   (def k2 46)
@@ -55,8 +55,8 @@
     [beta1 beta2 beta3 x0 x]
     (apply + (map * [beta1 beta2 beta3] (xs x x0))))
 
-  (def p-spline (partial spline {:knots [22 46 56 63] 
-                                 :betas [-0.04681 0.00152 -0.00342] 
+  (def p-spline (partial spline {:knots [22 46 56 63]
+                                 :betas [-0.04681 0.00152 -0.00342]
                                  :x0 51}))
   (def p-spline** (partial spline** -0.04681 0.00152 -0.00342 51))
 
@@ -100,11 +100,10 @@
   [cif-0 sum-x-betas]
   (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas))))
 
-(defn x-beta 
+(defn x-beta
   "NOT FINISHED"
   [beta-key x t]
-  (if x 
-    (* x (beta-for-level x))) 
+  nil
   )
 
 (defn scale-factor
@@ -115,3 +114,31 @@
 (defn CIF-transplant
   [cif-transplant scale-factor]
   (* cif-transplant (scale-factor)))
+
+(defn categorical-beta
+  "Access a beta for a categorical variable"
+  [{:keys [inputs factor level beta-key]}]
+  ; YOU ARE HERE:
+  ; Need to patch store-bundle-data so betas are stored with levels
+  (filter #(and (= factor (:factor %)) (= level (get-in % [:levels :level]))) inputs)
+  )
+
+(defn continuous-beta
+  "Access a beta for a continuous variable"
+  ; Need to read and use spline data somewhere
+  [{:keys [inputs factor level baseline-level beta-key]}]
+  666)
+
+(defn beta-x
+  "Select or calculate the contribution of a factor at a given level"
+  [{:keys [inputs factor level baseline-level beta-key] :as data}]
+  (if (keyword? level)
+    (categorical-beta data)
+    (* (- level baseline-level) (continuous-beta data))
+    )
+  )
+
+(defn sum-x-betas
+  "Given a "
+  [xs baseline-vars tool-inputs]
+  999)

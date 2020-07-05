@@ -15,6 +15,7 @@
                                   button]]
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
+   [transplants.results :as results]
    ;[transplants.transforms :as xf]
    #_(winton-utils.data-frame :refer [map-of-vs->v-of-maps])))
 
@@ -131,6 +132,7 @@
                                 "Belfast"
                                 "waiting"))
 
+
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
@@ -158,30 +160,29 @@
                 (into [:> bs/ButtonGroup {:vertical false}]))
            [:h4 {:style {:margin-top 10}}
             (:label tool-meta)]
-           [:p  (:description tool-meta)]]]
-         [row 
-          [col 
-           (widg/widget {:type :reset})
-           (if-let [tool-bundle (get-in bundles [organ tool])]
-             (let [tool-inputs-key (keyword (str tool-name "-inputs"))]
-
+           [:p  (:description tool-meta)]]] 
+         (if-let [tool-bundle (get-in bundles [organ tool])]
+           (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
+             [row
+              [col
+               (widg/widget {:type :reset})
                (into [:<>]
                      (map
                       (fn [w] ^{:key (:factor w)}
-                        ;(js/console.log  "widget-map: " w " model:" tool " factor: " (:factor w))
-                        (widg/widget (assoc w :model tool)
-                        ))
-                      (get tool-bundle tool-inputs-key)
-                      )))
-             (let [path (paths/organ-centre-name-tool organ-name
-                                                      (:name centre-info)
-                                                      tool-name)]
-               (rf/dispatch [::events/load-bundles [path
-                                                    [:bundles organ tool]]])
-               [:div "Loading " path]))]
-          [:> bs/Col {:class-name "d-none d-md-block"}]
-          ]
-          [col]]))))
+                        (widg/widget (assoc w :model tool)))
+                      (get tool-bundle inputs-key)))]
+              [col
+               [results/results-panel organ tool]]])
+           (let [path (paths/organ-centre-name-tool organ-name
+                                                    (:name centre-info)
+                                                    tool-name)]
+             (rf/dispatch [::events/load-bundles [path
+                                                  [:bundles organ tool]]])
+             [:div "Loading " path]))
+         [row
+          [:> bs/Col {:class-name "d-none d-md-block"}]]
+         
+         ]))))
 
 (comment
   (+ 1 1)

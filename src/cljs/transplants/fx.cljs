@@ -35,19 +35,23 @@
                  }))))
   
 (defn reg-factor
-  "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause aconsole warning
+  "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause a console warning
    on startup. The final registration overwrites any previous ones. This function can be used to register db keys at run-time.
-   Both subscription and event are registered on the organ-namespaced factor-key."
+   Both subscription and event are registered on the organ-namespaced factor.
+   Events happen when an input changes the value of a factor.
+   Subscriptions access input values by the factor key."
   [organ-k factor-k]
   (let [ref-k (keyword (name organ-k) (name factor-k))]
     (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
     (rf/reg-event-db ref-k (fn [db [_ v]] (assoc-in db [:inputs organ-k factor-k] v)))))
 
-(rf/reg-fx
- :reg-factors
- (fn [[organ fmaps]]
-   (doseq [fmap fmaps] 
-     (reg-factor organ (:factor fmap)))))
+(defn reg-factors
+  "Function which registers all organ factors given in a seq of factor maps"
+  [[organ fmaps]]
+  (doseq [fmap fmaps]
+    (reg-factor organ (:factor fmap))))
+
+(rf/reg-fx :reg-factors reg-factors)
   
 
 ;;

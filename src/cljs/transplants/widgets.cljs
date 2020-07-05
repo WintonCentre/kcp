@@ -167,12 +167,5 @@
                                                 :level :female
                                                 :label "Female"}])})
 
-  (def widget-inputs-map
-    "Example of a widget-inputs-map"
-    {:factor-key :kidney/sex
-     :levels [{:level :male
-               :label "Male"}
-              {:level :female
-               :label "Female"}]
-     :type :radio}))
+  )
 

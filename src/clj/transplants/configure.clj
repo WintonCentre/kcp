@@ -343,6 +343,7 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   (:beta-removal (get-variables :kidney :waiting-inputs))
   (get-row-maps :kidney :waiting-inputs)
 
-  (pprint (read-table  ((:tables (aero/read-config :kidney)) 0)))
-  (pp)
-  (pprint *1))
+  ;(pprint (read-table  ((:tables (aero/read-config :kidney)) 0)))
+  ;(pp)
+  ;(pprint *1)
+  )

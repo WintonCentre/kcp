@@ -6,6 +6,7 @@
    [transplants.fx :as fx]
    [transplants.utils :as utils]
    [transplants.transforms :as xf]
+   [transplants.factors :as fac]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
@@ -139,8 +140,9 @@
    e.g.
    ['waiting' '-inputs'] -> :waiting-inputs
    ['graft' '-baseline-vars'] -> :graft-baseline-vars"
-  [bundle-name tool-suffix]
-  (keyword (str bundle-name tool-suffix)))
+  [tool-key tool-suffix]
+  (let [bundle-name (name tool-key)]
+    (keyword (str bundle-name tool-suffix))))
 
 ;;;
 ;; Process tool bundles into db
@@ -151,14 +153,19 @@
   [{:keys [_ db]} [_ data-path response]]
   (let [;route (:current-route db)
         path-params (get-in db [:current-route :path-params])
-        [organ-name centre-name tool-name] (utils/path-names path-params)
-        organ (keyword organ-name)
+        [organ _ tool] (utils/path-keys path-params)
         raw (edn/read-string response)
-        inputs-key (bundle->sheet-key tool-name "-inputs")
-        fmaps (xf/inputs->factor-maps (keyword organ-name) (inputs-key raw))
+        inputs-key (bundle->sheet-key tool "-inputs")
+        fmaps (fac/factor-maps organ (inputs-key raw))
         processed (assoc-in raw [inputs-key] fmaps)]
+    (println "waiting-inputs")
+    (println  (->> processed 
+                  :waiting-inputs
+                  (group-by :factor)))
 
-    {:db (assoc-in db data-path processed)
+    {:db (-> db
+             (assoc-in data-path processed)
+             (assoc :master-f-maps (group-by :factor (:waiting-inputs processed))))
      :reg-factors [organ fmaps]})))
 
 ;;;

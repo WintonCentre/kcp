@@ -156,12 +156,8 @@
         [organ _ tool] (utils/path-keys path-params)
         raw (edn/read-string response)
         inputs-key (bundle->sheet-key tool "-inputs")
-        fmaps (fac/factor-maps organ (inputs-key raw))
+        fmaps (fac/master-f-maps organ (inputs-key raw))
         processed (assoc-in raw [inputs-key] fmaps)]
-    (println "waiting-inputs")
-    (println  (->> processed 
-                  :waiting-inputs
-                  (group-by :factor)))
 
     {:db (-> db
              (assoc-in data-path processed)

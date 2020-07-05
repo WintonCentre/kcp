@@ -29,3 +29,7 @@
 (rf/reg-sub ::bundles (fn [db] (get-in db [:bundles])))
 
 (rf/reg-sub ::numerics (fn [db] (get-in db [:numerics])))
+
+(rf/reg-sub ::inputs (fn [db] (get-in db [:inputs])))
+
+(rf/reg-sub ::master-f-maps (fn [db] (get-in db [:master-f-maps])))

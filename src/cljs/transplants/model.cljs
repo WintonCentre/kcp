@@ -140,5 +140,30 @@
 
 (defn sum-x-betas
   "Given a "
-  [xs baseline-vars tool-inputs]
+  [xs baseline-vars]
   999)
+
+(defn calculate-cif
+  "Calculate the cif for an outcome. The outcome is indicated by a suffix that selects the appropriate
+   baseline and betas to use in the calculaion"
+  [days inputs outcome baseline-cifs baseline-vars master-f-maps]
+  
+  ; Todo: Numeric vars must take baselines into consideration
+  (sum-x-betas inputs master-f-maps))
+
+(defn calculate
+  "Calculate a predicted outcome. "
+  [{:keys [organ
+           centre
+           tool
+           outcome
+           sample-period
+           inputs
+           baseline-cifs
+           baseline-vars
+           master-f-maps 
+           :as params]}]
+  nil
+  #_(for [day (range 0 (:days (last baseline-cifs)))]
+    day)
+  )

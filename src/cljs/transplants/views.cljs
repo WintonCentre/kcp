@@ -161,7 +161,7 @@
            [:h4 {:style {:margin-top 10}}
             (:label tool-meta)]
            [:p  (:description tool-meta)]]] 
-         (if-let [tool-bundle (get-in bundles [organ tool])]
+         (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [row
               [col
@@ -170,14 +170,16 @@
                      (map
                       (fn [w] ^{:key (:factor w)}
                         (widg/widget (assoc w :model tool)))
-                      (get tool-bundle inputs-key)))]
+                      (get tool-centre-bundle inputs-key)))]
               [col
-               [results/results-panel organ tool]]])
+               [results/results-panel bundles organ centre tool]]])
            (let [path (paths/organ-centre-name-tool organ-name
                                                     (:name centre-info)
                                                     tool-name)]
+             (println "getting path " path)
+
              (rf/dispatch [::events/load-bundles [path
-                                                  [:bundles organ tool]]])
+                                                  [:bundles organ centre tool]]])
              [:div "Loading " path]))
          [row
           [:> bs/Col {:class-name "d-none d-md-block"}]]

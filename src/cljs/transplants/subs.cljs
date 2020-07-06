@@ -32,4 +32,8 @@
 
 (rf/reg-sub ::inputs (fn [db] (get-in db [:inputs])))
 
+(rf/reg-sub ::baseline-cifs (fn [db] (get-in db [:baseline-cifs])))
+
+(rf/reg-sub ::baseline-vars (fn [db] (get-in db [:baseline-vars])))
+
 (rf/reg-sub ::master-f-maps (fn [db] (get-in db [:master-f-maps])))

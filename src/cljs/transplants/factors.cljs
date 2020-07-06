@@ -71,20 +71,15 @@
    containing nested detail relating to levels"
   [organ f-maps]
   (let [f-map (first f-maps)
-        categorical-levels (group-by :level (filter (comp keyword? :level) (level-maps* (:factor f-map) f-maps)))
-        ]
+        categorical-levels (group-by :level (filter (comp keyword? :level) (level-maps* (:factor f-map) f-maps)))]
          ;(js/console.log "beta-keys")
          ;(js/console.log beta-keys)
     (assoc f-map
            ; todo: :factor-key is probably no longer necessary, though it is currently used.
            :factor-key (keyword organ (xf/unstring-key (:factor f-map)))
-           
+
            ; levels are f-map levels in spreadsheet orde
-           :levels (level-maps* (:factor f-map) f-maps)
-           
-           ; if f-map is categorical, then this indexes the levels by the :level key 
-           #_#_:categorical-levels categorical-levels))
-  )
+           :levels (level-maps* (:factor f-map) f-maps))))
 
 (defn master-f-maps
   "Preprocess an inputs sheet before storing it"

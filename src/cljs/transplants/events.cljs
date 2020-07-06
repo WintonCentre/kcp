@@ -135,14 +135,13 @@
   [db sheet-name]
   (get-in db [:metadata :sheet-meta sheet-name]))
 
-(defn bundle->sheet-key
+(defn bundle-sheet
   "Concat a sheet type suffix onto the bundle name to generate a specific sheet key 
    e.g.
    ['waiting' '-inputs'] -> :waiting-inputs
    ['graft' '-baseline-vars'] -> :graft-baseline-vars"
-  [tool-key tool-suffix]
-  (let [bundle-name (name tool-key)]
-    (keyword (str bundle-name tool-suffix))))
+  [bundle-name tool-suffix]
+  (keyword (str bundle-name tool-suffix)))
 
 ;;;
 ;; Process tool bundles into db
@@ -153,16 +152,41 @@
   [{:keys [_ db]} [_ data-path response]]
   (let [;route (:current-route db)
         path-params (get-in db [:current-route :path-params])
-        [organ _ tool] (utils/path-keys path-params)
+        [organ centre tool] (utils/path-keys path-params)
         raw (edn/read-string response)
-        inputs-key (bundle->sheet-key tool "-inputs")
-        fmaps (fac/master-f-maps organ (inputs-key raw))
-        processed (assoc-in raw [inputs-key] fmaps)]
 
+        bundle-name (name tool)
+        inputs-key (bundle-sheet bundle-name "-inputs")
+        fmaps (fac/master-f-maps organ (inputs-key raw))
+        processed (assoc-in raw [inputs-key] fmaps)
+
+        baseline-vars (->> "-baseline-vars"
+                           (bundle-sheet bundle-name)
+                           (get raw)
+                           (group-by :factor)
+                           (remove (comp nil? first))
+                           (map (fn [[k [{:keys [level]}]]] [k level]))
+                           (into {}))]
+
+    ;(into {} (map (fn [[k [{:keys [level]}]]] [k level]) (group-by :factor (get raw (bundle-sheet bundle-name "-baseline-vars")))))
+    (println "data path " data-path " baseline-vars" baseline-vars)
+    
     {:db (-> db
              (assoc-in data-path processed)
-             (assoc :master-f-maps (group-by :factor (:waiting-inputs processed))))
+             (assoc :master-f-maps (group-by :factor (inputs-key processed))
+                    :baseline-cifs (get raw (bundle-sheet bundle-name "-baseline-cifs"))
+                    :baseline-vars baseline-vars
+                    ))
      :reg-factors [organ fmaps]})))
+;;;
+;; Tool selection
+;;;
+(rf/reg-event-db
+ ::change-tool
+ (fn-traced
+  [db [_ organ centre tool]]
+  (assoc db
+         :tool tool)))
 
 ;;;
 ;; Load data sequences
@@ -221,14 +245,14 @@
 (rf/reg-event-fx
  ::load-edn
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            (when (nil? (get-in db data-path))
-              {:http-xhrio {:method :get
-                            :uri path
-                            :timeout 8000
-                            :format          (ajax/text-request-format)
-                            :response-format (ajax/text-response-format)
-                            :on-success [::store-response data-path]
-                            :on-failure [::bad-response data-path]}})))
+            ;(when (nil? (get-in db data-path)))
+            {:http-xhrio {:method :get
+                          :uri path
+                          :timeout 8000
+                          :format          (ajax/text-request-format)
+                          :response-format (ajax/text-response-format)
+                          :on-success [::store-response data-path]
+                          :on-failure [::bad-response data-path]}}))
 
 #_(rf/reg-event-fx
  ::load-sheet-and-index
@@ -256,26 +280,26 @@
 (rf/reg-event-fx
  ::load-sheet
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            (when (nil? (get-in db data-path))
-              {:http-xhrio {:method :get
-                            :uri path
-                            :timeout 8000
-                            :format          (ajax/text-request-format)
-                            :response-format (ajax/text-response-format)
-                            :on-success [::store-response data-path]
-                            :on-failure [::bad-response data-path]}})))
+            ;(when (nil? (get-in db data-path)))
+            {:http-xhrio {:method :get
+                          :uri path
+                          :timeout 8000
+                          :format          (ajax/text-request-format)
+                          :response-format (ajax/text-response-format)
+                          :on-success [::store-response data-path]
+                          :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx
  ::load-bundles
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            (when (nil? (get-in db data-path))
-              {:http-xhrio {:method :get
-                            :uri path
-                            :timeout 8000
-                            :format          (ajax/text-request-format)
-                            :response-format (ajax/text-response-format)
-                            :on-success [::store-bundle-inputs data-path]
-                            :on-failure [::bad-response data-path]}})))
+            ;(when (nil? (get-in db data-path)))
+            {:http-xhrio {:method :get
+                          :uri path
+                          :timeout 8000
+                          :format          (ajax/text-request-format)
+                          :response-format (ajax/text-response-format)
+                          :on-success [::store-bundle-inputs data-path]
+                          :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx
  ::load-and-transpose
@@ -292,14 +316,14 @@
  ::load-and-transpose-once
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             ; do not load config data twice!
-            (when (nil? (get-in db data-path))
-              {:http-xhrio {:method :get
-                            :uri path
-                            :timeout 8000
-                            :format          (ajax/text-request-format)
-                            :response-format (ajax/text-response-format)
-                            :on-success [::transpose-response data-path]
-                            :on-failure [::bad-response data-path]}})))
+            ; (when (nil? (get-in db data-path)))
+            {:http-xhrio {:method :get
+                          :uri path
+                          :timeout 8000
+                          :format          (ajax/text-request-format)
+                          :response-format (ajax/text-response-format)
+                          :on-success [::transpose-response data-path]
+                          :on-failure [::bad-response data-path]}}))
 
 
 

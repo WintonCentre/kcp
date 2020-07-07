@@ -43,9 +43,9 @@
     "Example of a widget-inputs-map"
     {:factor-key :kidney/sex
      :levels [{:level :male
-               :label "Male"}
+               :level-name "Male"}
               {:level :female
-               :label "Female"}]
+               :level-name "Female"}]
      :default :male
      :type :radio}))
 
@@ -84,7 +84,7 @@
                                                                 (keyword %)])
                                               (rf/dispatch [factor-key
                                                             (keyword %)]))
-                                :buttons-f (fn [] levels)})]]))
+                                :buttons-f (fn [] (vals levels))})]]))
 
 
 ; dropdowns are similar to radio buttons but are useful when a radio-button-group
@@ -102,7 +102,7 @@
                       :value-f value-f
                       :on-change #(rf/dispatch [factor-key
                                                 (keyword %)])
-                      :buttons-f (fn [] levels)})]]))
+                      :buttons-f (fn [] (vals levels))})]]))
 
 ; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
@@ -152,8 +152,8 @@
                             :value-k :sex
                             :value-f (fn [] :male)
                             :on-change identity
-                            :buttons-f (fn [] [{:key :male :value :male :label "Male"}
-                                               {:key :female :value :female :label "Female"}])})
+                            :buttons-f (fn [] [{:key :male :value :male :level-namel "Male"}
+                                               {:key :female :value :female :level-name "Female"}])})
 
 
   (bsio/radio-button-group {:id "Sex"
@@ -162,10 +162,10 @@
                             :on-change identity    ; e.g. #(rf/dispatch [:set-factor-level %])
                             :buttons-f (fn [] [{:key :male
                                                 :level :male
-                                                :label "Male"}
+                                                :level-name "Male"}
                                                {:key :female
                                                 :level :female
-                                                :label "Female"}])})
+                                                :level-name "Female"}])})
 
   )
 

@@ -121,7 +121,7 @@
 (defn get-tool-meta
   [tools tool-key]
   @(rf/subscribe [::subs/tools])
-  (first (filter (fn [{:keys [key label description]}]
+  (first (filter (fn [{:keys [key level-name description]}]
                    (= tool-key key))
                  tools)))
 

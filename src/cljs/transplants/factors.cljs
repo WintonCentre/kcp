@@ -62,8 +62,8 @@
        (map (fn [m] (update m :level #(if (string? %)
                                         (edn/read-string %)
                                         %))))
-       (map #(assoc % :label (:level-name %))))
-  ;(map #(assoc % :label (:level-name %)) f-maps)
+       #_(map #(assoc % :label (:level-name %)))
+       )
   )
 
 (defn master-f-map
@@ -78,8 +78,14 @@
            ; todo: :factor-key is probably no longer necessary, though it is currently used.
            :factor-key (keyword organ (xf/unstring-key (:factor f-map)))
 
-           ; levels are f-map levels in spreadsheet orde
-           :levels (level-maps* (:factor f-map) f-maps))))
+           ; levels are f-map levels in spreadsheet order
+           :levels (cond
+                     (keyword? (:level f-map))
+                     (into {} (map (fn [[k [v]]] [k v]) 
+                                   (group-by :level (level-maps* (:factor f-map) f-maps))))
+                     
+                     :else 
+                     "numeric levels not implemented yet"))))
 
 (defn master-f-maps
   "Preprocess an inputs sheet before storing it"
@@ -87,20 +93,19 @@
   (->> inputs
        ; change to vector of maps form
        (map-of-vs->v-of-maps)
-       
+
        ; remove non-factor rows
        (filter #(keyword? (:factor %)))
-       
+
        ; ensure all values like ":foo" become keyword :foo
        (map #(xf/map-vals xf/unstring-key %))
-       
+
        ; group rows relating to the same factor
        (partition-by :factor)
-       
+
        ; sort those groups by the :order column
        (sort-by (comp :order first))
-       
+
        ; replace each group with a master f-map containing nested level detail
-       (map #(master-f-map organ %))
-       ))
+       (map #(master-f-map organ %))))
 

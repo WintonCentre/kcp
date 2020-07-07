@@ -7,8 +7,8 @@
     (is (= (:border (:style (nth (second (radio-button-group {:value-k :sex
                                                               :value-f (fn [] :male)
                                                               :event-f identity
-                                                              :buttons-f (fn [] [{:key :male :value :male :label "Male"}
-                                                                                 {:key :female :value :female :label "Female"}])}))
+                                                              :buttons-f (fn [] [{:key :male :value :male :level-name "Male"}
+                                                                                 {:key :female :value :female :level-name "Female"}])}))
                                  2)))
            "3px solid #ffffff") "expect white border")
 
@@ -16,7 +16,7 @@
     (is (= (:border (:style (nth (second (radio-button-group {:value-k :sex
                                                               :value-f (fn [] nil)
                                                               :event-f identity
-                                                              :buttons-f (fn [] [{:key :male :value :male :label "Male"}
-                                                                                 {:key :female :value :female :label "Female"}])}))
+                                                              :buttons-f (fn [] [{:key :male :value :male :level-name "Male"}
+                                                                                 {:key :female :value :female :level-name "Female"}])}))
                                  2)))
            "3px solid #ff8888") "expect pink border")))

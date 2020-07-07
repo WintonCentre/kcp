@@ -68,7 +68,7 @@
                                           ;(js/console.log "Entering organ-centre-tool: " params)
                                           )
                                         )
-                               :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}]]]]
+                               :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :tool])))}]}]]]]
 )
 
 

@@ -27,7 +27,7 @@
                            (into {}))]
 
     ;(into {} (map (fn [[k [{:keys [level]}]]] [k level]) (group-by :factor (get raw (bundle-sheet bundle-name "-baseline-vars")))))
-    (println "data path " data-path " baseline-vars" baseline-vars)
+    ;(println "data path " data-path " baseline-vars" baseline-vars)
 
     {:db (-> db
              (assoc-in data-path processed)

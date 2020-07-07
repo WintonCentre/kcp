@@ -143,58 +143,72 @@
   [bundle-name tool-suffix]
   (keyword (str bundle-name tool-suffix)))
 
+(comment
+
+  (def fmaps {:a {:order 10} :b {:order -6} :c {:order nil} :d {:order nil}})
+  (get-in fmaps [:a :order])
+  (into (sorted-map-by (fn [k1 k2]
+                         (compare (get-in fmaps [k1 :order])
+                                  (get-in fmaps [k2 :order]))))
+        fmaps))
+  
+
 ;;;
-;; Process tool bundles into db
+;; Process raw tool bundles into db. 
+;; 
+;; It will be more efficient to do this processing at configuration time
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
  (fn-traced
   [{:keys [_ db]} [_ data-path response]]
-  (let [;route (:current-route db)
-        path-params (get-in db [:current-route :path-params])
+  (let [path-params (get-in db [:current-route :path-params])
         [organ centre tool] (utils/path-keys path-params)
         raw (edn/read-string response)
 
         bundle-name (name tool)
         inputs-key (bundle-sheet bundle-name "-inputs")
         fmaps (fac/master-f-maps organ (inputs-key raw))
-        processed (assoc-in raw [inputs-key] fmaps)
+        fmaps* (into {} (map (fn [[k [v]]] [k v]) (group-by :factor fmaps)))
+        tool-inputs fmaps* ;(map (fn [[k [v]]] [k v]) (group-by :factor fmaps))
 
-        baseline-vars (->> "-baseline-vars"
-                           (bundle-sheet bundle-name)
+        _ (map (fn [[k v]] (println [k (:order v)])) fmaps*)
+        ;;
+        ;; Ideally, we want to sort factors by the order column
+        ;; But this does not work yet...( 
+        ;; 
+        ;; However wwe may be OK because the raw inputs are in correct order, so provided we have fewer
+        ;; than 16 factors per sheet, we may find group-by is preserving order
+        ;;
+        tool-inputs* (into (sorted-map-by (fn [k1 k2]
+                                            (compare (get-in fmaps* [k1 :order])
+                                                     (get-in fmaps* [k2 :order]))))                                   
+                           fmaps*)
+
+        baseline-vars-key (bundle-sheet bundle-name "-baseline-vars")
+        baseline-vars (->> baseline-vars-key
                            (get raw)
                            (group-by :factor)
                            (remove (comp nil? first))
                            (map (fn [[k [{:keys [level]}]]] [k level]))
                            (into {}))
-        
-        processed (assoc processed 
-                         :-inputs (group-by :factor fmaps)
-                         :-baseline-cifs (get raw (bundle-sheet bundle-name "-baseline-cifs"))
-                         :-baseline-vars baseline-vars
-                         )]
+
+        baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
+        baseline-cifs (get raw baseline-cifs-key)]
 
     ;(into {} (map (fn [[k [{:keys [level]}]]] [k level]) (group-by :factor (get raw (bundle-sheet bundle-name "-baseline-vars")))))
-    (println "data path " data-path " baseline-vars" baseline-vars)
-    
+    ;(println "data path " data-path " baseline-vars" baseline-vars)
 
-    
-    {:db (-> db
-             (assoc-in data-path processed)
-             #_(assoc :master-f-maps (group-by :factor (inputs-key processed))
-                    :baseline-cifs (get raw (bundle-sheet bundle-name "-baseline-cifs"))
-                    :baseline-vars baseline-vars
-                    ))
+    {:db (assoc-in db data-path
+                   (-> raw
+                       ;(assoc inputs-key tool-inputs*
+                       (assoc :-inputs tool-inputs*;(group-by :factor fmaps)
+                              :-baseline-cifs baseline-cifs ;(get raw (bundle-sheet bundle-name "-baseline-cifs"))
+                              :-baseline-vars baseline-vars)
+                       (dissoc inputs-key)
+                       (dissoc baseline-cifs-key)
+                       (dissoc baseline-vars-key)))
      :reg-factors [organ fmaps]})))
-;;;
-;; Tool selection
-;;;
-(rf/reg-event-db
- ::change-tool
- (fn-traced
-  [db [_ organ centre tool]]
-  (assoc db
-         :tool tool)))
 
 ;;;
 ;; Load data sequences

@@ -166,17 +166,21 @@
              [row
               [col
                (widg/widget {:type :reset})
-               (into [:<>]
+               #_(into [:<>]
                      (map
                       (fn [w] ^{:key (:factor w)}
                         (widg/widget (assoc w :model tool)))
-                      (get tool-centre-bundle inputs-key)))]
+                      (get tool-centre-bundle inputs-key)))
+               (into [:<>]
+                     (map 
+                      (fn [[k w]] ^{:key (:factor w)}
+                        (widg/widget (assoc w :model tool)))
+                      (get tool-centre-bundle :-inputs)))]
               [col
                [results/results-panel bundles organ centre tool]]])
            (let [path (paths/organ-centre-name-tool organ-name
                                                     (:name centre-info)
                                                     tool-name)]
-             (println "getting path " path)
 
              (rf/dispatch [::events/load-bundles [path
                                                   [:bundles organ centre tool]]])

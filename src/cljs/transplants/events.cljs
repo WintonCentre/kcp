@@ -169,21 +169,16 @@
         bundle-name (name tool)
         inputs-key (bundle-sheet bundle-name "-inputs")
         fmaps (fac/master-f-maps organ (inputs-key raw))
-        fmaps* (into {} (map (fn [[k [v]]] [k v]) (group-by :factor fmaps)))
-        tool-inputs fmaps* ;(map (fn [[k [v]]] [k v]) (group-by :factor fmaps))
-
-        _ (map (fn [[k v]] (println [k (:order v)])) fmaps*)
-        ;;
-        ;; Ideally, we want to sort factors by the order column
-        ;; But this does not work yet...( 
-        ;; 
-        ;; However wwe may be OK because the raw inputs are in correct order, so provided we have fewer
-        ;; than 16 factors per sheet, we may find group-by is preserving order
-        ;;
-        tool-inputs* (into (sorted-map-by (fn [k1 k2]
-                                            (compare (get-in fmaps* [k1 :order])
-                                                     (get-in fmaps* [k2 :order]))))                                   
-                           fmaps*)
+        fmaps* (->> fmaps
+                    (group-by :factor)
+                    (map (fn [[k [v]]] [k v]))
+                    (into {}))
+        ; tool-inputs* fmaps* ;(map (fn [[k [v]]] [k v]) (group-by :factor fmaps))
+        ; tool-inputs must be sorted by spreadsheet factor order   
+        tool-inputs (into (sorted-map-by (fn [k1 k2]
+                                           (compare (get-in fmaps* [k1 :order])
+                                                    (get-in fmaps* [k2 :order]))))
+                          fmaps*)
 
         baseline-vars-key (bundle-sheet bundle-name "-baseline-vars")
         baseline-vars (->> baseline-vars-key
@@ -202,7 +197,7 @@
     {:db (assoc-in db data-path
                    (-> raw
                        ;(assoc inputs-key tool-inputs*
-                       (assoc :-inputs tool-inputs*;(group-by :factor fmaps)
+                       (assoc :-inputs tool-inputs;(group-by :factor fmaps)
                               :-baseline-cifs baseline-cifs ;(get raw (bundle-sheet bundle-name "-baseline-cifs"))
                               :-baseline-vars baseline-vars)
                        (dissoc inputs-key)

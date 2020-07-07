@@ -166,14 +166,22 @@
                            (group-by :factor)
                            (remove (comp nil? first))
                            (map (fn [[k [{:keys [level]}]]] [k level]))
-                           (into {}))]
+                           (into {}))
+        
+        processed (assoc processed 
+                         :-inputs (group-by :factor fmaps)
+                         :-baseline-cifs (get raw (bundle-sheet bundle-name "-baseline-cifs"))
+                         :-baseline-vars baseline-vars
+                         )]
 
     ;(into {} (map (fn [[k [{:keys [level]}]]] [k level]) (group-by :factor (get raw (bundle-sheet bundle-name "-baseline-vars")))))
     (println "data path " data-path " baseline-vars" baseline-vars)
     
+
+    
     {:db (-> db
              (assoc-in data-path processed)
-             (assoc :master-f-maps (group-by :factor (inputs-key processed))
+             #_(assoc :master-f-maps (group-by :factor (inputs-key processed))
                     :baseline-cifs (get raw (bundle-sheet bundle-name "-baseline-cifs"))
                     :baseline-vars baseline-vars
                     ))

@@ -37,3 +37,5 @@
 (rf/reg-sub ::baseline-vars (fn [db] (get-in db [:baseline-vars])))
 
 (rf/reg-sub ::master-f-maps (fn [db] (get-in db [:master-f-maps])))
+
+(rf/reg-sub ::test-day (fn [db] (get-in db [:test-day])))

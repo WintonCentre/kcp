@@ -22,7 +22,8 @@
              :inputs {}
              ;:lung/bmi 30
              ;:lung/age 50
-             :window-width (.-innerWidth js/window)}))
+             :window-width (.-innerWidth js/window)
+             :test-day 100}))
 
 (rf/reg-event-db
  ::update-window-width
@@ -204,6 +205,13 @@
                        (dissoc baseline-cifs-key)
                        (dissoc baseline-vars-key)))
      :reg-factors [organ fmaps]})))
+
+(rf/reg-event-db
+ ::inc-test-day
+ (fn-traced
+  [db [_ step]]
+  (update db :test-day #(+ step %))))
+
 
 ;;;
 ;; Load data sequences

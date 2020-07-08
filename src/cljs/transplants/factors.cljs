@@ -51,6 +51,17 @@
        (map (comp name first))
        (lookup-beta-keys)))
 
+(defn get-beta-keys 
+ "Given a master-fmap, returns all the keywords for beta values in it"
+  [fmap]
+  (->> fmap
+       (keys)
+       (map name)
+       (filter #(starts-with? % "beta-"))
+       (map keyword)
+       )
+               )
+
 (defn level-maps*
   "Given a seq of input-maps all for the same factor, collect all level information under the first of these,
    and return that fmap. "
@@ -109,3 +120,12 @@
        ; replace each group with a master f-map containing nested level detail
        (map #(master-f-map organ %))))
 
+
+(defn selected-level-maps
+  "Given the master-fmaps, and the current inputs, return the selected level-maps"
+  [master-fmaps inputs]
+  (map
+   (fn [[factor fmap]]
+     (let [selected-level (factor inputs)]
+       (get-in fmap [:levels selected-level])))
+   master-fmaps))

@@ -205,7 +205,7 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key level-name description organ centre tool] :as tool-button-params}]
+  [{:keys [key label description organ centre tool] :as tool-button-params}]
   (let [active (= tool  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
     [button {:variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2
@@ -216,7 +216,7 @@ in the routes table."
                                       {:organ organ
                                        :centre centre
                                        :tool tool}])}
-     level-name]))
+     label]))
 
 (defn nav-card
   [{:keys [img-src organ centre hospital link width tools]}]

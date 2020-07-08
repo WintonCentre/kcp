@@ -8,6 +8,22 @@
             [clojure.pprint :refer [pprint]]))
 
 
+(comment
+  ; There is a bundle for each organ, centre, tool context that has ever
+  ; been loaded in the UI. If a bundle has never been loaded it will return
+  ; a nil cif-0.
+  (def bundles @(rf/subscribe [::subs/bundles]))
+
+  ; Note that we only have values at days 0, 5, 25, ..., 99 for Belfast
+  (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 0)
+  (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 5)
+  (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 10)
+  (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 24)
+  (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 25)
+  (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 100)
+
+  (model/cif-0 (get-in bundles [:kidney :bris :waiting]) 100))
+
 (defn results-panel
   "Display results"
   [bundles organ centre tool]
@@ -18,7 +34,8 @@
                                                      :-inputs :-baseline-cifs :-baseline-vars)
                                                     bundle)
         factors (keys master-fmaps)
-        selected-level-maps (fac/selected-level-maps master-fmaps inputs)]
+        selected-level-maps (fac/selected-level-maps master-fmaps inputs)
+        [beta-keys outcome-keys] (fac/get-beta-keys (first (vals master-fmaps)))]
     [:> bs/Container
      [:> bs/Row
       (when factors
@@ -46,11 +63,10 @@
                   (conj
                    (map
                     (fn [fmap]
-                      (let [beta-keys (fac/get-beta-keys fmap)]
-                        [:tr
-                         [:td (:factor fmap)]
-                         [:td (if fmap (:level fmap) "-")]
-                         [:td (if fmap (pr-str (select-keys fmap beta-keys)) "-")]]))
+                      [:tr
+                       [:td (:factor fmap)]
+                       [:td (if fmap (:level fmap) "-")]
+                       [:td (if fmap (pr-str (select-keys fmap beta-keys)) "-")]])
                     selected-level-maps)
                    [:tr
                     [:td "Sum betas"]

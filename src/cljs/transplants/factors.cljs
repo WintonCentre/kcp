@@ -1,6 +1,6 @@
 (ns transplants.factors
   "Code associated with factors and master factor-maps"
-  (:require [clojure.string :refer [starts-with?]]
+  (:require [clojure.string :refer [starts-with? split]]
             [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
             [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
@@ -51,16 +51,26 @@
        (map (comp name first))
        (lookup-beta-keys)))
 
-(defn get-beta-keys 
- "Given a master-fmap, returns all the keywords for beta values in it"
+(defn get-beta-keys
+  "Given a master-fmap, returns all the keywords for both beta values and
+   outcomes."
   [fmap]
+  
   (->> fmap
        (keys)
        (map name)
        (filter #(starts-with? % "beta-"))
-       (map keyword)
-       )
-               )
+       (map #(subs % 5))
+       (map (fn [s] [(keyword (str "beta-" s)) (keyword (str "cif-" s))]))
+       (apply map vector))
+  )
+
+(comment
+  (get-beta-keys {:beta-transplant 1 :beta-waiting 2})
+  (filter  odd? [1 2 3 4 5 6])
+  (subs "beta-transplant" 5)
+  
+  )
 
 (defn level-maps*
   "Given a seq of input-maps all for the same factor, collect all level information under the first of these,

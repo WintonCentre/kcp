@@ -24,6 +24,22 @@
 
   (model/cif-0 (get-in bundles [:kidney :bris :waiting]) 100))
 
+(defn day-selector
+  "A test-only widget to select a test day at a given sampling period.
+   "
+  [period]
+  [:> bs/Row {:style {:margin-bottom 10 :align-items "center"}}
+   [:> bs/Col  {:md "auto"} "for test day: "]
+   [:> bs/Col  {:md "auto"} @(rf/subscribe [::subs/test-day])]
+   [:> bs/Col  {:md "auto"} [:> bs/Button {:variant :outline-secondary
+                                           :style {:flex "1"}
+                                           :on-click #(rf/dispatch [::events/inc-test-day (- period)])} 
+                             (str "- " period)]]
+   [:> bs/Col  {:md "auto"} [:> bs/Button {:variant :outline-secondary
+                                           :style {:flex "1"}
+                                           :on-click #(rf/dispatch [::events/inc-test-day period])} 
+                             (str "+ " period)]]])
+
 (defn results-panel
   "Display results"
   [bundles organ centre tool]
@@ -40,15 +56,7 @@
      [:> bs/Row
       (when factors
         [:> bs/Col
-         [:> bs/Row {:style {:margin-bottom 10 :align-items "center"}}
-          [:> bs/Col  {:md "auto"} "for test day: "]
-          [:> bs/Col  {:md "auto"} @(rf/subscribe [::subs/test-day])]
-          [:> bs/Col  {:md "auto"} [:> bs/Button {:variant :outline-secondary
-                                                  :style {:flex "1"}
-                                                  :on-click #(rf/dispatch [::events/inc-test-day -10])} "- 10"]]
-          [:> bs/Col  [:> bs/Button {:variant :outline-secondary
-                                     :style {:flex "1"}
-                                     :on-click #(rf/dispatch [::events/inc-test-day 10])} "+ 10"]]]
+         [day-selector 10]
          [:> bs/Row
           [:> bs/Col
            [:> bs/Table {:striped true
@@ -61,29 +69,29 @@
               [:th "Beta(s)"]]]
             (into [:tbody]
                   (conj
-                   (map
+                   (mapv
                     (fn [fmap]
-                      [:tr
-                       [:td (:factor fmap)]
-                       [:td (if fmap (:level fmap) "-")]
-                       [:td (if fmap (pr-str (select-keys fmap beta-keys)) "-")]])
+                      [:tr ;{:key (:factor fmap)}
+                       [:td {:key 1} (:factor fmap)]
+                       [:td {:key  2} (if fmap (:level fmap) "-")]
+                       [:td {:key 3} (if fmap (pr-str (select-keys fmap beta-keys)) "-")]])
                     selected-level-maps)
-                   [:tr
-                    [:td "Sum betas"]
-                    [:td "transplant"]
-                    [:td (apply + (map :beta-transplant selected-level-maps))]]
-                   [:tr
-                    [:td "Sum betas"]
-                    [:td "removal"]
-                    [:td (apply + (map :beta-removal selected-level-maps))]]
-                   [:tr
-                    [:td "Sum betas"]
-                    [:td "death"]
-                    [:td (apply + (map :beta-death selected-level-maps))]]
-                   [:tr
-                    [:td "Sum betas"]
-                    [:td "all reasons"]
-                    [:td (apply + (map :beta-all-reasons selected-level-maps))]]))]]]])]]))
+                   [:tr {:key :beta-transplant}
+                    [:td {:key 1} "Sum betas"]
+                    [:td {:key 2} "transplant"]
+                    [:td {:key 3} (apply + (map :beta-transplant selected-level-maps))]]
+                   [:tr {:key :beta-removal}
+                    [:td {:key 1} "Sum betas"]
+                    [:td {:key 2} "removal"]
+                    [:td {:key 3} (apply + (map :beta-removal selected-level-maps))]]
+                   [:tr {:key :beta-death}
+                    [:td {:key 1} "Sum betas"]
+                    [:td {:key 2} "death"]
+                    [:td {:key 3} (apply + (map :beta-death selected-level-maps))]]
+                   [:tr {:key :beta-all-reasons}
+                    [:td {:key 1} "Sum betas"]
+                    [:td {:key 2} "all reasons"]
+                    [:td {:key 3} (apply + (map :beta-all-reasons selected-level-maps))]]))]]]])]]))
 
 (comment
   (def fmaps (repeat 2 {:a 1 :b 2 :c 3}))

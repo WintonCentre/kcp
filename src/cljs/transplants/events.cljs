@@ -270,17 +270,17 @@
 (rf/reg-event-fx
  ::load-edn
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ;(when (nil? (get-in db data-path)))
-            {:http-xhrio {:method :get
-                          :uri path
-                          :timeout 8000
-                          :format          (ajax/text-request-format)
-                          :response-format (ajax/text-response-format)
-                          :on-success [::store-response data-path]
-                          :on-failure [::bad-response data-path]}}))
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::store-response data-path]
+                            :on-failure [::bad-response data-path]}})))
 
-#_(rf/reg-event-fx
- ::load-sheet-and-index
+(rf/reg-event-fx
+ ::load-bundles
  (fn-traced [{:keys [db]} [evt [path data-path]]]
             (when (nil? (get-in db data-path))
               {:http-xhrio {:method :get
@@ -288,67 +288,73 @@
                             :timeout 8000
                             :format          (ajax/text-request-format)
                             :response-format (ajax/text-response-format)
-                            :on-success [::store-indexed-response data-path]
+                            :on-success [::store-bundle-inputs data-path]
                             :on-failure [::bad-response data-path]}})))
-
-(rf/reg-event-fx
- ::load-sheet-always
- (fn-traced [{:keys [db]} [evt [path data-path]]]
-            {:http-xhrio {:method :get
-                          :uri path
-                          :timeout 8000
-                          :format          (ajax/text-request-format)
-                          :response-format (ajax/text-response-format)
-                          :on-success [::store-response data-path]
-                          :on-failure [::bad-response data-path]}}))
-
-(rf/reg-event-fx
- ::load-sheet
- (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ;(when (nil? (get-in db data-path)))
-            {:http-xhrio {:method :get
-                          :uri path
-                          :timeout 8000
-                          :format          (ajax/text-request-format)
-                          :response-format (ajax/text-response-format)
-                          :on-success [::store-response data-path]
-                          :on-failure [::bad-response data-path]}}))
-
-(rf/reg-event-fx
- ::load-bundles
- (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ;(when (nil? (get-in db data-path)))
-            {:http-xhrio {:method :get
-                          :uri path
-                          :timeout 8000
-                          :format          (ajax/text-request-format)
-                          :response-format (ajax/text-response-format)
-                          :on-success [::store-bundle-inputs data-path]
-                          :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx
  ::load-and-transpose
  (fn-traced [{:keys [db]} [evt [path data-path]]]
-            {:http-xhrio {:method :get
-                          :uri path
-                          :timeout 8000
-                          :format          (ajax/text-request-format)
-                          :response-format (ajax/text-response-format)
-                          :on-success [::transpose-response data-path]
-                          :on-failure [::bad-response data-path]}}))
+            (when (nil? (get-in db data-path))
+              {:http-xhrio {:method :get
+                            :uri path
+                            :timeout 8000
+                            :format          (ajax/text-request-format)
+                            :response-format (ajax/text-response-format)
+                            :on-success [::transpose-response data-path]
+                            :on-failure [::bad-response data-path]}})))
 
-(rf/reg-event-fx
- ::load-and-transpose-once
- (fn-traced [{:keys [db]} [evt [path data-path]]]
+;;;
+;; unused below
+;;; 
+(comment
+  #_(rf/reg-event-fx
+     ::load-sheet-and-index
+     (fn-traced [{:keys [db]} [evt [path data-path]]]
+                (when (nil? (get-in db data-path))
+                  {:http-xhrio {:method :get
+                                :uri path
+                                :timeout 8000
+                                :format          (ajax/text-request-format)
+                                :response-format (ajax/text-response-format)
+                                :on-success [::store-indexed-response data-path]
+                                :on-failure [::bad-response data-path]}})))
+
+  #_(rf/reg-event-fx
+     ::load-sheet-always
+     (fn-traced [{:keys [db]} [evt [path data-path]]]
+                {:http-xhrio {:method :get
+                              :uri path
+                              :timeout 8000
+                              :format          (ajax/text-request-format)
+                              :response-format (ajax/text-response-format)
+                              :on-success [::store-response data-path]
+                              :on-failure [::bad-response data-path]}}))
+
+
+  #_(rf/reg-event-fx
+     ::load-sheet
+     (fn-traced [{:keys [db]} [evt [path data-path]]]
+            ;(when (nil? (get-in db data-path)))
+                {:http-xhrio {:method :get
+                              :uri path
+                              :timeout 8000
+                              :format          (ajax/text-request-format)
+                              :response-format (ajax/text-response-format)
+                              :on-success [::store-response data-path]
+                              :on-failure [::bad-response data-path]}}))
+
+  #_(rf/reg-event-fx
+     ::load-and-transpose-once
+     (fn-traced [{:keys [db]} [evt [path data-path]]]
             ; do not load config data twice!
             ; (when (nil? (get-in db data-path)))
-            {:http-xhrio {:method :get
-                          :uri path
-                          :timeout 8000
-                          :format          (ajax/text-request-format)
-                          :response-format (ajax/text-response-format)
-                          :on-success [::transpose-response data-path]
-                          :on-failure [::bad-response data-path]}}))
+                {:http-xhrio {:method :get
+                              :uri path
+                              :timeout 8000
+                              :format          (ajax/text-request-format)
+                              :response-format (ajax/text-response-format)
+                              :on-success [::transpose-response data-path]
+                              :on-failure [::bad-response data-path]}})))
 
 
 

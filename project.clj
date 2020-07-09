@@ -67,6 +67,7 @@
                                           {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
                                :devtools {:http-root "resources/public"
                                           :http-port 8280
+                                          :repl-pprint true
                                           :after-load transplants.core/init}}
 
                          :browser-test

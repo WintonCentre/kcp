@@ -130,12 +130,11 @@
        ; replace each group with a master f-map containing nested level detail
        (map #(master-f-map organ %))))
 
-
 (defn selected-level-maps
-  "Given the master-fmaps, and the current inputs, return the selected level-maps"
+  "Given the master-fmaps, and the current inputs, return a list of selected level-maps
+   with nil inputs that have not yet been selected filtered out."
   [master-fmaps inputs]
-  (map
-   (fn [[factor fmap]]
-     (let [selected-level (factor inputs)]
-       (get-in fmap [:levels selected-level])))
-   master-fmaps))
+  (->> master-fmaps
+       (map (fn [[factor fmap]]
+              (get-in fmap [:levels (factor inputs)])))
+       (remove nil?)))

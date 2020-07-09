@@ -166,11 +166,6 @@
              [row
               [col
                (widg/widget {:type :reset})
-               #_(into [:<>]
-                     (map
-                      (fn [w] ^{:key (:factor w)}
-                        (widg/widget (assoc w :model tool)))
-                      (get tool-centre-bundle inputs-key)))
                (into [:<>]
                      (map 
                       (fn [[k w]] ^{:key (:factor w)}

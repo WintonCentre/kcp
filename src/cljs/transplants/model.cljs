@@ -108,6 +108,18 @@
        (filter #(<= (:days %) day))
        (last)))
 
+(defn sum-beta-x
+  [level-map beta-key x]
+  (if (map? (:type level-map))
+    0 ; not yet implemented, but will use x
+    (beta-key level-map)))
+
+(defn sum-beta-xs
+  [selected-level-maps beta-key baseline-vars]
+  (if (= :numeric (:type selected-level-maps))
+    0 ; not yet implemented
+    (apply + (map beta-key selected-level-maps))))
+
 (defn cif
   "Calculates the cif(t) from a baseline cif-0(t), and the sum of the x_i.beta_i"
   [cif-0 sum-x-betas]
@@ -151,24 +163,12 @@
 (defn calculate-cif
   "Calculate the cif for an outcome. The outcome is indicated by a suffix that selects the appropriate
    baseline and betas to use in the calculaion"
-  [days inputs outcome baseline-cifs baseline-vars master-f-maps]
+  [day inputs outcome baseline-cifs baseline-vars master-f-maps]
   
   ; Todo: Numeric vars must take baselines into consideration
   (sum-x-betas inputs master-f-maps))
 
 (defn calculate
   "Calculate a predicted outcome. "
-  [{:keys [organ
-           centre
-           tool
-           outcome
-           sample-period
-           inputs
-           baseline-cifs
-           baseline-vars
-           master-f-maps 
-           :as params]}]
-  nil
-  #_(for [day (range 0 (:days (last baseline-cifs)))]
-    day)
-  )
+  [{:keys [day outcome-key master-fmaps baseline-cifs baseline-vars inputs] :as params}]
+  0.5)

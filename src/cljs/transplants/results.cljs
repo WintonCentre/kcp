@@ -40,6 +40,31 @@
                                            :on-click #(rf/dispatch [::events/inc-test-day period])} 
                              (str "+ " period)]]])
 
+(defn to-fixed
+  "Wrap javascript toFixed"
+  [d dps]
+  (.toFixed (js/Number. d) dps))
+
+(defn to-percent
+  "Convert a decimal number to a fixed point string percentage"
+  ([d] (to-percent d 0))
+  ([d dps]
+   (to-fixed (* d 100) dps)
+   #_(.toFixed (js/Number. (* d 100)) dps)))
+
+(comment
+  (.toFixed (js/Number. 1) 0)
+  (to-percent 0.066) ; => "7"
+  (to-percent 0.01) ; => "1"
+  )
+
+(defn calculate-outcome
+  "Show the outcome for given day"
+  [{:keys [day outcome-key master-fmaps baseline-cifs baseline-vars inputs] :as params}]
+  [:div
+   "Survival: " (to-percent (model/calculate params)) "%"
+   ])
+
 (defn results-panel
   "Display results"
   [bundles organ centre tool]
@@ -57,6 +82,13 @@
       (when factors
         [:> bs/Col
          [day-selector 10]
+         [calculate-outcome {:day @(rf/subscribe [::subs/test-day])
+                             :outcome-key :transplants
+                             :master-fmaps master-fmaps
+                             :baseline-cifs baseline-cifs
+                             :baseline-vars baseline-vars
+                             :inputs inputs
+                             }]
          [:> bs/Row
           [:> bs/Col
            [:> bs/Table {:striped true
@@ -71,9 +103,9 @@
                   (conj
                    (mapv
                     (fn [fmap]
-                      [:tr ;{:key (:factor fmap)}
+                      [:tr {:key (str "r-" (name (:factor fmap)))}
                        [:td {:key 1} (:factor fmap)]
-                       [:td {:key  2} (if fmap (:level fmap) "-")]
+                       [:td {:key 2} (if fmap (:level fmap) "-")]
                        [:td {:key 3} (if fmap (pr-str (select-keys fmap beta-keys)) "-")]])
                     selected-level-maps)
                    [:tr {:key :beta-transplant}

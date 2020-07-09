@@ -36,41 +36,46 @@
 
 (reduce conj [:beta-1 :beta-2] [:level :level-name])
 
-(defn extract-beta-keys [header-names]
-  (->> header-names
-       (filter #(starts-with? % "beta-"))
-       (map keyword)))
+#_(comment ; unused?
+  (defn extract-beta-keys [header-names]
+    (->> header-names
+         (filter #(starts-with? % "beta-"))
+         (map keyword)))
 
-(def lookup-beta-keys (memoize extract-beta-keys))
+  (def lookup-beta-keys (memoize extract-beta-keys))
 
-(defn beta-keys
-  "Given the raw -inputs sheet data, extract beta keywords. 
+  (defn beta-keys
+    "Given the raw -inputs sheet data, extract beta keywords. 
    All factor levels will have a beta value for one of these keys"
-  [inputs]
-  (->> inputs
-       (map (comp name first))
-       (lookup-beta-keys)))
+    [inputs]
+    (->> inputs
+         (map (comp name first))
+         (lookup-beta-keys))))
 
-(defn get-beta-keys
-  "Given a master-fmap, returns all the keywords for both beta values and
-   outcomes."
+(defn get-outcomes
+  "Given a master-fmap, returns all the outcomes as a seq of strings.
+   e.g. for :waiting-inputs this would be [transplant removal death all-reasons]"
   [fmap]
-  
   (->> fmap
        (keys)
        (map name)
        (filter #(starts-with? % "beta-"))
-       (map #(subs % 5))
-       (map (fn [s] [(keyword (str "beta-" s)) (keyword (str "cif-" s))]))
-       (apply map vector))
-  )
+       (map #(subs % 5))))
+
+(defn prefix-outcome-keys
+  "Given a master-fmap, adds a prefix to all outcomes and returns them as keywords"
+  [outcomes prefix]
+  (map (fn [s] (keyword (str prefix "-" s))) outcomes))
 
 (comment
-  (get-beta-keys {:beta-transplant 1 :beta-waiting 2})
-  (filter  odd? [1 2 3 4 5 6])
+  (get-outcomes  {:beta-transplant 1 :beta-waiting 2}))
+  ; => '("transplant" "waiting")
+  
+  (prefix-outcome-keys '("transplant" "waiting") "beta")
+  ; => '(:beta-transplant :beta-waiting)
+
   (subs "beta-transplant" 5)
   
-  )
 
 (defn level-maps*
   "Given a seq of input-maps all for the same factor, collect all level information under the first of these,
@@ -131,10 +136,18 @@
        (map #(master-f-map organ %))))
 
 (defn selected-level-maps
-  "Given the master-fmaps, and the current inputs, return a list of selected level-maps
-   with nil inputs that have not yet been selected filtered out."
+  "Given the master-fmaps, and the current inputs, return a list of selected level-maps.
+   numeric levels are handled elsewhere - we just return :numeric for those"
   [master-fmaps inputs]
-  (->> master-fmaps
-       (map (fn [[factor fmap]]
-              (get-in fmap [:levels (factor inputs)])))
-       (remove nil?)))
+  (let [x (->> master-fmaps
+               (remove nil?)
+               (map (fn [[factor fmap]]
+                      (if (keyword? (:type fmap))
+                        (get-in fmap [:levels (factor inputs)])
+                        :numeric)))
+               (remove nil?))]
+    (println "selected-level-maps: " x)
+    x)
+  
+
+  )

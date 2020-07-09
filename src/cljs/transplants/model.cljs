@@ -171,4 +171,4 @@
 (defn calculate
   "Calculate a predicted outcome. "
   [{:keys [day outcome-key master-fmaps baseline-cifs baseline-vars inputs] :as params}]
-  0.5)
+  day)

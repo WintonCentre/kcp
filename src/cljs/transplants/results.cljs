@@ -65,6 +65,7 @@
    "Survival: " (to-percent (model/calculate params)) "%"
    ])
 
+
 (defn results-panel
   "Display results"
   [bundles organ centre tool]
@@ -76,19 +77,25 @@
                                                     bundle)
         factors (keys master-fmaps)
         selected-level-maps (fac/selected-level-maps master-fmaps inputs)
-        [beta-keys outcome-keys] (fac/get-beta-keys (first (vals master-fmaps)))]
+        outcomes (fac/get-outcomes (first (vals master-fmaps)))
+        beta-keys (fac/prefix-outcome-keys outcomes "beta")]
     [:> bs/Container
      [:> bs/Row
       (when factors
         [:> bs/Col
          [day-selector 10]
-         [calculate-outcome {:day @(rf/subscribe [::subs/test-day])
-                             :outcome-key :transplants
-                             :master-fmaps master-fmaps
-                             :baseline-cifs baseline-cifs
-                             :baseline-vars baseline-vars
-                             :inputs inputs
-                             }]
+         (into [:<>]
+               (map (fn [outcome]
+                      [:p outcome]
+                      [calculate-outcome {:day @(rf/subscribe [::subs/test-day])
+                                          :outcome-key outcome
+                                          :master-fmaps master-fmaps
+                                          :baseline-cifs baseline-cifs
+                                          :baseline-vars baseline-vars
+                                          :inputs inputs
+                                          }])
+                    outcomes
+                    ))
          [:> bs/Row
           [:> bs/Col
            [:> bs/Table {:striped true
@@ -102,12 +109,13 @@
             (into [:tbody]
                   (conj
                    (mapv
-                    (fn [fmap]
-                      [:tr {:key (str "r-" (name (:factor fmap)))}
-                       [:td {:key 1} (:factor fmap)]
-                       [:td {:key 2} (if fmap (:level fmap) "-")]
-                       [:td {:key 3} (if fmap (pr-str (select-keys fmap beta-keys)) "-")]])
-                    selected-level-maps)
+                    (fn [fmap i]
+                      (when fmap
+                        [:tr {:key (str "r-" i #_(name (:factor fmap)))}
+                         [:td {:key 1} (:factor fmap)]
+                         [:td {:key 2} (if fmap (:level fmap) "-")]
+                         [:td {:key 3} (if fmap (pr-str (select-keys fmap beta-keys)) "-")]]))
+                    selected-level-maps (range))
                    [:tr {:key :beta-transplant}
                     [:td {:key 1} "Sum betas"]
                     [:td {:key 2} "transplant"]

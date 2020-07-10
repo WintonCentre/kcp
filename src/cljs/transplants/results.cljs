@@ -62,9 +62,8 @@
   "Show the outcome for given day"
   [{:keys [day outcome-key master-fmaps baseline-cifs baseline-vars inputs] :as params}]
   [:div
-   "Survival: " (to-percent (model/calculate params)) "%"
+   "cif-" outcome-key " " (to-percent (model/calculate params)) "%"
    ])
-
 
 (defn results-panel
   "Display results"

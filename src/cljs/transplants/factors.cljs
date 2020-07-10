@@ -1,10 +1,12 @@
 (ns transplants.factors
   "Code associated with factors and master factor-maps"
-  (:require [clojure.string :refer [starts-with? split]]
+  (:require [clojure.string :refer [starts-with? split join index-of]]
             [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
             [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
-            [transplants.transforms :as xf]))
+            [transplants.transforms :as xf]
+            [transplants.subs :as subs]
+            [re-frame.core :as rf]))
 
 (comment
   (def inputs
@@ -19,8 +21,7 @@
      :level '(:male :female nil :18+ :30+ :40+ :50+ :60+ :70+ nil :white :non-white nil :O :A :B :AB nil :easy :moderate :difficult nil :first :re-graft nil :yes :no nil :no :yes nil :no :yes nil nil nil nil nil nil nil nil nil nil)
      :factor '(:sex :sex nil :age :age :age :age :age :age nil :ethnicity :ethnicity nil :blood-group :blood-group :blood-group :blood-group nil :matchability :matchability :matchability nil :graft :graft nil :dialysis :dialysis nil :sensitised :sensitised nil :diabetes :diabetes nil nil nil nil nil nil nil nil nil nil)
      :order '(1 1 nil 1.2 1.2 1.2 1.2 1.2 1.2 nil 1.3 1.3 nil 1.4 1.4 1.4 1.4 nil 1.5 1.5 1.5 nil 1.6 1.6 nil 1.7 1.7 nil 1.8 1.8 nil 1.9 1.9 nil nil nil nil nil nil nil nil nil nil)
-     :factor-name '("Sex" nil nil "Age (years)" nil nil nil nil nil nil "Ethnicity" nil nil "Blood group" nil nil nil nil "Matchability group" nil nil nil "Graft number" nil nil "Dialysis at registration?" nil nil "Highly sensitised?" nil nil "Primary renal disease - diabetes?" nil nil nil nil nil nil nil nil nil nil nil)}
-    )
+     :factor-name '("Sex" nil nil "Age (years)" nil nil nil nil nil nil "Ethnicity" nil nil "Blood group" nil nil nil nil "Matchability group" nil nil nil "Graft number" nil nil "Dialysis at registration?" nil nil "Highly sensitised?" nil nil "Primary renal disease - diabetes?" nil nil nil nil nil nil nil nil nil nil nil)})
 
   (pprint (->> inputs
                (map-of-vs->v-of-maps)
@@ -37,20 +38,20 @@
 (reduce conj [:beta-1 :beta-2] [:level :level-name])
 
 #_(comment ; unused?
-  (defn extract-beta-keys [header-names]
-    (->> header-names
-         (filter #(starts-with? % "beta-"))
-         (map keyword)))
+    (defn extract-beta-keys [header-names]
+      (->> header-names
+           (filter #(starts-with? % "beta-"))
+           (map keyword)))
 
-  (def lookup-beta-keys (memoize extract-beta-keys))
+    (def lookup-beta-keys (memoize extract-beta-keys))
 
-  (defn beta-keys
-    "Given the raw -inputs sheet data, extract beta keywords. 
+    (defn beta-keys
+      "Given the raw -inputs sheet data, extract beta keywords. 
    All factor levels will have a beta value for one of these keys"
-    [inputs]
-    (->> inputs
-         (map (comp name first))
-         (lookup-beta-keys))))
+      [inputs]
+      (->> inputs
+           (map (comp name first))
+           (lookup-beta-keys))))
 
 (defn get-outcomes
   "Given a master-fmap, returns all the outcomes as a seq of strings.
@@ -70,12 +71,12 @@
 (comment
   (get-outcomes  {:beta-transplant 1 :beta-waiting 2}))
   ; => '("transplant" "waiting")
-  
-  (prefix-outcome-keys '("transplant" "waiting") "beta")
+
+(prefix-outcome-keys '("transplant" "waiting") "beta")
   ; => '(:beta-transplant :beta-waiting)
 
-  (subs "beta-transplant" 5)
-  
+(subs "beta-transplant" 5)
+
 
 (defn level-maps*
   "Given a seq of input-maps all for the same factor, collect all level information under the first of these,
@@ -88,9 +89,7 @@
        (map (fn [m] (update m :level #(if (string? %)
                                         (edn/read-string %)
                                         %))))
-       #_(map #(assoc % :label (:level-name %)))
-       )
-  )
+       #_(map #(assoc % :label (:level-name %)))))
 
 (defn master-f-map
   "Given a collection of f-maps all relating to the same factor, return a master f-map 
@@ -107,21 +106,22 @@
            ; levels are f-map levels in spreadsheet order
            :levels (cond
                      (keyword? (:level f-map))
-                     (into {} (map (fn [[k [v]]] [k v]) 
+                     (into {} (map (fn [[k [v]]] [k v])
                                    (group-by :level (level-maps* (:factor f-map) f-maps))))
-                     
-                     :else 
+
+                     :else
                      "numeric levels not implemented yet"))))
 
 (defn master-f-maps
   "Preprocess an inputs sheet before storing it"
   [organ inputs]
+  ;(println "RAW INPUTS" (keys inputs))
   (->> inputs
        ; change to vector of maps form
        (map-of-vs->v-of-maps)
 
        ; remove non-factor rows
-       (filter #(keyword? (:factor %)))
+       (filter #(or (keyword? (:factor %)) (vector? (:factor %))))
 
        ; ensure all values like ":foo" become keyword :foo
        (map #(xf/map-vals xf/unstring-key %))
@@ -137,7 +137,7 @@
 
 (defn selected-level-maps
   "Given the master-fmaps, and the current inputs, return a list of selected level-maps.
-   numeric levels are handled elsewhere - we just return :numeric for those"
+   numeric levels "
   [master-fmaps inputs]
   (let [x (->> master-fmaps
                (remove nil?)
@@ -147,7 +147,91 @@
                         :numeric)))
                (remove nil?))]
     (println "selected-level-maps: " x)
-    x)
-  
+    x))
 
+
+(defn simple-level
+  [factor]
+  nil
   )
+
+(defn is-cross-over?
+  "Cross over factors contain a '*' in their names"
+  [factor]
+  (pos? (index-of (name factor) "*")))
+
+(defn split-cross-over
+  [cross-over-factor]
+  (map keyword (split (name cross-over-factor) #"\*"))
+  )
+
+(defn join-cross-levels
+  [[level1 level2]]
+  (keyword (join "*" [(name level1) (name level2)])))
+
+(defn lookup-simple-factor-level 
+  "The value (level) of input factors may be found in the tool environment or in the tool inputs.
+   This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
+   (e.g. :centre which is determined by path-params). 
+    The raw level is always returned - it may need further processing e.g. by a spline.
+   If the factor is not found or it does not yet have a level, returns nil."
+  [env factor]
+  (let [[{:keys [organ centre tool] :as path-params} _ inputs] env]
+    (if-let [level (get-in inputs [organ factor])]
+      level
+      (when-let [level (factor path-params)]
+        level)
+      )))
+
+(defn selected-beta-x 
+  [env factor]
+  (cond
+    ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre. 
+    ; We need to separate these components into a seq like [:d-gp :centre]
+    ; Find the level of each e.g. [:copd :birm]
+    ; And encode this as a single level e.g. :copd*birm
+    ; 
+    (is-cross-over? factor)
+    (->> factor
+         identity
+         (split-cross-over)
+         (map #(lookup-simple-factor-level env %))
+         (join-cross-levels)
+         )
+    :else
+    "."))
+
+(defn selected-beta-xs
+  "returns a map keyed by factor of the contributions to sum beta * x for a given output.
+   e.g. for a transplant output it would return a map of [factor (* (:beta-transplant factor) (:level-value factor)]"
+  [[{:keys [organ centre tool] :as path-params}
+    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]} 
+    inputs :as env]]
+  (map (fn [[factor fmap]] (selected-beta-x env factor)) -inputs))
+
+
+(comment
+  (split (name :copd-d-gp) #"\*")
+  (index-of (name :copd*d-gp) "*")
+
+  (def bundle
+    (get-in @(rf/subscribe [::subs/bundles]) [:lung :birm :waiting]))
+
+  ;(def tinputs (:lung @(rf/subscribe [::subs/inputs])))
+  (def tinputs {:lung {:d-gp :cf, :age "17"}})
+
+  (def path-params {:organ :lung, :centre :birm, :tool :waiting})
+
+  (def env [path-params bundle tinputs])
+  (:centre (first env))
+
+  (is-cross-over? :d-gp*centre) 
+  (split-cross-over :d-gp*centre)
+  (lookup-simple-factor-level env :age)
+  (lookup-simple-factor-level env :centre)
+  (lookup-simple-factor-level env :d-gp)
+
+  (selected-beta-x env :d-gp*centre)
+  (selected-beta-xs env)
+  )
+

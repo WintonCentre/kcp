@@ -208,7 +208,7 @@
                                            :else 0)
                                          on-change))}
      [:div {:style {:display "flex" :flex-direction "row" :align-items "center"}}
-      (inc-dec-button (assoc props :variant "secondary" :nmin nmin :nmax nmax :dps dps :increment -1 :value-f value-f))
+      (inc-dec-button (assoc props :variant "secondary" :nmin nmin :nmax nmax :dps dps :increment (- (js/Math.pow 10 (- dps))) :value-f value-f))
       [:input
        {:type      "text"
         :value     good
@@ -228,7 +228,7 @@
                     :color            "#fff"
                     :padding          "0 0 4px 0"
                     :text-align       "center"}}]
-      (inc-dec-button (assoc props :nmin nmin :nmax nmax :dps dps :increment 1 :value-f value-f))]]))
+      (inc-dec-button (assoc props :nmin nmin :nmax nmax :dps dps :increment (js/Math.pow 10 (- dps)) :value-f value-f))]]))
 
 
 

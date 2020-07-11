@@ -63,17 +63,25 @@
        (filter #(starts-with? % "beta-"))
        (map #(subs % 5))))
 
-(defn prefix-outcome-keys
+(defn prefix-outcome-key
+  "adds a prefix to an outcome and returns it as a keyword"
+  [outcome prefix]
+  (keyword (str (name prefix) "-" (name outcome))))
+
+(defn prefix-outcomes-keys
   "Given a master-fmap, adds a prefix to all outcomes and returns them as keywords"
   [outcomes prefix]
-  (map (fn [s] (keyword (str prefix "-" s))) outcomes))
+  (map #(prefix-outcome-key % prefix) outcomes))
 
 (comment
   (get-outcomes  {:beta-transplant 1 :beta-waiting 2}))
   ; => '("transplant" "waiting")
 
-(prefix-outcome-keys '("transplant" "waiting") "beta")
-  ; => '(:beta-transplant :beta-waiting)
+(prefix-outcome-key  :transplant "beta")
+; => :beta-transplant
+
+(prefix-outcomes-keys '("transplant" "waiting") "beta")
+; => '(:beta-transplant :beta-waiting)
 
 (subs "beta-transplant" 5)
 
@@ -104,13 +112,15 @@
            :factor-key (keyword organ (xf/unstring-key (:factor f-map)))
 
            ; levels are f-map levels in spreadsheet order
-           :levels (cond
+           :levels (into {} (map (fn [[k [v]]] [k v])
+                                 (group-by :level (level-maps* (:factor f-map) f-maps))))
+           #_(cond
                      (keyword? (:level f-map))
                      (into {} (map (fn [[k [v]]] [k v])
                                    (group-by :level (level-maps* (:factor f-map) f-maps))))
 
                      :else
-                     "numeric levels not implemented yet"))))
+                     "spline levels not implemented yet"))))
 
 (defn master-f-maps
   "Preprocess an inputs sheet before storing it"
@@ -152,62 +162,130 @@
 
 (defn simple-level
   [factor]
-  nil
+  nil)
+
+#_(get-in env [1 :-inputs :age :level])
+(defn is-categorical?
+  [[_ {:keys [-inputs]}] factor]
+  (let [level-key (get-in -inputs [factor :level])]
+    (and (keyword? level-key) (not= level-key :x)))
   )
+
+(defn is-spline?
+  [[{:keys [organ centre tool] :as path-params}
+    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
+    inputs :as env] factor]
+  (let [master-level (get-in -inputs [factor :level])]
+    master-level
+    (and (string? master-level)
+         (pos? (index-of master-level "spline")))))
+
+(defn is-numeric?
+  [[{:keys [organ centre tool] :as path-params}
+    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
+    inputs :as env] factor]
+  (let [type (get-in -inputs [factor :type])]
+    (map? (edn/read-string type))))
 
 (defn is-cross-over?
   "Cross over factors contain a '*' in their names"
-  [factor]
+  [env factor]
   (pos? (index-of (name factor) "*")))
 
 (defn split-cross-over
   [cross-over-factor]
-  (map keyword (split (name cross-over-factor) #"\*"))
-  )
+  (map keyword (split (name cross-over-factor) #"\*")))
 
 (defn join-cross-levels
   [[level1 level2]]
   (keyword (join "*" [(name level1) (name level2)])))
 
-(defn lookup-simple-factor-level 
-  "The value (level) of input factors may be found in the tool environment or in the tool inputs.
+(defn lookup-simple-factor-level
+  "The value (level) of input factors may be found in the tool path parameters or in the tool inputs.
    This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
    (e.g. :centre which is determined by path-params). 
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
-  [env factor]
-  (let [[{:keys [organ centre tool] :as path-params} _ inputs] env]
-    (if-let [level (get-in inputs [organ factor])]
-      level
-      (when-let [level (factor path-params)]
-        level)
-      )))
+  [[{:keys [organ] :as path-params} _ inputs] factor]
+  (if-let [level (get-in inputs [organ factor])]
+    level
+    (when-let [level (factor path-params)]
+      level)))
 
-(defn selected-beta-x 
-  [env factor]
+(defn lookup-simple-beta 
+  [master-fmap level beta-outcome-key]
+  (if-let [beta (get-in master-fmap [:levels level beta-outcome-key])]
+    beta
+    0)
+  )
+
+(defn lookup-numeric-beta
+  [master-fmap beta-outcome-key]
+  (beta-outcome-key master-fmap))
+
+(defn lookup-numeric-input 
+  [[{:keys [organ] :as path-params} _ inputs] factor]
+  (let [x (get-in inputs [organ factor])]
+    (if (string? x) (edn/read-string x) x)))
+
+(defn selected-beta-x
+  [env factor master-fmap beta-outcome-key]
   (cond
+    ; Simple categorical levels.
+    ; Lookup the level and use that to lookup the beta
+    ; x will be 1 if the factor has been entered, else 0
+    (is-categorical? env factor)
+    (let [level-key (lookup-simple-factor-level env factor)
+          beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
+      [factor level-key beta])
+
     ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre. 
     ; We need to separate these components into a seq like [:d-gp :centre]
     ; Find the level of each e.g. [:copd :birm]
     ; And encode this as a single level e.g. :copd*birm
     ; 
-    (is-cross-over? factor)
-    (->> factor
-         identity
-         (split-cross-over)
-         (map #(lookup-simple-factor-level env %))
-         (join-cross-levels)
-         )
+    (is-cross-over? env factor)
+    (let [level-key (->> factor
+                         (split-cross-over)
+                         (map #(lookup-simple-factor-level env %))
+                         (join-cross-levels))
+          beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
+      [factor level-key beta])
+
+    ; Splined numeric inputs are defined by a spline function and its parameters defined in
+    ; the master-fmap's level - such as '[:spline :x :age-beta1 :age-beta2 :age-beta3]'
+    ; The parameter :x is the input value. 
+    ; Other parameters like :age-beta1 can be looked up in the master-fmap. To do this
+    ;  - First locate the corresponding level map in :levels
+    ;  - Then find the beta(s) from the :beta-outcome column for the relevant outcome
+    ;    (e.g. from :beta-transplant)
+    ; (get-in master-f-map [])
+    (is-spline? env factor)
+    (let [spline-def (edn/read-string (get-in master-fmap [:level]))]
+      [spline-def factor])
+
+
+    (is-numeric? env factor)
+    (let [[_ {:keys [-baseline-vars]} _] env 
+          x0 (factor -baseline-vars)
+          beta (lookup-numeric-beta master-fmap beta-outcome-key)
+          x (lookup-numeric-input env factor)
+          x-x0 (- x x0)
+          beta-x-x0 (* beta x-x0)]
+      [factor beta x0 beta-x-x0])
+
     :else
-    "."))
+    [:unclassified factor])
+)
 
 (defn selected-beta-xs
-  "returns a map keyed by factor of the contributions to sum beta * x for a given output.
-   e.g. for a transplant output it would return a map of [factor (* (:beta-transplant factor) (:level-value factor)]"
+  "returns a seq of all xs and betas (keyed by input factor?)"
   [[{:keys [organ centre tool] :as path-params}
-    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]} 
-    inputs :as env]]
-  (map (fn [[factor fmap]] (selected-beta-x env factor)) -inputs))
+    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
+    inputs :as env]
+   beta-outcome-key]
+  (map (fn [[factor master-fmap]]
+         (selected-beta-x env factor master-fmap beta-outcome-key)) -inputs))
 
 
 (comment
@@ -217,21 +295,32 @@
   (def bundle
     (get-in @(rf/subscribe [::subs/bundles]) [:lung :birm :waiting]))
 
-  ;(def tinputs (:lung @(rf/subscribe [::subs/inputs])))
-  (def tinputs {:lung {:d-gp :cf, :age "17"}})
+  ;(def tinputs @(rf/subscribe [::subs/inputs]))
+  (def tinputs {:lung {:age "28", :sex :female, :blood-group :B, :in-hosp :yes, :ethnicity :non-white, :fvc "5", :bmi "29", :dd-pred :pred-15+, :thoracotomy :no, :bilirubin "8", :nyha-class :4, :d-gp :cf}})
 
   (def path-params {:organ :lung, :centre :birm, :tool :waiting})
 
   (def env [path-params bundle tinputs])
   (:centre (first env))
 
-  (is-cross-over? :d-gp*centre) 
+  (is-cross-over? env :d-gp*centre)
   (split-cross-over :d-gp*centre)
   (lookup-simple-factor-level env :age)
   (lookup-simple-factor-level env :centre)
   (lookup-simple-factor-level env :d-gp)
 
-  (selected-beta-x env :d-gp*centre)
-  (selected-beta-xs env)
+  (is-spline? env :bmi)
+  (is-spline? env :age)
+  (is-categorical? env :bmi)
+  (is-numeric? env :bmi)
+  (lookup-simple-factor-level env :bmi)
+  (lookup-simple-factor-level env :dd-pred)
+
+  (selected-beta-x env :d-gp*centre nil :transplant)
+  (selected-beta-xs env :beta-transplant)
+  ;=> ([:d-gp*centre nil 0] [:spline :age] [:dd-pred :pred-1-14 0.15256] [:nyha-class :3 0.33294] [:spline :fvc] [:in-hosp :yes 0] [:sex :male 0.24638] [:d-gp :pf -0.23764] [:blood-group :B -0.73794] [:ethnicity :non-white 0] [:bmi "15" 0] [:bilirubin "7" 0] [:thoracotomy :yes 0])
+  ;=> ([:d-gp*centre nil 0] [:spline :age] [:dd-pred :pred-1-14 0.15256] [:nyha-class :3 0.33294] [:spline :fvc] [:in-hosp :yes 0] [:sex :male 0.24638] [:d-gp :pf -0.23764] [:blood-group :B -0.73794] [:ethnicity :non-white 0] [:bmi "15" 0] [:bilirubin "7" 0] [:thoracotomy :yes 0])
+  ;=> (:cf*birm [:beta-transplant :age] "." "." [:beta-transplant :fvc] "." "." "." "." "." "." "." ".")
+  ;=> (:cf*birm ["spline" :age] "." "." ["spline" :fvc] "." "." "." "." "." "." "." ".")
   )
 

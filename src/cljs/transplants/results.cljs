@@ -77,7 +77,7 @@
         factors (keys master-fmaps)
         selected-level-maps (fac/selected-level-maps master-fmaps inputs)
         outcomes (fac/get-outcomes (first (vals master-fmaps)))
-        beta-keys (fac/prefix-outcome-keys outcomes "beta")]
+        beta-keys (fac/prefix-outcomes-keys outcomes "beta")]
     [:> bs/Container
      [:> bs/Row
       (when factors

@@ -5,6 +5,7 @@
             [clojure.pprint :refer [pprint]]
             [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
             [transplants.transforms :as xf]
+            [transplants.spline :refer [spline]]
             [transplants.subs :as subs]
             [re-frame.core :as rf]))
 
@@ -239,34 +240,25 @@
 (defn selected-beta-x
   [[_ bundle _ :as env] factor master-fmap beta-outcome-key]
   (cond
-    ; Simple categorical levels.
-    ; Lookup the level and use that to lookup the beta
-    ; x will be 1 if the factor has been entered, else 0
-    (is-categorical? env factor)
-    (let [level-key (lookup-simple-factor-level env factor)
-          beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
-      [factor level-key beta])
 
     ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre. 
     ; We need to separate these components into a seq like [:d-gp :centre]
     ; Find the level of each e.g. [:copd :birm]
     ; And encode this as a single level e.g. :copd*birm
     ; 
+    ; CHECK FOR CROSS OVERS FIRST!
+    ; 
     (is-cross-over? env factor)
     (let [level-key (lookup-cross-over-factor-level env factor)
-          #_(->> factor (split-cross-over)
-                         (map #(lookup-simple-factor-level env %))
-                         (join-cross-levels))
-          fmap (get-in bundle [:-inputs factor])
           beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
-      
-      #_(let [level-key (->> factor
-                             (split-cross-over)
-                             (map #(lookup-simple-factor-level env %))
-                             (join-cross-levels))
-              fmap (get-in bundle [:-inputs factor])]
-          (fmap level-key))
-      
+      [factor level-key beta])
+
+    ; Simple categorical levels.
+    ; Lookup the level and use that to lookup the beta
+    ; x will be 1 if the factor has been entered, else 0
+    (is-categorical? env factor)
+    (let [level-key (lookup-simple-factor-level env factor)
+          beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
       [factor level-key beta])
 
     #_(comment
@@ -289,12 +281,20 @@
     ;    (e.g. from :beta-transplant)
     ; (get-in master-f-map [])
     (is-spline? env factor)
-    (let [spline-def (edn/read-string (get-in master-fmap [:level]))]
-      ;[spline-def factor]
-      ()
-      (keys (:levels master-fmap))
-      )
+    #_[10]
+    (let [levels (:levels master-fmap)
+          knots (->> (get-in levels [[:spline :x :beta1 :beta2 :beta3] :type])
+                     (filter (fn [[k v]] (starts-with? (name k) "knot")))
+                     (sort-by first)
+                     (map second))
+          betas (->> (select-keys levels [:beta1 :beta2 :beta3])
+                     ((juxt :beta1 :beta2 :beta3))
+                     (map beta-outcome-key))]
+      [factor [:spline knots betas]])
 
+    ;(sort-by first [[:b 1] [:a 2]])
+    #_(->> ((juxt :a :b :c) {:a {:d 1} :b {:d 2} :c {:d 3}})
+           (map :d))
 
     (is-numeric? env factor)
     (let [[_ {:keys [-baseline-vars]} _] env
@@ -312,28 +312,24 @@
   "returns a seq of all xs and betas (keyed by input factor?)"
   [[{:keys [organ centre tool] :as path-params}
     {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
-    inputs :as env*]
+    inputs :as env]
    beta-outcome-key]
+
   (->> -inputs
-       #_(filter (fn [[factor* master-fmap*]] 
-                 (or
-                  (= factor* :d-gp*centre)
-                  (= factor* :age)
-                  ;(= factor* :dd-pred)
-                  )
-                 ))
-       (map (fn [[factor* master-fmap*]]
+       #_(filter (fn [[factor master-fmap]]
+                   (or
+                    (= factor :d-gp*centre)
+                    (= factor :age)
+                  ;(= factor :dd-pred)
+                    )))
+       (map (fn [[factor master-fmap]]
               #_(def master-fmap (get-in bundle [:-inputs :d-gp*centre]))
               #_(selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
-              #_[factor* master-fmap*]
-              
-              (selected-beta-x env* factor* master-fmap* beta-outcome-key))
-            )))
+              #_[factor master-fmap]
+
+              (selected-beta-x env factor master-fmap beta-outcome-key)))))
 
 (comment
-
-  (split (name :copd-d-gp) #"\*")
-  (index-of (name :copd*d-gp) "*")
 
   (def bundle
     (get-in @(rf/subscribe [::subs/bundles]) [:lung :birm :waiting]))
@@ -383,18 +379,23 @@
   (lookup-simple-factor-level env :d-gp*centre)
 
   ; So we need to call this instead...
-  (lookup-cross-over-factor-level env :d-gp*centre)
 
+  (lookup-cross-over-factor-level env :d-gp*centre)
 
   (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
   (selected-beta-x env :dd-pred master-fmap :beta-transplant)
   (selected-beta-x env :ethnicity master-fmap :beta-transplant)
   (selected-beta-xs env :beta-transplant)
-
-  ;=> ([:d-gp*centre nil 0] [:spline :age] [:dd-pred :pred-1-14 0.15256] [:nyha-class :3 0.33294] [:spline :fvc] [:in-hosp :yes 0] [:sex :male 0.24638] [:d-gp :pf -0.23764] [:blood-group :B -0.73794] [:ethnicity :non-white 0] [:bmi "15" 0] [:bilirubin "7" 0] [:thoracotomy :yes 0])
-  ;=> ([:d-gp*centre nil 0] [:spline :age] [:dd-pred :pred-1-14 0.15256] [:nyha-class :3 0.33294] [:spline :fvc] [:in-hosp :yes 0] [:sex :male 0.24638] [:d-gp :pf -0.23764] [:blood-group :B -0.73794] [:ethnicity :non-white 0] [:bmi "15" 0] [:bilirubin "7" 0] [:thoracotomy :yes 0])
-  ;=> (:cf*birm [:beta-transplant :age] "." "." [:beta-transplant :fvc] "." "." "." "." "." "." "." ".")
-  ;=> (:cf*birm ["spline" :age] "." "." ["spline" :fvc] "." "." "." "." "." "." "." ".")
+  ([:d-gp*centre :pf*birm -0.10624] 
+   [:age [:spline (21 44 56 63) (0.00507 -0.0004272 0.00192)]] 
+   [:dd-pred :pred-1-14 0.15256] 
+   [:nyha-class :nyha-2 0.52044] 
+   [:fvc [:spline (0.94 1.63 2.22 3.55) (0.28376 0.23757 -0.69056)]] 
+   [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764] 
+   [:blood-group :B -0.73794] [:ethnicity :white -0.03768] 
+   [:bmi 0.01457 23.0224 0.10166363199999998] 
+   [:bilirubin -0.0004091 9 0.0024546000000000004] 
+   [:thoracotomy :no 0.44664])
   )
 
 

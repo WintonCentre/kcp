@@ -77,7 +77,9 @@
         outcomes (fac/get-outcomes (first (vals master-fmaps)))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         
-        
+        env [{:organ organ :centre centre :tool tool}
+             bundle
+             inputs]
         ]
     [:> bs/Container
      [:> bs/Row
@@ -119,8 +121,8 @@
                    [:tr {:key :beta-transplant}
                     [:td {:key 1} "Sum betas"]
                     [:td {:key 2} "transplant"]
-                    [:td {:key 3} #_(fac/sum-beta-xs :beta-transplant) 
-                     (apply + (map :beta-transplant selected-level-maps))]]
+                    [:td {:key 3} (fac/sum-beta-xs env :beta-transplant) 
+                     #_(apply + (map :beta-transplant selected-level-maps))]]
                    [:tr {:key :beta-removal}
                     [:td {:key 1} "Sum betas"]
                     [:td {:key 2} "removal"]

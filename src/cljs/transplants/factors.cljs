@@ -290,7 +290,10 @@
     ; (get-in master-f-map [])
     (is-spline? env factor)
     (let [spline-def (edn/read-string (get-in master-fmap [:level]))]
-      [spline-def factor])
+      ;[spline-def factor]
+      ()
+      (keys (:levels master-fmap))
+      )
 
 
     (is-numeric? env factor)
@@ -312,7 +315,6 @@
     inputs :as env*]
    beta-outcome-key]
   (->> -inputs
-       ;(first)
        #_(filter (fn [[factor* master-fmap*]] 
                  (or
                   (= factor* :d-gp*centre)
@@ -354,8 +356,6 @@
         #_master-fmap-level-transplant))
 
   (lookup-cross-over-factor-level env :d-gp*centre)
-
-
 
   (def master-fmaps (get-in bundle [:-inputs]))
   (def master-fmap (get-in bundle [:-inputs :d-gp*centre]))

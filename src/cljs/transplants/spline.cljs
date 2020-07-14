@@ -24,35 +24,34 @@
 (defn xs [x x0]
   [(- x x0) (- (f1 x) (f1 x0)) (- (f2 x) (f2 x0))])
 
-(defn spline*
-  [beta1 beta2 beta3 x0 x]
-  (apply + (map * [beta1 beta2 beta3] (xs x x0))))
-
-; numeric betas taken from "Calculated adjusted CIFs - example.xlsx"
-(def tx-age-spline (partial spline* 0.00432 -0.0003983 0.00181 51))
-(def rem-age-spline (partial spline* 0.04418 -0.00120 0.00360 51))
-(def dth-age-spline (partial spline* -0.02226 0.00162 -0.00588 51))
-
-
-
-
-
-
 (defn term1 [n x]
   (/ (- (d3+ x n) (d3+ x k4)) (- k4 n)))
 
-
 (defn term2 [x]
   (/ (- (d3+ x k3) (d3+ x k4)) (- k4 k3)))
-
-
 
 (defn sp
   [n x]
   (- (term1 n x) (term2 x)))
 
+(defn spline
+  [beta1 beta2 beta3 x]
+  (+
+   (* beta1 x)
+   (* beta2 (sp k1 x))
+   (* beta3 (sp k2 x))))
 
-(comment
+#_(comment
+
+  (defn spline*
+    [beta1 beta2 beta3 x0 x]
+    (apply + (map * [beta1 beta2 beta3] (xs x x0))))
+
+  ; numeric betas taken from "Calculated adjusted CIFs - example.xlsx"
+  (def tx-age-spline (partial spline* 0.00432 -0.0003983 0.00181 51))
+  (def rem-age-spline (partial spline* 0.04418 -0.00120 0.00360 51))
+  (def dth-age-spline (partial spline* -0.02226 0.00162 -0.00588 51))
+
   (tx-age-spline 30)                                        ;0.12574138684210526
   (tx-age-spline 51)                                        ;0
   (tx-age-spline 60)                                        ;0.07700381015037594
@@ -64,7 +63,6 @@
   (dth-age-spline 30)                                       ;-0.43970052631578943
   (dth-age-spline 51)                                       ;0
   (dth-age-spline 60)                                       ;-0.07625616541353364
-
 
 
   (/ (- (cube+ (- 51 21)) (cube+ (- 51 63))) (- 63 21))
@@ -94,17 +92,6 @@
 
   ;=((MAX((R3-21)^3,0)-MAX((R3-63)^3,0))/(63-21)) - ((MAX((R3-56)^3,0)-MAX((R3-63)^3,0))/(63-56))
   (f1 60))
-
-
-
-(defn spline
-  [beta1 beta2 beta3 x]
-  (+
-   (* beta1 x)
-   (* beta2 (sp k1 x))
-   (* beta3 (sp k2 x))))
-
-;(def spline (partial spline* -0.04681 0.00152 -0.00342))
 
 (comment
   (def beta1 -0.04681)

@@ -77,6 +77,15 @@
   (= (cfg/get-variable-keys organ sheet) 
      (c/get-header organ sheet)) sheet)
 
+(comment
+  ; Add important assertions we need to check here:
+  ; 
+  ; Apart from :centre, factors in baseline-vars should agree with those in inputs
+  ; All data frames are rectangular once read in
+  ; All widgets have a level-name (or label) - todo: there has been a name change here
+  ;
+  ; All cross-over factors like d-gp*centre should have all possible levels and betas
+  )
 
 (deftest kidney-variables-check
   (testing "configured variables are spreadsheet headers"

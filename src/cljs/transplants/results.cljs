@@ -7,7 +7,6 @@
             [transplants.factors :as fac]
             [clojure.pprint :refer [pprint]]))
 
-
 (comment
   ; There is a bundle for each organ, centre, tool context that has ever
   ; been loaded in the UI. If a bundle has never been loaded it will return
@@ -21,7 +20,6 @@
   (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 24)
   (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 25)
   (model/cif-0 (get-in bundles [:kidney :belf :waiting]) 100)
-
   (model/cif-0 (get-in bundles [:kidney :bris :waiting]) 100))
 
 (defn day-selector
@@ -77,7 +75,10 @@
         factors (keys master-fmaps)
         selected-level-maps (fac/selected-level-maps master-fmaps inputs)
         outcomes (fac/get-outcomes (first (vals master-fmaps)))
-        beta-keys (fac/prefix-outcomes-keys outcomes "beta")]
+        beta-keys (fac/prefix-outcomes-keys outcomes "beta")
+        
+        
+        ]
     [:> bs/Container
      [:> bs/Row
       (when factors
@@ -118,7 +119,8 @@
                    [:tr {:key :beta-transplant}
                     [:td {:key 1} "Sum betas"]
                     [:td {:key 2} "transplant"]
-                    [:td {:key 3} (apply + (map :beta-transplant selected-level-maps))]]
+                    [:td {:key 3} #_(fac/sum-beta-xs :beta-transplant) 
+                     (apply + (map :beta-transplant selected-level-maps))]]
                    [:tr {:key :beta-removal}
                     [:td {:key 1} "Sum betas"]
                     [:td {:key 2} "removal"]

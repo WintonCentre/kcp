@@ -215,7 +215,9 @@
 (defn lookup-cross-over-factor-level
   "When we have a cross-over factor, we need to lookup each of its simple factor components, and
    join them together into a simple level. We then find in the level map inside the fmaps (the -inputs) for 
-   that cross-over factor"
+   that cross-over factor.
+   
+   The spreadsheet checker should verify in advance that all cross-over combinations have levels."
   [env factor]
   (->> factor
        (split-cross-over)
@@ -246,12 +248,12 @@
     ; Find the level of each e.g. [:copd :birm]
     ; And encode this as a single level e.g. :copd*birm
     ; 
-    ; CHECK FOR CROSS OVERS FIRST!
+    ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
     ; 
     (is-cross-over? env factor)
     (let [level-key (lookup-cross-over-factor-level env factor)
           beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
-      [factor level-key beta])
+      [factor level-key (if beta beta 0)])
 
     ; Simple categorical levels.
     ; Lookup the level and use that to lookup the beta
@@ -260,13 +262,6 @@
     (let [level-key (lookup-simple-factor-level env factor)
           beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
       [factor level-key beta])
-
-    #_(comment
-        (def organ :lung)
-        (def factor :d-gp*centre)
-        (def level-key :other*hare)
-        (def [factor fmap])
-        (def beta-outcome-key :beta-transplant))
 
     ; Splined numeric inputs are defined by a spline function and its parameters defined in
     ; the master-fmap's :level - such as '[:spline :x :beta1 :beta2 :beta3]'
@@ -281,26 +276,27 @@
     ;    (e.g. from :beta-transplant)
     ; (get-in master-f-map [])
     (is-spline? env factor)
-    #_[10]
-    (let [levels (:levels master-fmap)
+    (let [[_ {:keys [-baseline-vars]} _] env
+          levels (:levels master-fmap)
           knots (->> (get-in levels [[:spline :x :beta1 :beta2 :beta3] :type])
                      (filter (fn [[k v]] (starts-with? (name k) "knot")))
                      (sort-by first)
                      (map second))
           betas (->> (select-keys levels [:beta1 :beta2 :beta3])
                      ((juxt :beta1 :beta2 :beta3))
-                     (map beta-outcome-key))]
-      [factor [:spline knots betas]])
-
-    ;(sort-by first [[:b 1] [:a 2]])
-    #_(->> ((juxt :a :b :c) {:a {:d 1} :b {:d 2} :c {:d 3}})
-           (map :d))
+                     (map beta-outcome-key))
+          x0 (factor -baseline-vars)
+          
+          ; If an input is not yet available, use the baseline value
+          x (if-let [x* (lookup-numeric-input env factor)] x* x0)
+          ]
+      [factor [:spline knots betas] (spline knots betas x0 x)])
 
     (is-numeric? env factor)
     (let [[_ {:keys [-baseline-vars]} _] env
           x0 (factor -baseline-vars)
           beta (lookup-numeric-beta master-fmap beta-outcome-key)
-          x (lookup-numeric-input env factor)
+          x (if-let [x* (lookup-numeric-input env factor)] x* x0)
           x-x0 (- x x0)
           beta-x-x0 (* beta x-x0)]
       [factor beta x0 beta-x-x0])
@@ -314,42 +310,34 @@
     {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
     inputs :as env]
    beta-outcome-key]
-
   (->> -inputs
-       #_(filter (fn [[factor master-fmap]]
-                   (or
-                    (= factor :d-gp*centre)
-                    (= factor :age)
-                  ;(= factor :dd-pred)
-                    )))
        (map (fn [[factor master-fmap]]
-              #_(def master-fmap (get-in bundle [:-inputs :d-gp*centre]))
-              #_(selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
-              #_[factor master-fmap]
-
               (selected-beta-x env factor master-fmap beta-outcome-key)))))
+
+(defn sum-beta-xs
+  "returns  of all xs and betas (keyed by input factor?)"
+  [[{:keys [organ centre tool] :as path-params}
+    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
+    inputs :as env]
+   beta-outcome-key]
+  (->> -inputs
+       (map (fn [[factor master-fmap]]
+              (selected-beta-x env factor master-fmap beta-outcome-key)))
+       (map last)
+       (apply +)))
+
 
 (comment
 
   (def bundle
     (get-in @(rf/subscribe [::subs/bundles]) [:lung :birm :waiting]))
 
-  ;(def inputs @(rf/subscribe [::subs/inputs]))
   ;inputs
   (def inputs {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :dd-pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
 
   (def path-params {:organ :lung, :centre :birm, :tool :waiting})
 
   (def env [path-params bundle inputs])
-
-  #_(defn lookup-cross-over-factor-level
-      [env factor]
-      (let [master-fmap-level-transplant (get-in bundle [:-inputs :d-gp*centre :levels :pf*birm :beta-transplant])
-            master-fmap (get-in bundle [:-inputs :d-gp*centre])
-            fmap (get-in env [1 :-inputs factor])]
-        (= master-fmap fmap)
-        fmap
-        #_master-fmap-level-transplant))
 
   (lookup-cross-over-factor-level env :d-gp*centre)
 
@@ -385,17 +373,19 @@
   (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
   (selected-beta-x env :dd-pred master-fmap :beta-transplant)
   (selected-beta-x env :ethnicity master-fmap :beta-transplant)
+
   (selected-beta-xs env :beta-transplant)
-  ([:d-gp*centre :pf*birm -0.10624] 
-   [:age [:spline (21 44 56 63) (0.00507 -0.0004272 0.00192)]] 
-   [:dd-pred :pred-1-14 0.15256] 
-   [:nyha-class :nyha-2 0.52044] 
-   [:fvc [:spline (0.94 1.63 2.22 3.55) (0.28376 0.23757 -0.69056)]] 
-   [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764] 
-   [:blood-group :B -0.73794] [:ethnicity :white -0.03768] 
-   [:bmi 0.01457 23.0224 0.10166363199999998] 
-   [:bilirubin -0.0004091 9 0.0024546000000000004] 
-   [:thoracotomy :no 0.44664])
-  )
+  (sum-beta-xs env :beta-transplant)
+  ;=>
+  #_([:d-gp*centre :pf*birm -0.10624]
+     [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
+     [:dd-pred :pred-1-14 0.15256]
+     [:nyha-class :nyha-2 0.52044]
+     [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
+     [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]
+     [:blood-group :B -0.73794] [:ethnicity :white -0.03768]
+     [:bmi 0.01457 23.0224 0.10166363199999998]
+     [:bilirubin -0.0004091 9 0.0024546000000000004]
+     [:thoracotomy :no 0.44664]))
 
 

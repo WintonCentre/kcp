@@ -273,8 +273,7 @@
         sheet-path (str (get-in (cfg/memo-config organ) [:export :edn-path])
                           slash (str (name key)) ".txt")]
     (io/make-parents sheet-path)
-    (spit sheet-path sheet)
-    ))
+    (spit sheet-path sheet)))
 
 (defn export-all-edn-bundles
   "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"

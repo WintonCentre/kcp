@@ -200,7 +200,7 @@
   [[level1 level2]]
   (keyword (join "*" [(name level1) (name level2)])))
 
-(defn lookup-simple-factor-level
+#_(defn lookup-simple-factor-level
   "The value (level) of input factors may be found in the tool path parameters or in the tool inputs.
    This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
    (e.g. :centre which is determined by path-params). 
@@ -211,6 +211,21 @@
     level
     (when-let [level (factor path-params)]
       level)))
+
+
+(defn lookup-simple-factor-level
+  "The value (level) of input factors may be found in the tool path parameters or in the tool inputs.
+   This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
+   (e.g. :centre which is determined by path-params). 
+    The raw level is always returned - it may need further processing e.g. by a spline.
+   If the factor is not found or it does not yet have a level, returns nil."
+  [[{:keys [organ] :as path-params} _ inputs] factor]
+  (if-let [level (factor path-params)]
+    level
+    (if-let [level (get-in inputs [organ factor])]
+      level
+      (do (js/console.log (pr-str organ factor nil))
+          nil))))
 
 (defn lookup-cross-over-factor-level
   "When we have a cross-over factor, we need to lookup each of its simple factor components, and
@@ -251,9 +266,13 @@
     ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
     ; 
     (is-cross-over? env factor)
-    (let [level-key (lookup-cross-over-factor-level env factor)
-          beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
-      [factor level-key (if beta beta 0)])
+    (try 
+      (let [level-key (lookup-cross-over-factor-level env factor)
+               beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
+           [factor level-key (if beta beta 0)])
+      (catch :default e
+        ;(js/console.log "error " (pr-str factor))
+        [factor nil 0]))
 
     ; Simple categorical levels.
     ; Lookup the level and use that to lookup the beta

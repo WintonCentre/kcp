@@ -38,6 +38,11 @@
                                            :on-click #(rf/dispatch [::events/inc-test-day period])} 
                              (str "+ " period)]]])
 
+(defn to-precision
+  "js number to sig figs"
+  [d sigs]
+  (.toPrecision (js/Number. d) sigs))
+
 (defn to-fixed
   "Wrap javascript toFixed"
   [d dps]
@@ -54,6 +59,8 @@
   (.toFixed (js/Number. 1) 0)
   (to-percent 0.066) ; => "7"
   (to-percent 0.01) ; => "1"
+  (to-precision 123.456789 6)
+  "123.457"
   )
 
 (defn calculate-outcome
@@ -76,25 +83,21 @@
         selected-level-maps (fac/selected-level-maps master-fmaps inputs)
         outcomes (fac/get-outcomes (first (vals master-fmaps)))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
-        
         env [{:organ organ :centre centre :tool tool}
              bundle
-             inputs]
+             {organ inputs}]
+        sum-betas (into {} (map (fn [b] [b (fac/sum-beta-xs env b)]) beta-keys))
         ]
     [:> bs/Container
      [:> bs/Row
       (when factors
         [:> bs/Col
          [day-selector 10]
-         (into [:<>]
+         #_(into [:<>]
                (map (fn [outcome]
                       [:p outcome]
                       [calculate-outcome {:day @(rf/subscribe [::subs/test-day])
                                           :outcome-key outcome
-                                          :master-fmaps master-fmaps
-                                          :baseline-cifs baseline-cifs
-                                          :baseline-vars baseline-vars
-                                          :inputs inputs
                                           }])
                     outcomes
                     ))
@@ -103,39 +106,30 @@
            [:> bs/Table {:striped true
                          :bordered true
                          :hover true}
-            [:thead
-             [:tr
-              [:th "Factor"]
-              [:th "Level"]
-              [:th "Beta(s)"]]]
-            (into [:tbody]
-                  (conj
-                   (mapv
-                    (fn [fmap i]
-                      (when fmap
-                        [:tr {:key (str "r-" i #_(name (:factor fmap)))}
-                         [:td {:key 1} (:factor fmap)]
-                         [:td {:key 2} (if fmap (:level fmap) "-")]
-                         [:td {:key 3} (if fmap (pr-str (select-keys fmap beta-keys)) "-")]]))
-                    selected-level-maps (range))
-                   [:tr {:key :beta-transplant}
-                    [:td {:key 1} "Sum betas"]
-                    [:td {:key 2} "transplant"]
-                    [:td {:key 3} (fac/sum-beta-xs env :beta-transplant) 
-                     #_(apply + (map :beta-transplant selected-level-maps))]]
-                   [:tr {:key :beta-removal}
-                    [:td {:key 1} "Sum betas"]
-                    [:td {:key 2} "removal"]
-                    [:td {:key 3} (apply + (map :beta-removal selected-level-maps))]]
-                   [:tr {:key :beta-death}
-                    [:td {:key 1} "Sum betas"]
-                    [:td {:key 2} "death"]
-                    [:td {:key 3} (apply + (map :beta-death selected-level-maps))]]
-                   [:tr {:key :beta-all-reasons}
-                    [:td {:key 1} "Sum betas"]
-                    [:td {:key 2} "all reasons"]
-                    [:td {:key 3} (apply + (map :beta-all-reasons selected-level-maps))]]))]]]])]]))
-
-(comment
-  (def fmaps (repeat 2 {:a 1 :b 2 :c 3}))
-  )
+                    [:thead
+                     [:tr
+                      [:th "Factor"]
+                      [:th {:col-span (str (count outcomes))}
+                       [:i "Beta * x"] " Contribution"]]
+                     [:tr 
+                      [:th]
+                      (map-indexed (fn [k b] [:th {:key k} b]) outcomes)]]
+                    (into [:tbody
+                           [:tr {:key 1000 :style {:background-color "#666" :color "#fff"}}
+                            [:td [:b "Sums"]]
+                            (map-indexed
+                             (fn [i b]
+                               [:td {:key i} (str (to-precision (sum-betas b) 4))])
+                             beta-keys)]]
+                          (conj
+                           (map-indexed
+                            (fn [i [factor fmap]]
+                              [:tr
+                               [:td {:key i} factor]
+                               (when fmap
+                                 (map-indexed
+                                  (fn [j b]
+                                    [:td {:key j} (to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
+                                  beta-keys))])
+                            master-fmaps)
+                           ))]]]])]]))

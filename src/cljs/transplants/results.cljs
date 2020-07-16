@@ -63,9 +63,9 @@
   "123.457"
   )
 
-(defn calculate-outcome
+(defn calculate-cif
   "Show the outcome for given day"
-  [{:keys [day outcome-key master-fmaps baseline-cifs baseline-vars inputs] :as params}]
+  [{:keys [day outcome-key] :as params}]
   [:div
    "cif-" outcome-key " " (to-percent (model/calculate params)) "%"
    ])
@@ -119,7 +119,9 @@
                             [:td [:b "Sums"]]
                             (map-indexed
                              (fn [i b]
-                               [:td {:key i} (str (to-precision (sum-betas b) 4))])
+                               [:td {:key i} (str (to-precision #_(sum-betas b) 
+                                                                (fac/sum-beta-xs env b)
+                                                                4))])
                              beta-keys)]]
                           (conj
                            (map-indexed

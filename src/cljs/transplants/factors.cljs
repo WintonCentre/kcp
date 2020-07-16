@@ -74,17 +74,25 @@
   [outcomes prefix]
   (map #(prefix-outcome-key % prefix) outcomes))
 
+(defn remove-prefix-key
+  "remove first prefix from a key, returning resulting string. Useful for converting
+   :beta-transplants back to 'transplants' "
+  [k]
+  (join "-" (drop 1 (split (name k) "-"))))
+
 (comment
-  (get-outcomes  {:beta-transplant 1 :beta-waiting 2}))
+  (get-outcomes  {:beta-transplant 1 :beta-waiting 2})
   ; => '("transplant" "waiting")
 
-(prefix-outcome-key  :transplant "beta")
+  (prefix-outcome-key  :transplant "beta")
 ; => :beta-transplant
 
-(prefix-outcomes-keys '("transplant" "waiting") "beta")
+  (prefix-outcomes-keys '("transplant" "waiting") "beta")
 ; => '(:beta-transplant :beta-waiting)
 
-(subs "beta-transplant" 5)
+  (remove-prefix-key :beta-transplant-name)
+  ;=> "transplant-name"
+)
 
 
 (defn level-maps
@@ -160,12 +168,6 @@
     #_(println "selected-level-maps: " x)
     x))
 
-
-(defn simple-level
-  [factor]
-  nil)
-
-#_(get-in env [1 :-inputs :age :level])
 (defn is-categorical?
   [[_ {:keys [-inputs]} _ :as env] factor]
   (let [level-key (get-in -inputs [factor :level])]
@@ -200,19 +202,6 @@
   [[level1 level2]]
   (keyword (join "*" [(name level1) (name level2)])))
 
-#_(defn lookup-simple-factor-level
-  "The value (level) of input factors may be found in the tool path parameters or in the tool inputs.
-   This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
-   (e.g. :centre which is determined by path-params). 
-    The raw level is always returned - it may need further processing e.g. by a spline.
-   If the factor is not found or it does not yet have a level, returns nil."
-  [[{:keys [organ] :as path-params} _ inputs] factor]
-  (if-let [level (get-in inputs [organ factor])]
-    level
-    (when-let [level (factor path-params)]
-      level)))
-
-
 (defn lookup-simple-factor-level
   "The value (level) of input factors may be found in the tool path parameters or in the tool inputs.
    This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
@@ -222,9 +211,9 @@
   [[{:keys [organ] :as path-params} _ inputs] factor]
   (if-let [level (factor path-params)]
     level
-    (if-let [level (get-in inputs [organ factor])]
+    (when-let [level (get-in inputs [organ factor])]
       level
-      (do (js/console.log (pr-str organ factor nil))
+      #_(do (js/console.log (pr-str organ factor nil))
           nil))))
 
 (defn lookup-cross-over-factor-level

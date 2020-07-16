@@ -102,19 +102,19 @@
    There is a bundle for each [organ, centre, tool] that has ever
    been loaded in the UI. If a bundle has never been loaded it will return
    a nil cif-0."
-  [bundle day]
+  [bundle day centre-full-name]
   (->> bundle
        (:-baseline-cifs)
-       (filter #(<= (:days %) day))
+       (filter #(and (= (:centre %) centre-full-name) (<= (:days %) day)))
        (last)))
 
-(defn sum-beta-x
+#_(defn sum-beta-x
   [level-map beta-key x]
   (if (map? (:type level-map))
     0 ; not yet implemented, but will use x
     (beta-key level-map)))
 
-(defn sum-beta-xs
+#_(defn sum-beta-xs
   [selected-level-maps beta-key baseline-vars]
   (if (= :numeric (:type selected-level-maps))
     0 ; not yet implemented
@@ -127,26 +127,29 @@
 
 (defn scale-factor
   "Calculate the factor we must use to scale each cif so their total yields cif-all-reasons"
-  [cif-transplant cif-removal cif-death cif-all-reasons]
-  (/ cif-all-reasons (+ cif-transplant cif-removal cif-death)))
+  [outcome-keys]
+  ; [cifs]
+  ; (/ (first cifs) (apply + (rest cifs))
+  
+  (/ cif-all-reasons (+ cif-transplant cif-removal cif-death))
 
-(defn CIF-transplant
-  [cif-transplant scale-factor]
-  (* cif-transplant (scale-factor)))
+  #_(defn CIF-transplant
+      [cif-transplant scale-factor]
+      (* cif-transplant (scale-factor))))
 
-(defn categorical-beta
+#_(defn categorical-beta
   "Access a beta for a categorical variable"
   [{:keys [inputs factor level beta-key]}]
   (filter #(and (= factor (:factor %)) (= level (get-in % [:levels :level]))) inputs)
   )
 
-(defn continuous-beta
+#_(defn continuous-beta
   "Access a beta for a continuous variable"
   ; Need to read and use spline data somewhere
   [{:keys [inputs factor level baseline-level beta-key]}]
   666)
 
-(defn beta-x
+#_(defn beta-x
   "Select or calculate the contribution of a factor at a given level"
   [{:keys [inputs factor level baseline-level beta-key] :as data}]
   (if (keyword? level)
@@ -155,20 +158,20 @@
     )
   )
 
-(defn sum-x-betas
+#_(defn sum-x-betas
   "Given a "
   [xs baseline-vars]
   999)
 
-(defn calculate-cif
+#_(defn calculate-cif
   "Calculate the cif for an outcome. The outcome is indicated by a suffix that selects the appropriate
    baseline and betas to use in the calculaion"
   [day inputs outcome baseline-cifs baseline-vars master-f-maps]
   
   ; Todo: Numeric vars must take baselines into consideration
-  (sum-x-betas inputs master-f-maps))
+  (sum-of-beta-xs inputs master-f-maps))
 
 (defn calculate
   "Calculate a predicted outcome. "
-  [{:keys [day outcome-key master-fmaps baseline-cifs baseline-vars inputs] :as params}]
+  [{:keys [day outcome-key outcomes baseline-cifs sum-of-beta-xs] :as params}]
   day)

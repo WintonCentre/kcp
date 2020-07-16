@@ -130,9 +130,9 @@
   [outcome-keys]
   ; [cifs]
   ; (/ (first cifs) (apply + (rest cifs))
-  
-  (/ cif-all-reasons (+ cif-transplant cif-removal cif-death))
 
+  ;(/ cif-all-reasons (+ cif-transplant cif-removal cif-death))
+  nil
   #_(defn CIF-transplant
       [cif-transplant scale-factor]
       (* cif-transplant (scale-factor))))

@@ -5,10 +5,12 @@
             [transplants.subs :as subs]
             [transplants.events :as events]
             [transplants.factors :as fac]
+            [transplants.numeric-input :as ni]
+            [clojure.string :refer [replace]]
             [clojure.pprint :refer [pprint]]))
 
 
-(defn day-selector
+#_(defn day-selector
   "A test-only widget to select a test day at a given sampling period.
    "
   [period]
@@ -23,6 +25,23 @@
                                            :style {:flex "1"}
                                            :on-click #(rf/dispatch [::events/inc-test-day period])} 
                              (str "+ " period)]]])
+
+; radio buttons allow fast selection between options
+(defn test-day-selector
+  [period]
+  [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 20}}
+   [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+    [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
+     "Results for test day:"]]
+   [:> bs/Col
+    (ni/numeric-input {:id "test-day"
+                       :value-f (fn [] @(rf/subscribe [::subs/test-day]))
+                       :min (constantly 0)
+                       :max (constantly (* 365 5)) 
+                       :dps -1
+                       :on-change #(rf/dispatch [::events/test-day %])
+                       })]])
+
 
 (defn to-precision
   "js number to sig figs"
@@ -115,6 +134,13 @@
       (conj (remove #(= % all-reasons) outcomes) all-reasons))
     outcomes))
 
+(defn outcome-tr
+  "Render an outcomes row header"
+  [k outcomes]
+  [:tr {:key k :style {:background-color "#666" :color "#fff"}}
+   [:th]
+   (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
+
 (defn results-panel
   "Display results"
   [bundles organ centre tool]
@@ -145,36 +171,22 @@
         ;; appealing to its last position.
         ;;
         cifs  (map cif baseline-cifs-for-day sum-betas)
-        #_#_scaled-cifs (if (> (count outcome-keys) 1)
-                      (scaled-cifs cifs)
-                      baseline-cifs-for-day)
         ]
     [:> bs/Container
      [:> bs/Row
       (when factors
         [:> bs/Col
-         [day-selector 10]
-         #_(into [:<>]
-               (map (fn [outcome]
-                      [:p outcome]
-                      [calculate-outcome {:day @(rf/subscribe [::subs/test-day])
-                                          :outcome-key outcome
-                                          }])
-                    outcomes
-                    ))
+         [test-day-selector 10]
          [:> bs/Row
           [:> bs/Col
            [:> bs/Table {:striped true
                          :bordered true
                          :hover true}
-                    [:thead
-                     [:tr 
-                      [:th]
-                      (map-indexed (fn [k b] [:th {:key k} b]) outcomes)]]
+                    [:thead [outcome-tr 1005 outcomes]]
                     (into [:tbody
 
                            ; Scaled cifs
-                           [:tr {:key 1000 :style {:background-color "#666" :color "#fff"}}
+                           [:tr {:key 1000}
                             [:td [:b "Scaled CIF"]]
                             (map-indexed
                              (fn [i cif]
@@ -182,7 +194,7 @@
                              (apply scaled-cifs cifs))]
 
                            ; Individualised raw cifs
-                           [:tr {:key 1001 :style {:background-color "#666" :color "#fff"}}
+                           [:tr {:key 1001}
                             [:td [:b "Unscaled CIF"]]
                             (map-indexed
                              (fn [i cif]
@@ -190,34 +202,37 @@
                              cifs)]
 
                            ; Show Baseline CIFS for selected day
-                           [:tr {:key 1002 :style {:background-color "#666" :color "#fff"}}
-                            [:td [:b "CIF_0"]]
+                           [:tr {:key 1002}
+                            [:td [:b "CIF" [:sub "0"]]]
                             (map-indexed
                              (fn [i cif-0-day]
                                [:td {:key i} (to-precision cif-0-day 4)])
                              baseline-cifs-for-day)]
 
                            ; Show sum-beta-xs for selected inputs
-                           [:tr {:key 1003 :style {:background-color "#666" :color "#fff"}}
-                            [:td [:b "Sums"]]
+                           [:tr {:key 1003}
+                            [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
                             (map-indexed
                              (fn [i sb]
                                [:td {:key i} (to-precision sb 4)])
                              sum-betas)]
 
-                           [:tr
-                            [:th "Factor"]
+                           [:tr {:key 1004 :style {:background-color "#666" :color "#fff"}}
+                            [:th "Factor" [:sub [:i "𝒌"]]]
                             [:th {:col-span (str (count outcomes))}
-                             [:i "Beta * x"] " Contribution (independent of day)"]]]
-                          (conj
-                           (map-indexed
-                            (fn [i [factor fmap]]
+                             [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]
+                             #_[:i "Beta * x"]]]
+
+                           (outcome-tr 1006 outcomes)
+                           (conj
+                            (map-indexed
+                             (fn [i [factor fmap]]
                               ; Show individual beta-x contribution
-                              [:tr
-                               [:td {:key i} factor]
-                               (when fmap
-                                 (map-indexed
-                                  (fn [j b]
-                                    [:td {:key j} (to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
-                                  beta-keys))])
-                            master-fmaps)))]]]])]]))
+                               [:tr {:key i}
+                                [:td {:key i} factor]
+                                (when fmap
+                                  (map-indexed
+                                   (fn [j b]
+                                     [:td {:key j} (to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
+                                   beta-keys))])
+                             master-fmaps))])]]]])]]))

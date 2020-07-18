@@ -214,6 +214,12 @@
   [db [_ step]]
   (update db :test-day #(+ step %))))
 
+(rf/reg-event-db
+ ::test-day
+ (fn ;-traced
+  [db [_ day]]
+  (assoc db :test-day day)))
+
 
 ;;;
 ;; Load data sequences

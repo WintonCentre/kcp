@@ -149,25 +149,22 @@
             tool-meta (get-tool-meta tools tool)]
         [page  
          (:description centre-info)
-         [row {:style {:margin-bottom 20}}
-          [col
-           [:h2 (str (string/capitalize organ-name) " transplant centre")]
-           (->> tools
-                (map #(conj % [:organ organ-name]))
-                (map #(conj % [:centre centre-name]))
-                (map #(conj % [:tool (name (:key %))]))
-                (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))
-           [:h4 {:style {:margin-top 10}}
-            (:label tool-meta)]
-           [:p  (:description tool-meta)]]] 
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [row
               [col
+               [:h2 (str (string/capitalize organ-name) " transplant centre")]
+               (->> tools
+                    (map #(conj % [:organ organ-name]))
+                    (map #(conj % [:centre centre-name]))
+                    (map #(conj % [:tool (name (:key %))]))
+                    (map ui/tool-buttons)
+                    (into [:> bs/ButtonGroup {:vertical false}]))
+               [:h4 {:style {:margin-top 10}}
+                (:label tool-meta) " " (:description tool-meta)]
                (widg/widget {:type :reset})
                (into [:<>]
-                     (map 
+                     (map
                       (fn [[k w]] ^{:key (:factor w)}
                         (widg/widget (assoc w :model tool)))
                       (get tool-centre-bundle :-inputs)))]

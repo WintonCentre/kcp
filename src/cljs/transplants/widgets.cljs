@@ -79,12 +79,9 @@
      [:> bs/Col
       (bsio/radio-button-group {:id (pr-str factor-key)
                                 :value-f value-f
-                                :on-change #(do
-                                              #_(println "store" [factor-key
-                                                                (keyword %)])
-                                              (rf/dispatch [factor-key
-                                                            (keyword %)]))
-                                :buttons-f (fn [] (vals levels))})]]))
+                                :on-change #(rf/dispatch [factor-key
+                                                          (keyword %)])
+                                            :buttons-f (fn [] (vals levels))})]]))
 
 
 ; dropdowns are similar to radio buttons but are useful when a radio-button-group

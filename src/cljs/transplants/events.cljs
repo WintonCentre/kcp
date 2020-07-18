@@ -83,21 +83,7 @@
    nsk
    (fn [db [_ v]] (assoc db nsk v))))
 
-(defn index-by
-  "Take a raw data table in map of vectors form.
-   Convert it a vector of maps.
-   Remove any maps where the primary index is nil.
-   Then index by the (orange) index columns which are specified in metadata.edn
-   Finally, convert those indexes to keywords."
-  [raw indexes]
-  (as-> raw x
-    (map-of-vs->v-of-maps x)
-    (filter (comp some? (first indexes)) x)
-    (into #{} x)
-    (rel/index x indexes)
-    (map (fn [[k v]] [(xf/map-vals xf/unstring-key k) (into {} v)]) x)
-    ;(into {} x)
-    ))
+
 
 (comment
   (enable-console-print!)
@@ -112,7 +98,23 @@
             :model '(:waiting :waiting :waiting :waiting
                               :post-transplant :post-transplant :post-transplant :post-transplant :post-transplant
                               :from-listing :from-listing nil nil nil nil nil nil nil nil nil nil nil nil nil nil)})
-  (index-by raw
+#_(defn index-by
+    "Take a raw data table in map of vectors form.
+   Convert it a vector of maps.
+   Remove any maps where the primary index is nil.
+   Then index by the (orange) index columns which are specified in metadata.edn
+   Finally, convert those indexes to keywords."
+    [raw indexes]
+    (as-> raw x
+      (map-of-vs->v-of-maps x)
+      (filter (comp some? (first indexes)) x)
+      (into #{} x)
+      (rel/index x indexes)
+      (map (fn [[k v]] [(xf/map-vals xf/unstring-key k) (into {} v)]) x)
+    ;(into {} x)
+      ))
+
+#_(index-by raw
             [:factor :model])
   ; => Note that the resulting keys are maps containing distinct values of the original keys (:factor and :model in this case).
   #_{{:model :waiting, :factor :bmi} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bmi", :dps 0, :knot1 nil, :model ":waiting"}
@@ -127,7 +129,7 @@
    {:model :from-listing, :factor :bmi} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor ":bmi", :dps 1, :knot1 nil, :model ":from-listing"}
    {:model :post-transplant, :factor :fvc} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor ":fvc", :dps 1, :knot1 nil, :model ":post-transplant"}}
   
-  (index-by {:factor '(":age" ":sex" ":ethnicity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft" ":centre"), :level '(":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft" ":unused")}
+  #_(index-by {:factor '(":age" ":sex" ":ethnicity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft" ":centre"), :level '(":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft" ":unused")}
             [:factor])
   )
 
@@ -161,7 +163,7 @@
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
- (fn-traced
+ (fn ;-traced
   [{:keys [_ db]} [_ data-path response]]
   (let [path-params (get-in db [:current-route :path-params])
         [organ centre tool] (utils/path-keys path-params)
@@ -208,7 +210,7 @@
 
 (rf/reg-event-db
  ::inc-test-day
- (fn-traced
+ (fn ;-traced
   [db [_ step]]
   (update db :test-day #(+ step %))))
 
@@ -218,7 +220,7 @@
 ;;;
 (rf/reg-event-db
  ::store-response
- (fn-traced
+ (fn ;-traced
   [db [_ data-path response]]
   (-> db
       (assoc-in data-path (edn/read-string response)))))
@@ -254,14 +256,14 @@
 
 (rf/reg-event-db
  ::transpose-response
- (fn-traced
+ (fn ;-traced
   [db [_ data-path response]]
   (-> db
       (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response))))))
 
 (rf/reg-event-db
  ::bad-response
- (fn-traced
+ (fn ;-traced
   [db [_ data-path response]]
   (when (or data-path response)
     (js/alert (str "bad-response while loading " data-path "response = " response)))
@@ -269,15 +271,16 @@
 
 (rf/reg-event-fx
  ::load-edn
- (fn-traced [{:keys [db]} [evt [path data-path]]]
-            (when (nil? (get-in db data-path))
-              {:http-xhrio {:method :get
-                            :uri path
-                            :timeout 8000
-                            :format          (ajax/text-request-format)
-                            :response-format (ajax/text-response-format)
-                            :on-success [::store-response data-path]
-                            :on-failure [::bad-response data-path]}})))
+ (fn ;-traced
+  [{:keys [db]} [evt [path data-path]]]
+  (when (nil? (get-in db data-path))
+    {:http-xhrio {:method :get
+                  :uri path
+                  :timeout 8000
+                  :format          (ajax/text-request-format)
+                  :response-format (ajax/text-response-format)
+                  :on-success [::store-response data-path]
+                  :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-bundles
@@ -302,61 +305,4 @@
                             :response-format (ajax/text-response-format)
                             :on-success [::transpose-response data-path]
                             :on-failure [::bad-response data-path]}})))
-
-;;;
-;; unused below
-;;; 
-(comment
-  #_(rf/reg-event-fx
-     ::load-sheet-and-index
-     (fn-traced [{:keys [db]} [evt [path data-path]]]
-                (when (nil? (get-in db data-path))
-                  {:http-xhrio {:method :get
-                                :uri path
-                                :timeout 8000
-                                :format          (ajax/text-request-format)
-                                :response-format (ajax/text-response-format)
-                                :on-success [::store-indexed-response data-path]
-                                :on-failure [::bad-response data-path]}})))
-
-  #_(rf/reg-event-fx
-     ::load-sheet-always
-     (fn-traced [{:keys [db]} [evt [path data-path]]]
-                {:http-xhrio {:method :get
-                              :uri path
-                              :timeout 8000
-                              :format          (ajax/text-request-format)
-                              :response-format (ajax/text-response-format)
-                              :on-success [::store-response data-path]
-                              :on-failure [::bad-response data-path]}}))
-
-
-  #_(rf/reg-event-fx
-     ::load-sheet
-     (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ;(when (nil? (get-in db data-path)))
-                {:http-xhrio {:method :get
-                              :uri path
-                              :timeout 8000
-                              :format          (ajax/text-request-format)
-                              :response-format (ajax/text-response-format)
-                              :on-success [::store-response data-path]
-                              :on-failure [::bad-response data-path]}}))
-
-  #_(rf/reg-event-fx
-     ::load-and-transpose-once
-     (fn-traced [{:keys [db]} [evt [path data-path]]]
-            ; do not load config data twice!
-            ; (when (nil? (get-in db data-path)))
-                {:http-xhrio {:method :get
-                              :uri path
-                              :timeout 8000
-                              :format          (ajax/text-request-format)
-                              :response-format (ajax/text-response-format)
-                              :on-success [::transpose-response data-path]
-                              :on-failure [::bad-response data-path]}})))
-
-
-
-
 

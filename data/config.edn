@@ -14,6 +14,8 @@
                             :edn-path "resources/public/kidney/edn"}
                    :lung {:csv-path "resources/public/lung/csv"
                           :edn-path "resources/public/lung/edn"}}
+ 
+
  ;
  ; Configuration files may also be exported in bundles appropriate for embedded tools. 
  ; Baseline cifs may be filtered by centre.
@@ -27,7 +29,8 @@
                            :tools [:tools]
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                            :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]
-                           :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs]}}
+                           :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs]
+                           }}
 
  :sheets #profile {:kidney {:centres {:key {:column :A :match "key"}
                                       :name {:column :B :match "name"}
@@ -47,7 +50,7 @@
                                                                   :match "remov"}
                                                     :cif-death {:column :E
                                                                 :match "death"}
-                                                    :cif-all {:column :F
+                                                    :cif-all-reasons {:column :F
                                                               :match "all"}}
 
                             :waiting-baseline-vars {:factor {:column :A
@@ -170,7 +173,7 @@
                                                                 :match "rremov"}
                                                   :cif-death {:column :E
                                                               :match "death"}
-                                                  :cif-all {:column :F
+                                                  :cif-all-reasons {:column :F
                                                             :match "all"}}
 
                           :waiting-baseline-vars {:factor {:column :A
@@ -225,7 +228,7 @@
                                                                    :match "centre"}
                                                           :days {:column :B
                                                                  :match "(time)|(days)"}
-                                                          :cif-survival {:column :C
+                                                          :cif-post-transplant {:column :C
                                                                          :match "graft"}}
 
                           :post-transplant-baseline-vars {:factor {:column :A

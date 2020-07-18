@@ -16,7 +16,7 @@
 (defn dev-setup []
   (when debug?
     (enable-console-print!)
-    (println "dev mode")))
+    #_(println "dev mode")))
 
 (defn mount-root
   "Mount components and start the reitit router"

@@ -7,7 +7,6 @@
    [[k1 k2 k3 k4 :as knots]
     [beta1 beta2 beta3 :as betas]
     x0 x]
-
    (let [cube+ (fn [x] (if (pos? x) (* x x x) 0))
          d3+ (fn [x n] (cube+ (- x n)))
          term (fn [n x] (/ (- (d3+ x n) (d3+ x k4)) (- k4 n)))

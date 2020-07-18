@@ -81,7 +81,7 @@
   (join "-" (drop 1 (split (name k) "-"))))
 
 (comment
-  (get-outcomes  {:beta-transplant 1 :beta-waiting 2})
+  (get-outcomes  {:beta-transplant 1 :beta-waiting 2 :beta-all-reasons 3})
   ; => '("transplant" "waiting")
 
   (prefix-outcome-key  :transplant "beta")

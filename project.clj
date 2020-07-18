@@ -38,8 +38,7 @@
 
   :main  transplants.configure/-main
 
-  :npm-deps {;"bootstrap" "^4.5.0"
-             "highlight.js" "9.18.1"
+  :npm-deps {"highlight.js" "9.18.1"
              "react" "16.13.0"
              "react-dom" "16.13.0"
              "react-bootstrap" "^1.0.1"

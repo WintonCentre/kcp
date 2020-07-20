@@ -152,7 +152,7 @@
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [row 
-              [col {:md 6 :style {:flex 1 :flex-direction "row"}}
+              [col {:xs 12 :md 5}
                
                [:h2 (str (string/capitalize organ-name) " transplant centre")]
                (->> tools

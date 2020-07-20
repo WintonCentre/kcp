@@ -125,7 +125,9 @@
         [num/numeric-input {:key (pr-str factor-key)
                             :value-f value-f
                             :on-change #(rf/dispatch [factor-key %])
-                            :min (:min numerics) :max (:max numerics) :dps (:dps numerics)}]
+                            :min (:min numerics) :max (:max numerics) :dps (:dps numerics)
+                            :units (:sub-text w)}]
+        
         [:div "Check that " (:factor w) " has min, max, and dps parameters"])]]))
 
 

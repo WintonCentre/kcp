@@ -176,7 +176,7 @@
       (if (pos? increment) "+" "–")]]))
 
 (defn numeric-input
-  [{:keys [key value-f on-change min max error-color color dps] :or {error-color "red" color "black"} :as props}]
+  [{:keys [key value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
 
   (let [[good bad] (split (value-f) #":")
         value (str-to-num good)
@@ -189,46 +189,48 @@
                   max
                   dps
                   on-change e))]
-
-    [:div {:class       "numeric-input"
-           :style       {:min-width      "100px"
-                         :width "max-content"
-                         :tab-index  1
-                         :selectable true
-                         :border (str "3px solid " (if (nil? (value-f)) "#ff8888" "#CCCCCC"))
-                         :border-radius 5
-                         :padding 1}
-           :on-key-down #(let [key-code (.. % -nativeEvent -code)]
-                           (when (#{"ArrowUp" "ArrowDown"} key-code)
-                             (.preventDefault %))
-                           (update-value value nmin nmax dps
-                                         (cond
-                                           (= "ArrowUp" key-code) 1
-                                           (= "ArrowDown" key-code) -1
-                                           :else 0)
-                                         on-change))}
-     [:div {:style {:display "flex" :flex-direction "row" :align-items "center"}}
-      (inc-dec-button (assoc props :variant "secondary" :nmin nmin :nmax nmax :dps dps :increment (- (js/Math.pow 10 (- dps))) :value-f value-f))
-      [:input
-       {:type      "text"
-        :value     good
-        :id        key
+    [:> bs/Row {:style {:align-items "baseline"}}
+     [:> bs/Col
+      [:div {:class       "numeric-input"
+             :style       {:min-width      "100px"
+                           :width "max-content"
+                           :tab-index  1
+                           :selectable true
+                           :border (str "3px solid " (if (nil? (value-f)) "#ff8888" "#CCCCCC"))
+                           :border-radius 5
+                           :padding 1}
+             :on-key-down #(let [key-code (.. % -nativeEvent -code)]
+                             (when (#{"ArrowUp" "ArrowDown"} key-code)
+                               (.preventDefault %))
+                             (update-value value nmin nmax dps
+                                           (cond
+                                             (= "ArrowUp" key-code) 1
+                                             (= "ArrowDown" key-code) -1
+                                             :else 0)
+                                           on-change))}
+       [:div {:style {:display "flex" :flex-direction "row" :align-items "center"}}
+        (inc-dec-button (assoc props :variant "secondary" :nmin nmin :nmax nmax :dps dps :increment (- (js/Math.pow 10 (- dps))) :value-f value-f))
+        [:input
+         {:type      "text"
+          :value     good
+          :id        key
         ; :on-click mutate
-        :on-change mutate
-        :style     {:width "58px"
-                    :height "38px"
-                    :font-size "16px"
-                    :border-top       "0px solid #888"
-                    :border-left      "2px solid #ddd"
-                    :border-bottom       "0px solid #ddd"
-                    :border-right      "2px solid #ddd"
-                    :background-color (if (nil? (value-f))
-                                        "#fff"
-                                        (if (nil? bad) "#6C757D" "#dd5533"))
-                    :color            "#fff"
-                    :padding          "0 0 4px 0"
-                    :text-align       "center"}}]
-      (inc-dec-button (assoc props :nmin nmin :nmax nmax :dps dps :increment (js/Math.pow 10 (- dps)) :value-f value-f))]]))
+          :on-change mutate
+          :style     {:width "58px"
+                      :height "38px"
+                      :font-size "16px"
+                      :border-top       "0px solid #888"
+                      :border-left      "2px solid #ddd"
+                      :border-bottom       "0px solid #ddd"
+                      :border-right      "2px solid #ddd"
+                      :background-color (if (nil? (value-f))
+                                          "#fff"
+                                          (if (nil? bad) "#6C757D" "#dd5533"))
+                      :color            "#fff"
+                      :padding          "0 0 4px 0"
+                      :text-align       "center"}}]
+        (inc-dec-button (assoc props :nmin nmin :nmax nmax :dps dps :increment (js/Math.pow 10 (- dps)) :value-f value-f))]]]
+     [:bs/Col (when units units)]]))
 
 
 

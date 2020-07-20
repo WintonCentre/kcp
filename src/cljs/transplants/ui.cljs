@@ -282,3 +282,12 @@ in the routes table."
   [:<>
    [:h2 title]
    (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))])
+
+(defn open-icon
+  ([name]
+   (open-icon nil name))
+  ([style name]
+   [:span (assoc {:class (str "oi oi-" name) 
+                  :title name 
+                  :aria-hidden "true"}
+                 :style style)]))

@@ -9,6 +9,7 @@
             [clojure.string :refer [replace]]
             [clojure.pprint :refer [pprint]]))
 
+(def th-bg-color "#6C757D")
 
 #_(defn day-selector
   "A test-only widget to select a test day at a given sampling period.
@@ -137,7 +138,7 @@
 (defn outcome-tr
   "Render an outcomes row header"
   [k outcomes]
-  [:tr {:key k :style {:background-color "#666" :color "#fff"}}
+  [:tr {:key k :style {:background-color th-bg-color :color "#fff"}}
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
 
@@ -217,7 +218,7 @@
                                [:td {:key i} (to-precision sb 4)])
                              sum-betas)]
 
-                           [:tr {:key 1004 :style {:background-color "#666" :color "#fff"}}
+                           [:tr {:key 1004 :style {:background-color th-bg-color :color "#fff"}}
                             [:th "Factor" [:sub [:i "𝒌"]]]
                             [:th {:col-span (str (count outcomes))}
                              [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]

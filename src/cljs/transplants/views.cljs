@@ -149,8 +149,8 @@
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [row 
               [col {:xs 12 :md 5}
-               
-               [:h2 (str (string/capitalize organ-name) " transplant centre")]
+               [:h2 (ui/open-icon {:color "red" :font-size 10} "person")
+                (str (string/capitalize organ-name) " transplant centre")]
                (->> tools
                     (map #(conj % [:organ organ-name]))
                     (map #(conj % [:centre centre-name]))
@@ -158,7 +158,7 @@
                     (map ui/tool-buttons)
                     (into [:> bs/ButtonGroup {:vertical false}]))
                [:h4 {:style {:margin-top 10}}
-                (:label tool-meta) " " (:description tool-meta)]
+                (:label tool-meta) " – " (:description tool-meta)]
                (widg/widget {:type :reset})
                (into [:<>]
                      (map

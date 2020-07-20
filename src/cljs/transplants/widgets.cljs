@@ -63,10 +63,8 @@
    [:> bs/Col
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
-
-; radio buttons allow fast selection between options
-(defmethod widget :radio
-  [{:keys [factor-name factor-key levels default type] :as w}]
+(defn radio
+  [{:keys [factor-name factor-key levels default type vertical] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
 
         #_#_value-f (if (and default (nil? value))
@@ -78,10 +76,21 @@
        (:factor-name w)]]
      [:> bs/Col
       (bsio/radio-button-group {:id (pr-str factor-key)
+                                :vertical vertical
                                 :value-f value-f
                                 :on-change #(rf/dispatch [factor-key
                                                           (keyword %)])
-                                            :buttons-f (fn [] (vals levels))})]]))
+                                :buttons-f (fn [] (vals levels))})]]))
+
+; radio buttons allow fast selection between options
+(defmethod widget :radio
+  [w]
+  (radio (assoc w :vertical false)))
+
+; radio buttons allow fast selection between options
+(defmethod widget :v-radio
+  [w]
+  (radio (assoc w :vertical true)))
 
 
 ; dropdowns are similar to radio buttons but are useful when a radio-button-group

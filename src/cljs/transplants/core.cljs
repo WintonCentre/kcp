@@ -28,10 +28,6 @@
                                   :subscribe-current-route #(rf/subscribe [::subs/current-route])}]]
              (.getElementById js/document "app")))
 
-(comment
-  routes/router
-  )
-
 (defn on-window-resize
   "Handle window-size change by dispatching new width to db"
   [evt]

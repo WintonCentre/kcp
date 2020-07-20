@@ -53,20 +53,21 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    value-f is a function which, when called returns the current value of the widget.
    event-f is an event handler which is called when the selected level changes
    Each button is configured with a map wih the (buttons-f) containing its :level-name, :level, and :disabled status."
-  [{:keys [id value-f on-change buttons-f]}]
+  [{:keys [id value-f on-change buttons-f vertical]}]
   [:<>
    (let [value (value-f)]
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
              :id id
              ;:inline "true"
+             :vertical vertical
              :name id
              :value value
              :on-change on-change
              :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#CCCCCC"))
                       :border-radius 5
                       :padding 1
-                      :display "grid"}}]
+                      #_#_:display "grid"}}]
            (map (fn [{:keys [level-name level disabled]}]
                   [:> bs/ToggleButton {;:tabindex "-1"
                                        :type "checkbox"
@@ -78,9 +79,6 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                        :variant "outline-secondary"}
                    level-name])
                 (buttons-f))))])
-
-
-
 
 (defn dropdown
   [{:keys [id value-f on-change buttons-f]}]

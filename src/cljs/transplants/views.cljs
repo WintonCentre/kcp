@@ -1,14 +1,11 @@
 (ns transplants.views
   (:require
-;   [reagent.dom :as rd]
    [clojure.string :as string]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
-;   [transplants.dev-utils :as dev-utils]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
-   ;[transplants.bsio :as bsio :refer [radio-button-group]]
    [transplants.ui :as ui :refer [page
                                   row
                                   col
@@ -16,8 +13,7 @@
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
    [transplants.results :as results]
-   ;[transplants.transforms :as xf]
-   #_(winton-utils.data-frame :refer [map-of-vs->v-of-maps])))
+   ))
 
 (comment
   (rf/dispatch [::events/initialize-db]))

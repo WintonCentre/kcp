@@ -195,7 +195,7 @@
                          :width "max-content"
                          :tab-index  1
                          :selectable true
-                         :border (str "3px solid " (if (nil? (value-f)) "#ff8888" "#ffffff"))
+                         :border (str "3px solid " (if (nil? (value-f)) "#ff8888" "#CCCCCC"))
                          :border-radius 5
                          :padding 1}
            :on-key-down #(let [key-code (.. % -nativeEvent -code)]

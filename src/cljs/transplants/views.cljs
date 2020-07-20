@@ -151,8 +151,9 @@
          (:description centre-info)
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
-             [row
-              [col
+             [row 
+              [col {:md 6 :style {:flex 1 :flex-direction "row"}}
+               
                [:h2 (str (string/capitalize organ-name) " transplant centre")]
                (->> tools
                     (map #(conj % [:organ organ-name]))
@@ -166,7 +167,8 @@
                (into [:<>]
                      (map
                       (fn [[k w]] ^{:key (:factor w)}
-                        (widg/widget (assoc w :model tool)))
+                        [:div {:style {:margin-bottom 15}}
+                         (widg/widget (assoc w :model tool))])
                       (get tool-centre-bundle :-inputs)))]
               [col
                [results/results-panel bundles organ centre tool]]])

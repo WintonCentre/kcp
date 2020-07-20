@@ -41,9 +41,10 @@
   :npm-deps {"highlight.js" "9.18.1"
              "react" "16.13.0"
              "react-dom" "16.13.0"
-             "react-bootstrap" "^1.0.1"
-             "react-bootstrap-range-slider" "1.0.0"
-             "rc-input-number" "5.0.1"}
+             "react-bootstrap" "1.2.2" ;"^1.0.1"
+             ;"react-bootstrap-range-slider" "1.0.0"
+             ;"rc-input-number" "5.0.1"
+             }
   :npm-dev-deps {"shadow-cljs"           "2.9.3"
                  "karma"                 "4.4.1"
                  "karma-chrome-launcher" "3.1.0"

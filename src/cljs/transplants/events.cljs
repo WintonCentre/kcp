@@ -133,7 +133,7 @@
             [:factor])
   )
 
-(defn get-sheet-indexes
+#_(defn get-sheet-indexes
   "Look up the indexing keys for a spreadsheet. These are the column keys for columns coloured in orange."
   [db sheet-name]
   (get-in db [:metadata :sheet-meta sheet-name]))
@@ -311,4 +311,15 @@
                             :response-format (ajax/text-response-format)
                             :on-success [::transpose-response data-path]
                             :on-failure [::bad-response data-path]}})))
+(rf/reg-event-fx
+ ::load-and-transpose-always
+ (fn-traced [{:keys [db]} [evt [path data-path]]]
+            {:http-xhrio {:method :get
+                          :uri path
+                          :timeout 8000
+                          :format          (ajax/text-request-format)
+                          :response-format (ajax/text-response-format)
+                          :on-success [::transpose-response data-path]
+                          :on-failure [::bad-response data-path]}}))
+
 

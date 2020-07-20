@@ -59,21 +59,28 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
              :id id
-             :inline "true"
+             ;:inline "true"
              :name id
              :value value
              :on-change on-change
-             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
+             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#CCCCCC"))
                       :border-radius 5
-                      :padding 1}}]
+                      :padding 1
+                      :display "grid"}}]
            (map (fn [{:keys [level-name level disabled]}]
                   [:> bs/ToggleButton {;:tabindex "-1"
                                        :type "checkbox"
                                        :key level :disabled false
                                        :value level
+                                       :style {:border-radius 0
+                                               :margin 0
+                                               #_#_:padding 5}
                                        :variant "outline-secondary"}
                    level-name])
                 (buttons-f))))])
+
+
+
 
 (defn dropdown
   [{:keys [id value-f on-change buttons-f]}]

@@ -35,10 +35,6 @@
   (let [scale (/ cif-all-reasons (apply + cifs))]
     (map #(* % scale) cifs)))
 
-(comment
-  (* [2 3 4] 2)
-  )
-
 (defn calculate
   "Calculate a predicted outcome. "
   [{:keys [day outcome-key outcomes baseline-cifs sum-of-beta-xs] :as params}]

@@ -38,22 +38,6 @@
 
     (reduce conj [:beta-1 :beta-2] [:level :level-name]))
 
-#_(comment ; unused?
-    (defn extract-beta-keys [header-names]
-      (->> header-names
-           (filter #(starts-with? % "beta-"))
-           (map keyword)))
-
-    (def lookup-beta-keys (memoize extract-beta-keys))
-
-    (defn beta-keys
-      "Given the raw -inputs sheet data, extract beta keywords. 
-   All factor levels will have a beta value for one of these keys"
-      [inputs]
-      (->> inputs
-           (map (comp name first))
-           (lookup-beta-keys))))
-
 (defn get-outcomes
   "Given a master-fmap, returns all the outcomes as a seq of strings.
    e.g. for :waiting-inputs this would be [transplant removal death all-reasons]"
@@ -154,19 +138,17 @@
        ; replace each group with a master f-map containing nested level detail
        (map #(master-f-map organ %))))
 
-(defn selected-level-maps
+#_(defn selected-level-maps
   "Given the master-fmaps, and the current inputs, return a list of selected level-maps.
    numeric levels "
   [master-fmaps inputs]
-  (let [x (->> master-fmaps
-               (remove nil?)
-               (map (fn [[factor fmap]]
-                      (if (keyword? (:type fmap))
-                        (get-in fmap [:levels (factor inputs)])
-                        :numeric)))
-               (remove nil?))]
-    #_(println "selected-level-maps: " x)
-    x))
+  (->> master-fmaps
+       (remove nil?)
+       (map (fn [[factor fmap]]
+              (if (keyword? (:type fmap))
+                (get-in fmap [:levels (factor inputs)])
+                :numeric)))
+       (remove nil?)))
 
 (defn is-categorical?
   [[_ {:keys [-inputs]} _ :as env] factor]

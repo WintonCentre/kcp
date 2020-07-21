@@ -6,10 +6,7 @@
    [transplants.utils :as utils]
    [transplants.subs :as subs]
    [transplants.events :as events]
-   [transplants.ui :as ui :refer [page
-                                  row
-                                  col
-                                  button]]
+   [transplants.ui :as ui]
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
    [transplants.results :as results]
@@ -24,14 +21,14 @@
    Minimally, navigation from here to an organ home page."
   []
   (let [metadata (rf/subscribe [::subs/metadata])]
-    [page "Trac tools"
-     [row
-      [col
+    [ui/page "Trac tools"
+     [ui/row
+      [ui/col
        (into [:div {:style {:margin-bottom 20}}
               (map (fn [organ]
                      [:div {:key (:text organ)
                             :style {:margin-bottom 20}}
-                      [button {:variant "primary"
+                      [ui/button {:variant "primary"
                                :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
                        (:label organ)]])
                    (:organ-meta @metadata))])]]]))
@@ -82,9 +79,9 @@
       ;;; TODO: Tidy organ centre tool up here
       
       (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
-        [page (:description centre-info)
-         [row
-          [col
+        [ui/page (:description centre-info)
+         [ui/row
+          [ui/col
            [:h2 (str (string/capitalize (name organ)) " transplant centre")]
            [:h3 {:style {:margin-top 40}} "Available trac tools"]
            (->> tools
@@ -93,8 +90,8 @@
                 (map #(conj % [:tool (name (:key %))]))
                (map ui/tool-buttons)
                 (into [:> bs/ButtonGroup {:vertical false}]))
-           [row
-            [col
+           [ui/row
+            [ui/col
              [:h3 {:style {:margin-top 40}} "Background guidance"]
              [:h4 "Examples of:"]
              [:ul
@@ -105,10 +102,10 @@
               [:ul
                [:li "Visit schedule"]
                [:li "Drug regime"]]]]
-            [col
+            [ui/col
              [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
              [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
-            [col
+            [ui/col
              [:h3 {:style {:margin-top 40}} "The Window"]
              [:p "ILL ENOUGH / WELL ENOUGH?"]
              [:p "Graph of ‘the window’?"]
@@ -143,12 +140,12 @@
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools tool)]
-        [page  
+        [ui/page  
          (:description centre-info)
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
-             [row 
-              [col {:xs 12 :md 5}
+             [ui/row 
+              [ui/col {:xs 12 :md 5}
                [:h2 (ui/open-icon {:color "red" :font-size 10} "person")
                 (str (string/capitalize organ-name) " transplant centre")]
                (->> tools
@@ -166,7 +163,7 @@
                         [:div {:style {:margin-bottom 15}}
                          (widg/widget (assoc w :model tool))])
                       (get tool-centre-bundle :-inputs)))]
-              [col
+              [ui/col
                [results/results-panel bundles organ centre tool]]])
            (let [path (paths/organ-centre-name-tool organ-name
                                                     (:name centre-info)
@@ -175,8 +172,8 @@
              (rf/dispatch [::events/load-bundles [path
                                                   [:bundles organ centre tool]]])
              [:div "Loading " path]))
-         [row
-          [:> bs/Col {:class-name "d-none d-md-block"}]]
+         [ui/row
+          [ui/col {:class-name "d-none d-md-block"}]]
          
          ]))))
 
@@ -198,10 +195,10 @@
   [:h1 "This is sub-page 1"])
 
 (defn about []
-  [page "About"])
+  [ui/page "About"])
 
 (defn about-technical
   "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
 In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
   []
-  [page "Technical"])
+  [ui/page "Technical"])

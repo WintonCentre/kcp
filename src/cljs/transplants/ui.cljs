@@ -8,7 +8,8 @@ the low level ui."
             ["react-bootstrap" :as bs]
             [re-frame.core :as rf]
             [transplants.events :as events]
-            [transplants.subs :as subs]))
+            [transplants.subs :as subs]
+            [transplants.numeric-input :as ni]))
 
 (enable-console-print!)
 
@@ -284,6 +285,7 @@ in the routes table."
    (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))])
 
 (defn open-icon
+  "wrapper for access open-icon access"
   ([name]
    (open-icon nil name))
   ([style name]
@@ -291,3 +293,19 @@ in the routes table."
                   :title name 
                   :aria-hidden "true"}
                  :style style)]))
+
+; radio buttons allow fast selection between options
+(defn test-day-selector
+  "Used to select a test day to display"
+  [period]
+  [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 20}}
+   [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+    [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
+     "Results for test day:"]]
+   [:> bs/Col
+    (ni/numeric-input {:id "test-day"
+                       :value-f (fn [] @(rf/subscribe [::subs/test-day]))
+                       :min (constantly 0)
+                       :max (constantly (* 365 5))
+                       :dps -1
+                       :on-change #(rf/dispatch [::events/test-day %])})]])

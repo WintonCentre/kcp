@@ -1,5 +1,6 @@
 (ns transplants.numeric-input
   (:require [clojure.string :refer [split]]
+            [transplants.rgb :as rgb]
             ["react-bootstrap" :as bs]))
 
 (defn error? [value] (or (nil? value) (= "" value) (js/isNaN value)))
@@ -33,7 +34,7 @@
   (if-let [[m m1] (re-matches #"(.*\.\d)\d+" s)]
     m1 s))
 
-(defn to-precision 
+(defn to-dps 
   [n dps]
   (cond
     (= 0 dps)
@@ -43,22 +44,7 @@
     :else
     ; display with 1dp always
     (.toFixed (js/Number. n) dps))
-  
-    #_#_(= 3 dps)
-    ; flexible display up to 3dp
-    (if (near-integer? n)
-      (str (js/floor n))
-      (-> n
-          (.toPrecision (js/Number. 3))
-          (trim-trailing-zero)))
-
-    #_#_(= 2 dps)
-    ; display with 2dp always
-    (.toFixed (js/Number. n) 2)
-
-    #_#_(= 1 dps)
-    ; display with 1dp always
-    (.toFixed (js/Number. n) 1))
+  )
 
 
 (defn num-to-str
@@ -72,17 +58,17 @@
        (if (near-integer? n)
          (str (js/Math.round n))
          (if dps
-           (to-precision n dps)
-           (to-precision n 1)))))))
+           (to-dps n dps)
+           (to-dps n 1)))))))
 
 (comment
   (js/isNaN 4.1)
   (and 1 (>= 1 1))
   (near-integer? 4.4)
-  (to-precision 4.4 0)
-  (to-precision 444.4 1)
-  (to-precision 44.4 2)
-  (to-precision 444.4 3)
+  (to-dps 4.4 0)
+  (to-dps 444.4 1)
+  (to-dps 44.4 2)
+  (to-dps 444.4 3)
   
   (num-to-str 4.4 0)
   (num-to-str 4.4 1)
@@ -190,7 +176,7 @@
                   dps
                   on-change e))]
     [:> bs/Row {:style {:align-items "baseline"}}
-     [:> bs/Col
+     [:> bs/Col {:xs 9}
       [:div {:class       "numeric-input"
              :style       {:min-width      "100px"
                            :width "max-content"
@@ -225,12 +211,15 @@
                       :border-right      "2px solid #ddd"
                       :background-color (if (nil? (value-f))
                                           "#fff"
-                                          (if (nil? bad) "#6C757D" "#dd5533"))
+                                          (if (nil? bad) rgb/secondary rgb/danger))
                       :color            "#fff"
                       :padding          "0 0 4px 0"
                       :text-align       "center"}}]
         (inc-dec-button (assoc props :nmin nmin :nmax nmax :dps dps :increment (js/Math.pow 10 (- dps)) :value-f value-f))]]]
-     [:bs/Col (when units units)]]))
+     [:> bs/Col
+      ; the styling suppresses units display when the screen is too small 
+      {:class-name "col-3 d-none d-lg-block"}
+      (when units [:div {:style {:color rgb/secondary}} units])]]))
 
 
 

@@ -1,41 +1,61 @@
 (ns transplants.model
-  "Implements the model calculation.")
-;;;
-;; Splines
-;;;
+  "Functions which assist in the model calculations.")
+
+(defn to-precision
+  "js number to sig figs"
+  [d sigs]
+  (.toPrecision (js/Number. d) sigs))
+
+(defn to-fixed
+  "Wrap javascript toFixed"
+  [d dps]
+  (.toFixed (js/Number. d) dps))
+
+(defn to-percent
+  "Convert a decimal number to a fixed point string percentage"
+  ([d] (to-percent d 0))
+  ([d dps]
+   (to-fixed (* d 100) dps)
+   #_(.toFixed (js/Number. (* d 100)) dps)))
 
 
-;;;
-;; cifs
-;;;
+(comment
+  (.toFixed (js/Number. 1) 0)
+  (to-percent 0.066) ; => "7"
+  (to-percent 0.01) ; => "1"
+  (to-precision 123.456789 6)
+  ; => "123.457"
+  )
 
-(defn cif-0
-  "Samples a bundle's baseline-cifs for the required day. 
-   If there is no baseline-cif entry for that day, the last baseline-cif
-   which occurs before the target day is returned.
-   
-   There is a bundle for each [organ, centre, tool] that has ever
-   been loaded in the UI. If a bundle has never been loaded it will return
-   a nil cif-0."
-  [bundle day]
-  (->> bundle
-       (:-baseline-cifs)
-       (filter #(<= (:days %) day))
-       (last)))
+
+(defn scaled-cifs
+  "Scale a seq of cifs so the rest sum to the first - which should be the cif for
+   leaving the list for all reasons.
+   Return the cifs in the original order including the all-reasons cif.
+   If there is only one cif, there is no need to scale, so just return the seq"
+  [all & the-rest]
+  (if (seq the-rest)
+    (let [scale (/ all (apply + the-rest))]
+      (conj (map #(* % scale) the-rest) all))
+    [all]))
+
 
 (defn cif
-  "Calculates the cif(t) from a baseline cif-0 evaluated at a certain day, 
-   and the sum of the x-betas"
+  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i"
   [cif-0 sum-x-betas]
   (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas))))
 
-(defn scale-cifs
-  "Scale a seq of cifs so it sums to cif-all-reasons."
-  [cifs cif-all-reasons]
-  (let [scale (/ cif-all-reasons (apply + cifs))]
-    (map #(* % scale) cifs)))
 
-(defn calculate
-  "Calculate a predicted outcome. "
-  [{:keys [day outcome-key outcomes baseline-cifs sum-of-beta-xs] :as params}]
-  day)
+(defn with-all-reasons-first
+  "Outcomes with the all reasons outcome in the first slot. 
+   
+   We should probably plan to replace the hard coded 'all-reasons' constant with a
+   value read in from a configuration file.
+   
+   At the moment this function is most closely tied to the model, since it is that which
+   is forcing us to scale to the special 'all-reasons' cif column."
+  [outcomes]
+  (if (> (count outcomes) 1)
+    (let [all-reasons "all-reasons"]
+      (conj (remove #(= % all-reasons) outcomes) all-reasons))
+    outcomes))

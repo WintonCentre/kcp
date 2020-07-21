@@ -1,14 +1,11 @@
-(ns transplants.test-rig
+(ns transplants.vis
   (:require ["react-bootstrap" :as bs]
             [transplants.model :as model]
             [re-frame.core :as rf]
-            [transplants.subs :as subs]
-            [transplants.events :as events]
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
             [transplants.ui :as ui]
             [transplants.rgb :as rgb]
-            [transplants.model :as model]
             [clojure.string :refer [replace]]
             [clojure.pprint :refer [pprint]]))
 

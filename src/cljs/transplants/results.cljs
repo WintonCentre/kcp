@@ -2,7 +2,8 @@
   (:require [re-frame.core :as rf]
             [transplants.subs :as subs]
             [transplants.bundles :as bun]
-            [transplants.test-rig :as rig]))
+            [transplants.vis :as vis]
+            [transplants.bsio :as bs]))
 
 
 (comment
@@ -20,12 +21,16 @@
   [bundles organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
         inputs (get @(rf/subscribe [::subs/inputs]) organ)
-        bundle (bun/get-bundle organ centre tool)
-        ]
-    (rig/test-rig {:organ organ 
-               :centre centre 
-               :tool tool 
-               :day day 
-               :inputs inputs 
-               :bundle bundle})
+        bundle (bun/get-bundle organ centre tool)]
+    (bs/tabs {:default-active-key "test"}
+             (bs/tab {:event-key "test" :title "Test"}
+                     (vis/test-rig {:organ organ 
+                                    :centre centre 
+                                    :tool tool 
+                                    :day day 
+                                    :inputs inputs 
+                                    :bundle bundle}))
+             (bs/tab {:event-key "bars" :title "Bars"}
+                     [:div "hello"]
+                     ))
     ))

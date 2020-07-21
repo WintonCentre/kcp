@@ -130,3 +130,13 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                                         {:level :female :level-name "Female"}])}))
                         2))))
 
+(defn tabs
+  [options & content]
+  (into [:> bs/Tabs options] 
+        content))
+
+(defn tab
+  [options & content]
+  (into [:> bs/tab options] 
+        content)
+  )

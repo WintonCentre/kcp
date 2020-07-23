@@ -1,6 +1,5 @@
 (ns svg.axis
-  (:require [rum.core :as rum]
-            [clojure.string :as s]
+  (:require [clojure.string :as s]
             [cljs.pprint :refer [cl-format]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [svg.scales :refer [->Identity ->Linear in out i->o o->i tick-format-specifier]]))
@@ -14,10 +13,9 @@
            ["line" {:stroke default-axis-color}]
            [".tick"
             ["line" {:stroke default-axis-color}]
-            ["text" {;:stroke "none"
-                     :fill default-axis-color}]]])
+            ["text" {:fill default-axis-color}]]])
 
-(rum/defc axisBottom [{:keys [scale ticks format-specifier styles]
+(defn axisBottom [{:keys [scale ticks format-specifier styles]
                        :or   {scale  (->Identity [0 1] 10)
                               ticks  (range 0 1 0.1)
                               styles default-axis-style}}]
@@ -46,7 +44,7 @@
                 :dy          "2.2ex"
                 :text-anchor "middle"} (cl-format nil specifier tick)]])]))
 
-(rum/defc axisTop [{:keys [scale ticks format-specifier styles]
+(defn axisTop [{:keys [scale ticks format-specifier styles]
                        :or   {scale  (->Identity [0 1] 10)
                               ticks  (range 0 1 0.1)
                               styles default-axis-style}}]
@@ -59,8 +57,7 @@
              :x1  (x x1)
              :y1  0
              :x2  (x x2)
-             :y2  0
-             }]
+             :y2  0}]
 
      (for [tick ticks]
        [:g {:key   (gensym "K")
@@ -69,15 +66,14 @@
                 :x1  (x tick)
                 :y1  0
                 :x2  (x tick)
-                :y2  "-0.5ex"
-                }]
+                :y2  "-0.5ex"}]
         [:text {:key         2
                 :x           (x tick)
                 :dx          0
                 :dy          "-1ex"
                 :text-anchor "middle"} (cl-format nil specifier tick)]])]))
 
-(rum/defc axisLeft [{:keys [scale ticks format-specifier styles]
+(defn axisLeft [{:keys [scale ticks format-specifier styles]
                      :or   {scale  (->Identity [0 1] 10)
                             ticks  (range 0 1 0.1)
                             styles default-axis-style}}]
@@ -108,7 +104,7 @@
                 :x2  "-0.5ex"
                 :y2  (y tick)}]])]))
 
-(rum/defc axisRight [{:keys [scale ticks format-specifier styles]
+(defn axisRight [{:keys [scale ticks format-specifier styles]
                       :or   {scale  (->Identity [0 1] 10)
                              ticks  (range 0 1 0.1)
                              styles default-axis-style}}]

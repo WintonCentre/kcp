@@ -1,5 +1,16 @@
 (ns svg.scales)
 
+;;;
+;; Objects conforming to IScale represent a mapping between an inner coordinate system (in) to
+;; an outer screen space out. This is often linear but could be non-linear e.g. if the coordinate system is
+;; polar. The mapping functions are i->o and o->i. Each IScales maps just one dimension.
+;; 
+;; It is useful to colocate tick related information with the scale, but this does not have to be
+;; used in every case.
+;; 
+;; Ticks is a preferred tick count. This is usually transformed to a 'nice' one
+;; Tick-format-specifiers specifier how ticks should be labelled.
+;;;
 (defprotocol IScale
   (i->o [_])
   (o->i [_])
@@ -9,13 +20,13 @@
   (tick-format-specifier [_])
   )
 
-(def e10 (Math.sqrt 50))
-(def e5 (Math.sqrt 10))
-(def e2 (Math.sqrt 2))
+(def e10 (js/Math.sqrt 50))
+(def e5 (js/Math.sqrt 10))
+(def e2 (js/Math.sqrt 2))
 
 (defn tick-step [start stop preferred-count]
-  (let [step0 (/ (Math.abs (- stop start)) (max 0 preferred-count))
-        step1 (Math.pow 10 (Math.floor (/ (Math.log step0) Math.LN10)))
+  (let [step0 (/ (js/Math.abs (- stop start)) (max 0 preferred-count))
+        step1 (js/Math.pow 10 (js/Math.floor (/ (js/Math.log step0) js/Math.LN10)))
         error (/ step0 step1)
         step (cond
                (>= error e10) (* 10 step1)
@@ -28,14 +39,15 @@
 
   (let [step (tick-step start stop preferred-count)]
     (range
-      (* (Math.ceil (/ start step)) step)
-      (+ (* (Math.floor (/ stop step)) step) (/ step 2))
+      (* (js/Math.ceil (/ start step)) step)
+      (+ (* (js/Math.floor (/ stop step)) step) (/ step 2))
       step)))
 
-(defn numeric-format-specifier [scale]
+(defn numeric-format-specifier 
   "Provide a default format specifier for numeric scales"
-  (let [abs-in (map Math.abs (:in scale))
-        abs-step (Math.abs (apply tick-step (conj (:in scale) (:tick-count scale))))]
+  [scale]
+  (let [abs-in (map js/Math.abs (:in scale))
+        abs-step (js/Math.abs (apply tick-step (conj (:in scale) (:tick-count scale))))]
     (cond
       (< abs-step 0.00001)
       "~(~3,1e~)"
@@ -76,17 +88,18 @@
 
 (defn- linear [[x1 x2] [y1 y2]] (fn [x] (+ y1 (* (/ (- x x1) (- x2 x1)) (- y2 y1)))))
 
-(defn- linear-nice [[start stop :as input] & [p-count]]
+(defn- linear-nice 
   "Return a nice domain given a range and preferred interval count "
+  [[start stop :as input] & [p-count]]
   (let [n (if (nil? p-count) 10 p-count)
         step (tick-step start stop n)]
     (if (not (or (js/isNaN step) (nil? step)))
 
-      (let [step (tick-step (* (Math.floor (/ start step)) step)
-                            (* (Math.ceil (/ stop step)) step)
+      (let [step (tick-step (* (js/Math.floor (/ start step)) step)
+                            (* (js/Math.ceil (/ stop step)) step)
                             n)]
-        [(* (Math.floor (/ start step)) step)
-         (* (Math.ceil (/ stop step)) step)])
+        [(* (js/Math.floor (/ start step)) step)
+         (* (js/Math.ceil (/ stop step)) step)])
 
       input)))
 

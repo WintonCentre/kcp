@@ -10,7 +10,7 @@
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
    [transplants.results :as results]
-   ))
+))
 
 (comment
   (rf/dispatch [::events/initialize-db]))

@@ -5,6 +5,7 @@
    [day8.re-frame.http-fx]
    [transplants.fx :as fx]
    [transplants.utils :as utils]
+   [transplants.db :as init-db]
    [transplants.transforms :as xf]
    [transplants.factors :as fac]
    [ajax.core :as ajax]
@@ -18,12 +19,11 @@
 (rf/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
-            {:current-route nil
-             :inputs {}
-             ;:lung/bmi 30
-             ;:lung/age 50
-             :window-width (.-innerWidth js/window)
-             :test-day 100}))
+            (merge init-db/default-db
+                   {:current-route nil
+                    :inputs {}
+                    :window-width (.-innerWidth js/window)
+                    :test-day 100})))
 
 (rf/reg-event-db
  ::update-window-width

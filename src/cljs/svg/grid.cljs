@@ -1,18 +1,14 @@
 (ns svg.grid
-  (:require [rum.core :as rum]
-            [svg.scales :refer [i->o o->i in out]]
+  (:require [svg.scales :refer [i->o o->i in out]]
             ))
 
-(rum/defc grid-lines
+(defn grid-lines
   "Takes an x scale, a y scale, a step interval (in output space), and an orientation from :horizontal | :vertical."
   [{:keys [orientation x y step styles]}]
   (let [[[_ y*] [x1 x2] [y1 y2] bolder?] (if (= orientation :horizontal)
                                    [[x y] (out x) [(i->o y) (i->o y)] #(zero? (mod % 5))]
                                    [[y x] [(i->o x) (i->o x)] (out y) #(zero? (mod % 2))])
         [y0* y1*] (in y*)]
-
-    ;(assert (not (js/isNaN y0*)))
-    ;(assert (not (js/isNaN y1*)))
 
     (map-indexed
       (fn [k y_k] [:line {:key              (str "y" y_k)
@@ -26,12 +22,12 @@
 
 
 
-(rum/defc grid-horizontal
+(defn grid-horizontal
   "Takes an x scale, a y scale, a step interval (in graph space)"
   [{:keys [x y step] :as params}]
   (grid-lines (assoc params :orientation :horizontal)))
 
-(rum/defc grid-vertical
+(defn grid-vertical
   "Takes an x scale, a y scale, a step interval (in graph space)"
   [{:keys [x y step] :as params}]
   (grid-lines (assoc params :orientation :vertical)))

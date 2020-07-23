@@ -1,5 +1,5 @@
 (ns svg.space
-  (:require [rum.core :as rum]
+  (:require
             [svg.scales :refer [nice-linear]]
             ))
 

@@ -1,11 +1,10 @@
 (ns svg.margin-convention
-  (:require [rum.core :as rum]
+  (:require 
             [clojure.string :as s]
             [cljs.pprint :refer [cl-format]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [svg.axis :refer [axisBottom axisTop axisLeft axisRight]]
             [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks]]
-            [svg.mixins :refer [patch-svg-attrs]]
             ))
 
 (defstyle styles
@@ -15,21 +14,17 @@
                      :stroke           "#000"
                      :stroke-width     0.5
                      :stroke-dasharray "3, 4"}]
-          [".annotation" {
-                          :font-size "10pt"
-                          }]
-          [".arrow" {
-                     :stroke       "#000"
-                     :stroke-width "1.5px"
-                     }])
+          [".annotation" {:font-size "10pt"}]
+          [".arrow" {:stroke       "#000"
+                     :stroke-width "1.5px"}])
 
-(def patch-marker {:did-mount (patch-svg-attrs {"refX" 10
+#_(def patch-marker {:did-mount (patch-svg-attrs {"refX" 10
                                                 "refY" 5
                                                 "markerWidth" 6
                                                 "markerHeight" 6
                                                 "orient" "auto"})})
 
-(rum/defc start-marker < patch-marker []
+(defn start-marker  []
   [:marker {:id            "triangle-start"
             :view-box      "0 0 10 10"
             :ref-X         10                               ; react discards this
@@ -40,7 +35,7 @@
             }
    [:path {:d "M 0 0 L 10 5 L 0 10 z"}]])
 
-(rum/defc end-marker < patch-marker []
+(defn end-marker []
   [:marker {:id            "triangle-end"
             :view-box      "0 0 10 10"
             :ref-X         10                               ; react discards this
@@ -51,10 +46,10 @@
             }
    [:path {:d "M 0 0 L 10 5 L 0 10 z"}]])
 
-(rum/defc margins [{:keys [outer margin inner padding width height x y]}]
+(defn margins [{:keys [outer margin inner padding width height x y]}]
   (let [inner (if (nil? inner) {:width  (- (:width outer) (:left margin) (:right margin))
                                 :height (- (:height outer) (:top margin) (:bottom margin))}
-                               inner)
+                  inner)
         width (if (nil? width) (- (:width inner) (:left padding) (:right padding)) width)
         height (if (nil? height) (- (:height inner) (:top padding) (:bottom padding)) height)
         x (if (nil? x) (->Identity [0 width] 10) x)
@@ -62,7 +57,7 @@
         y (if (nil? y) (->Identity [0 height] 10) y)
         y-ticks (ticks y)                                   ;(if (nil? y-ticks) (ticks 0 height 5) y-ticks)
         ]
-
+    
     [:svg {:width  (:width outer)
            :height (:height outer)}
 
@@ -70,8 +65,8 @@
           :transform (str "translate(" (:left margin) ", " (:top margin) ")")}
 
       [:defs {:key 0}
-       (rum/with-key (start-marker) 0)
-       (rum/with-key (end-marker) 1)]
+       ^{:key 0} [start-marker]
+       ^{:key 1} [end-marker]]
 
       [:rect {:key        1
               :class-name (:outer styles)
@@ -92,23 +87,22 @@
        [:g {:key       "bottom"
             ;:class-name ".xaxis"
             :transform (str "translate(0," (+ (first (out y)) 10) ")")}
-        (axisBottom {:scale x :ticks x-ticks})]
+        [axisBottom {:scale x :ticks x-ticks}]]
        [:g {:key       "top"
             :transform (str "translate(0," (- (second (out y)) 10) ")")}
-        (axisTop {:scale x :ticks x-ticks})]
+        [axisTop {:scale x :ticks x-ticks}]]
        [:g {:key       "left"
             :transform (str "translate(" (- (first (out x)) 10) ",0)")}
-        (axisLeft {:scale y :ticks y-ticks})]
+        [axisLeft {:scale y :ticks y-ticks}]]
        [:g {:key       "right"
             :transform (str "translate(" (+ (second (out x)) 10) ",0)")}
-        (axisRight {:scale y :ticks y-ticks})]
+        [axisRight {:scale y :ticks y-ticks}]]
 
        [:text {:key "note"
                :class-name (:annotation styles)
                :x          "-30px"
                :y          "-40px"}
-        "translate by (" (:left padding) ", " (:top padding) ")"]
-       ]
+        "translate by (" (:left padding) ", " (:top padding) ")"]]
 
       ;; add in arrows
       [:g {:key 3}
@@ -143,6 +137,5 @@
                :y          -8} "origin"]
        [:circle {:key 5
                  :class-name (:origin styles)
-                 :r          4.5}]
-       ]]]))
+                 :r          4.5}]]]]))
 

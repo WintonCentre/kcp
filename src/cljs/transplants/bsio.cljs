@@ -135,8 +135,9 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
   (into [:> bs/Tabs options] 
         content))
 
+
 (defn tab
-  [options & content]
-  (into [:> bs/tab options] 
-        content)
+  [options content]
+  [:> bs/Tab options 
+   content]
   )

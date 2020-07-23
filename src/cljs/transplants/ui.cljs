@@ -20,6 +20,8 @@ the low level ui."
 (def row (rc/adapt-react-class bs/Row))
 (def button (rc/adapt-react-class bs/Button))
 (def card-header (rc/adapt-react-class bs/Card.Header))
+(def tabs (rc/adapt-react-class bs/Tabs))
+(def tab (rc/adapt-react-class bs/Tab))
 
 (def mobile-break 
   "Screens of this size or smaller are rendered with mobile orientedt views"

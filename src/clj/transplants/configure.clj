@@ -312,6 +312,8 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 
   (cfg/get-bundle :lung)
   (write-edn-bundle :kidney "Edinburgh" :waiting)
+  (write-edn-bundle :kidney "Belfast" :graft)
+  (write-edn-bundle :kidney "Birmingham" :graft)
   
   (get-row-maps :kidney :waiting-baseline-cifs)
   (cfg/get-variable-keys :kidney :waiting-inputs)

@@ -8,7 +8,7 @@
 ;; It is useful to colocate tick related information with the scale, but this does not have to be
 ;; used in every case.
 ;; 
-;; Ticks is a preferred tick count. This is usually transformed to a 'nice' one
+;; Ticks is a preferred tick count. This is usually transformed to a 'nice' round number.
 ;; Tick-format-specifiers specifier how ticks should be labelled.
 ;;;
 (defprotocol IScale

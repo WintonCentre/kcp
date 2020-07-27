@@ -25,7 +25,7 @@
                   inner)
         width (if (nil? width) (- (:width inner) (:left padding) (:right padding)) width)
         height (if (nil? height) (- (:height inner) (:top padding) (:bottom padding)) height)
-        x (if (nil? x) (scl/->Identity [0 width] N) x)
+        x (if (nil? x) (scl/->Identity [0 width] 10) x)
         x-ticks (scl/ticks x)
         y (if (nil? y) (scl/->Identity [0 height] 10) y)
         y-ticks (scl/ticks y)
@@ -49,9 +49,9 @@
                :class-name (:outer styles)
                :width      (:width inner)
                :height     (:height inner)}]
-               ;;
+       ;;
        ;; define the coordinate system
        ;;
        [:g {:key       2
             :transform (str "translate(" (:left padding) "," (:top padding) ")")}
-        (when content [content X Y])]]]]))
+        (when content [content x y X Y])]]]]))

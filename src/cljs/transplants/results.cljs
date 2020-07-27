@@ -14,7 +14,7 @@
   (def day 100)
   (:-baseline-cifs bundle)
   (def baseline-cifs-for-day (bun/cif-0 bundle day))
-  (def outcome-keys [:cif-all-reasons :cif-transplant :cif-death :cif-removal ])
+  (def outcome-keys [:cif-all-reasons :cif-transplant :cif-removal :cif-death])
   (bun/cif-0 bundle day)
   )
 
@@ -32,7 +32,7 @@
      [ui/tab {:event-key "line" :title "Line Chart"}
       [vis/svg-starter]]
      [ui/tab {:event-key "bars" :title "Bar Chart"}
-      [vis/bar-chart bundles organ centre tool]]
+      [vis/bar-chart bundles organ centre tool inputs bundle]]
      [ui/tab {:variant "secondary"
               :event-key "test" :title "Test"}
       [vis/test-rig {:organ organ

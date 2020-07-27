@@ -35,5 +35,12 @@
   [tool suffix]
   (keyword (str (name tool) suffix)))
 
+(defn day->year
+  "Convert a day count to the nearest whole year"
+  [d] 
+  (js/Math.round (/ d 365.25)))
 
-
+(defn year->day
+  "Convert a year count to the nearest whole day"
+  [y] 
+  (js/Math.round (* y 365.25)))

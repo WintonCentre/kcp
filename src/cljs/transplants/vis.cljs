@@ -6,6 +6,7 @@
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
             [transplants.ui :as ui]
+            [transplants.utils :as utils]
             [transplants.rgb :as rgb]
             [clojure.string :refer [replace]]
             [clojure.pprint :refer [pprint]]
@@ -33,6 +34,8 @@
                                                     bundle)
         factors (keys master-fmaps)
         outcomes (model/with-all-reasons-first
+                   (fac/get-outcomes* (first baseline-cifs)))
+        #_(model/with-all-reasons-first
                    (fac/get-outcomes (first (vals master-fmaps))))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
@@ -113,6 +116,18 @@
 ;;;
 ;; svg styles
 ;;;
+(defn bar-style
+  [styles]
+  (let [{:keys [fill stroke opacity stroke-width]
+         :or {fill "#41af6b"
+              stroke "#fff"
+              stroke-width 1
+              opacity 0.7
+              }
+         }styles]
+    {:fill fill :stroke stroke :stroke-width stroke-width :opacity opacity}))
+
+
 (defstyle styles
   [".inner" {:fill   "none"
              :stroke-opacity 1
@@ -122,43 +137,23 @@
              :stroke-opacity 1
              :stroke "#f00"}]
 
-  #_[".transplanted" {:fill "#41af6b"
-                    :stroke "#fff"
-                    :opacity 0.8
-                    :stroke-width 2}]
-  #_[".waiting" {:fill "#4866cb"
-               :stroke "#fff"
-               :opacity 1
-               :stroke-width 2}]
-  #_[".removed" {:fill "#4b4d48"
-               :stroke "#fff"
-               :stroke-width 2}]
-  #_[".died" {:fill "#000000"
-            :stroke "#fff"
-            :stroke-width 2}]
+  [".transplant" (bar-style {:fill "#41af6b"})]
+  [".all-reasons" (bar-style {:fill "#4866cb"})]
+  [".removal" (bar-style {:fill "#4b4d48"})]
+  [".death" (bar-style {:fill "#000000"})]
+  [".post-transplant" (bar-style {:fill "#008888"})]
+  [".from-listing" (bar-style {:fill "#4444AA"})]
+  [".survival" (bar-style {:fill "#ff0000"})]
+  [".graft" (bar-style {:fill "#ffaa00"})]
 
-  [".transplanted" {:fill "#6eb7b0"
-                    :stroke "#fff"
-                    :opacity 1
-                    :stroke-width 2}]
-  [".waiting" {:fill "#3072af"
-               :stroke "#fff"
-               :opacity 1
-               :stroke-width 2}]
-  [".removed" {:fill "#4b4d48"
-               :stroke "#fff"
-               :stroke-width 2}]
-  [".died" {:fill "#000000"
-            :stroke "#fff"
-            :stroke-width 2}]
-  
+
 
   [".annotation" {:font-size "13pt"}]
   [".arrow" {:stroke       "#000"
              :stroke-width "1.5px"}])
 
-(defn bar-chart*
-  [X Y]
+(defn bar-chart-graphic
+  [x y X Y cifs-by-year sample-days outcomes]
   [:g {:key 1}
    [:rect {:key        1
            :class-name (:inner styles)
@@ -166,37 +161,97 @@
            :y 0
            :width      1000
            :height     600}]
-   [:g {:key 2}
-    [:rect {:key        2
-            :class-name (:waiting styles)
-            :x 300
-            :y 0
-            :width      100
-            :height     600}]]
-   (into [:g {:key 3}
-          [:rect {:key        1
-                  :class-name (:waiting styles)
-                  :x 500
-                  :y 0
-                  :width      100
-                  :height     402}]]
-         (map-indexed (fn [i m] [:rect (assoc m :key i)])
-                      [{:class-name (:transplanted styles)
-                        :x 500
-                        :y 402
-                        :width      100
-                        :height     186}
-                       {:class-name (:removed styles)
-                        :x 500
-                        :y 564
-                        :width      100
-                        :height     24}
-                       {:class-name (:died styles)
-                        :x 500
-                        :y 588
-                        :width      100
-                        :height     12}]))])
+   (into [:g {:key 3}]
+         (map (fn [j {:keys [cifs cum-cifs]}]
+                (into [:g {:key j}]
+                      (map (fn [i cif cum-cif outcome]
+                             (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                   w 100
+                                   x-mid (+ x0 (/ w 2) -10)
+                                   y0 (if (> (count outcomes) 1)
+                                        (- (Y cum-cif) (Y cif)) (Y cif))
+                                   h (if (> (count outcomes) 1)
+                                       (- (Y cum-cif) (Y (- cum-cif cif)))
+                                       (- (Y 0) (Y cif)))
+                                   y-mid (+ y0 (/ h 2))]
+                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
+                               [:g
+                                [:rect {:key i
+                                        :x x0
+                                        :y y0
+                                        :width w
+                                        :height h
+                                        :data-title cif
+                                        :class-name ((keyword outcome) styles)}
+                                 [:title {:data-title cif}]]
+                                ]))
+                           (range 4)
+                           cifs
+                           cum-cifs
+                           outcomes)))
+              (range 1 (inc (count sample-days)))
+              cifs-by-year))
+(into [:g {:key 4}]
+      (map (fn [j {:keys [cifs cum-cifs]}]
+             (into [:g {:key j}]
+                   (map (fn [i cif cum-cif outcome]
+                          (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                w 100
+                                x-mid (+ x0 (/ w 2) -10)
+                                y0 (if (> (count outcomes) 1)
+                                     (- (Y cum-cif) (Y cif)) (Y cif))
+                                h (if (> (count outcomes) 1)
+                                    (- (Y cum-cif) (Y (- cum-cif cif)))
+                                    (- (Y 0) (Y cif)))
+                                y-mid (+ y0 (/ h 2))]
+                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
+
+                            (when (> cif 0.005)
+                              [:g
+                               {:transform (str "translate("
+                                                (if (< cif 0.07)
+                                                  (if (odd? i) 20 -60)
+                                                  (if (< cif 1) -20 -30))
+                                                " 10)")}
+                               [:rect {:x (- x-mid 5)
+                                       :width (if (>= cif 1)
+                                                90
+                                                (if (< cif 0.10) 50 70))
+                                       :y (- y-mid 30)
+                                       :height 40
+                                       :rx 10
+                                       :style {:border "0px"}
+                                       :class-name ((keyword outcome) styles)}]
+                               [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
+                                (str (model/to-percent cif) "%")]])))
+                        (range)
+                        cifs
+                        cum-cifs
+                        outcomes)))
+           (range 1 (inc (count sample-days)))
+           cifs-by-year))])
       
+#_[{:class-name (:waiting styles)
+  :x (X 5)
+  :y 0
+  :width      100
+  :height     (Y 0.50)}
+ {:class-name (:transplanted styles)
+  :x (X 5.1)
+  :y (Y 0.5)
+  :width      100
+  :height     (- (Y (+ 0.30 0.50)) (Y 0.50))}
+ {:class-name (:removed styles)
+  :x (X 5.2)
+  :y (Y (+ 0.30 0.50))
+  :width      100
+  :height     (- (Y (+ 0.15 0.30 0.50)) (Y (+ 0.30 0.50)))}
+ {:class-name (:died styles)
+  :x (X 5.3)
+  :y (Y (+ 0.15 0.30 0.50))
+  :width      100
+  :height     (- (Y 1) (Y (+ 0.15 0.30 0.50)))}]
+
 (defn bar-chart
   "Draw the bar chart"
   [bundles organ centre tool inputs bundle]
@@ -204,35 +259,50 @@
         env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
-        [master-fmaps baseline-cifs baseline-vars] ((juxt
-                                                     :-inputs :-baseline-cifs :-baseline-vars)
-                                                    bundle)
-        factors (keys master-fmaps)
+        baseline-cifs (:-baseline-cifs bundle) 
         outcomes (model/with-all-reasons-first
-                   (fac/get-outcomes (first (vals master-fmaps))))
+                   (fac/get-outcomes* (first baseline-cifs)))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
-        
+
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        ;baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
-        ;cifs  (map model/cif baseline-cifs-for-day sum-betas)
-        ]
+        sample-days (map
+                     utils/year->day
+                     (range (inc (utils/day->year (:days (last baseline-cifs))))))
+        cifs-by-year (map
+                      (fn [day]
+                        (let [cifs (-> (vec (apply model/scaled-cifs (map model/cif
+                                                                          (map (bun/cif-0 bundle day) outcome-keys)
+                                                                          sum-betas)))
+                                       (update 0 (if (>(count outcomes) 1)
+                                                   #(- 1 %)
+                                                   identity))) ]
+                          {:cifs cifs 
+                           :cum-cifs (reductions + cifs)}))
+                      sample-days)]
     
-    [:> bs/Row {:style {:position "fixed"}}
-     [:> bs/Col {:md 8}
-      [:h4 {:style {:margin-top 80 }}
+    [:> bs/Row 
+     [:> bs/Col 
+      [:h4 {:style {:margin-top 80}}
        "What might happen after you join the waiting list for a " (name organ) " transplant?"]
       [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]
-      [svgc/svg-container {:outer {:width 1060 :height 660}
-                           :margin {:top 10 :right 10 :bottom 10 :left 10}
-                           :padding {:top 20 :right 20 :bottom 20 :left 20}
-                           :inner  nil ;{:width 100 :height 100}
-                           :x-title "Hello"
-                           :y-title "There"
-                           :styles styles}
-       bar-chart*
-       ]]]))
+
+      [:p "Sample days:" (pr-str sample-days)]
+      [:p "Outcomes:" (pr-str outcomes)]
+      ;[:p "cifs:" (pr-str cifs)]
+      ;[:p "cum-cifs:" (pr-str cum-cifs)]
+
+      [svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
+                                         :margin {:top 10 :right 10 :bottom 10 :left 10}
+                                         :padding {:top 20 :right 20 :bottom 20 :left 20}
+                                         :x-domain [0 14]
+                                         :x-ticks 10
+                                         :y-domain (if (> (count outcomes) 1)
+                                                     [1 0] [0 1])
+                                         :y-ticks 10})
+                                 :styles styles)
+       (fn [x y X Y] [bar-chart-graphic x y X Y cifs-by-year sample-days outcomes])]]]))
 ;;;
 ;; 
 ;;;

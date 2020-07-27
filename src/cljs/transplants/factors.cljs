@@ -48,6 +48,16 @@
        (filter #(starts-with? % "beta-"))
        (map #(subs % 5))))
 
+(defn get-outcomes*
+  "Given a baseline-cif, returns all the outcomes as a seq of strings.
+   e.g. for :waiting-inputs this would be [transplant removal death all-reasons]"
+  [baseline-cif]
+  (->> baseline-cif
+       (keys)
+       (map name)
+       (filter #(starts-with? % "cif-"))
+       (map #(subs % 4))))
+
 (defn prefix-outcome-key
   "adds a prefix to an outcome and returns it as a keyword"
   [outcome prefix]

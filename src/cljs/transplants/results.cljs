@@ -27,10 +27,8 @@
 
 
     [ui/tabs {:variant "pills" :default-active-key "bars"}
-     [ui/tab {:event-key "starter" :title "SVG Starter"}
-      [vis/svg-starter]]
-     [ui/tab {:event-key "line" :title "Line Chart"}
-      [vis/svg-starter]]
+     #_[ui/tab {:event-key "starter" :title "SVG Starter"}
+        [vis/svg-starter]]
      [ui/tab {:event-key "bars" :title "Bar Chart"}
       [vis/bar-chart bundles organ centre tool inputs bundle]]
      [ui/tab {:variant "secondary"
@@ -41,7 +39,9 @@
                      :day day
                      :inputs inputs
                      :bundle bundle}]]
-
-
+     [ui/tab {:event-key "icons" :title "Icon Array"}
+      [:div "not yet"]]
+     [ui/tab {:event-key "line" :title "Line Chart"}
+      [:div "not yet"]]
      [ui/tab {:event-key "table" :title "Table"}
-      [:div "hello"]]]))
+      [:div "not yet"]]]))

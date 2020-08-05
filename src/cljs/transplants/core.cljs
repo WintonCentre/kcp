@@ -10,6 +10,8 @@
    [error-boundary.error-boundary :refer [err-boundary]]
    ))
 
+(enable-console-print!)
+
 ;;; Setup ;;;
 (def debug? ^boolean goog.DEBUG)
 

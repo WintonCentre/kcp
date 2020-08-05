@@ -1,12 +1,9 @@
 {
   "dependencies": {
     "bootstrap": "4.5.0",
-    "highlight.js": "9.18.1",
-    "rc-input-number": "5.0.1",
-    "react": "16.13.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
     "react-bootstrap": "1.2.2",
-    "react-bootstrap-range-slider": "1.0.0",
-    "react-dom": "16.13.0",
     "react-highlight.js": "1.0.7",
     "react-numeric-input": "2.2.3"
   },
@@ -15,6 +12,7 @@
     "karma-chrome-launcher": "3.1.0",
     "karma-cljs-test": "0.1.0",
     "karma-junit-reporter": "2.0.1",
-    "shadow-cljs": "2.9.3"
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   }
 }

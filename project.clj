@@ -43,8 +43,6 @@
              "react" "16.13.0"
              "react-dom" "16.13.0"
              "react-bootstrap" "1.2.2" ;"^1.0.1"
-             ;"react-bootstrap-range-slider" "1.0.0"
-             ;"rc-input-number" "5.0.1"
              }
   :npm-dev-deps {"shadow-cljs"           "2.9.3"
                  "karma"                 "4.4.1"
@@ -119,7 +117,8 @@
                                         [org.apache.poi/poi-ooxml "3.17"]
                                         [dk.ative/docjure "1.13.0"]
                                         [org.apache.commons/commons-math3 "3.6.1"]
-                                        [org.clojure/data.csv "1.0.0"]]}
+                                        [org.clojure/data.csv "1.0.0"]]
+                         :jvm-opts ["-Xmx1G"]}
 
              :prod {}}
 

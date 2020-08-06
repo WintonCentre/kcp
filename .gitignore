@@ -36,4 +36,6 @@ nashorn_code_cache/*
 # experimental
 src/cljs/eric.*
 resources/public/report.html
+resources/public/lung
+resources/public/kidney
 .cpcache/

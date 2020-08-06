@@ -27,6 +27,8 @@ resources/public/js
 
 # WIP - not ready for the public
 doc/UI inputs.md
+.calva/.cache
+.calva/output-window/*
 ~*
 nashorn_code_cache/*
 .cljs_nashorn*/*
@@ -34,3 +36,4 @@ nashorn_code_cache/*
 # experimental
 src/cljs/eric.*
 resources/public/report.html
+.cpcache/

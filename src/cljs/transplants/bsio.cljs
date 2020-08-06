@@ -52,37 +52,92 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    The id may be used to locate this widget in E2E tests.
    value-f is a function which, when called returns the current value of the widget.
    event-f is an event handler which is called when the selected level changes
-   Each button is configured with a map wih the (buttons-f) containing its :label, :level, and :disabled status."
-  [{:keys [id value-f on-change buttons-f]}]
-  [:div
-   (let [value (value-f)]  
+   Each button is configured with a map wih the (buttons-f) containing its :level-name, :level, and :disabled status."
+  [{:keys [id value-f on-change buttons-f vertical]}]
+  [:<>
+   (let [value (value-f)]
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
+             :id id
+             ;:inline "true"
+             :vertical vertical
              :name id
              :value value
              :on-change on-change
+             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#CCCCCC"))
+                      :border-radius 5
+                      :padding 1
+                      #_#_:display "grid"}}]
+           (map (fn [{:keys [level-name level disabled]}]
+                  [:> bs/ToggleButton {;:tabindex "-1"
+                                       :type "checkbox"
+                                       :key level :disabled false
+                                       :value level
+                                       :style {:border-radius 0
+                                               :margin 0
+                                               #_#_:padding 5}
+                                       :variant "outline-secondary"}
+                   level-name])
+                (buttons-f))))])
+
+(defn dropdown
+  [{:keys [id value-f on-change buttons-f]}]
+
+  (let [value (value-f)
+        buttons (buttons-f)]
+
+    [:> bs/Dropdown
+     {:on-select #(on-change (keyword %))}
+
+     (into [:> bs/DropdownButton
+            {:id id
+             :value value
+             :variant (if (nil? value) "outline-secondary" "secondary")
+             :title  (:level-name (first (if-let [x (seq (filter (fn [{:keys [level]}]
+                                                              (= value level)) buttons))]
+                                      x (buttons-f))))
              :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
                       :border-radius 5
-                      :padding 1}}]
-           (map (fn [{:keys [label level disabled]}]
-                  [:> bs/ToggleButton {:key level :disabled disabled :level level} label])
-                (buttons-f))))])
+                      :padding 1
+                      :width "max-content"}}]
+           (map (fn [{:keys [level-name level disabled]}]
+                  [:> bs/Dropdown.Item {:key level :as "button"
+                                        :eventKey level
+                                        :on-click #(.preventDefault %)}
+                   level-name])
+                (buttons-f)))]))
+
+(defn reset-button
+  [{:keys [on-click]}]
+  [:> bs/Button {:variant "danger" ;"secondary"
+                 :style {:margin-bottom 10}
+                 :on-click on-click} "Reset all"])
 
 (comment
   ; white border when there is a value
   (:border (:style (nth (second (radio-button-group {:value-path [:sex]
                                                      :value-f (fn [] :male)
                                                      :on-change identity
-                                                     :buttons-f (fn [] [{:level :male :label "Male"}
-                                                                        {:level :female :label "Female"}])}))
+                                                     :buttons-f (fn [] [{:level :male :level-name "Male"}
+                                                                        {:level :female :level-name "Female"}])}))
                         2)))
 
   ; red border when there isn't
   (:border (:style (nth (second (radio-button-group {:value-path [:sex]
                                                      :value-f (fn [] nil)
                                                      :on-change identity
-                                                     :buttons-f (fn [] [{:level :male :label "Male"}
-                                                                        {:level :female :label "Female"}])}))
-                        2)))
-  )
+                                                     :buttons-f (fn [] [{:level :male :level-name "Male"}
+                                                                        {:level :female :level-name "Female"}])}))
+                        2))))
 
+(defn tabs
+  [options & content]
+  (into [:> bs/Tabs options] 
+        content))
+
+
+(defn tab
+  [options content]
+  [:> bs/Tab options 
+   content]
+  )

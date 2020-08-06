@@ -5,11 +5,11 @@ the low level ui."
             [reagent.core :as rc]
             [reitit.core :as r]
             [reitit.frontend.easy :as rfe]
-            [reitit.frontend :as rfr]
             ["react-bootstrap" :as bs]
             [re-frame.core :as rf]
             [transplants.events :as events]
-            [transplants.subs :as subs]))
+            [transplants.subs :as subs]
+            [transplants.numeric-input :as ni]))
 
 (enable-console-print!)
 
@@ -20,6 +20,8 @@ the low level ui."
 (def row (rc/adapt-react-class bs/Row))
 (def button (rc/adapt-react-class bs/Button))
 (def card-header (rc/adapt-react-class bs/Card.Header))
+(def tabs (rc/adapt-react-class bs/Tabs))
+(def tab (rc/adapt-react-class bs/Tab))
 
 (def mobile-break 
   "Screens of this size or smaller are rendered with mobile orientedt views"
@@ -125,7 +127,6 @@ in the routes table."
   (let [ak  (cond
               (= {} (:path-params route)) (href :transplants.views/home)
               :else (get-in route [:path-params :organ]))]
-    (js/console.log "ak " ak)
     ak)
   )
 
@@ -208,16 +209,17 @@ in the routes table."
 (defn tool-buttons
   "Create buttons for each transplant tool"
   [{:keys [key label description organ centre tool] :as tool-button-params}]
-  [button {:variant "primary"
-           :style {:margin-bottom 2
-                   :margin-right 2}
-           :active (= tool (keyword (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])))
-           :key key
-           :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                    {:organ organ
-                                     :centre centre
-                                     :tool tool}])}
-   label])
+  (let [active (= tool  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
+    [button {:variant (if active "primary" "outline-primary")
+             :style {:margin-bottom 2
+                     :margin-right 2}
+             :active active
+             :key key
+             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                      {:organ organ
+                                       :centre centre
+                                       :tool tool}])}
+     label]))
 
 (defn nav-card
   [{:keys [img-src organ centre hospital link width tools]}]
@@ -250,7 +252,7 @@ in the routes table."
          (map #(conj % [:centre centre]))
          (map #(conj % [:tool (:key %)]))
          (map tool-buttons)
-         (map (fn [button #_{:keys [key label description]}]
+         (map (fn [button #_{:keys [key level-name description]}]
                 [:> bs/Accordion.Collapse {:eventKey 0}
                  button
                  #_[:> bs/Card.Body 
@@ -263,8 +265,9 @@ in the routes table."
                            :color "white"}} button]]))
          (into [:> bs/Accordion.Toggle {:as bs/Card.Header
                                         :eventKey 0
-                                        :style {:background-color "#007bff"
-                                                :color "white"}}
+                                        :variant "outline-primary"
+                                        #_#_:style {:background-color "#007bff"
+                                                    :color "white"}}
                 hospital]))]])
 
 (defn page
@@ -282,3 +285,29 @@ in the routes table."
   [:<>
    [:h2 title]
    (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))])
+
+(defn open-icon
+  "wrapper for access open-icon access"
+  ([name]
+   (open-icon nil name))
+  ([style name]
+   [:span (assoc {:class (str "oi oi-" name) 
+                  :title name 
+                  :aria-hidden "true"}
+                 :style style)]))
+
+; radio buttons allow fast selection between options
+(defn test-day-selector
+  "Used to select a test day to display"
+  [period]
+  [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 20}}
+   [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+    [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
+     "Results for test day:"]]
+   [:> bs/Col
+    (ni/numeric-input {:id "test-day"
+                       :value-f (fn [] @(rf/subscribe [::subs/test-day]))
+                       :min (constantly 0)
+                       :max (constantly (* 365 5))
+                       :dps -1
+                       :on-change #(rf/dispatch [::events/test-day %])})]])

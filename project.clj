@@ -11,9 +11,15 @@
                  [day8.re-frame/http-fx "v0.2.0"]
                  [metosin/reitit "0.4.2"]
                  [cljs-ajax "0.7.3"]
-                 [winton-utils "0.2.1"]]
+                 [winton-utils "0.2.1"]
+                 [cljs-css-modules "0.2.1"]]
 
   :plugins [[lein-shell "0.5.0"]
+            
+            ; See https://gitlab.com/nikperic/lein-shadow/-/tree/docs
+            ; lein shadow compile app
+            ; lein shadow watch app
+            ; lein shadow release app
             [lein-shadow "0.2.0"]
             [lein-eftest "0.5.9"]
             [lein-auto "0.1.3"]
@@ -33,11 +39,13 @@
 
   :main  transplants.configure/-main
 
-  :npm-deps {;"bootstrap" "^4.5.0"
-             "highlight.js" "9.18.1"
+  :npm-deps {"highlight.js" "9.18.1"
              "react" "16.13.0"
              "react-dom" "16.13.0"
-             "react-bootstrap" "^1.0.1"}
+             "react-bootstrap" "1.2.2" ;"^1.0.1"
+             ;"react-bootstrap-range-slider" "1.0.0"
+             ;"rc-input-number" "5.0.1"
+             }
   :npm-dev-deps {"shadow-cljs"           "2.9.3"
                  "karma"                 "4.4.1"
                  "karma-chrome-launcher" "3.1.0"
@@ -60,6 +68,7 @@
                                           {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
                                :devtools {:http-root "resources/public"
                                           :http-port 8280
+                                          :repl-pprint true
                                           :after-load transplants.core/init}}
 
                          :browser-test

@@ -3,5 +3,25 @@
         com.bhauman/figwheel-main {:mvn/version "0.2.6"}
         com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
  :aliases {:fig {:main-opts ["-m" "figwheel.main"]}
-           :dev {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}}
- :paths ["src/cljs" "src/cljc" "resources" "target"]}
+           :dev {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+           :config {:deps {org.clojure/clojure {:mvn/version "1.10.1"}
+                           aero {:mvn/version "1.1.6"}
+                           org.apache.poi/poi {:mvn/version "3.17"}
+                           org.apache.poi/poi-ooxml {:mvn/version "3.17"}
+                           dk.ative/docjure {:mvn/version "1.13.0"}
+                           org.apache.commons/commons-math3 {:mvn/version "3.6.1"}
+                           org.clojure/data.csv {:mvn/version "1.0.0"}
+                           winton-utils {:mvn/version "0.2.1"}}}}
+ :paths ["src/clj" "src/cljs" "src/cljc" "resources" "target"]
+
+ #_#_#_#_:test {:extra-paths ["test"]
+                :extra-deps {org.clojure/test.check {:mvn/version "1.0.0"}}}
+     :runner {:extra-deps {com.cognitect/test-runner
+                           {:git/url "https://github.com/cognitect-labs/test-runner"
+                            :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+              :main-opts ["-m" "cognitect.test-runner"
+                          "-d" "test"]}
+
+ :uberjar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}
+           :main-opts ["-m" "hf.depstar.uberjar" "configure.jar"
+                       "-C" "-m" "transplants.configure"]}}

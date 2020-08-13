@@ -22,6 +22,7 @@ resources/public/lung
 /dist/*
 .cache/
 resources/public/js
+resources/public/cljs-out
 .DS_Store
 */.DS_Store
 
@@ -37,3 +38,5 @@ nashorn_code_cache/*
 src/cljs/eric.*
 resources/public/report.html
 .cpcache/
+
+.rebel_readline_history

@@ -1,5 +1,7 @@
 {:main transplants.core
  :target :bundle
- :output-to "js/compiled/app.js"
- :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}
- }
+ ;:output-to "resources/public/js/compiled/app.js"
+ ;:clean-outputs true
+ ;:bundle-freq :always
+ :final-output-to "resources/public/cljs-out/dev/main-out.js"
+ :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}}

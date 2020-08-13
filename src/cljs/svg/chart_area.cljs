@@ -1,11 +1,11 @@
 (ns svg.chart-area
-  (:require [rum.core :as rum]
+  (:require 
             [svg.space :refer [space]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [svg.axis :refer [axisBottom axisTop axisLeft axisRight]]
             [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             [svg.grid :refer [grid-horizontal grid-vertical]]
-            [svg.mixins :refer [patch-svg-attrs]]))
+   ))
 
 
 (defstyle default-styles
@@ -29,7 +29,7 @@
              :stroke-width "1.5px"
              }])
 
-(rum/defc x-title-svg
+(defn x-title-svg
   [{:keys [x y x-title padding styles]}]
   (let [[X0 X1] (out x)
         [Y0 y1] (out y)
@@ -42,7 +42,7 @@
              :y          Y0}
       x-title]]))
 
-(rum/defc y-title-svg
+(defn y-title-svg
   [{:keys [x y y-title padding styles]}]
   (let [[X0 X1] (out x)
         [Y0 Y1] (out y)
@@ -56,7 +56,7 @@
              :y          Y0}
       y-title]]))
 
-(rum/defc chart-area [{:keys [width height
+(defn chart-area [{:keys [width height
                               inner outer
                               margin padding
                               x y

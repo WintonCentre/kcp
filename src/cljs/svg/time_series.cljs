@@ -1,5 +1,5 @@
 (ns svg.time-series
-  (:require [rum.core :as rum]
+  (:require
             [clojure.string :as str]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]))
@@ -11,7 +11,7 @@
                (into [] (map-indexed (fn [i v] [i v]) time-series)))))
 
 
-(rum/defc line-plot
+(defn line-plot
   "X and Y are the x-axis and y-axis scale functions.
    Data should be a series of coordinate pairs
    [[0 100]  [1 98.89556593176486]  ... [9 64.83779488900586]  [10 60.8297996952587]]"
@@ -25,7 +25,7 @@
         [:g {:class-name class-name}
          [:polyline {:points (map #(apply point %) point-series)}]]))))
 
-(rum/defc area-plot
+(defn area-plot
   "scale contains the x-axis and y-axis scale functions.
   Point series should look something like this:
   [[0 100]  [1 98.89556593176486]  ... [9 64.83779488900586]  [10 60.8297996952587]]

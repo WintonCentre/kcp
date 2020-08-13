@@ -77,11 +77,14 @@ Not sure whether it is going to be possible to develop all organ tools from one 
 ### Building
 We now have a choice of shadow-cljs or core clojurescript builds. 
 
-Shadow-cljs
+#### Shadow-cljs
+Use the master branch
+
 Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. 
 
-cljs-core
-
+#### cljs-core
+Use the nolan branch
+Calva Jack-in (alt-ctrl-C alt-ctrl-J) and deselect all aliases for the calva repl.  
 
 ### Use of lein shadow
 We have included the lein-shadow plugin which moves all the shadow configuration into the leiningen project file.

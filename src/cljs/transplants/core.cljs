@@ -54,3 +54,5 @@
   (.addEventListener js/window "resize" on-window-resize)
   (dev-setup)
   (mount-root)) 
+
+(defonce start-up (do (init) true))

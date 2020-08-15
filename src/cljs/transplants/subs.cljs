@@ -1,7 +1,7 @@
 (ns transplants.subs
   (:require
    [re-frame.core :as rf]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]))
+   ))
 
 ;;; 
 ;; Note that subscription keys are fully qualified in transplants.subs ns, but...

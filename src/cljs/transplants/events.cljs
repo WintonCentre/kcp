@@ -10,7 +10,7 @@
    [transplants.factors :as fac]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]
+   #_[day8.re-frame.tracing :refer-macros [fn-traced]]
    [clojure.string :as string]
    [clojure.set :as rel]))
 
@@ -18,7 +18,8 @@
 
 (rf/reg-event-db
  ::initialize-db
- (fn-traced [_ _]
+ (fn ;-traced 
+  [_ _]
             (merge init-db/default-db
                    {:current-route nil
                     :inputs {}
@@ -32,13 +33,15 @@
 
 (rf/reg-event-fx
  ::navigate
- (fn-traced [{:keys [db]} [_ route params query]]
+ (fn ;-traced 
+  [{:keys [db]} [_ route params query]]
    ;; See `navigate` effect in routes.cljs
             {::fx/navigate! [route params query]}))
 
 (rf/reg-event-db
  ::navigated
- (fn-traced [db [_ new-match]]
+ (fn ;-traced 
+   [db [_ new-match]]
 
             (assoc db
                    :current-route new-match)))
@@ -46,33 +49,37 @@
 (rf/reg-event-db
  ; active organ
  ::organ
- (fn-traced [db [_ organ]]
+ (fn ;-traced 
+  [db [_ organ]]
             (assoc db :organ organ)))
 
 (rf/reg-event-db
  ; active centre
  ::centre
- (fn-traced [db [_ c]]
+ (fn ;-traced 
+  [db [_ c]]
             (assoc db :centre c)))
 
 
 (rf/reg-event-db
  ; organ centres
  ::organ-centres
- (fn-traced [db [_ ocs]]
+ (fn ;-traced 
+  [db [_ ocs]]
             (assoc db :organ-centres ocs)))
 
 (rf/reg-event-db
  ; reset inputs
  ::reset-inputs
- (fn-traced [db [_ _]]
+ (fn ;-traced 
+   [db [_ _]]
             (assoc db :inputs {})))
 
 #_(comment
     (rf/reg-event-db
  ; flag that tool-data is required after centres have been loaded
      ::require-tool-data
-     (fn-traced [db [_ td]]
+     (fn [db [_ td]]
                 (assoc db :require-tool-data td))))
 
 ;;;
@@ -290,7 +297,8 @@
 
 (rf/reg-event-fx
  ::load-bundles
- (fn-traced [{:keys [db]} [evt [path data-path]]]
+ (fn ;-traced 
+  [{:keys [db]} [evt [path data-path]]]
             (when (nil? (get-in db data-path))
               {:http-xhrio {:method :get
                             :uri path
@@ -302,7 +310,8 @@
 
 (rf/reg-event-fx
  ::load-and-transpose
- (fn-traced [{:keys [db]} [evt [path data-path]]]
+ (fn ;-traced 
+  [{:keys [db]} [evt [path data-path]]]
             (when (nil? (get-in db data-path))
               {:http-xhrio {:method :get
                             :uri path
@@ -313,7 +322,8 @@
                             :on-failure [::bad-response data-path]}})))
 (rf/reg-event-fx
  ::load-and-transpose-always
- (fn-traced [{:keys [db]} [evt [path data-path]]]
+ (fn ;-traced 
+  [{:keys [db]} [evt [path data-path]]]
             {:http-xhrio {:method :get
                           :uri path
                           :timeout 8000

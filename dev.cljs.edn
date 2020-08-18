@@ -8,5 +8,5 @@
  :cljs-devtools true
  :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
  :preloads             [day8.re-frame-10x.preload]
- :final-output-to "resources/public/cljs-out/dev/main-out.js"
+ ;final-output-to "resources/public/cljs-out/dev/main-out.js"
  :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}}

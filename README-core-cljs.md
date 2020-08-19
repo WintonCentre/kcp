@@ -84,6 +84,17 @@ Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select shadow-cljs (or lein-shadow if 
 
 #### cljs-core
 Use the nolan branch
+
+From the command line try
+```
+clojure -Afig -m figwheel.main  -b dev --repl
+```
+or, for test:
+```
+clojure -Afig -m figwheel.main -b test -r
+```
+This will need adjustment for the command line, but it is close - you need to call (-main) to run the tests.
+
 Calva Jack-in (alt-ctrl-C alt-ctrl-J) and deselect all aliases for the calva repl.  
 
 ### Use of lein shadow

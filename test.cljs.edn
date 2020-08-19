@@ -6,14 +6,14 @@
   ;; you will have to figure out the path to chrome on your system
   ;; :launch-js ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" "--headless" "--disable-gpu" "--repl" :open-url]
  ;;:output-to "resources/public/cljs-out/test/main.js"
- ;;:final-output-to "resources/public/cljs-out/test/main_bundle.js"
 }
 {#_#_:target :bundle
+ :final-output-to "resources/public/cljs-out/test/main_bundle.js"
  :main transplants.test-runner
-       :target :bundle
-:cljs-devtools true
-:closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
+ :target :bundle
+ :cljs-devtools true
+ :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
 ;:preloads             [day8.re-frame-10x.preload]
-:bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]};
+ :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]};
  #_#_:bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]
-              :default ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}}
+                  :default ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}}

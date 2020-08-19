@@ -1,3 +1,4 @@
+^{:open-url "http://[[server-hostname]]:[[server-port]]/test.html"}
 {:main transplants.core
  :target :bundle
  :cljs-devtools false

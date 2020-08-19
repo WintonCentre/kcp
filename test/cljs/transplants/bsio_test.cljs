@@ -10,7 +10,7 @@
                                                               :buttons-f (fn [] [{:key :male :value :male :level-name "Male"}
                                                                                  {:key :female :value :female :level-name "Female"}])}))
                                  2)))
-           "3px solid #ffffff") "expect white border")
+           "3px solid #CCCCCC") "expect white border")
 
     ; no border when there isn't
     (is (= (:border (:style (nth (second (radio-button-group {:value-k :sex

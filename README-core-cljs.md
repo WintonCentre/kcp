@@ -69,7 +69,7 @@ The job of the clojure configuration app is to read these spreadsheets and valid
 The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing. 
 
 ### Jacking in from vs-code to work on the *configuration* process
-If jacking in from VS-Code be sure to select `leiningen` with `no alias` and then the `:configuration` profile. 
+If jacking in from VS-Code for shadow-cljs be sure to select `leiningen` with `no alias` and then the `:configuration` profile. 
 
 ## Trac Tool Development
 Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start that way to avoid duplication. So far so good.
@@ -82,7 +82,8 @@ Use the master branch
 
 Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. 
 
-#### cljs-core
+### Alternative jack-in using cljs-core and webpack on the n olan branch
+#### Preliminary test
 Use the nolan branch
 
 From the command line try
@@ -93,9 +94,16 @@ or, for test:
 ```
 clojure -Afig -m figwheel.main -b test -r
 ```
-This will need adjustment for the command line, but it is close - you need to call (-main) to run the tests.
+This still needs adjustment for the command line, but it is close - you need to call (-main) to run the tests.
 
-Calva Jack-in (alt-ctrl-C alt-ctrl-J) and deselect all aliases for the calva repl.  
+Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select fig ONLY. If you select fig AND dev you will run -Afig:dev which calls up the Rebel-readline repl rather than the Calva repl and Calva inline evaluation commands will fail.
+
+So, wait for
+```
+> Executing task: clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.23.0"} clj-kondo {:mvn/version "2020.04.05"} cider/piggieback {:mvn/version "0.4.2"}}}' -A:fig -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware cider.piggieback/wrap-cljs-repl]" <
+```
+to complete. THEN select the dev build.
+
 
 ### Use of lein shadow
 We have included the lein-shadow plugin which moves all the shadow configuration into the leiningen project file.

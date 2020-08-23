@@ -40,3 +40,5 @@ resources/public/report.html
 .cpcache/
 
 .rebel_readline_history
+.idea/
+transplants.iml

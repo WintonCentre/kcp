@@ -28,7 +28,8 @@
               (map (fn [organ]
                      [:div {:key (:text organ)
                             :style {:margin-bottom 20}}
-                      [ui/button {:variant "primary"
+                      [ui/button {:id (str (:organ organ) "-button")
+                                  :variant "primary"
                                :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
                        (:label organ)]])
                    (:organ-meta @metadata))])]]]))
@@ -146,7 +147,7 @@
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [ui/row 
               [ui/col {:xs 12 :md 5}
-               [:h2 (ui/open-icon {:color "red" :font-size 10} "person")
+               [:h2 #_(ui/open-icon {:color "red" :font-size 10} "person")
                 (str (string/capitalize organ-name) " transplant centre")]
                (->> tools
                     (map #(conj % [:organ organ-name]))

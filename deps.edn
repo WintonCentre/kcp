@@ -17,7 +17,7 @@
                               com.bhauman/figwheel-main {:mvn/version "0.2.11"}
                               day8.re-frame/re-frame-10x {:mvn/version "0.7.0"}}}
            :dev {:main-opts ["-m" "figwheel.main" "-b" "dev"]
-                 :extra-deps {day8.re-frame/re-frame-10x {:mvn/version "0.7.0"}}}
+                 #_#_:extra-deps {day8.re-frame/re-frame-10x {:mvn/version "0.7.0"}}}
            :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
            :min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
            :prod   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "prod"]}

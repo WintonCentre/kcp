@@ -129,7 +129,19 @@
                  :src "assets/The Window.png"}]])
 
 (defmethod show-background-info :percent [options]
-  [:h3 (:percent background-infos)])
+  [:<> 
+   [:h3 (:percent background-infos)]
+   (into
+    [:<>
+     (map
+      (fn [j]
+        [ui/row
+         [ui/col
+          (into [:<> 
+                 (map (fn [i]
+                        [ui/open-icon {:color (if (< (+ (* i 10) j) 22) "#488" "#CCC")
+                                       :padding "0px 5px"} "person"]) (range 10))])]])
+      (range 10))])])
 
 
 

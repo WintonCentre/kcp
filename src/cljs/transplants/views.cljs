@@ -28,7 +28,7 @@
               (map (fn [organ]
                      [:div {:key (:text organ)
                             :style {:margin-bottom 20}}
-                      [ui/button {:id (str (:organ organ) "-button")
+                      [ui/button {:id (str (name (:organ organ)) "-button")
                                   :variant "primary"
                                :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
                        (:label organ)]])

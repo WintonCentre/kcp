@@ -162,7 +162,7 @@
       (if (pos? increment) "+" "–")]]))
 
 (defn numeric-input
-  [{:keys [key value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
+  [{:keys [key id value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
 
   (let [[good bad] (split (value-f) #":")
         value (str-to-num good)
@@ -178,6 +178,7 @@
     [:> bs/Row {:style {:align-items "baseline"}}
      [:> bs/Col {:xs 9}
       [:div {:class       "numeric-input"
+             :id id
              :style       {:min-width      "100px"
                            :width "max-content"
                            :tab-index  1

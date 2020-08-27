@@ -210,7 +210,8 @@ in the routes table."
   "Create buttons for each transplant tool"
   [{:keys [key label description organ centre tool] :as tool-button-params}]
   (let [active (= tool  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
-    [button {:variant (if active "primary" "outline-primary")
+    [button {:id (str (name organ) "-" (name centre) "-" (name key))
+             :variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2
                      :margin-right 2}
              :active active
@@ -272,7 +273,9 @@ in the routes table."
 
 (defn page
   ([title & children]
-   [container {:key 1 :style {:min-height "calc(100vh - 165px"
+   [container {:key 1
+               :fluid "xl"
+               :style {:min-height "calc(100vh - 165px"
                               :background-color "#ffffffbb"
                               :margin-bottom 20}}
     [row
@@ -305,7 +308,7 @@ in the routes table."
     [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
      "Results for test day:"]]
    [:> bs/Col
-    (ni/numeric-input {:id "test-day"
+    (ni/numeric-input {:id "test-day-input"
                        :value-f (fn [] @(rf/subscribe [::subs/test-day]))
                        :min (constantly 0)
                        :max (constantly (* 365 5))

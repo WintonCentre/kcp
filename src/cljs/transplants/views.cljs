@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as string]
    [re-frame.core :as rf]
+   [reitit.frontend.easy :as rfe]
    ["react-bootstrap" :as bs]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
@@ -9,8 +10,7 @@
    [transplants.ui :as ui]
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
-   [transplants.results :as results]
-))
+   [transplants.results :as results]))
 
 (comment
   (rf/dispatch [::events/initialize-db]))
@@ -63,6 +63,76 @@
 
            (into [:> bs/CardDeck] (map centre-card centres)))))]))
 
+(def background-infos
+  {:visits "Visits to hospital after transplant"
+   :donors "Donor Decisions"
+   :medications "Medications after Transplant Surgery"
+   :window "The Window"
+   :percent "What does a percent look like?"}
+  )
+
+(defmulti show-background-info 
+  "Render the selected background info"
+  :info-key)
+
+(defmethod show-background-info :visits [options]
+  [:<>
+   [:h3 (:visits background-infos)]
+   [:ul
+    [:li "1st  month 	-  once a week, every week"]
+    [:li "2nd month 	- once a week, every other week"]
+    [:li "3rd month 	- once a week, every other week"]
+    [:li "4th month 	- once a week, every 4 weeks"]
+    [:li "Once a week every 4 weeks for 1 more year"]
+    [:li "Then every 3 months for life"]]])
+
+(defmethod show-background-info :donors [options]
+  [:<>
+   [:h3 (:donors background-infos)]
+   [:ul
+    [:li "Recent or ex smoker"]
+    [:li "Older donor (>60 years)"]
+    [:li "Donor with a malignancy that has very low risk of transmission to me"]
+    [:li "Bacterial or viral infection considered to be low risk to me"]
+    [:li "High risk sexual behaviour or intravenous drug use"]]])
+
+(defmethod show-background-info :medications [options]
+  [:<>
+   [ui/row
+    [ui/col
+     [:h3 (:medications background-infos)]]]
+   [ui/row
+    [ui/col {:md 5}
+     [:ul
+      [:li "Cyclosporines"]
+      [:li "Tacrolimus"]
+      [:li "Mycophenolate Mofetil"]
+      [:li "Prednisolone"]
+      [:li "Azathuiprine"]
+      [:li "Sirolimus"]
+      [:li "Dacllizumab and Basilecmab"]
+      [:li "OKT3"]
+      [:li "Anti-Fungal Medications"]
+      [:li "Antiviral Medications"]
+      [:li "Diuretics"]
+      [:li "Antibiotics"]
+      [:li "Anti-ulcer medications"]]]
+    [ui/col {:md 6}
+     [:> bs/Image {:fluid true
+                 :src "assets/Post Transplant Medications.png"}]]]])
+  
+
+(defmethod show-background-info :window [options]
+  [:<>
+   [:h3 (:window background-infos)]
+   [:> bs/Image {:fluid true
+                 :src "assets/The Window.png"}]])
+
+(defmethod show-background-info :percent [options]
+  [:h3 (:percent background-infos)])
+
+
+
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre.
@@ -80,37 +150,64 @@
       ;;; TODO: Tidy organ centre tool up here
       
       (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
-        [ui/page (:description centre-info)
+        [ui/page [:span (:description centre-info) 
+                  (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
+          #_[ui/col
+           [:h2 (str (string/capitalize (name organ)) " transplant centre")]]
           [ui/col
-           [:h2 (str (string/capitalize (name organ)) " transplant centre")]
-           [:h3 {:style {:margin-top 40}} "Available trac tools"]
+           [:h2  "Available trac tools"]
            (->> tools
                 (map #(conj % [:organ organ-name]))
                 (map #(conj % [:centre centre-name]))
                 (map #(conj % [:tool (name (:key %))]))
-               (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))
-           [ui/row
-            [ui/col
-             [:h3 {:style {:margin-top 40}} "Background guidance"]
-             [:h4 "Examples of:"]
-             [:ul
-              [:li "Donor decisions"]
-              [:li "Matching criteria"]
-              [:li "What happens if you're called in"]
-              [:li "What happens after transplant"]
-              [:ul
-               [:li "Visit schedule"]
-               [:li "Drug regime"]]]]
-            [ui/col
-             [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
-             [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
-            [ui/col
-             [:h3 {:style {:margin-top 40}} "The Window"]
-             [:p "ILL ENOUGH / WELL ENOUGH?"]
-             [:p "Graph of ‘the window’?"]
-             [:p "Graph of disease trajectory?"]]]]]]))))
+                (map ui/tool-buttons)
+                (into [:> bs/ButtonGroup {:vertical false}]))]]
+         [ui/row
+          [ui/col {:md 4}
+           [:h3 {:style {:margin-top 40}} "Background guidance"]
+           [:> bs/ListGroup
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :visits])}
+             (:visits background-infos)
+             ]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :donors])}
+             "Donor Decisions"]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :medications])}
+             "Medications after transplant surgery"]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :window])}
+             "The Window"]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :percent])}
+             "What does a percent look like?"]]
+           
+           ]
+          [ui/col {:md 8}
+           [:div {:style {:margin-top 40}}
+            (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]
+           ]
+          
+          #_[:div
+           [:h4 "Examples of:"]
+           [:ul
+            [:li "Donor decisions"]
+            [:li "Matching criteria"]
+            [:li "What happens if you're called in"]
+            [:li "What happens after transplant"]
+            [:ul
+             [:li "Visit schedule"]
+             [:li "Drug regime"]]]
+           [ui/col
+            [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
+            [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
+           [ui/col
+            [:h3 {:style {:margin-top 40}} "The Window"]
+            [:p "ILL ENOUGH / WELL ENOUGH?"]
+            [:p "Graph of ‘the window’?"]
+            [:p "Graph of disease trajectory?"]]]]]))))
 
 (defn get-tool-meta
   [tools tool-key]
@@ -141,14 +238,16 @@
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools tool)]
-        [ui/page  
+        [ui/page    
          (:description centre-info)
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [ui/row 
               [ui/col {:xs 12 :md 5}
-               [:h2 #_(ui/open-icon {:color "red" :font-size 10} "person")
-                (str (string/capitalize organ-name) " transplant centre")]
+               [:p "For more information that will be helpful to patients, follow the link to "
+                [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
+                 "background guidance"] "."
+                #_(str (string/capitalize organ-name) " transplant centre")]
                (->> tools
                     (map #(conj % [:organ organ-name]))
                     (map #(conj % [:centre centre-name]))

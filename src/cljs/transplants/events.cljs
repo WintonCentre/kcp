@@ -75,6 +75,13 @@
    [db [_ _]]
             (assoc db :inputs {})))
 
+(rf/reg-event-db
+ ; background-info
+ ::background-info
+ (fn ;-traced 
+   [db [_ b-info]]
+   (assoc db :background-info b-info)))
+
 #_(comment
     (rf/reg-event-db
  ; flag that tool-data is required after centres have been loaded

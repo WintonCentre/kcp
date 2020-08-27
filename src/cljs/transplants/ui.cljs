@@ -162,12 +162,24 @@ in the routes table."
        
        (when-let [centres (and organ ((keyword organ) @(rf/subscribe [::subs/organ-centres])))]
          #_(when (and organ centres))
-         (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
-               (map (fn [centre]
-                      [:> bs/NavDropdown.Item {:href (href :transplants.views/organ-centre {:organ (name organ)
-                                                                                            :centre (name (:key centre))})
-                                               :key (name (:key centre))} (:name centre)])
-                    centres)))]]]))
+         (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
+           (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
+                 (map (fn [centre]
+                        [:> bs/NavDropdown.Item
+                         {:href (if tool
+                                  (href :transplants.views/organ-centre-tool
+                                        {:organ (name organ)
+                                         :centre (name (:key centre))
+                                         :tool (name tool)})
+                                  (href :transplants.views/organ-centre
+                                        {:organ (name organ)
+                                         :centre (name (:key centre))}))
+                          :key (name (:key centre))}
+
+                         #_{:href (href :transplants.views/organ-centre {:organ (name organ)
+                                                                         :centre (name (:key centre))})
+                            :key (name (:key centre))} (:name centre)])
+                      centres))))]]]))
 
 (comment 
   (transplants.ui/href :transplants.views/organ-centre {:organ (name :kidney)

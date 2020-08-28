@@ -9,25 +9,26 @@
  
  The configuration edn readers are in a separate workspace (alias cfg) to those that read the spreadsheet."
 
-  (:import [org.apache.poi.ss.usermodel Workbook Sheet Cell Row])
+  (:import [org.apache.poi.ss.usermodel Sheet])
   (:require
    [aero.core :as aero]
    [dk.ative.docjure.spreadsheet :as xls]
    [clojure.java.io :as io]
    [clojure.string :as string]
-   [clojure.data.csv :as csv]
    [transplants.utils :as utils]
-   [transplants.config :as cfg]))
+   [transplants.transforms :as xf]
+   [transplants.config :as cfg]
+   [transplants.shared :refer [underscore]]
+   )
+  (:gen-class))
 
 (def slash java.io.File/separator)
 
 (comment
-
-  
   ;;;
   ;; following is a docjure example. Keep as a quick check on setup, but it's not used here as it 
   ;; does not respect the application edn configuration file
-  
+
   (defn read-table
     "Read in non-null rows of data from columns in a spreadsheet.
   'path' identifies the xlsx file.
@@ -43,8 +44,6 @@
          (xls/select-columns columns)
          (drop header-rows))))
 
-
-
 (defn get-workbook
   "Read in xlsx workbook for an organ"
   [organ]
@@ -57,13 +56,13 @@
 (comment
   (cfg/get-sheet-spec :kidney :waiting-inputs)
   ; {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :D, :match "level"}, :button-labels {:column :B, :match "(level)|(button)"}, :factor {:column :C, :match "factor"}, :label {:column :A, :match "(Factor)|(label)"}}
-  
+
   (cfg/get-columns :kidney :waiting-inputs)
   ; (:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)
-  
+
   (cfg/get-variable-keys :kidney :waiting-inputs)
   ; (:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box?)
-  
+
   (cfg/get-column-selection :kidney :waiting-inputs)
   ; {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?}
   )
@@ -78,7 +77,20 @@
        (xls/select-sheet (name sheet-key))
        (xls/select-columns (cfg/get-column-selection organ sheet-key))))
 
+(defn get-centres
+  "Retrieve a list of distinct centres from a spreadsheet"
+  [organ]
+  (->> (get-row-maps organ :waiting-baseline-cifs)
+       (map :centre)
+       (distinct)
+       (remove nil?)
+       (remove #(= ":centre" %))
+       (sort)))
+
 (comment
+  (get-centres :lung)
+  (get-centres :kidney)
+
   (get-row-maps :kidney :waiting-baseline-vars)
   ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
 
@@ -91,15 +103,15 @@
 (defn get-col-maps
   "gets a map of columns"
   [organ sheet-key & [exclude-nil-rows]]
-    (let [workbook (memo-workbook organ)
-          sheet (cfg/get-sheet-spec organ sheet-key)
-          columns (cfg/get-column-selection organ sheet-key)]
-      (->> (get-row-maps organ sheet-key)
-           (map (apply juxt (vals (cfg/get-column-selection organ sheet-key))))
-           ((fn [r] (if exclude-nil-rows (remove #(every? nil? %) r) r)))
-           (utils/transpose)
-           (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
-           (into {}))))
+  (let [workbook (memo-workbook organ)
+        sheet (cfg/get-sheet-spec organ sheet-key)
+        columns (cfg/get-column-selection organ sheet-key)]
+    (->> (get-row-maps organ sheet-key)
+         (map (apply juxt (vals (cfg/get-column-selection organ sheet-key))))
+         ((fn [r] (if exclude-nil-rows (remove #(every? nil? %) r) r)))
+         (utils/transpose)
+         (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
+         (into {}))))
 
 (def get-variables
   "Column maps are also known as variables in a data-frame"
@@ -107,18 +119,10 @@
 
 (comment
   (def row-maps (get-row-maps :kidney :waiting-baseline-vars))
-  #_(def row-maps [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}])
-
   (get-col-maps :kidney :waiting-baseline-vars)
   (get-col-maps :kidney :waiting-inputs)
   (get-col-maps :kidney :waiting-inputs true)
-
-  
-  (let [cols (utils/transpose (map  (juxt :baseline-factor :baseline-level) row-maps))]
-    (into {} (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]) cols)))
-
-  ; ([":baseline-factor" ":age" ":sex" ":ethincity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft"] 
-  ; [":baseline-level" ":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft"])
+  (get-col-maps :lung :numerics)
   )
 
 (defn select-columns
@@ -128,273 +132,196 @@
        (map (apply juxt columns))
        (map #(map utils/maybe-key %))))
 
-;;;
-;; Following does not always work since the rows matrix may not be rectangular
-;;;
-;; (defn get-column-data
-;;   "retrieve a table as a map of vectors"
-;;   ([organ sheet-key]
-;;    (transpose
-;;     (get-rows organ sheet-key)
-;;     (get-header organ sheet-key))))
-
-
-(defn sub-table
-  "Extract a sub-table from the given columns, 
-  selecting rows where the first column takes the given value"
-  [organ sheet-key columns value]
-  (->>
-   (apply select-columns organ sheet-key columns)
-   (filter #(= (first %) value))
-   (map #(zipmap columns %))))
-
-(defn get-header
-  "retrieve header variables from the speadsheet in a seq. We assume they are in the 
-  first non-nil row, and always stat with a :. Headers that do not start with ':' are ignored."
-  [organ sheet-key]
-  (let [workbook (memo-workbook organ)
-        sheet (cfg/get-sheet-spec organ sheet-key)]
-    (->> (xls/select-sheet (name sheet-key) workbook)
-         (xls/row-seq)
-         (remove nil?)
-         (first)
-         (xls/cell-seq)
-         (map xls/read-cell)
-         (take-while #(and (some? %) (string/starts-with? % ":")))
-         (map #(subs % 1))
-         (map keyword))))
-
-(defn get-all-rows
-  "retrieve a sequence of maps - one map per row of data, with variables as keys"
-  ([organ sheet-key]
-   (let [workbook (memo-workbook organ)
-         sheet (cfg/get-sheet-spec organ sheet-key)
-         headers (get-header organ sheet-key)]
-     (->> (xls/select-sheet (name sheet-key) workbook)
-          (xls/row-seq)
-          (map #(map xls/read-cell (take (count headers) %)))
-          ;(remove #(every? string/blank? %))
-          ))))
-
-
-(defn get-rows
-  "retrieve a sequence of maps - one map per row of data, with variables as keys"
-  ([organ sheet-key]
-   (let [workbook (memo-workbook organ)
-         sheet (cfg/get-sheet-spec organ sheet-key)
-         headers (get-header organ sheet-key)]
-     (->> (xls/select-sheet (name sheet-key) workbook)
-          (xls/row-seq)          
-          (drop 1)
-          (map #(map xls/read-cell (take (count headers) %)))
-          ))))
-
-(defn write-csv
-  "read a sheet from xslx and export it to data/csv as a csv file. 2-arity excludes nil rows by default"
-  ([organ sheet-key]
-   (write-csv organ sheet-key true))
-  ([organ sheet-key exclude-nil-rows]
-   (println "writing " sheet-key " to " organ)
-   (let [cfg (cfg/memo-config organ)
-         f (io/file (str (get-in cfg [:export :csv-path]) slash (name sheet-key) ".csv"))
-         headers (map #(str ":" (name %)) (get-header organ sheet-key))
-         variables (get-variables organ sheet-key exclude-nil-rows)
-         rows (->>
-               (cfg/get-columns organ sheet-key)
-               (map #(get variables %))
-               (utils/transpose))]
-     (io/make-parents f)
-     (with-open [writer (io/writer f)]
-       (csv/write-csv writer (list headers))
-       (csv/write-csv writer rows)))))
-
-
-
- (defn sheet-name
-   "Dip into the apache xlsx lib to extract a sheet name from the xlsx using its Sheet class"
-   [^Sheet s]
-   (.getSheetName s))
-
-(defn get-sheet-names
-  "Return a seq of all the sheet names in an organ"
-  [organ]
-  (->> (get-workbook organ)
-       (xls/sheet-seq)
-       (map sheet-name)
-       (remove #(= "Notes" %))
-       (map keyword)))
-
-
-(defn write-edn
-  "Read a sheet and spit out an equivalent map of clj variables in edn"
-  [organ sheet-key]
-  (let [cfg (cfg/memo-config organ)
-        f (io/file (str (get-in cfg [:export :edn-path]) slash (name sheet-key) ".edn"))
-       ; headers (map #(str ":" (name %)) (get-header organ sheet-key))
-        variables (get-variables organ sheet-key)]
-    (io/make-parents f)
-    (spit f variables)))
-
-  (defn export
-    "Write out organ data using a write function wf. wf is typically write-csv or write-edn."
-    [wf organ]
-    (doseq [s (get-sheet-names organ)]
-      (println "calling wf on " organ " to write " s)
-      (wf organ s)))
-
-
 (defn centre-row-maps
-  "Return row-maps, filtered by a list of centres if centres"
+  "Return row-maps, filtered by centre. If centre is nil, return all"
   [organ sheet-key centre]
   (let [cset (into #{} centre)
-        row-maps (get-row-maps organ sheet-key)
+        row-maps (->> (get-row-maps organ sheet-key)
+                      (map (fn [ms]
+                             (into {} (map 
+                                       (fn [[k v]] [k (xf/unstring-key v)])
+                                       ms)))))
         header-map (first row-maps)
         header-set (into #{} (keys header-map))
         f #(if (contains? header-set :centre)
-             (= (:centre %) centre)
-             (constantly true)
-             )
-        ]
-    (cons header-map (filter f (rest row-maps))))
-  )
+             (or (nil? centre) (= (:centre %) centre))
+             true)]
+    (cons header-map (filter f (rest row-maps)))))
 
 (defn centre-columns
   "Convert from row-map form to column variable form"
   [organ sheet-key centre]
   (let [rows (centre-row-maps organ sheet-key centre)
         headers (keys (first rows))]
-    (utils/transpose (map (apply juxt headers) rows)))
-  )
-
-(defn columns->variables
-  "columns including a header in row 1, converted "
-  [columns]
-  (into {} (map (fn [col] [(first col) (rest col)]) columns))
-  )
+    (utils/transpose (map (apply juxt headers) rows))))
 
 
 (comment
+  (remove nil? (:name (get-variables :kidney :centres)))
+  (get-row-maps :kidney :waiting-baseline-vars)
+
   (rest (get-row-maps :kidney :survival-baseline-cifs))
   (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
   (centre-columns :kidney :survival-baseline-cifs  "Belfast")
-  (columns->variables (centre-columns :kidney :survival-baseline-cifs  "Belfast"))
   (centre-columns :kidney :waiting-baseline-cifs "Belfast")
   (cfg/get-bundle :kidney :waiting)
-  )
+  (cfg/get-bundle :lung :waiting)
 
+  (cfg/get-columns :lung :numerics)
+  (cfg/get-variables :lung :numerics))
 
-(defn collect-tool-bundle
-  "Collect together an export bundle for a tool. Arity 3 filters this by a list of centres"
+(defn sheet-type
+  "Return a string that indicates the type of a sheet. This is the common suffix given to all sheet names where the sheet has the same type.
+   For example, :waiting-inputs :survival-inputs, :graft-inputs are all examples of the '-inputs' type. 
+   We use filter laziness to stop testing once we have a match"
+  [sheet-key]
+  (let [matches? (fn [suffix] 
+                   (string/ends-with? (name sheet-key) suffix))
+        types '("centres" "tools" "-inputs" "-baseline-cifs" "-baseline-vars" "bmi-calculator") ]
+    (first (filter matches? types))))
 
-  ([organ tool-key]
-   (collect-tool-bundle organ tool-key nil))
+(comment
+  (-> (centre-columns :lung :waiting-baseline-cifs "Papworth") first first)
+  (drop 1 (centre-row-maps :kidney :waiting-baseline-vars "Oxford"))
+  (centre-columns :lung :waiting-baseline-cifs nil)
+  (cfg/get-bundle :lung :waiting)
+  (flatten (vals (cfg/get-bundle :lung nil))))
 
-  ([organ tool-key centre]
-   (into {}
-         (for [sheet-key (cfg/get-bundle organ tool-key)]
-           [sheet-key (centre-columns organ sheet-key centre)]))))
-
-#_(let [cfg (cfg/memo-config organ)
-      f (io/file (str (get-in cfg [:export :edn-path]) slash (name sheet-key) ".edn"))
-       ; headers (map #(str ":" (name %)) (get-header organ sheet-key))
-      variables (get-variables organ sheet-key)]
-  (io/make-parents f)
-  (spit f variables))
-
-(defn underscore 
-  "replace special chars in file paths with underscore"
-  [s] 
-  (string/replace s #"-|\s+|'|\." "_"))
+(defn -bundle-path
+  [suffix organ centre tool-key]
+  (let [suf (name suffix)
+        ; In case the server barfs at serving .edn, make them .txt instead
+        suffix (if (= suf "edn") "txt" suf)]
+    (str (get-in (cfg/memo-config organ) [:export (keyword (str suf "-path"))])
+         (if  centre
+           (str slash (underscore centre)) "")
+         (if tool-key (str slash (underscore (name tool-key))) "")
+         (if (or centre tool-key) (str "." suffix) (str "/all." suffix)))))
 
 (defn bundle-path
-  [organ tool-key centre]
-  (str (get-in (cfg/memo-config organ) [:export :edn-path])
-       slash (underscore (name tool-key))
-       (if centre
-         (str slash (underscore centre) ".edn")
-         ".edn")))
-(comment
+  "Generates an export pathname for a tool. 
+   Rename to 'tool-path'?"
+  [organ centre tool-key]
+  (-bundle-path "edn" organ centre tool-key))
 
-  (bundle-path :lung :post-transplant "St. George's")
-  (io/make-parents (io/file (bundle-path :kidney :waiting "Edinburgh")))
+(comment
+  (bundle-path :lung nil nil)
+  (bundle-path :lung "Papworth" nil)
+  (bundle-path :lung "Papworth" :waiting))
+
+(defn headed-vectors-to-map 
+  "Given a sequence of vectors where the first element of each is a header, convert this to a map keyed by those headers"
+  [hvs]
+  (into {} (map (fn [[h & vs]] [(if (and (string? h) (string/starts-with? h ":")) 
+                                  (keyword (subs h 1)) 
+                                  h) 
+                                vs]) hvs)))
+(comment
+  (headed-vectors-to-map [[":a" 1 2 3] [":b" 4 5 6]])
+  (map sheet-type (flatten (vals (cfg/get-bundle :kidney :waiting))))
+  (vals (cfg/get-bundle :kidney :waiting))
+  )
+
+(defn collect-mapped-tool-bundle
+  "Reads the bundle configured for a given TRAC tool-key. 
+   (for :lung these are :waiting, :post-transplant, :from-listing, 
+   for :kidney they are :waiting, :survival, and :graft).
+   
+   For each speadsheet referenced in the bundle, determine the sheet type (given by its suffix) and 
+   hence whether it should be returned in a row or column order map.
+   
+   Either way the returned format is a map of [sheet-key sheet-content] pairs"
+  [organ centre tool-key]
+  (->> (for [sheet-key (first (vals (cfg/get-bundle organ tool-key)))]
+         (if (#{"-baseline-vars" "-baseline-cifs"} (sheet-type sheet-key))
+           [sheet-key (drop 1 (centre-row-maps organ sheet-key centre))]
+           [sheet-key (headed-vectors-to-map (centre-columns organ sheet-key centre))]))
+       (into {})))
+(comment
+  (collect-mapped-tool-bundle :lung "Birmingham" :waiting)
+  (:waiting-baseline-vars (collect-mapped-tool-bundle :kidney "Oxford" :waiting))
+  (string/starts-with? ":centre" ":")
+  (keyword (subs ":centre" 1))
+  (get-in (cfg/memo-config :lung) [:export :edn-path])
+  (println (collect-mapped-tool-bundle :lung "Birmingham" :waiting))
   )
 
 (defn write-edn-bundle
   "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres."
-  ([organ tool-key]
-   (write-edn-bundle organ tool-key nil))
-  
-  ([organ tool-key centre]
-   (let [f (io/file (bundle-path organ tool-key centre))]
+  ([organ]
+   (write-edn-bundle organ nil nil))
+
+  ([organ centre]
+   (write-edn-bundle organ centre nil))
+
+  ([organ centre tool-key]
+
+   (let [f (io/file (bundle-path organ centre tool-key))]
      (io/make-parents f)
-     (spit f (collect-tool-bundle organ tool-key centre))
-     )
-   ))
+     (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
 
 (comment
-  (write-edn-bundle :lung :waiting)
-  
-  
-  (keys (collect-tool-bundle :lung :post-transplant "Edinburgh"))
-  
-  (write-edn-bundle :kidney :waiting "Edinburgh")
-
-  ; All 
-  (for [sheet-key (keys (collect-tool-bundle :kidney :survival "Edinburgh"))]
-    (apply = (map count (sheet-key (collect-tool-bundle :kidney :survival "Edinburgh")))))
-  
+  (get-centres :lung)
+  (bundle-path :lung "Birmingham" nil)
+  (bundle-path nil nil nil)
   )
 
-(defn export-tool-bundles
-  "Collect and export all tool bundles for a list of centres"
-  [organ ])
+(defn write-sheet
+  "writes a generic sheet out in edn format. Used for tools and centres"
+  [organ key]
+  (let [sheet (get-variables organ key)
+        sheet-path (str (get-in (cfg/memo-config organ) [:export :edn-path])
+                          slash (str (name key)) ".txt")]
+    (io/make-parents sheet-path)
+    (spit sheet-path sheet)))
 
-(defn main
-  "Main entry point. This function uses export to read the spreadsheets and write out edn and csv files.
-When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
+(defn export-all-edn-bundles
+  "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
   []
-  (export write-edn :lung)
-  (export write-csv :lung)
-  (export write-edn :kidney)
-  (export write-csv :kidney))
+  (doseq [organ [:lung :kidney]
+          sheet [:tools :centres]]
+    (write-sheet organ sheet))
+  
+  (doseq [organ [:lung :kidney]
+          :let [centres (get-centres organ)]
+          centre centres]
 
+    (write-edn-bundle organ centre)
+    (doseq [tool-key (keys (cfg/get-bundle organ))]
+      (write-edn-bundle organ centre tool-key))))
 
+;-------- MAIN -----------
+(defn -main
+  "Main entry point. This function reads config.edn and the spreadsheets and writes out edn files.
+When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
+  [& args]
+  (export-all-edn-bundles))
+
+;----------------------------------------------
+;
 (comment
+  (-main) ; Run this
 
+  (export-all-edn-bundles)
 
-  (get-sheet-names :lung)
-  (get-rows :kidney :waiting-baseline-cifs)
+  (write-edn-bundle :lung "Papworth" :waiting)
+  (write-edn-bundle :lung "Newcastle" :waiting)
+  (write-edn-bundle :lung "Manchester" :waiting)
+  (write-edn-bundle :lung "Birmingham")
+  (write-edn-bundle :lung)
+
+  (cfg/get-bundle :lung)
+  (write-edn-bundle :kidney "Edinburgh" :waiting)
+  (write-edn-bundle :kidney "Belfast" :graft)
+  (write-edn-bundle :kidney "Birmingham" :graft)
+  
   (get-row-maps :kidney :waiting-baseline-cifs)
-  
-  (get-rows :kidney :waiting-baseline-vars)
-  
   (cfg/get-variable-keys :kidney :waiting-inputs)
 
   (def cfg  (cfg/memo-config :kidney))
   (def wb (get-workbook :kidney))
   (def organ :kidney)
   (def sheet-key :waiting-baseline-cifs)
-
-  ;(def sheet-key :waiting-inputs)
-  (def f (io/file (str (get-in cfg [:export :csv-path])) (str (name sheet-key) ".csv")))
-  (def headers (map #(str ":" (name %)) (get-header organ sheet-key)))
-  (def rows (get-rows organ sheet-key))
-  (take 10 (concat (list headers) rows))
-
-
-  (write-csv :kidney :waiting-baseline-cifs)
-  (write-csv :kidney :waiting-baseline-vars)
-  (write-csv :kidney :waiting-inputs)
-  (write-edn :kidney :waiting-inputs)
-
-  (write-edn :kidney :waiting-baseline-vars))
-
-(defn row->map
-  [headers row]
-  (zipmap headers row))
-
-(comment
-  (require '[clojure.pprint :refer [pp pprint]])
 
   (cfg/get-config :kidney)
   (cfg/memo-config :kidney)
@@ -411,44 +338,13 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   (try (cfg/get-sheet-spec :kidney :foo)
        (catch Exception e (ex-data e)))
 
-  (get-header :kidney :waiting-baseline-cifs)
-  (get-rows :kidney :waiting-baseline-cifs)
-  (get-all-rows :kidney :waiting-baseline-cifs)
   (get-row-maps :kidney :waiting-baseline-cifs)
-
-  (get-header :kidney :waiting-baseline-vars)
-  (get-rows :kidney :waiting-baseline-vars)
   (get-row-maps :kidney :waiting-baseline-vars)
 
-  (get-header :kidney :waiting-inputs)
-  (get-all-rows :kidney :waiting-inputs)
   (:beta-removal (get-variables :kidney :waiting-inputs))
-  ; (nil nil 0.0 0.01097 nil -0.99622 -0.75824 -0.43028 0.0 0.66553 1.56677 nil 0.0 -0.13979 nil 0.0 -0.19443 -0.03596 -0.19443 nil 0.0 0.09631 0.2109 nil 0.0 -0.10169 nil 0.0 -0.31226 nil 0.0 0.32677 nil 0.18723 0.0 nil nil nil nil nil)
-  
-  (first (get-all-rows :kidney :waiting-inputs))
   (get-row-maps :kidney :waiting-inputs)
 
-  (sub-table :kidney :waiting-inputs [:factor :level :button-labels] :sex)
-  ; ({:factor :sex, :level :male, :button-labels "Male"} 
-  ; {:factor :sex, :level :female, :button-labels "Female"})
-  
-  (get-header :kidney :waiting-baseline-cifs)
-  
-
-  (get-header :kidney :graft-baseline-cifs)
-  (get-header :kidney :graft-baseline-vars)
-  (get-header :kidney :graft-baseline-inputs)
-
-  (get-header :kidney :bmi-calculator)
-
-  (get-header :kidney :survival-baseline-cifs)
-  (get-header :kidney :survival-baseline-vars)
-  (get-header :kidney :survival-inputs)
-
-  (get-header :lung :waiting-baseline-cifs)
-
-  
-  
-  (pprint (read-table  ((:tables (aero/read-config :kidney)) 0)))
-  (pp)
-  (pprint *1))
+  ;(pprint (read-table  ((:tables (aero/read-config :kidney)) 0)))
+  ;(pp)
+  ;(pprint *1)
+  )

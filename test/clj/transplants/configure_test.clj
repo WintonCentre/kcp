@@ -2,7 +2,9 @@
   (:require  [transplants.configure :as c]
              [transplants.utils :as utils]
              [transplants.config :as cfg]
-             [clojure.test :as t :refer [deftest is testing]]))
+             [clojure.test :as t :refer [deftest is testing]]
+             [clojure.pprint :refer [pprint]]
+             [clojure.string :refer [starts-with?]]))
 
 (deftest success
   (is (= 1 1)))
@@ -16,27 +18,31 @@
 
 (deftest config-file
   (testing "config-edn makes sense"
-    (is (= (cfg/get-sheet-spec :kidney :waiting-inputs) {:beta-all-reasons {:column :H, :match "all"}
-                                                         :beta-death {:column :G, :match "death"}
-                                                         :beta-removal {:column :F, :match "remov"}
-                                                         :beta-transplant {:column :E, :match "transplant"}
-                                                         :button-labels {:column :B, :match "(level)|(button)"}
-                                                         :factor {:column :C, :match "factor"}
-                                                         :info-box? {:column :K, :match "info"}
-                                                         :label {:column :A, :match "(Factor)|(label)"}
-                                                         :level {:column :D, :match "level"}
-                                                         :order {:column :L, :match "order"}
-                                                         :sub-text {:column :J, :match "sub"}
-                                                         :type {:column :I, :match "type"}}))
-    (is (= (cfg/get-columns :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box? :order)))
-    (is (= (cfg/get-variable-keys :kidney :waiting-inputs) '(:label :button-labels :factor :level :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box? :order)) )
-    (is (= (cfg/get-column-selection :kidney :waiting-inputs) {:I :type, :A :label, :F :beta-removal, :D :level, :B :button-labels, :J :sub-text, :C :factor, :E :beta-transplant, :G :beta-death, :H :beta-all-reasons, :K :info-box?, :L :order}))
-    ))
+    (is (= (cfg/get-sheet-spec :kidney :waiting-inputs) 
+           {:beta-transplant {:column :E, :match "transplant"}, :beta-death {:column :G, :match "death"}, :info-box? {:column :K, :match "info"}, :beta-removal {:column :F, :match "remov"}, :beta-all-reasons {:column :H, :match "all"}, :type {:column :I, :match "type"}, :sub-text {:column :J, :match "sub"}, :level {:column :B, :match "level"}, :level-name {:column :D, :match "(level)|(button)"}, :factor {:column :A, :match "factor"}, :factor-name {:column :C, :match "(Factor)|(label)"}, :order {:column :L, :match "order"}}
+    ;(is (= (cfg/get-columns :kidney :waiting-inputs) '(:factor :level :label :button-labels :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box? :order)))
+    ;(is (= (cfg/get-variable-keys :kidney :waiting-inputs) '(:factor :level :label :button-labels :beta-transplant :beta-removal :beta-death :beta-all-reasons :type :sub-text :info-box? :order)) )
+    #_(is (= (cfg/get-column-selection :kidney :waiting-inputs) {:A :factor
+                                                               :B :level
+                                                               :C :factor-name
+                                                               :D :level-name
+                                                               :E :beta-transplant
+                                                               :F :beta-removal
+                                                               :G :beta-death
+                                                               :H :beta-all-reasons
+                                                               :I :type
+                                                               :J :sub-text
+                                                               :K :info-box?
+                                                               :L :order}))
+    ))))
+
+#_ (pprint (config-file))
 
 (deftest bundles
   (testing "bundles exist in config"
-    (is (= (cfg/get-bundle :kidney :graft) [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]))))
+    (is (= (cfg/get-bundle :kidney :graft) {:graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]}))))
 
+#_ (bundles)
 
 (defn rectangular [organ sheet]
   (let [variables (c/get-variables :kidney :waiting-baseline-cifs)
@@ -71,6 +77,15 @@
   (= (cfg/get-variable-keys organ sheet) 
      (c/get-header organ sheet)) sheet)
 
+(comment
+  ; Add important assertions we need to check here:
+  ; 
+  ; Apart from :centre, factors in baseline-vars should agree with those in inputs
+  ; All data frames are rectangular once read in
+  ; All widgets have a level-name (or label) - todo: there has been a name change here
+  ;
+  ; All cross-over factors like d-gp*centre should have all possible levels and betas
+  )
 
 (deftest kidney-variables-check
   (testing "configured variables are spreadsheet headers"
@@ -88,10 +103,10 @@
   [organ sheet-prefix] 
   (let [sheet1 (keyword (str (name sheet-prefix) "-baseline-vars"))
         sheet2 (keyword (str (name sheet-prefix) "-inputs"))
-        b-factors (:baseline-factor  (c/get-variables organ sheet1))
+        b-factors (:factor  (c/get-variables organ sheet1))
         i-factors (distinct (:factor (c/get-variables organ sheet2)))]
-    (is (=  (into #{} (remove nil? b-factors)) 
-            (into #{} (remove nil? i-factors)))
+    (is (=  (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) b-factors)) 
+            (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) i-factors)))
         [:check-factors organ sheet-prefix])))
 
 (deftest check-kidney-factors
@@ -100,19 +115,20 @@
     (check-factors :kidney :graft)
     (check-factors :kidney :survival)))
 
-
-(defn check-type-label
+(defn check-levels-are-named
   [organ sheet row]
-  (is (= (nil? (:type row)) (nil? (:label row)))
-      [:in organ sheet (:factor row) (:level row)]))
+  (if (#{":numeric" ":param"} (:type row))
+    (is true)
+    (is (= (nil? (:level row)) (nil? (:level-name row)))
+        [:in organ sheet (:factor row) (:level row)])))
 
 (defn check-widget-labels
   [organ sheet-prefix]
   (let [sheet (keyword (str (name sheet-prefix) "-inputs"))
         rows (c/get-row-maps organ sheet)]
-    (mapv (partial check-type-label organ sheet) rows)))
+    (mapv (partial check-levels-are-named organ sheet) rows)))
 
-(deftest kidney-widgets-have-a-label
+(deftest kidney-widgets-have-a-level-name
   (testing "All kidney widget types have a Label"
     (check-widget-labels :kidney :waiting)
     (check-widget-labels :kidney :graft)
@@ -133,7 +149,7 @@
     (rectangular :lung :from-listing-inputs)
     (rectangular :lung :numerics)))
 
-(lung-data-frames)
+#_(lung-data-frames)
 
 (def lung-headers (partial cfg/get-variable-keys :lung))
 

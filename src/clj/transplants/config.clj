@@ -10,29 +10,52 @@
   [path profile]
   (aero/read-config (io/resource path) {:profile profile}))
 
+;**
 (defn get-config
   "Read the configuration file, profiled by organ - either :lung or :kidney"
   [profile]
   (aero/read-config "data/config.edn" {:profile profile}))
 
+;**
 (def memo-config 
+  "A function that memoizes a call to get-config.
+  Things run faster when utils/MEMO is true. 
+  Debugging can be easier when it's false."
   (if utils/MEMO (memoize get-config) get-config))
-
 
 (defn get-sheet-spec
   "get sheet spec given sheet-key"
   [organ sheet-key]
+  ;(println "sheet-key" sheet-key)
   (if-let [sheet (get-in (memo-config organ) [:sheets sheet-key])]
     sheet
-    (throw (ex-info "Unable to read sheet"
+    (throw (ex-info (str "Unable to read sheet " sheet-key)
                     {:cause "sheet name missing?"
                      :organ organ
                      :sheet sheet-key}))))
 
+(comment
+  (get-config :lung)
+  (get-in (memo-config :lung) [:sheets nil])
+  )
+
+;**
 (defn get-bundle
-  "Return the bundles of sheet-keys associated with a tool"
-  [organ tool-key]
-  (get-in (memo-config organ) [:bundles tool-key]))
+  "Return the bundles of sheet-keys associated with a tool, or if no tool is given, returns a map of
+   tool-key bundles"
+  ([organ]
+   (get-bundle organ nil))
+  ([organ tool-key]
+   (let [bs (get (memo-config organ) :bundles)]
+     (if tool-key
+       (into {} [(find bs tool-key)])
+       bs))))
+
+(comment
+  (get-bundle :kidney)
+  (get-bundle :lung)
+  (get-bundle :kidney :waiting)
+  )
 
 (defn get-column-selection
   "Return a map of columns suitable for docjure select-columns. Column order may not be preserved in the map."
@@ -51,3 +74,6 @@
   "Treating the spreadsheet as a data frame, return a list of keys identifying the variables in the header row"
   get-columns)
 
+(comment
+  (get-columns :lung :numerics)
+  )

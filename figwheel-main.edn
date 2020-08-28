@@ -1,0 +1,4 @@
+{:watch-dirs ["src/cljs" "src/cljc" "test/cljs"]
+ :css-dirs ["resources/public/css" "resources/public/open-iconic"]
+ :target-dir "resources"
+ }

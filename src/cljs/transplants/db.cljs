@@ -1,10 +1,8 @@
 (ns transplants.db)
 
-(defn path-to-tool-data
-  [tool-key]
-  )
-
-
 (def default-db
-  {:name "re-frame"})
-
+  {:window-width 800 #_(.innerWidth js/Window)
+   :background-info :visits
+   :guidance-percent 22
+  ; Move these to the spreadsheet
+   :cohort-dates {:from-year 2004 :to-year 2014}})

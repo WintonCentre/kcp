@@ -1,5 +1,9 @@
+# shadow-cljs.edn is now generated
+shadow-cljs.edn
 /out/
 /resources/public/js/compiled/
+resources/public/kidney
+resources/public/lung
 /target/
 /*-init.clj
 /*.log
@@ -18,14 +22,23 @@
 /dist/*
 .cache/
 resources/public/js
+resources/public/cljs-out
 .DS_Store
 */.DS_Store
 
 # WIP - not ready for the public
 doc/UI inputs.md
+.calva/.cache
+.calva/output-window/*
 ~*
 nashorn_code_cache/*
 .cljs_nashorn*/*
 
 # experimental
 src/cljs/eric.*
+resources/public/report.html
+.cpcache/
+
+.rebel_readline_history
+.idea/
+transplants.iml

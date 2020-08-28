@@ -1,0 +1,348 @@
+# Transplants
+
+## WARNING: 
+If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
+** TODO: Add exception handling for this condition. **
+
+## MOCKUP
+See https://docs.google.com/presentation/d/1uKk0HyclaTMCb-EIZiyVdJPBjzzHflArWoq8ukwbMGE/edit?usp=sharing
+
+## Contents
+This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
+
+The configuration tools are written in clojure and run on the JVM. JVM 8 or 11 are recommended for clojure. Use a tool such as Jabba to install and switch JVM versions as necessary. Since Oracle JVMs are no longer free we are using `adopt-openj9@1.11.0-6`.
+
+The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html) tool set as this gave simpler access to the few `npm` module dependencies such as react-bootstrap that we are using.
+
+There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
+
+
+## Status
+**Requirements**
+
+[Spreadsheet at](file:///Users/gmp26/Dropbox (Cambridge University)/Winton Centre/TRANSPLANT/LUNGS/LUNGS - OTHER STUFF/NHS BT MEETINGStransplants/lungs/lungs other stuff/NHSBT meetings/Joel McGrath/)
+
+**Work in Progress**
+A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
+
+I'm working on the premise that we can generate all the organ transplant tools from this one repo, and also do the configuration pre-processing here.
+
+See the config files in the data folder. 
+
+## Configuration tools and data
+  Tools are in `src/clj/transplants/configure`.
+  Configuration is in `data` and is controlled by `config.edn`
+
+  Run `lein check` to check that the xlsx spreadsheets are not too crazy. This catches a lot of potential problems, but probably not all problems as yet. 
+  Configuration tests run under the `configure` leiningen profile. 
+
+  Run `lein config` to generate a complete set of edn and csv files in the resources/public directory. This
+  also uses the `configure` profile.
+
+  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
+
+### Configuration Development
+All data is stored in the `data` folder.
+```
+data
+├── config.edn
+├── incoming-kidney
+│   ├── Competing\ risks\ CIF\ kidney.xlsx
+│   ├── Formal\ post\ tx\ patient\ and\ graft\ survival.xlsx
+│   └── post\ tx\ patient\ and\ graft\ survival.xlsx
+├── incoming-lung
+│   ├── About\ the\ TRAC\ tool\ FINAL.docx
+│   ├── Competing\ risks\ CIF\ lung.xlsx
+│   ├── Data\ for\ lung\ TRAC\ tool.pdf
+│   ├── Post-transplant\ information.xlsx
+│   ├── Survival\ from\ listing\ information.xlsx
+│   └── leila-ucd.xlsx
+├── kidney-models-master.xlsx
+└── lung-models-master.xlsx
+```
+
+The `incoming-...` files were received from NHSBT. These have now 
+been reformatted and transcribed into `kidney-models-master.xlsx` and `lung-models-master.xlsx`.
+
+The job of the clojure configuration app is to read these spreadsheets and validate then, and then write them out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code. 
+
+The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing. 
+
+### Jacking in from vs-code to work on the *configuration* process
+If jacking in from VS-Code for shadow-cljs be sure to select `leiningen` with `no alias` and then the `:configuration` profile. 
+
+## Trac Tool Development
+Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start that way to avoid duplication. So far so good.
+
+### Building
+We now have a choice of shadow-cljs or core clojurescript builds. 
+
+#### Shadow-cljs
+Use the master branch
+
+Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. 
+
+### Alternative jack-in using cljs-core and webpack on the n olan branch
+#### Preliminary test
+Use the nolan branch
+
+From the command line try
+```
+clojure -Afig -m figwheel.main  -b dev --repl
+```
+or, for test:
+```
+clojure -Afig -m figwheel.main -b test -r
+```
+This still needs adjustment for the command line, but it is close - you need to call (-main) to run the tests.
+
+Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select fig ONLY. If you select fig AND dev you will run -Afig:dev which calls up the Rebel-readline repl rather than the Calva repl and Calva inline evaluation commands will fail.
+
+So, wait for
+```
+> Executing task: clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.23.0"} clj-kondo {:mvn/version "2020.04.05"} cider/piggieback {:mvn/version "0.4.2"}}}' -A:fig -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware cider.piggieback/wrap-cljs-repl]" <
+```
+to complete. THEN select the dev build.
+
+
+### Use of lein shadow
+We have included the lein-shadow plugin which moves all the shadow configuration into the leiningen project file.
+* See https://gitlab.com/nikperic/lein-shadow/-/tree/docs
+* lein shadow compile app
+* lein shadow watch app
+* lein shadow release app
+
+
+## Tests
+Run `lein karma` for cljs unit tests
+Run `lein check` for xlsx configuration tests
+
+# Original Re-frame template README below
+## Getting Started
+
+### Project Overview
+
+* Architecture:
+[Single Page Application (SPA)](https://en.wikipedia.org/wiki/Single-page_application)
+* Languages
+  - Front end ([re-frame](https://github.com/day8/re-frame)): [ClojureScript](https://clojurescript.org/) (CLJS)
+* Dependencies
+  - UI framework: [re-frame](https://github.com/day8/re-frame)
+  ([docs](https://github.com/day8/re-frame/blob/master/docs/README.md),
+  [FAQs](https://github.com/day8/re-frame/blob/master/docs/FAQs/README.md)) ->
+  [Reagent](https://github.com/reagent-project/reagent) ->
+  [React](https://github.com/facebook/react)
+  - Client-side routing: [Secretary](https://github.com/gf3/secretary)
+* Build tools
+  - Project task & dependency management: [Leiningen](https://github.com/technomancy/leiningen)
+  - CLJS compilation, REPL, & hot reload: [`shadow-cljs`](https://github.com/thheller/shadow-cljs)
+  - Test framework: [cljs.test](https://clojurescript.org/tools/testing)
+  - Test runner: [Karma](https://github.com/karma-runner/karma)
+* Development tools
+  - Debugging: [CLJS DevTools](https://github.com/binaryage/cljs-devtools),
+  [`re-frame-10x`](https://github.com/day8/re-frame-10x)
+
+#### Directory structure
+
+* [`/`](/../../): project config files
+* [`dev/`](dev/): source files compiled only with the [dev](#running-the-app) profile
+  - [`cljs/user.cljs`](dev/cljs/user.cljs): symbols for use during development in the
+[ClojureScript REPL](#connecting-to-the-browser-repl-from-a-terminal)
+* [`resources/public/`](resources/public/): SPA root directory;
+[dev](#running-the-app) / [prod](#production) profile depends on the most recent build
+  - [`index.html`](resources/public/index.html): SPA home page
+    - Dynamic SPA content rendered in the following `div`:
+        ```html
+        <div id="app"></div>
+        ```
+    - Customizable; add headers, footers, links to other scripts and styles, etc.
+  - Generated directories and files
+    - Created on build with either the [dev](#running-the-app) or [prod](#production) profile
+    - Deleted on `lein clean` (run by all `lein` aliases before building)
+    - `js/compiled/`: compiled CLJS (`shadow-cljs`)
+      - Not tracked in source control; see [`.gitignore`](.gitignore)
+* [`src/cljs/transplants/`](src/cljs/transplants/): SPA source files (ClojureScript,
+[re-frame](https://github.com/Day8/re-frame))
+  - [`core.cljs`](src/cljs/transplants/core.cljs): contains the SPA entry point, `init`
+* [`test/cljs/transplants/`](test/cljs/transplants/): test files (ClojureScript,
+[cljs.test](https://clojurescript.org/tools/testing))
+  - Only namespaces ending in `-test` (files `*_test.cljs`) are compiled and sent to the test runner
+
+### Editor/IDE
+
+Use your preferred editor or IDE that supports Clojure/ClojureScript development. See
+[Clojure tools](https://clojure.org/community/resources#_clojure_tools) for some popular options.
+
+### Environment Setup
+
+1. Install [JDK 8 or later](https://openjdk.java.net/install/) (Java Development Kit)
+2. Install [Leiningen](https://leiningen.org/#install) (Clojure/ClojureScript project task &
+dependency management)
+3. Install [Node.js](https://nodejs.org/) (JavaScript runtime environment)
+4. Install [karma-cli](https://www.npmjs.com/package/karma-cli) (test runner):
+    ```sh
+    npm install -g karma-cli
+    ```
+5. Install [Chrome](https://www.google.com/chrome/) or
+[Chromium](https://www.chromium.org/getting-involved/download-chromium) version 59 or later
+(headless test environment)
+    * For Chromium, set the `CHROME_BIN` environment variable in your shell to the command that
+    launches Chromium. For example, in Ubuntu, add the following line to your `.bashrc`:
+        ```bash
+        export CHROME_BIN=chromium-browser
+       ```
+7. Clone this repo and open a terminal in the `transplants` project root directory
+8. Download project dependencies:
+    ```sh
+    lein deps && npm install
+    ```
+
+### Browser Setup
+
+Browser caching should be disabled when developer tools are open to prevent interference with
+[`shadow-cljs`](https://github.com/thheller/shadow-cljs) hot reloading.
+
+Custom formatters must be enabled in the browser before
+[CLJS DevTools](https://github.com/binaryage/cljs-devtools) can display ClojureScript data in the
+console in a more readable way.
+
+#### Chrome/Chromium
+
+1. Open [DevTools](https://developers.google.com/web/tools/chrome-devtools/) (Linux/Windows: `F12`
+or `Ctrl-Shift-I`; macOS: `⌘-Option-I`)
+2. Open DevTools Settings (Linux/Windows: `?` or `F1`; macOS: `?` or `Fn+F1`)
+3. Select `Preferences` in the navigation menu on the left, if it is not already selected
+4. Under the `Network` heading, enable the `Disable cache (while DevTools is open)` option
+5. Under the `Console` heading, enable the `Enable custom formatters` option
+
+#### Firefox
+
+1. Open [Developer Tools](https://developer.mozilla.org/en-US/docs/Tools) (Linux/Windows: `F12` or
+`Ctrl-Shift-I`; macOS: `⌘-Option-I`)
+2. Open [Developer Tools Settings](https://developer.mozilla.org/en-US/docs/Tools/Settings)
+(Linux/macOS/Windows: `F1`)
+3. Under the `Advanced settings` heading, enable the `Disable HTTP Cache (when toolbox is open)`
+option
+
+Unfortunately, Firefox does not yet support custom formatters in their devtools. For updates, follow
+the enhancement request in their bug tracker:
+[1262914 - Add support for Custom Formatters in devtools](https://bugzilla.mozilla.org/show_bug.cgi?id=1262914).
+
+## Development
+
+### Running the App
+
+Start a temporary local web server, build the app with the `dev` profile, and serve the app with
+hot reload:
+
+```sh
+lein dev
+```
+
+Please be patient; it may take over 20 seconds to see any output, and over 40 seconds to complete.
+
+When `[:app] Build completed` appears in the output, browse to
+[http://localhost:8280/](http://localhost:8280/).
+
+[`shadow-cljs`](https://github.com/thheller/shadow-cljs) will automatically push ClojureScript code
+changes to your browser on save. To prevent a few common issues, see
+[Hot Reload in ClojureScript: Things to avoid](https://code.thheller.com/blog/shadow-cljs/2019/08/25/hot-reload-in-clojurescript.html#things-to-avoid).
+
+Opening the app in your browser starts a
+[ClojureScript browser REPL](https://clojurescript.org/reference/repl#using-the-browser-as-an-evaluation-environment),
+to which you may now connect.
+
+#### Connecting to the browser REPL from your editor
+
+See
+[Shadow CLJS User's Guide: Editor Integration](https://shadow-cljs.github.io/docs/UsersGuide.html#_editor_integration).
+Note that `lein dev` runs `shadow-cljs watch` for you, and that this project's running build id is
+`app`, or the keyword `:app` in a Clojure context.
+
+Alternatively, search the web for info on connecting to a `shadow-cljs` ClojureScript browser REPL
+from your editor and configuration.
+
+For example, in Vim / Neovim with `fireplace.vim`
+1. Open a `.cljs` file in the project to activate `fireplace.vim`
+2. In normal mode, execute the `Piggieback` command with this project's running build id, `:app`:
+    ```vim
+    :Piggieback :app
+    ```
+
+#### Connecting to the browser REPL from a terminal
+
+1. Connect to the `shadow-cljs` nREPL:
+    ```sh
+    lein repl :connect localhost:8777
+    ```
+    The REPL prompt, `shadow.user=>`, indicates that is a Clojure REPL, not ClojureScript.
+
+2. In the REPL, switch the session to this project's running build id, `:app`:
+    ```clj
+    (shadow.cljs.devtools.api/nrepl-select :app)
+    ```
+    The REPL prompt changes to `cljs.user=>`, indicating that this is now a ClojureScript REPL.
+3. See [`user.cljs`](dev/cljs/user.cljs) for symbols that are immediately accessible in the REPL
+without needing to `require`.
+
+### Running Tests
+
+Build the app with the `prod` profile, start a temporary local web server, launch headless
+Chrome/Chromium, run tests, and stop the web server:
+
+```sh
+lein karma
+```
+
+Please be patient; it may take over 15 seconds to see any output, and over 25 seconds to complete.
+
+### Running `shadow-cljs` Actions
+
+See a list of [`shadow-cljs CLI`](https://shadow-cljs.github.io/docs/UsersGuide.html#_command_line)
+actions:
+```sh
+lein run -m shadow.cljs.devtools.cli --help
+```
+
+Please be patient; it may take over 10 seconds to see any output. Also note that some actions shown
+may not actually be supported, outputting "Unknown action." when run.
+
+Run a shadow-cljs action on this project's build id (without the colon, just `app`):
+```sh
+lein run -m shadow.cljs.devtools.cli <action> app
+```
+### Debug Logging
+
+The `debug?` variable in [`config.cljs`](src/cljs/transplants/config.cljs) defaults to `true` in
+[`dev`](#running-the-app) builds, and `false` in [`prod`](#production) builds.
+
+Use `debug?` for logging or other tasks that should run only on `dev` builds:
+
+```clj
+(ns transplants.example
+  (:require [transplants.config :as config])
+
+(when config/debug?
+  (println "This message will appear in the browser console only on dev builds."))
+```
+
+## Production
+
+Build the app with the `prod` profile:
+
+```sh
+lein prod
+```
+
+Please be patient; it may take over 15 seconds to see any output, and over 30 seconds to complete.
+
+The `resources/public/js/compiled` directory is created, containing the compiled `app.js` and
+`manifest.edn` files.
+
+The [`resources/public`](resources/public/) directory contains the complete, production web front
+end of your app.
+
+Always inspect the `resources/public/js/compiled` directory prior to deploying the app. Running any
+`lein` alias in this project after `lein dev` will, at the very least, run `lein clean`, which
+deletes this generated directory. Further, running `lein dev` will generate many, much larger
+development versions of the files in this directory

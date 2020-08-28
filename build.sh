@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Please add appropriate build"
+lein prod

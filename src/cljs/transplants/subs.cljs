@@ -22,6 +22,8 @@
 
 (rf/reg-sub ::background-info (fn [db] (get-in db [:background-info])))
 
+(rf/reg-sub ::guidance-percent (fn [db] (get-in db [:guidance-percent])))
+
 (rf/reg-sub ::tools (fn [db] (get-in db [:tools])))
 
 (rf/reg-sub ::tool (fn [db] (get-in db [:tool])))

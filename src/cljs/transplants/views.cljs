@@ -68,7 +68,7 @@
    :donors "Donor Decisions"
    :medications "Medications after Transplant Surgery"
    :window "The Window"
-   :percent "What does a percent look like?"}
+   :percent "What does a percentage look like?"}
   )
 
 (defmulti show-background-info 
@@ -78,17 +78,18 @@
 (defmethod show-background-info :visits [options]
   [:<>
    [:h3 (:visits background-infos)]
+   [:p "A typical patient might revisit"]
    [:ul
-    [:li "1st  month 	-  once a week, every week"]
-    [:li "2nd month 	- once a week, every other week"]
-    [:li "3rd month 	- once a week, every other week"]
-    [:li "4th month 	- once a week, every 4 weeks"]
-    [:li "Once a week every 4 weeks for 1 more year"]
-    [:li "Then every 3 months for life"]]])
+    [:li "in the first month 	-  once a week,"]
+    [:li "in the second month - every other week,"]
+    [:li "in the third month 	- every other week,"]
+    [:li "in the first year	- every 4 weeks,"]
+    [:li "then every 3 months for life"]]])
 
 (defmethod show-background-info :donors [options]
   [:<>
    [:h3 (:donors background-infos)]
+   [:p "A checklist of donor factors that may affect a decision."]
    [:ul
     [:li "Recent or ex smoker"]
     [:li "Older donor (>60 years)"]
@@ -125,23 +126,57 @@
 (defmethod show-background-info :window [options]
   [:<>
    [:h3 (:window background-infos)]
+   [:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
+        decreases, there comes a point where a transplant could be recommended. This opens
+        a window of opportunity which persists until the patient receives a transplant or
+        their health deteriorates to the point where it would no longer be recommended." ]
    [:> bs/Image {:fluid true
                  :src "assets/The Window.png"}]])
 
+(defn a-percentage
+  "Replace 'a percentage ' in s with 'v% '"
+  [s v]
+  (string/replace s
+                  "a percentage "
+                  (str v "% "))
+  )
+
 (defmethod show-background-info :percent [options]
-  [:<> 
-   [:h3 (:percent background-infos)]
-   (into
-    [:<>
-     (map
-      (fn [j]
-        [ui/row
-         [ui/col
-          (into [:<> 
-                 (map (fn [i]
-                        [ui/open-icon {:color (if (< (+ (* i 10) j) 22) "#488" "#CCC")
-                                       :padding "0px 5px"} "person"]) (range 10))])]])
-      (range 10))])])
+  (let [percent @(rf/subscribe [::subs/guidance-percent])]
+    [:<> 
+     [:h3 (a-percentage (:percent background-infos) percent)]
+     [ui/row
+      [ui/col {:sm 3 :style {:margin-bottom 5}}
+       [:div {:style {:display :flex :width 120 :justify-content "space-between"
+                      :margin-bottom 5}}
+        [:> bs/Button {:style {:width 55}
+                       :disabled (zero? percent)
+                       :on-click #(rf/dispatch [::events/inc-guidance-percent -1])} "- 1"]
+        [:> bs/Button {:style {:width 55}
+                       :disabled (= 100 percent)
+                       :on-click #(rf/dispatch [::events/inc-guidance-percent 1])} "+ 1"]
+        ]
+       [:div {:style {:display :flex :width 120 :justify-content "space-between"}}
+        [:> bs/Button {:style {:width 55}
+                       :disabled (zero? percent)
+                       :on-click #(rf/dispatch [::events/inc-guidance-percent -10])} "-10"]
+        [:> bs/Button {:style {:width 55}
+                       :disabled (= 100 percent)
+                       :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]
+        ]]
+      [ui/col {:sm 9}
+       (into
+        [:<>
+         (map
+          (fn [j]
+            [ui/row
+             [ui/col
+              (into [:<> 
+                     (map (fn [i]
+                            [ui/open-icon {:color (if (<= (- 100 (+ (* j 10) i)) percent) "#488" "#CCC")
+                                           :padding "0px 5px"} "person"]) (range 10))])]])
+          (range 10))])]
+      ]]))
 
 
 
@@ -185,16 +220,16 @@
              ]
             [:> bs/ListGroup.Item {:action true
                                    :on-click #(rf/dispatch [::events/background-info :donors])}
-             "Donor Decisions"]
+             (:donors background-infos)]
             [:> bs/ListGroup.Item {:action true
                                    :on-click #(rf/dispatch [::events/background-info :medications])}
-             "Medications after transplant surgery"]
+             (:medications background-infos)]
             [:> bs/ListGroup.Item {:action true
                                    :on-click #(rf/dispatch [::events/background-info :window])}
-             "The Window"]
+             (:window background-infos)]
             [:> bs/ListGroup.Item {:action true
                                    :on-click #(rf/dispatch [::events/background-info :percent])}
-             "What does a percent look like?"]]
+             (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]
            
            ]
           [ui/col {:md 8}

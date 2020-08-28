@@ -82,6 +82,15 @@
    [db [_ b-info]]
    (assoc db :background-info b-info)))
 
+(rf/reg-event-db
+ ; guidance-percent
+ ::inc-guidance-percent
+ (fn ;-traced 
+   [db [_ increment]]
+   (update db :guidance-percent 
+           (fn [old]
+             (let [new (+ old increment)]
+               (max (min new 100) 0))))))
 #_(comment
     (rf/reg-event-db
  ; flag that tool-data is required after centres have been loaded

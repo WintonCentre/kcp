@@ -24,6 +24,8 @@
 
 (rf/reg-sub ::guidance-percent (fn [db] (get-in db [:guidance-percent])))
 
+(rf/reg-sub ::randomise-icons (fn [db] (get-in db [:randomise-icons])))
+
 (rf/reg-sub ::tools (fn [db] (get-in db [:tools])))
 
 (rf/reg-sub ::tool (fn [db] (get-in db [:tool])))

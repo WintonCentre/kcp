@@ -83,6 +83,13 @@
    (assoc db :background-info b-info)))
 
 (rf/reg-event-db
+ ; randomise-icons
+ ::randomise-icons
+ (fn ;-traced 
+   [db [_ _]]
+   (update db :randomise-icons not)))
+
+(rf/reg-event-db
  ; guidance-percent
  ::inc-guidance-percent
  (fn ;-traced 

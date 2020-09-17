@@ -6,7 +6,6 @@
    [transplants.fx :as fx]
    [transplants.utils :as utils]
    [transplants.db :as init-db]
-   [transplants.transforms :as xf]
    [transplants.factors :as fac]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]

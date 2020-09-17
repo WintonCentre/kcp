@@ -306,8 +306,8 @@ in the routes table."
   ([name]
    (open-icon nil name))
   ([style name]
-   [:span (assoc {:class (str "oi oi-" name) 
-                  :title name 
+   [:span (assoc {:class (str "oi oi-" name)
+                  :title name
                   :aria-hidden "true"}
                  :style style)]))
 
@@ -320,7 +320,7 @@ in the routes table."
     [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
      "Results for test day:"]]
    [:> bs/Col
-    (ni/numeric-input {:id "test-day-input"
+    (ni/numeric-input {:key :test/day-input ; creates id="test-day-input" on input element
                        :value-f (fn [] @(rf/subscribe [::subs/test-day]))
                        :min (constantly 0)
                        :max (constantly (* 365 5))

@@ -1,5 +1,6 @@
 # shadow-cljs.edn is now generated
 shadow-cljs.edn
+
 /out/
 /resources/public/js/compiled/
 resources/public/kidney
@@ -7,7 +8,8 @@ resources/public/lung
 /target/
 /*-init.clj
 /*.log
-
+resources/public/js-old
+resources/public/cljs-out-old
 # Leiningen
 /.lein-*
 /.nrepl-port

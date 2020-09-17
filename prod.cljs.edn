@@ -1,7 +1,8 @@
-^{:open-url "http://[[server-hostname]]:[[server-port]]/prod.html"}
+;^{:open-url "http://[[server-hostname]]:[[server-port]]/.html"}
 {:main transplants.core
  :target :bundle
  :cljs-devtools false
  :closure-defines {cljs.core/*global* "window"}
+ ;:output-to "resources/public/cljs-out/prod/main.js"
  :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]
               :default ["npx" "webpack" "--mode=production" :output-to "-o" :final-output-to]}}

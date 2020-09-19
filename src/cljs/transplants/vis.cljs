@@ -16,10 +16,16 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]))
 
+(defn short-outcomes
+  "Shorter outcome names. Used in ... ; todo"
+  [outcomes]
+  (map (fn [v] (replace v #"-reasons" "")) outcomes)
+  )
 
 (defn outcome-tr
   "Render an outcomes row header"
   [k outcomes]
+  (println ::outcomes (short-outcomes outcomes))
   [:tr {:key k :style {:background-color rgb/secondary :color "#fff"}}
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
@@ -60,7 +66,7 @@
             [:thead [outcome-tr 1005 outcomes]]
             (into [:tbody
 
-                           ; Scaled cifs
+                   ; Scaled cifs
                    [:tr {:key 1000}
                     [:td [:b "Scaled CIF"]]
                     (map-indexed
@@ -68,8 +74,15 @@
                        [:td {:key i} (model/to-precision cif 4)])
                      (apply model/scaled-cifs cifs))]
 
-                           ; Individualised raw cifs
+                   ; Individualised raw cifs
                    [:tr {:key 1001}
+                    [:td [:b "Unscaled CIF"]]
+                    (map
+                     (fn [outcome cif]
+                       [:td {:key outcome :id outcome} (model/to-precision cif 4)])
+                     (short-outcomes outcomes) cifs)] 
+                   
+                   #_[:tr {:key 1001}
                     [:td [:b "Unscaled CIF"]]
                     (map-indexed
                      (fn [i cif]

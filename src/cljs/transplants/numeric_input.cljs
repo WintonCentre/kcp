@@ -162,7 +162,7 @@
 (defn numeric-input
   [{:keys [key id value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
 
-  (println "KEY " (type key) " ID " id)
+  ;(println "KEY " (type key) " ID " id)
   (let [[good bad] (split (value-f) #":")
         value (str-to-num good)
         nmin (str-to-num (if (fn? min) (min) min))

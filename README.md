@@ -39,7 +39,7 @@ See the config files in the data folder.
   Run `lein config` to generate a complete set of edn and csv files in the resources/public directory. This
   also uses the `configure` profile.
 
-  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuration files in `public/resources`.
+  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `public/resources`.
 
 ### Configuration Development
 All data is stored in the `data` folder.
@@ -206,12 +206,46 @@ Unfortunately, Firefox does not yet support custom formatters in their devtools.
 the enhancement request in their bug tracker:
 [1262914 - Add support for Custom Formatters in devtools](https://bugzilla.mozilla.org/show_bug.cgi?id=1262914).
 
-## Development
+## CLJS Development
 
-### Running the App
+We are using the react-bootstrap npm module as it provides some useful modal and popup behaviour which woud otherwise need jQuery. There are currently two mechanisms available to allow npm modules to be used in a cljs app. These are the clojure CLI tools with a deps.edn configuration file, and a shadow-cljs build. As it seems to be possible to support both with minor changes, that's what we do for now until it becomes clear which mechanism wins out. 
+
+The newer Deps/CLI uses webpack which should minimise the executable better than shadow-cljs as
+it supports tree shaking. Shadow-cljs is perhaps simpler to set up however.
+
+### Deps/CLI builds
+
+This is documented from the perspective of using a vscode development system with the Calva
+plugin for Clojure/script. We also use figwheel-main for hot-reload during development.
+
+I've documented the procedure at
+https://github.com/gmp26/calva-docs/blob/master/docs/figwheel-main-webpack.md and submitted a 
+pull request which has been accepted, though not yet published at time of writing. It should appear at https://calva.io/ in due course.
+
+Here's a quick summary:
+    1. deps.edn is a map of dependencies, source-paths, and aliases.
+    2. The clojure commandline interface tools (clojure or clj) refer to this file. `clj -Afoo` will cause them to refer to the alias `foo` in deps.edn.
+    3. extra-paths, extra-deps, and a main-opt can be declared in an alias. This permits one deps.edn to serve multiple functions.
+    4. We run figwheel.main as the main-opt. This has a `--build dev` option which refers to further configuration in dev.cljs.edn. We use bb-script/switch-10x-dev.clj shell script to switch builds between 10x (for heads-up data display during development), dev (development without 10x), and prod (an optimised build).
+    5. See also `figwheel-main.edn` where the target folder is specified for compiled outputs.
+   
+In VSCode you can start a build using a `cider jack in` command.
+VSCode looks though the project and offers you available options. 
+For a CLJS development build choose either Clojure CLI + figwheel-main. Then go on to check `fig` either with or without
+`dev`. 
+
+First time through choose both `fig` and `dev` as this will force a webpack build. It does dump you in a terminal REPL however and as this is a lot less convenient than an in-editor REPL, on subsequent builds I recommend choosing only `fig` here. On the next screen you can select `dev`, but now you will have a Calva connected REPL.
+
+Do the same for a `10x` enabled build after running `bb-script/switch-10x-dev.clj 10x`, or `bb-script/switch-10x-dev.clj dev` if you don't want to use 10x.
+
+For a production build, run `bb-script/switch-10x-dev.clj prod` and then run `clj -Afig:prod`.
+   
+
+### Shadow-cljs builds
 
 Start a temporary local web server, build the app with the `dev` profile, and serve the app with
 hot reload:
+
 
 ```sh
 lein dev

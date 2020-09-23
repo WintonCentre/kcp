@@ -25,7 +25,7 @@
 (defn outcome-tr
   "Render an outcomes row header"
   [k outcomes]
-  (println ::outcomes (short-outcomes outcomes))
+  ;(println ::outcomes (short-outcomes outcomes))
   [:tr {:key k :style {:background-color rgb/secondary :color "#fff"}}
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
@@ -51,7 +51,7 @@
         ;; The following code assumes we have the "all-reasons" outcome in a well known slot
         ;; in the outcomes vector (currently first). 
         ;;
-        cifs  (map model/cif baseline-cifs-for-day sum-betas)]
+        cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)]
 
     [:> bs/Container
      [:> bs/Row
@@ -273,7 +273,7 @@
                      (range (inc (utils/day->year (:days (last baseline-cifs))))))
         cifs-by-year (map
                       (fn [day]
-                        (let [cifs (-> (vec (apply model/scaled-cifs (map model/cif
+                        (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
                                                                           (map (bun/cif-0 bundle day) outcome-keys)
                                                                           sum-betas)))
                                        (update 0 (if (>(count outcomes) 1)

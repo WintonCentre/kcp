@@ -284,11 +284,45 @@
                       sample-days)]
     
     [:> bs/Row 
-     [:> bs/Col 
-      [:h4 {:style {:margin-top 80}}
-       "What might happen after you join the waiting list for a " (name organ) " transplant?"]
-      [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]
+     [:> bs/Col
+      (case tool
+
+        :waiting
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "What might happen after I join the waiting list for a " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :post-transplant
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might I survive after a " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :from-listing
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might I survive from the time I join the " (name organ) " transplant list?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :survival
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might I survive after a " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :graft
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might the graft survive after the " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        [:<> "Title TBD" "[" (pr-str tool) "]"])
 
       #_[:p "Sample days:" (pr-str sample-days)]
       #_[:p "Outcomes:" (pr-str outcomes)]
@@ -306,7 +340,7 @@
                                  (map (fn [i outcome]
                                         [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
                                          [:rect {:x 0 :y 0 :width 200 :height 60
-                                                    :class-name ((keyword outcome) styles)}]
+                                                 :class-name ((keyword outcome) styles)}]
                                          [:text {:x 10 :y 40
                                                  :fill "#fff" :font-size 30}
                                           (relabel outcome)]]) 

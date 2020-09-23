@@ -19,7 +19,7 @@
            :dev {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
            :sass {:main-opts ["-m" "sass4clj.main" --source-paths]}
            ;:min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
-           :prod   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "prod"]}
+           :prod   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
            :test  {:main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" "transplants.test-runner"]}
            :config {:extra-deps {org.clojure/clojure {:mvn/version "1.10.1"}
                                  aero {:mvn/version "1.1.6"}

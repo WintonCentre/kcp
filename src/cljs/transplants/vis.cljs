@@ -16,10 +16,16 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]))
 
+(defn short-outcomes
+  "Shorter outcome names. Used in ... ; todo"
+  [outcomes]
+  (map (fn [v] (replace v #"-reasons" "")) outcomes)
+  )
 
 (defn outcome-tr
   "Render an outcomes row header"
   [k outcomes]
+  ;(println ::outcomes (short-outcomes outcomes))
   [:tr {:key k :style {:background-color rgb/secondary :color "#fff"}}
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
@@ -45,7 +51,7 @@
         ;; The following code assumes we have the "all-reasons" outcome in a well known slot
         ;; in the outcomes vector (currently first). 
         ;;
-        cifs  (map model/cif baseline-cifs-for-day sum-betas)]
+        cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)]
 
     [:> bs/Container
      [:> bs/Row
@@ -60,7 +66,7 @@
             [:thead [outcome-tr 1005 outcomes]]
             (into [:tbody
 
-                           ; Scaled cifs
+                   ; Scaled cifs
                    [:tr {:key 1000}
                     [:td [:b "Scaled CIF"]]
                     (map-indexed
@@ -68,8 +74,15 @@
                        [:td {:key i} (model/to-precision cif 4)])
                      (apply model/scaled-cifs cifs))]
 
-                           ; Individualised raw cifs
+                   ; Individualised raw cifs
                    [:tr {:key 1001}
+                    [:td [:b "Unscaled CIF"]]
+                    (map
+                     (fn [outcome cif]
+                       [:td {:key outcome :id outcome} (model/to-precision cif 4)])
+                     (short-outcomes outcomes) cifs)] 
+                   
+                   #_[:tr {:key 1001}
                     [:td [:b "Unscaled CIF"]]
                     (map-indexed
                      (fn [i cif]
@@ -161,7 +174,8 @@
            :y 0
            :width      1000
            :height     600}]
-   (into [:g {:key 3}]
+  ; draw legend
+   (into [:g {:key 2}]
          (map (fn [j {:keys [cifs cum-cifs]}]
                 (into [:g {:key j}]
                       (map (fn [i cif cum-cif outcome]
@@ -191,45 +205,55 @@
                            outcomes)))
               (range 1 (inc (count sample-days)))
               cifs-by-year))
-(into [:g {:key 4}]
-      (map (fn [j {:keys [cifs cum-cifs]}]
-             (into [:g {:key j}]
-                   (map (fn [i cif cum-cif outcome]
-                          (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
-                                w 100
-                                x-mid (+ x0 (/ w 2) -10)
-                                y0 (if (> (count outcomes) 1)
-                                     (- (Y cum-cif) (Y cif)) (Y cif))
-                                h (if (> (count outcomes) 1)
-                                    (- (Y cum-cif) (Y (- cum-cif cif)))
-                                    (- (Y 0) (Y cif)))
-                                y-mid (+ y0 (/ h 2))]
-                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
 
-                            (when (> cif 0.005)
-                              [:g
-                               {:transform (str "translate("
-                                                (if (and (> i 1) (< cif 0.07))
-                                                  (if (odd? i) 20 -60)
-                                                  (if (< cif 1) -20 -30))
-                                                " 10)")}
-                               [:rect {:x (- x-mid 5)
-                                       :width (if (>= cif 1)
-                                                90
-                                                (if (< cif 0.10) 50 70))
-                                       :y (- y-mid 30)
-                                       :height 40
-                                       :rx 10
-                                       :style {:border "0px"}
-                                       :class-name ((keyword outcome) styles)}]
-                               [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
-                                (str (model/to-percent cif) "%")]])))
-                        (range)
-                        cifs
-                        cum-cifs
-                        outcomes)))
-           (range 1 (inc (count sample-days)))
-           cifs-by-year))])
+   ; draw stacked bars with on-bar labels
+   (into [:g {:key 3}]
+         (map (fn [j {:keys [cifs cum-cifs]}]
+                ;draw single bar and label
+                (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                      w 100
+                      x-mid (+ x0 (/ w 2) -10)]
+                  (into [:g {:key j}]
+                        (conj
+                         (map (fn [i cif cum-cif outcome]
+                                (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                      w 100
+                                      x-mid (+ x0 (/ w 2) -10)
+                                      y0 (if (> (count outcomes) 1)
+                                           (- (Y cum-cif) (Y cif)) (Y cif))
+                                      h (if (> (count outcomes) 1)
+                                          (- (Y cum-cif) (Y (- cum-cif cif)))
+                                          (- (Y 0) (Y cif)))
+                                      y-mid (+ y0 (/ h 2))]
+                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
+                                  
+                                  (when (> cif 0.005)
+                                    [:g
+                                     {:transform (str "translate("
+                                                      (if (and (> i 1) (< cif 0.07))
+                                                        (if (odd? i) 20 -60)
+                                                        (if (< cif 1) -20 -30))
+                                                      " 10)")}
+                                     [:rect {:x (- x-mid 5)
+                                             :width (if (>= cif 1)
+                                                      90
+                                                      (if (< cif 0.10) 50 70))
+                                             :y (- y-mid 30)
+                                             :height 40
+                                             :rx 10
+                                             :style {:border "0px"}
+                                             :class-name ((keyword outcome) styles)}]
+                                     [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
+                                      (str (model/to-percent cif) "%")]])))
+                              (range)
+                              cifs
+                              cum-cifs
+                              outcomes)
+                         [:<>
+                          [:text {:x (- x-mid 35) :y 650 :font-size 30}  (if (= j 1) "Day 1" (str "Year " (dec j)))]
+                          #_[:text {:x (- x-mid 2) :y 690 :font-size 30}  (if (= j 1) "" (dec j))]]))))
+              (range 1 (inc (count sample-days)))
+              cifs-by-year))])
       
 (def relabel
   {"all-reasons" "Waiting"
@@ -260,7 +284,7 @@
                      (range (inc (utils/day->year (:days (last baseline-cifs))))))
         cifs-by-year (map
                       (fn [day]
-                        (let [cifs (-> (vec (apply model/scaled-cifs (map model/cif
+                        (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
                                                                           (map (bun/cif-0 bundle day) outcome-keys)
                                                                           sum-betas)))
                                        (update 0 (if (>(count outcomes) 1)
@@ -271,11 +295,45 @@
                       sample-days)]
     
     [:> bs/Row 
-     [:> bs/Col 
-      [:h4 {:style {:margin-top 80}}
-       "What might happen after you join the waiting list for a " (name organ) " transplant?"]
-      [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]
+     [:> bs/Col
+      (case tool
+
+        :waiting
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "What might happen after I join the waiting list for a " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :post-transplant
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might I survive after a " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :from-listing
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might I survive from the time I join the " (name organ) " transplant list?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :survival
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might I survive after a " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        :graft
+        [:<>
+         [:h4 {:style {:margin-top 80}}
+          "How long might the graft survive after the " (name organ) " transplant?"]
+         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+        [:<> "Title TBD" "[" (pr-str tool) "]"])
 
       #_[:p "Sample days:" (pr-str sample-days)]
       #_[:p "Outcomes:" (pr-str outcomes)]
@@ -293,7 +351,7 @@
                                  (map (fn [i outcome]
                                         [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
                                          [:rect {:x 0 :y 0 :width 200 :height 60
-                                                    :class-name ((keyword outcome) styles)}]
+                                                 :class-name ((keyword outcome) styles)}]
                                          [:text {:x 10 :y 40
                                                  :fill "#fff" :font-size 30}
                                           (relabel outcome)]]) 

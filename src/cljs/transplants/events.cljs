@@ -6,7 +6,6 @@
    [transplants.fx :as fx]
    [transplants.utils :as utils]
    [transplants.db :as init-db]
-   [transplants.transforms :as xf]
    [transplants.factors :as fac]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
@@ -81,6 +80,13 @@
  (fn ;-traced 
    [db [_ b-info]]
    (assoc db :background-info b-info)))
+
+(rf/reg-event-db
+ ; randomise-icons
+ ::randomise-icons
+ (fn ;-traced 
+   [db [_ _]]
+   (update db :randomise-icons not)))
 
 (rf/reg-event-db
  ; guidance-percent

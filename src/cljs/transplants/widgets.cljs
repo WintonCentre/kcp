@@ -6,6 +6,11 @@
             [transplants.events :as events]
             [transplants.numeric-input :as num]))
 
+(defn key->id
+  "Convert a namespaced factor key to an id"
+  [k]
+  (if k (str (namespace k) "-" (name k)) nil))
+
 (defn bad-widget-type [msg]
   (js/alert msg))
 
@@ -36,7 +41,6 @@
   (nil? (edn/read-string "{:a}"))
   )
   
-(edn/read-string "{:a {:b 2}}")
 ; Create a radio-button-group widget given a widget inputs map - for example:
 (comment
   (def widget-inputs-map
@@ -75,7 +79,7 @@
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
-      (bsio/radio-button-group {:id (pr-str factor-key)
+      (bsio/radio-button-group {:id (key->id factor-key)
                                 :vertical vertical
                                 :value-f value-f
                                 :on-change #(rf/dispatch [factor-key
@@ -104,7 +108,7 @@
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col
-      (bsio/dropdown {:id (pr-str factor-key)
+      (bsio/dropdown {:id (key->id factor-key)
                       :value-f value-f
                       :on-change #(rf/dispatch [factor-key
                                                 (keyword %)])
@@ -122,7 +126,7 @@
      [:> bs/Col
       (if (and (map? numerics)
                (every? identity (map numerics [:min :max :dps])))
-        [num/numeric-input {:key (pr-str factor-key)
+        [num/numeric-input {:key factor-key
                             :value-f value-f
                             :on-change #(rf/dispatch [factor-key %])
                             :min (:min numerics) :max (:max numerics) :dps (:dps numerics)

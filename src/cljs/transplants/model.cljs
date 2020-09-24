@@ -39,11 +39,28 @@
       (conj (map #(* % scale) the-rest) all))
     [all]))
 
+(defn competing-risk?
+  "Competing risk tools demand the (1-CIF) formula"
+  [tool]
+  (println ::waiting tool)
+  (= tool :waiting)
+)
 
 (defn cif
+  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
+   The competing risk tool needs the direct cumulative incidence frequency"
+  [tool cif-0 sum-x-betas]
+  (when (number? tool) 
+    (js/console.error "number?" tool))
+  (if (competing-risk? tool)
+    (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas)))
+    (js/Math.pow cif-0 (js/Math.exp sum-x-betas)))
+  )
+
+#_(defn survival-cif
   "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i"
   [cif-0 sum-x-betas]
-  (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas))))
+  (js/Math.pow cif-0 (js/Math.exp sum-x-betas)))
 
 
 (defn with-all-reasons-first

@@ -1,8 +1,7 @@
-^{:open-url "http://[[server-hostname]]:[[server-port]]/test.html"}
+;^{:open-url "http://[[server-hostname]]:[[server-port]]/.html"}
 {:main transplants.core
  :target :bundle
  :cljs-devtools false
- :closure-defines {;"re_frame.trace.trace_enabled_QMARK_" false
-                   cljs.core/*global* "window"}
+ :closure-defines {cljs.core/*global* "window"}
  :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]
               :default ["npx" "webpack" "--mode=production" :output-to "-o" :final-output-to]}}

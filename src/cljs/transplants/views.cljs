@@ -140,44 +140,94 @@
                   "a percentage "
                   (str v "% "))
   )
+(comment
+  (def random true)
+  (def sample-set (atom #{}))
+  (defn resample [n percent]
+    (when (zero? n) 
+      (reset! sample-set #{}))
+    (if (< (count sample-set) percent)
+      (let [x (rand-int 100)] 
+        (while (sample-set x))))
+    ))
 
 (defmethod show-background-info :percent [options]
-  (let [percent @(rf/subscribe [::subs/guidance-percent])]
-    [:<> 
+  (let [percent @(rf/subscribe [::subs/guidance-percent])
+        randomise-icons @(rf/subscribe [::subs/randomise-icons])]
+    [:<>
      [:h3 (a-percentage (:percent background-infos) percent)]
-     [ui/row
-      [ui/col {:sm 3 :style {:margin-bottom 5}}
-       [:div {:style {:display :flex :width 120 :justify-content "space-between"
-                      :margin-bottom 5}}
-        [:> bs/Button {:style {:width 55}
-                       :disabled (zero? percent)
-                       :on-click #(rf/dispatch [::events/inc-guidance-percent -1])} "- 1"]
-        [:> bs/Button {:style {:width 55}
-                       :disabled (= 100 percent)
-                       :on-click #(rf/dispatch [::events/inc-guidance-percent 1])} "+ 1"]
-        ]
-       [:div {:style {:display :flex :width 120 :justify-content "space-between"}}
-        [:> bs/Button {:style {:width 55}
-                       :disabled (zero? percent)
-                       :on-click #(rf/dispatch [::events/inc-guidance-percent -10])} "-10"]
-        [:> bs/Button {:style {:width 55}
-                       :disabled (= 100 percent)
-                       :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]
-        ]]
+     [ui/row {;:margin-bottom 5
+             :display :flex
+             :justify-content "start"
+             :flex-wrap "wrap"}
+      [ui/col
+       [:div {:sm 3 :style {;:margin-bottom 5
+                            :display :flex
+                            :justify-content "flex-start"
+                            :flex-wrap "wrap"}
+               ;:flex-direction "column"
+              }
+        [:div {:style {:display :flex
+                       :flex-direction "row"
+                       :width 115
+                       :justify-content "space-between"
+                       :margin-bottom 5
+                       :margin-right 5}}
+         [:> bs/Button {:style {:width 55 :height 50
+                                :margin-right 5}
+                        :disabled (zero? percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent -1])} "- 1"]
+         [:> bs/Button {:style {:width 55   :height 50}
+                        :disabled (= 100 percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent 1])} "+ 1"]]
+        [:div {:style {:display :flex
+                       :width 115
+                       :justify-content "space-between"
+                       :margin-bottom 5
+                       :margin-right 5}}
+         [:> bs/Button {:style {:width 55
+                                :height 50
+                                :margin-right 5}
+                        :disabled (zero? percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent -10])} "-10"]
+         [:> bs/Button {:style {:width 55 :height 50}
+                        :disabled (= 100 percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]]]
+       [:> bs/Form
+        [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
+                           #_#_:controlId "randomise-icons"}
+         [:> bs/Form.Check {:inline true
+                            :type "checkbox"
+                            :checked randomise-icons
+                            }]
+         [:> bs/Form.Label "Randomised? "]
+         ]]]
       [ui/col {:sm 9}
-       (into
-        [:<>
-         (map
-          (fn [j]
-            [ui/row
-             [ui/col
-              (into [:<> 
-                     (map (fn [i]
-                            [ui/open-icon {:color (if (<= (- 100 (+ (* j 10) i)) percent) "#488" "#CCC")
-                                           :padding "0px 5px"} "person"]) (range 10))])]])
-          (range 10))])]
-      ]]))
-
+       (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
+         (into
+          [:<>
+           (map
+            (fn [j]
+              [ui/row {:key (str "icon-row-" j)}
+               [ui/col
+                (into [:<>
+                       (map (fn [i]
+                              [ui/open-icon
+                               {:key (str "icon-col-" i)
+                              ;:border "1px solid red"
+                              ;:border-radius 15
+                                :color (if (neg? (if randomise-icons
+                                                   (order (- 100 (+ 10 (* j 10) (- i))))
+                                                   (- percent (- 101 (+ 10 (* j 10) (- i)))))) 
+                                         "#CCC" 
+                                         "#488") 
+                                #_(if (< (- 100 (+ 10 (* j 10) (- i))) percent) "#488" "#CCC")
+                                :padding "4px 5px"} "person"]) (range 10))])]])
+            (range 10))]))]]]))
+(comment
+  (def i 5)
+  (- i)
+  )
 
 
 (defn organ-centre

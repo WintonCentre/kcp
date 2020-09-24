@@ -1,3 +1,3 @@
 #!/bin/bash
 
-lein prod
+clj -Afig:prod

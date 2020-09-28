@@ -61,6 +61,14 @@
       (js/Math.pow cif-0 (js/Math.exp sum-x-betas)))
   )
 
+(comment
+  ;test lung, Birmingham, day 3, Cystic Fibrosis with:
+  (def cif_0 0.008235)
+  
+  (def sum-x-betas -0.6827) ;(== -0.1121 + -0.5706) 
+  
+  )
+
 (defn with-all-reasons-first
   "Outcomes with the all reasons outcome in the first slot. 
    

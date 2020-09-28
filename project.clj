@@ -119,7 +119,6 @@
                                         [org.apache.commons/commons-math3 "3.6.1"]
                                         [org.clojure/data.csv "1.0.0"]]
                          :jvm-opts ["-Xmx1G"]}
-
              :prod {}}
 
   :prep-tasks [#_[sass4clj "once"]])

@@ -7,7 +7,6 @@
             [transplants.ui :as ui]
             [transplants.bsio :as bsio]))
 
-
 (comment
   (def bundles @(rf/subscribe [::subs/bundles]))
   (def bundle (get-in bundles [:lung :birm :waiting]))
@@ -24,7 +23,6 @@
   (let [day @(rf/subscribe [::subs/test-day])
         inputs (get @(rf/subscribe [::subs/inputs]) organ)
         bundle (bun/get-bundle organ centre tool)]
-
 
     [ui/tabs {:variant "pills" :default-active-key "bars"}
      #_[ui/tab {:event-key "starter" :title "SVG Starter"}

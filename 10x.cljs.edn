@@ -1,0 +1,7 @@
+^{:auto-testing true}
+{:main transplants.core
+ :target :bundle
+ :cljs-devtools true
+ :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
+ :preloads             [day8.re-frame-10x.preload]
+ :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}}

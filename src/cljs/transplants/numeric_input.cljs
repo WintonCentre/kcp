@@ -1,5 +1,5 @@
 (ns transplants.numeric-input
-  (:require [clojure.string :refer [split]]
+  (:require [clojure.string :refer [split replace]]
             [transplants.rgb :as rgb]
             ["react-bootstrap" :as bs]))
 
@@ -34,17 +34,16 @@
   (if-let [[m m1] (re-matches #"(.*\.\d)\d+" s)]
     m1 s))
 
-(defn to-dps 
+(defn to-dps
   [n dps]
   (cond
     (= 0 dps)
     ; display as integer
     (str (js/Math.round n))
-    
+
     :else
     ; display with 1dp always
-    (.toFixed (js/Number. n) dps))
-  )
+    (.toFixed (js/Number. n) dps)))
 
 
 (defn num-to-str
@@ -69,11 +68,10 @@
   (to-dps 444.4 1)
   (to-dps 44.4 2)
   (to-dps 444.4 3)
-  
+
   (num-to-str 4.4 0)
   (num-to-str 4.4 1)
-  (num-to-str 4.4 2)
-  )
+  (num-to-str 4.4 2))
 
 (defn validate-input [value nmin nmax step]
   (let [value (str-to-num value)
@@ -121,7 +119,7 @@
       (when (not=  value (value-f))
         ;(js/console.log (str "hti old: " (value-f) " new " value " valid " (validate-input (str-to-num value) nmin nmax 0)))
         ;(js/console.log (str "hti old: " (value-f) " new " value " -> " (num-to-str (validate-input (str-to-num value) nmin nmax 0))))
-      
+
         (on-change (if (not= (str-to-num value) (str-to-num (value-f)))
                      (num-to-str (validate-input (str-to-num value) nmin nmax 0) dps)
                      value)))
@@ -162,8 +160,9 @@
       (if (pos? increment) "+" "–")]]))
 
 (defn numeric-input
-  [{:keys [key value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
+  [{:keys [key id value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
 
+  ;(println "KEY " (type key) " ID " id)
   (let [[good bad] (split (value-f) #":")
         value (str-to-num good)
         nmin (str-to-num (if (fn? min) (min) min))
@@ -199,7 +198,7 @@
         [:input
          {:type      "text"
           :value     good
-          :id        key
+          :id        (when key (str (namespace key) "-" (name key)))
         ; :on-click mutate
           :on-change mutate
           :style     {:width "58px"

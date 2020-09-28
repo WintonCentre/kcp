@@ -18,10 +18,10 @@
 
 
 ;; Loading edn files from the database
-(rf/reg-fx)
+(rf/reg-fx
 ::dispatch
 (fn [[event-key event-params]]
-  (rf/dispatch [event-key event-params]))
+  (rf/dispatch [event-key event-params])))
 
 (comment
   ; from predict code

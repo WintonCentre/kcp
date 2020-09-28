@@ -1,5 +1,5 @@
 (ns svg.markers
-  (:require [rum.core :as rum]
+  (:require 
             [cljs-css-modules.macro :refer-macros [defstyle]]))
 
 (defstyle styles
@@ -30,7 +30,7 @@
 (defn op [c-name]
   (if c-name c-name :filled))
 
-(defn set-class
+#_(defn set-class
   [state key]
   #(.setAttribute (rum/dom-node state) "class" (key styles)))
 
@@ -44,14 +44,14 @@
      :on-touch-start show-hover
      :on-touch-stop  no-hover}))
 
-(rum/defc halo < rum/static
+(defn halo 
   [cx cy active]
   [:circle (merge {:cx      cx
                    :cy      cy
                    :opacity (if active 1 0)}
                   {:class-name (:halo styles)})])
 
-(rum/defcs dot < (rum/local nil ::hover)
+(defn dot ;< (rum/local nil ::hover)
   [state r cx cy & [c-name]]
   [:g
    (halo cx cy @(::hover state))
@@ -66,7 +66,7 @@
 
 (def odot ring)
 
-(rum/defcs square < (rum/local nil ::hover)
+(defn square ;< (rum/local nil ::hover)
   [state r cx cy & [c-name]]
   [:g
    (halo cx cy @(::hover state))
@@ -82,7 +82,7 @@
 (defn osquare [r cx cy]
   (square r cx cy :open))
 
-(rum/defcs diamond < (rum/local nil ::hover)
+(defn diamond ;< (rum/local nil ::hover)
   [state r cx cy & [c-name]]
   [:g
    ;(when @(::hover state) (halo cx cy))
@@ -100,7 +100,7 @@
 (defn odiamond [r cx cy]
   (diamond r cx cy :open))
 
-(rum/defcs plus < (rum/local nil ::hover)
+(defn plus ;< (rum/local nil ::hover)
   [state r cx cy]
   [:g
    ;(when @(::hover state) (halo cx cy))
@@ -119,7 +119,7 @@
             :y2         cy
             }]]])
 
-(rum/defc cross [r cx cy]
+(defn cross [r cx cy]
   [:g {:transform (str "translate(" cx "," cy ")")}
    [:g {:transform "rotate(45)"}
-    (plus r 0 0)]])
+    (plus {} r 0 0)]])

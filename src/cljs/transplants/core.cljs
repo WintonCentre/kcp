@@ -1,4 +1,4 @@
-(ns transplants.core
+(ns ^:figwheel-hooks transplants.core
   (:require
    [reagent.dom :as rd]
    [re-frame.core :as rf]
@@ -10,6 +10,8 @@
    [error-boundary.error-boundary :refer [err-boundary]]
    ))
 
+(enable-console-print!)
+
 ;;; Setup ;;;
 (def debug? ^boolean goog.DEBUG)
 
@@ -18,7 +20,7 @@
     (enable-console-print!)
     #_(println "dev mode")))
 
-(defn mount-root
+(defn ^:after-load mount-root
   "Mount components and start the reitit router"
   []
   (rf/clear-subscription-cache!)
@@ -32,6 +34,10 @@
   "Handle window-size change by dispatching new width to db"
   [evt]
   (rf/dispatch [::events/update-window-width (.-innerWidth js/window)]))
+
+(comment
+  (mount-root)
+  )
 
 (defn ^:export init
   "Initialise the database, sense window-width, and mount root of component tree. 
@@ -52,3 +58,22 @@
   (.addEventListener js/window "resize" on-window-resize)
   (dev-setup)
   (mount-root)) 
+
+(defonce start-up (do (init) true))
+
+#_(comment
+  (defn mount-app-element []
+    (when-let [el (get-app-element)]
+      (mount el)))
+
+;; conditionally start your application based on the presence of an "app" element
+;; this is particularly helpful for testing this ns without launching the app
+  (mount-app-element)
+
+;; specify reload hook with ^;after-load metadata
+  (defn ^:after-load on-reload []
+    (mount-app-element)
+  ;; optionally touch your app-state to force rerendering depending on
+  ;; your application
+  ;; (swap! app-state update-in [:__figwheel_counter] inc)
+    ))

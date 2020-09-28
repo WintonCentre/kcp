@@ -1,5 +1,6 @@
 # shadow-cljs.edn is now generated
 shadow-cljs.edn
+
 /out/
 /resources/public/js/compiled/
 resources/public/kidney
@@ -7,7 +8,8 @@ resources/public/lung
 /target/
 /*-init.clj
 /*.log
-
+resources/public/js-old
+resources/public/cljs-out-old
 # Leiningen
 /.lein-*
 /.nrepl-port
@@ -22,6 +24,7 @@ resources/public/lung
 /dist/*
 .cache/
 resources/public/js
+resources/public/cljs-out
 .DS_Store
 */.DS_Store
 
@@ -36,6 +39,8 @@ nashorn_code_cache/*
 # experimental
 src/cljs/eric.*
 resources/public/report.html
-resources/public/lung
-resources/public/kidney
 .cpcache/
+
+.rebel_readline_history
+.idea/
+transplants.iml

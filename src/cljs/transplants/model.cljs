@@ -18,7 +18,6 @@
    (to-fixed (* d 100) dps)
    #_(.toFixed (js/Number. (* d 100)) dps)))
 
-
 (comment
   (.toFixed (js/Number. 1) 0)
   (to-percent 0.066) ; => "7"
@@ -39,12 +38,37 @@
       (conj (map #(* % scale) the-rest) all))
     [all]))
 
+(defn competing-risk?
+  "Competing risk tools demand the (1-CIF) formula"
+  [tool]
+  ;(println ::waiting tool)
+  (= tool :waiting)
+)
 
 (defn cif
-  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i"
-  [cif-0 sum-x-betas]
-  (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas))))
+  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
+   The competing risk tool needs the direct cumulative incidence frequency.
+   
+   Rule of thumb: 
+     When cif_0(0) is 0, and cif_0 increases with t, use the (1 -cif_0) formula.
+     When cif_0(0) is 1, and cif_0 decreases with t, use the other one.
+   "
+  [tool cif-0 sum-x-betas]
+  #_(when (number? tool) 
+    (js/console.error "number?" tool))
+  (if (competing-risk? tool)
+      (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas)))
+      (js/Math.pow cif-0 (js/Math.exp sum-x-betas)))
+  )
 
+(comment
+  ;test lung, Birmingham, day 3, Cystic Fibrosis with:
+  (def cif_0 0.008235)
+  
+  (def sum-x-betas -0.6827) ;(== -0.1121 + -0.5706) 
+  
+  (cif :waiting cif_0 sum-x-betas)
+  )
 
 (defn with-all-reasons-first
   "Outcomes with the all reasons outcome in the first slot. 

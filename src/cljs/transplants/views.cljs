@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as string]
    [re-frame.core :as rf]
+   [reitit.frontend.easy :as rfe]
    ["react-bootstrap" :as bs]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
@@ -9,8 +10,7 @@
    [transplants.ui :as ui]
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
-   [transplants.results :as results]
-))
+   [transplants.results :as results]))
 
 (comment
   (rf/dispatch [::events/initialize-db]))
@@ -28,7 +28,8 @@
               (map (fn [organ]
                      [:div {:key (:text organ)
                             :style {:margin-bottom 20}}
-                      [ui/button {:variant "primary"
+                      [ui/button {:id (str (name (:organ organ)) "-button")
+                                  :variant "primary"
                                :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
                        (:label organ)]])
                    (:organ-meta @metadata))])]]]))
@@ -62,6 +63,173 @@
 
            (into [:> bs/CardDeck] (map centre-card centres)))))]))
 
+(def background-infos
+  {:visits "Visits to hospital after transplant"
+   :donors "Donor Decisions"
+   :medications "Medications after Transplant Surgery"
+   :window "The Window"
+   :percent "What does a percentage look like?"}
+  )
+
+(defmulti show-background-info 
+  "Render the selected background info"
+  :info-key)
+
+(defmethod show-background-info :visits [options]
+  [:<>
+   [:h3 (:visits background-infos)]
+   [:p "A typical patient might revisit"]
+   [:ul
+    [:li "in the first month 	-  once a week,"]
+    [:li "in the second month - every other week,"]
+    [:li "in the third month 	- every other week,"]
+    [:li "in the first year	- every 4 weeks,"]
+    [:li "then every 3 months for life"]]])
+
+(defmethod show-background-info :donors [options]
+  [:<>
+   [:h3 (:donors background-infos)]
+   [:p "A checklist of donor factors that may affect a decision."]
+   [:ul
+    [:li "Recent or ex smoker"]
+    [:li "Older donor (>60 years)"]
+    [:li "Donor with a malignancy that has very low risk of transmission to me"]
+    [:li "Bacterial or viral infection considered to be low risk to me"]
+    [:li "High risk sexual behaviour or intravenous drug use"]]])
+
+(defmethod show-background-info :medications [options]
+  [:<>
+   [ui/row
+    [ui/col
+     [:h3 (:medications background-infos)]]]
+   [ui/row
+    [ui/col {:md 5}
+     [:ul
+      [:li "Cyclosporines"]
+      [:li "Tacrolimus"]
+      [:li "Mycophenolate Mofetil"]
+      [:li "Prednisolone"]
+      [:li "Azathuiprine"]
+      [:li "Sirolimus"]
+      [:li "Dacllizumab and Basilecmab"]
+      [:li "OKT3"]
+      [:li "Anti-Fungal Medications"]
+      [:li "Antiviral Medications"]
+      [:li "Diuretics"]
+      [:li "Antibiotics"]
+      [:li "Anti-ulcer medications"]]]
+    [ui/col {:md 6}
+     [:> bs/Image {:fluid true
+                 :src "assets/Post Transplant Medications.png"}]]]])
+  
+
+(defmethod show-background-info :window [options]
+  [:<>
+   [:h3 (:window background-infos)]
+   [:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
+        decreases, there comes a point where a transplant could be recommended. This opens
+        a window of opportunity which persists until the patient receives a transplant or
+        their health deteriorates to the point where it would no longer be recommended." ]
+   [:> bs/Image {:fluid true
+                 :src "assets/The Window.png"}]])
+
+(defn a-percentage
+  "Replace 'a percentage ' in s with 'v% '"
+  [s v]
+  (string/replace s
+                  "a percentage "
+                  (str v "% "))
+  )
+(comment
+  (def random true)
+  (def sample-set (atom #{}))
+  (defn resample [n percent]
+    (when (zero? n) 
+      (reset! sample-set #{}))
+    (if (< (count sample-set) percent)
+      (let [x (rand-int 100)] 
+        (while (sample-set x))))
+    ))
+
+(defmethod show-background-info :percent [options]
+  (let [percent @(rf/subscribe [::subs/guidance-percent])
+        randomise-icons @(rf/subscribe [::subs/randomise-icons])]
+    [:<>
+     [:h3 (a-percentage (:percent background-infos) percent)]
+     [ui/row {;:margin-bottom 5
+             :display :flex
+             :justify-content "start"
+             :flex-wrap "wrap"}
+      [ui/col
+       [:div {:sm 3 :style {;:margin-bottom 5
+                            :display :flex
+                            :justify-content "flex-start"
+                            :flex-wrap "wrap"}
+               ;:flex-direction "column"
+              }
+        [:div {:style {:display :flex
+                       :flex-direction "row"
+                       :width 115
+                       :justify-content "space-between"
+                       :margin-bottom 5
+                       :margin-right 5}}
+         [:> bs/Button {:style {:width 55 :height 50
+                                :margin-right 5}
+                        :disabled (zero? percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent -1])} "- 1"]
+         [:> bs/Button {:style {:width 55   :height 50}
+                        :disabled (= 100 percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent 1])} "+ 1"]]
+        [:div {:style {:display :flex
+                       :width 115
+                       :justify-content "space-between"
+                       :margin-bottom 5
+                       :margin-right 5}}
+         [:> bs/Button {:style {:width 55
+                                :height 50
+                                :margin-right 5}
+                        :disabled (zero? percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent -10])} "-10"]
+         [:> bs/Button {:style {:width 55 :height 50}
+                        :disabled (= 100 percent)
+                        :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]]]
+       [:> bs/Form
+        [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
+                           #_#_:controlId "randomise-icons"}
+         [:> bs/Form.Check {:inline true
+                            :type "checkbox"
+                            :checked randomise-icons
+                            }]
+         [:> bs/Form.Label "Randomised? "]
+         ]]]
+      [ui/col {:sm 9}
+       (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
+         (into
+          [:<>
+           (map
+            (fn [j]
+              [ui/row {:key (str "icon-row-" j)}
+               [ui/col
+                (into [:<>
+                       (map (fn [i]
+                              [ui/open-icon
+                               {:key (str "icon-col-" i)
+                              ;:border "1px solid red"
+                              ;:border-radius 15
+                                :color (if (neg? (if randomise-icons
+                                                   (order (- 100 (+ 10 (* j 10) (- i))))
+                                                   (- percent (- 101 (+ 10 (* j 10) (- i)))))) 
+                                         "#CCC" 
+                                         "#488") 
+                                #_(if (< (- 100 (+ 10 (* j 10) (- i))) percent) "#488" "#CCC")
+                                :padding "4px 5px"} "person"]) (range 10))])]])
+            (range 10))]))]]]))
+(comment
+  (def i 5)
+  (- i)
+  )
+
+
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre.
@@ -79,37 +247,64 @@
       ;;; TODO: Tidy organ centre tool up here
       
       (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
-        [ui/page (:description centre-info)
+        [ui/page [:span (:description centre-info) 
+                  (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
+          #_[ui/col
+           [:h2 (str (string/capitalize (name organ)) " transplant centre")]]
           [ui/col
-           [:h2 (str (string/capitalize (name organ)) " transplant centre")]
-           [:h3 {:style {:margin-top 40}} "Available trac tools"]
+           [:h2  "Available trac tools"]
            (->> tools
                 (map #(conj % [:organ organ-name]))
                 (map #(conj % [:centre centre-name]))
                 (map #(conj % [:tool (name (:key %))]))
-               (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))
-           [ui/row
-            [ui/col
-             [:h3 {:style {:margin-top 40}} "Background guidance"]
-             [:h4 "Examples of:"]
-             [:ul
-              [:li "Donor decisions"]
-              [:li "Matching criteria"]
-              [:li "What happens if you're called in"]
-              [:li "What happens after transplant"]
-              [:ul
-               [:li "Visit schedule"]
-               [:li "Drug regime"]]]]
-            [ui/col
-             [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
-             [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
-            [ui/col
-             [:h3 {:style {:margin-top 40}} "The Window"]
-             [:p "ILL ENOUGH / WELL ENOUGH?"]
-             [:p "Graph of ‘the window’?"]
-             [:p "Graph of disease trajectory?"]]]]]]))))
+                (map ui/tool-buttons)
+                (into [:> bs/ButtonGroup {:vertical false}]))]]
+         [ui/row
+          [ui/col {:md 4}
+           [:h3 {:style {:margin-top 40}} "Background guidance"]
+           [:> bs/ListGroup
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :visits])}
+             (:visits background-infos)
+             ]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :donors])}
+             (:donors background-infos)]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :medications])}
+             (:medications background-infos)]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :window])}
+             (:window background-infos)]
+            [:> bs/ListGroup.Item {:action true
+                                   :on-click #(rf/dispatch [::events/background-info :percent])}
+             (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]
+           
+           ]
+          [ui/col {:md 8}
+           [:div {:style {:margin-top 40}}
+            (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]
+           ]
+          
+          #_[:div
+           [:h4 "Examples of:"]
+           [:ul
+            [:li "Donor decisions"]
+            [:li "Matching criteria"]
+            [:li "What happens if you're called in"]
+            [:li "What happens after transplant"]
+            [:ul
+             [:li "Visit schedule"]
+             [:li "Drug regime"]]]
+           [ui/col
+            [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
+            [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
+           [ui/col
+            [:h3 {:style {:margin-top 40}} "The Window"]
+            [:p "ILL ENOUGH / WELL ENOUGH?"]
+            [:p "Graph of ‘the window’?"]
+            [:p "Graph of disease trajectory?"]]]]]))))
 
 (defn get-tool-meta
   [tools tool-key]
@@ -140,14 +335,16 @@
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools tool)]
-        [ui/page  
+        [ui/page    
          (:description centre-info)
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
              [ui/row 
               [ui/col {:xs 12 :md 5}
-               [:h2 (ui/open-icon {:color "red" :font-size 10} "person")
-                (str (string/capitalize organ-name) " transplant centre")]
+               [:p "For more information that will be helpful to patients, follow the link to "
+                [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
+                 "background guidance"] "."
+                #_(str (string/capitalize organ-name) " transplant centre")]
                (->> tools
                     (map #(conj % [:organ organ-name]))
                     (map #(conj % [:centre centre-name]))

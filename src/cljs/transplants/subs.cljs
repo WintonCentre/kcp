@@ -1,7 +1,7 @@
 (ns transplants.subs
   (:require
    [re-frame.core :as rf]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]))
+   ))
 
 ;;; 
 ;; Note that subscription keys are fully qualified in transplants.subs ns, but...
@@ -19,6 +19,12 @@
 (rf/reg-sub ::organ (fn [db] (:organ db)))
 
 (rf/reg-sub ::organ-centres (fn [db] (get-in db [:organ-centres])))
+
+(rf/reg-sub ::background-info (fn [db] (get-in db [:background-info])))
+
+(rf/reg-sub ::guidance-percent (fn [db] (get-in db [:guidance-percent])))
+
+(rf/reg-sub ::randomise-icons (fn [db] (get-in db [:randomise-icons])))
 
 (rf/reg-sub ::tools (fn [db] (get-in db [:tools])))
 

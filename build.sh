@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Should we generate the data files on the server? 
-lein config
-
-lein prod
+npm install
+./bb-scripts/switch-10x-dev.clj prod
+./lein-config.sh
+clj -Afig:prod

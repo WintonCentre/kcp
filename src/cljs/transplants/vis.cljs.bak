@@ -9,9 +9,9 @@
             [transplants.utils :as utils]
             [transplants.rgb :as rgb]
             [clojure.string :refer [replace]]
-            [clojure.pprint :refer [pprint]]
+            #_[clojure.pprint :refer [pprint]]
             [svg.margin-convention :as convention]
-            [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
+            #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]))
@@ -42,7 +42,7 @@
         outcomes (model/with-all-reasons-first
                    (fac/get-outcomes* (first baseline-cifs)))
         #_(model/with-all-reasons-first
-                   (fac/get-outcomes (first (vals master-fmaps))))
+            (fac/get-outcomes (first (vals master-fmaps))))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
@@ -52,7 +52,6 @@
         ;; in the outcomes vector (currently first). 
         ;;
         cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)]
-
     [:> bs/Container
      [:> bs/Row
       (when factors
@@ -80,14 +79,14 @@
                     (map
                      (fn [outcome cif]
                        [:td {:key outcome :id outcome} (model/to-precision cif 4)])
-                     (short-outcomes outcomes) cifs)] 
-                   
+                     (short-outcomes outcomes) cifs)]
+
                    #_[:tr {:key 1001}
-                    [:td [:b "Unscaled CIF"]]
-                    (map-indexed
-                     (fn [i cif]
-                       [:td {:key i} (model/to-precision cif 4)])
-                     cifs)]
+                      [:td [:b "Unscaled CIF"]]
+                      (map-indexed
+                       (fn [i cif]
+                         [:td {:key i} (model/to-precision cif 4)])
+                       cifs)]
 
                            ; Show Baseline CIFS for selected day
                    [:tr {:key 1002}
@@ -167,6 +166,8 @@
 
 (defn bar-chart-graphic
   [x y X Y cifs-by-year sample-days outcomes]
+  (println "outcomes" outcomes)
+  [:text {:x 0 :y 0 :font-size 30} (str (pr-str cifs-by-year))]
   [:g {:key 1}
    [:rect {:key        1
            :class-name (:inner styles)
@@ -265,6 +266,20 @@
    "from-listing" "Survived"
    "graft" "Graft intact"})
 
+(defn cifs-data 
+  [{:keys [bundle tool outcome-keys outcomes sum-betas sample-days]}]
+  (map
+   (fn [day]
+     (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
+                                                       (map (bun/cif-0 bundle day) outcome-keys)
+                                                       sum-betas)))
+                    #_(update 0 (if (> (count outcomes) 1)
+                                  #(- 1 %)
+                                  identity)))]
+       {:cifs cifs
+        :cum-cifs (reductions + cifs)}))
+   sample-days))
+
 (defn bar-chart
   "Draw the bar chart"
   [bundles organ centre tool inputs bundle]
@@ -272,27 +287,42 @@
         env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
-        baseline-cifs (:-baseline-cifs bundle) 
+        baseline-cifs (:-baseline-cifs bundle)
         outcomes (model/with-all-reasons-first
                    (fac/get-outcomes* (first baseline-cifs)))
+        #_#_outcomes (if (= tool :waiting)
+                   [(second outcomes)]
+                   outcomes)
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
-
+        #_#_outcome-keys (if (= tool :waiting)
+                       [(second outcome-keys)]
+                       outcome-keys)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
         sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (:days (last baseline-cifs))))))
-        cifs-by-year (map
-                      (fn [day]
-                        (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
-                                                                          (map (bun/cif-0 bundle day) outcome-keys)
-                                                                          sum-betas)))
-                                       (update 0 (if (>(count outcomes) 1)
-                                                   #(- 1 %)
-                                                   identity))) ]
-                          {:cifs cifs 
-                           :cum-cifs (reductions + cifs)}))
-                      sample-days)]
+        cifs-by-year #_(cifs-data {:bundle bundle
+                                 :tool tool
+                                 :outcome-keys outcome-keys #_(if (= tool :waiting)
+                                                                [(second outcome-keys)]
+                                                                outcome-keys)
+                                 :outcomes outcomes #_(if (= tool :waiting)
+                                             [(second outcomes)]
+                                             outcomes)
+                                 :sum-betas sum-betas
+                                 :sample-days sample-days})
+        (map
+           (fn [day]
+             (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
+                                                               (map (bun/cif-0 bundle day) outcome-keys)
+                                                               sum-betas)))
+                            (update 0 (if (> (count outcomes) 1)
+                                        #(- 1 %)
+                                        identity)))]
+               {:cifs cifs
+                :cum-cifs (reductions + cifs)}))
+           sample-days)]
     
     [:> bs/Row 
      [:> bs/Col

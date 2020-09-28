@@ -47,7 +47,12 @@
 
 (defn cif
   "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
-   The competing risk tool needs the direct cumulative incidence frequency"
+   The competing risk tool needs the direct cumulative incidence frequency.
+   
+   Rule of thumb: 
+     When cif_0(0) is 0, and cif_0 increases with t, use the (1 -cif_0) formula.
+     When cif_0(0) is 1, and cif_0 decreases with t, use the other one.
+   "
   [tool cif-0 sum-x-betas]
   #_(when (number? tool) 
     (js/console.error "number?" tool))

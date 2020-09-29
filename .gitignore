@@ -46,3 +46,5 @@ resources/public/kidney
 .rebel_readline_history
 .idea/
 transplants.iml
+dev.cljs.edn
+prod.cljs.edn

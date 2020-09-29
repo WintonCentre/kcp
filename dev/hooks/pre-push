@@ -26,7 +26,7 @@ do
 
 	elif [ "master" == "$branch" ]; then
 		echo "master. Please add in Jenkins to deploy."
-# #	    curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/job/predict-breast-master/build?token=raiej345bgiojgahu4master
+# 	    curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/job/predict-breast-master/build?token=raiej345bgiojgahu4master
 	fi
 
 done

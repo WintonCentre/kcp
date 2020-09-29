@@ -305,7 +305,7 @@
     :else
     [:unclassified factor]))
 
-((defn selected-beta-xs
+(defn selected-beta-xs
    "returns a seq of all xs and betas (keyed by input factor?)"
    [[{:keys [organ centre tool] :as path-params}
      {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
@@ -389,6 +389,6 @@
       [:blood-group :B -0.73794] [:ethnicity :white -0.03768]
       [:bmi 0.01457 23.0224 0.10166363199999998]
       [:bilirubin -0.0004091 9 0.0024546000000000004]
-      [:thoracotomy :no 0.44664])))
+      [:thoracotomy :no 0.44664]))
 
 

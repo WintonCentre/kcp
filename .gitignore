@@ -39,10 +39,10 @@ nashorn_code_cache/*
 # experimental
 src/cljs/eric.*
 resources/public/report.html
+resources/public/lung
+resources/public/kidney
 .cpcache/
 
 .rebel_readline_history
 .idea/
 transplants.iml
-dev.cljs.edn
-prod.cljs.edn

@@ -6,19 +6,23 @@ do
 
 	if [ "staging/lung" == "$branch" ]; then
 		echo "staging/lung. Sending jenkins build."
-        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-lung-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe
+		curl https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-lung-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe
+#        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-lung-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe
 
 	elif [ "staging/kidney" == "$branch" ]; then
 		echo "staging/kidney. Sending jenkins build."
-        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-kidney-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe
+		curl https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-kidney-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe
+#        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-kidney-staging/build?token=jgfanw4jwiroegj09234t93gaoiwe
 
 	elif [ "develop" == "$branch" ]; then
 		echo "develop. Sending jenkins build."
-        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-develop/build?token=0rcbzvNnyDRhmqLXYwRI3fMZ6ja26dfwyHLJukjD
+        curl https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-develop/build?token=0rcbzvNnyDRhmqLXYwRI3fMZ6ja26dfwyHLJukjD
+#        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-develop/build?token=0rcbzvNnyDRhmqLXYwRI3fMZ6ja26dfwyHLJukjD
 
 	elif [ "stage" == "$branch" ]; then
 		echo "stage. Sending jenkins build."
-        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-staging/build?token=pHDpKaLBnBvnDrjb5T7lBTpJlAyLCaSY0g4Lidb8
+        curl https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-staging/build?token=pHDpKaLBnBvnDrjb5T7lBTpJlAyLCaSY0g4Lidb8
+#        curl -u jin:11da9bd347a5cd21b349ecab65fac5e31a https://jenkins.wintoncentre.uk/view/NHS-BT/job/nhsbt-staging/build?token=pHDpKaLBnBvnDrjb5T7lBTpJlAyLCaSY0g4Lidb8
 
 	elif [ "master" == "$branch" ]; then
 		echo "master. Please add in Jenkins to deploy."

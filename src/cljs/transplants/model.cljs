@@ -67,6 +67,7 @@
   
   (def sum-x-betas -0.6827) ;(== -0.1121 + -0.5706) 
   
+  (cif :waiting cif_0 sum-x-betas)
   )
 
 (defn with-all-reasons-first

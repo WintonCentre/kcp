@@ -169,10 +169,11 @@
   [[{:keys [organ centre tool] :as path-params}
     {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
     inputs :as env] factor]
-  (let [master-level (get-in -inputs [factor :level])]
-    ;master-level
-    (and (string? master-level)
-         (pos? (index-of master-level "spline")))))
+  (let [master-level (get-in -inputs [factor :level])
+        splined (and (string? master-level)
+                     (pos? (index-of master-level "spline")))]
+    ;(println ::master-level master-level :splined splined)
+    splined))
 
 (defn is-numeric?
   [[{:keys [organ centre tool] :as path-params}
@@ -265,7 +266,7 @@
 
     ; Splined numeric inputs are defined by a spline function and its parameters defined in
     ; the master-fmap's :level - such as '[:spline :x :beta1 :beta2 :beta3]'
-    ; This iindicates that the raw value x, must be processed by a call to the function spline 
+    ; This indicates that the raw value x, must be processed by a call to the function spline 
     ; of the form '(spline x beta1 beta2 beta3).
     ; x is the raw input value for this factor
     ; The beta parameters can be located in the master factor map :levels using the 
@@ -304,88 +305,90 @@
     :else
     [:unclassified factor]))
 
-(defn selected-beta-xs
-  "returns a seq of all xs and betas (keyed by input factor?)"
-  [[{:keys [organ centre tool] :as path-params}
-    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
-    inputs :as env]
-   beta-outcome-key]
-  (->> -inputs
-       (map (fn [[factor master-fmap]]
-              (selected-beta-x env factor master-fmap beta-outcome-key)))))
+((defn selected-beta-xs
+   "returns a seq of all xs and betas (keyed by input factor?)"
+   [[{:keys [organ centre tool] :as path-params}
+     {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
+     inputs :as env]
+    beta-outcome-key]
+   (->> -inputs
+        (map (fn [[factor master-fmap]]
+               (selected-beta-x env factor master-fmap beta-outcome-key)))))
 
-(defn sum-beta-xs
-  "returns  of all xs and betas (keyed by input factor?)"
-  [[{:keys [organ centre tool] :as path-params}
-    {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
-    inputs :as env]
-   beta-outcome-key]
-  (->> -inputs
-       (map (fn [[factor master-fmap]]
-              (selected-beta-x env factor master-fmap beta-outcome-key)))
-       (map last)
-       (apply +)))
+ (defn sum-beta-xs
+   "returns  of all xs and betas (keyed by input factor?)"
+   [[{:keys [organ centre tool] :as path-params}
+     {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
+     inputs :as env]
+    beta-outcome-key]
+   (->> -inputs
+        (map (fn [[factor master-fmap]]
+               (selected-beta-x env factor master-fmap beta-outcome-key)))
+        (map last)
+        (apply +)))
 
 
-(comment
+ (comment
 
-  (def bundle
-    (get-in @(rf/subscribe [::subs/bundles]) [:lung :birm :waiting]))
+   (def bundle
+     (get-in @(rf/subscribe [::subs/bundles]) [:lung :birm :waiting]))
 
   ;inputs
-  (def inputs {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :dd-pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
+   (def inputs {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :dd-pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
 
-  (def path-params {:organ :lung, :centre :birm, :tool :waiting})
+   (def path-params {:organ :lung, :centre :birm, :tool :waiting})
 
-  (def env [path-params bundle inputs])
+   (def env [path-params bundle inputs])
 
-  (lookup-cross-over-factor-level env :d-gp*centre)
+   (lookup-cross-over-factor-level env :d-gp*centre)
 
-  (def master-fmaps (get-in bundle [:-inputs]))
-  (def master-fmap (get-in bundle [:-inputs :d-gp*centre]))
-  (def master-fmap-level (get-in bundle [:-inputs :d-gp*centre :levels :pf*birm]))
+   (def master-fmaps (get-in bundle [:-inputs]))
+   (def master-fmap (get-in bundle [:-inputs :d-gp*centre]))
+   (def master-fmap-level (get-in bundle [:-inputs :d-gp*centre :levels :pf*birm]))
   ;=> {:beta-transplant -0.10624, :beta-death -0.35576, :info-box? nil, :beta-removal 0.11786, :level-name "PF and Birmingham", :beta-all-reasons -0.45309, :type :none, :sub-text nil, :level :pf*birm, :factor :d-gp*centre, :order -1, :factor-name nil}
-  (def master-fmap-level-transplant (get-in bundle [:-inputs :d-gp*centre :levels :pf*birm :beta-transplant]))
+   (def master-fmap-level-transplant (get-in bundle [:-inputs :d-gp*centre :levels :pf*birm :beta-transplant]))
   ;=> -0.10624
+   
+   (:centre (first env))
 
-  (:centre (first env))
+   (is-cross-over? env :d-gp*centre)
+   (split-cross-over :d-gp*centre)
+   (lookup-simple-factor-level env :age)
+   (lookup-simple-factor-level env :centre)
+   (lookup-simple-factor-level env :d-gp)
 
-  (is-cross-over? env :d-gp*centre)
-  (split-cross-over :d-gp*centre)
-  (lookup-simple-factor-level env :age)
-  (lookup-simple-factor-level env :centre)
-  (lookup-simple-factor-level env :d-gp)
-
-  (is-spline? env :bmi)
-  (is-spline? env :age)
-  (is-categorical? env :bmi)
-  (is-numeric? env :bmi)
-  (lookup-simple-factor-level env :bmi)
-  (lookup-simple-factor-level env :dd-pred)
+   (is-spline? env :bmi)
+   (is-spline? env :age)
+   (is-spline? env :fvc)
+   
+   (is-categorical? env :bmi)
+   (is-numeric? env :bmi)
+   (lookup-simple-factor-level env :bmi)
+   (lookup-simple-factor-level env :dd-pred)
 
   ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
-  (lookup-simple-factor-level env :d-gp*centre)
+   (lookup-simple-factor-level env :d-gp*centre)
 
   ; So we need to call this instead...
+   
+   (lookup-cross-over-factor-level env :d-gp*centre)
 
-  (lookup-cross-over-factor-level env :d-gp*centre)
+   (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
+   (selected-beta-x env :dd-pred master-fmap :beta-transplant)
+   (selected-beta-x env :ethnicity master-fmap :beta-transplant)
 
-  (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
-  (selected-beta-x env :dd-pred master-fmap :beta-transplant)
-  (selected-beta-x env :ethnicity master-fmap :beta-transplant)
-
-  (selected-beta-xs env :beta-transplant)
-  (sum-beta-xs env :beta-transplant)
+   (selected-beta-xs env :beta-transplant)
+   (sum-beta-xs env :beta-transplant)
   ;=>
-  #_([:d-gp*centre :pf*birm -0.10624]
-     [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
-     [:dd-pred :pred-1-14 0.15256]
-     [:nyha-class :nyha-2 0.52044]
-     [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
-     [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]
-     [:blood-group :B -0.73794] [:ethnicity :white -0.03768]
-     [:bmi 0.01457 23.0224 0.10166363199999998]
-     [:bilirubin -0.0004091 9 0.0024546000000000004]
-     [:thoracotomy :no 0.44664]))
+   #_([:d-gp*centre :pf*birm -0.10624]
+      [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
+      [:dd-pred :pred-1-14 0.15256]
+      [:nyha-class :nyha-2 0.52044]
+      [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
+      [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]
+      [:blood-group :B -0.73794] [:ethnicity :white -0.03768]
+      [:bmi 0.01457 23.0224 0.10166363199999998]
+      [:bilirubin -0.0004091 9 0.0024546000000000004]
+      [:thoracotomy :no 0.44664])))
 
 

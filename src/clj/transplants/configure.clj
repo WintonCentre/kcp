@@ -295,7 +295,11 @@
   "Main entry point. This function reads config.edn and the spreadsheets and writes out edn files.
 When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
   [& args]
-  (export-all-edn-bundles))
+  (try
+    (export-all-edn-bundles)
+    (catch Exception e
+      (println (str ">>-configure error " (.getMessage e) " -<<"))
+      (System/exit 1))))
 
 ;----------------------------------------------
 ;

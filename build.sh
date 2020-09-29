@@ -1,6 +1,11 @@
 #!/bin/bash
+./bb-scripts/build.clj
 
-npm install
-./bb-scripts/switch-10x-dev.clj prod
-./lein-config.sh
-clj -Afig:prod
+# echo "=== npm install start ==="
+# npm install
+# echo "=== switch to production start ==="
+# ./bb-scripts/switch-10x-dev.clj prod
+# echo "=== lein config start ==="
+# ./lein-config.sh
+# echo "=== compile start ==="
+# clj -Afig:prod

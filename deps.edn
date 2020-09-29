@@ -21,14 +21,18 @@
            ;:min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
            :prod   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
            :test  {:main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" "transplants.test-runner"]}
-           :config {:extra-deps {org.clojure/clojure {:mvn/version "1.10.1"}
+           :config {:extra-paths ["src/clj"]
+                    :jvm-opts ["-Xmx1g"]
+                    :extra-deps {org.clojure/clojure {:mvn/version "1.10.1"}
                                  aero {:mvn/version "1.1.6"}
                                  org.apache.poi/poi {:mvn/version "3.17"}
                                  org.apache.poi/poi-ooxml {:mvn/version "3.17"}
                                  dk.ative/docjure {:mvn/version "1.13.0"}
                                  org.apache.commons/commons-math3 {:mvn/version "3.6.1"}
-                                 org.clojure/data.csv {:mvn/version "1.0.0"}
-                                 winton-utils {:mvn/version "0.2.1"}}}}
+                                 ;org.clojure/data.csv {:mvn/version "1.0.0"}
+                                 ;winton-utils {:mvn/version "0.2.1"}
+                                 }
+                    #_#_:main-opts ["-m" transplants.configure/-main]}}
 
 
 

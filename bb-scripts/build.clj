@@ -34,7 +34,8 @@
 ; Alternatively use 'lein config', 
 ; but this method avoids a dependency on leiningen
 (let [{:keys [:exit :err :out]} 
-      (shell/sh "clojure" "-M:config" "-m" "transplants.configure")]
+      #_(shell/sh "clj" "-M:config" "-m" "transplants.configure")
+      (shell/sh "clj" "-A:config" "-m" "transplants.configure")]
   (if (zero? exit)
     (do (println out)
         (println "<== configuration done"))
@@ -45,7 +46,7 @@
 ; Alternatively use 'lein config', 
 ; but this method avoids a dependency on leiningen
 (let [{:keys [:exit :err :out]}
-      (shell/sh "clojure" "-A:fig:prod")]
+      (shell/sh "clj" "-A:fig:prod")]
   (if (zero? exit)
     (do (println out)
         (println "<== TRAC tool created"))

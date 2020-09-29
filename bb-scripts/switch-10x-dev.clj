@@ -20,25 +20,26 @@
 ; NOTE: We don't really need bb for this any more as we could now simply copy 
 ; the needed template into dev.cljs.edn.
 ; 
+(ns switcher)
 (require '[clojure.edn :as edn]
          '[clojure.java.io :refer [writer]]
          '[clojure.pprint :refer [pprint]])
 
 (declare day8.re-frame-10x.preloads)
 
-(def template-edn (str "10x.cljs.edn"))
-(def dev-edn (str "dev.cljs.edn"))
-(def prod-edn (str "prod.cljs.edn"))
+(def template-edn "10x.template.edn")
+(def prod-edn "prod.template.edn")
+(def dev-edn "dev.cljs.edn")
 
 (defn use-10x
-  "copy 10x.cljs.edn to dev.cljs.edn unchanged"
+  "copy 10x.template.edn to dev.cljs.edn unchanged"
   []
   (let [build (edn/read-string (slurp template-edn))]
     (println "switch to 10x")
     (pprint build (writer dev-edn))))
 
 (defn use-dev
-  "copy 10x.cljs.edn to dev.cljs.edn, but remove the 10x configuration"
+  "copy 10x.template.edn to dev.cljs.edn, but remove the 10x configuration"
   []
   (println "switch to dev")
   (-> (edn/read-string (slurp template-edn))
@@ -53,7 +54,7 @@
       (pprint (writer dev-edn))))
 
 (defn use-prod
-  "copy prod.cljs.edn to dev.cljs.edn"
+  "copy prod.template.edn to dev.cljs.edn"
   []
   (println "switch to prod")
   (-> (edn/read-string (slurp prod-edn))

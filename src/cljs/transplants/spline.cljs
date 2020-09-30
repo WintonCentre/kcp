@@ -19,12 +19,16 @@
 
  (comment
    ; setup test cases
-
    ; knots
    (def k1 21)
    (def k2 44)
    (def k3 56)
    (def k4 63)
+   (defn cube+ [x] (if (pos? x) (* x x x) 0))
+   (defn d3+ [x n] (cube+ (- x n)))
+   (defn term1 [n x] (/ (- (d3+ x n) (d3+ x k4)) (- k4 n)))
+   (defn term2 [x] (/ (- (d3+ x k3) (d3+ x k4)) (- k4 k3)))
+
 
    ; numeric betas taken from "Calculated adjusted CIFs - example.xlsx"
    (def tx-age-spline (partial spline [k1 k2 k3 k4] [0.00432 -0.0003983 0.00181] 51))

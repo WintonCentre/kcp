@@ -1,7 +1,7 @@
 (ns transplants.ui
   "This should become the high level ui interface and should have all ns references factored out into 
 the low level ui."
-  (:require [clojure.string :refer [ends-with? split capitalize]]
+  (:require [clojure.string :refer [ends-with? capitalize]]
             [reagent.core :as rc]
             [reitit.core :as r]
             [reitit.frontend.easy :as rfe]

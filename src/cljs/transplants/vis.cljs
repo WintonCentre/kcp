@@ -9,9 +9,9 @@
             [transplants.utils :as utils]
             [transplants.rgb :as rgb]
             [clojure.string :refer [replace]]
-            [clojure.pprint :refer [pprint]]
+            #_[clojure.pprint :refer [pprint]]
             [svg.margin-convention :as convention]
-            [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
+            #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]))

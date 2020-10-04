@@ -80,7 +80,48 @@ We now have a choice of shadow-cljs or core clojurescript builds.
 Shadow-cljs
 Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. 
 
-cljs-core
+### cljs-core unit tests
+See https://figwheel.org/docs/testing.html#auto-testing
+and https://figwheel.org/config-options#auto-testing
+and https://figwheel.org/docs/extra_mains
+
+
+In `figwheel-main.edn` we have
+```
+ :auto-testing true
+ :extra-main-files {:tests {:main transplants.test-runner}}
+```
+`:extra-main-files` causes figwheel to generate a cljs-out/test image in addition to the standard dev image.
+`:auto-testing true` adds a [heads up test display](http://localhost:9500/figwheel-extra-main/auto-testing), which is useful in development.
+
+These docs are good but don't deal with the webpack bundle case. I've found that the most reliable way of ensuring that a bundle is generated is to run the commands below with or withoiut -r/--repl. Possibly using -Mfig instead of -Afig at least once.
+
+Subsequently we can jack-in with cider and generate a js that will be pulled in to the pregenerated bundle. At least I think that's what is happening.
+
+I'm not yet clear how to make these tests run sensibly on the server. Ideally we'd want some sort of feedback to the github repo
+in the form of a pass/fail badge, with a test run log. 
+
+The docs talk about commands like this 
+
+```
+clojure -Afig -m figwheel.main  -b dev --repl
+```
+
+but this seems to work better with the extra-mains config - without a repl this time though one can be added.
+```
+clojure -Mfig -m figwheel.main  -b dev
+```
+The tests will also run with this
+In order to create a webpack bundled test build, you may need to run
+```
+clojure -Afig -m figwheel.main -b test 
+```
+
+In order to ensure that tests run when this main is launched, make sure that 
+`transplants.test-runner` calls `-main`. 
+
+The problem here is that all of these tests are still requiring user interaction. The test runner has to be called in the 
+browser context somehow, with results appearing in the test.html console in the browser, or in the REPL. I'm not clear how to do this server side.
 
 
 ### Use of lein shadow
@@ -95,20 +136,6 @@ We have included the lein-shadow plugin which moves all the shadow configuration
 Run `lein karma` for cljs unit tests
 Run `lein check` for xlsx configuration tests
 
-#### cljs-core tests (temporary note)
-Use the nolan branch
-
-From the command line try
-```
-clojure -Afig -m figwheel.main  -b dev --repl
-```
-or, for test:
-```
-clojure -Afig -m figwheel.main -b test -r
-```
-This will need adjustment for the command line, but it is close - you need to call (-main) to run the tests.
-
-Calva Jack-in (alt-ctrl-C alt-ctrl-J) and deselect all aliases for the calva repl.  
 
 # Original Re-frame template README below
 ## Getting Started

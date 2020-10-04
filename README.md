@@ -95,6 +95,21 @@ We have included the lein-shadow plugin which moves all the shadow configuration
 Run `lein karma` for cljs unit tests
 Run `lein check` for xlsx configuration tests
 
+#### cljs-core tests (temporary note)
+Use the nolan branch
+
+From the command line try
+```
+clojure -Afig -m figwheel.main  -b dev --repl
+```
+or, for test:
+```
+clojure -Afig -m figwheel.main -b test -r
+```
+This will need adjustment for the command line, but it is close - you need to call (-main) to run the tests.
+
+Calva Jack-in (alt-ctrl-C alt-ctrl-J) and deselect all aliases for the calva repl.  
+
 # Original Re-frame template README below
 ## Getting Started
 

@@ -23,13 +23,9 @@ the low level ui."
 (def tabs (rc/adapt-react-class bs/Tabs))
 (def tab (rc/adapt-react-class bs/Tab))
 
-(def mobile-break 
-  "Screens of this size or smaller are rendered with mobile orientedt views"
-  414)
-
 
 (def themes
-  "Very provisional colour palette. "
+  "Very provisional colour palette. Unused as yet."
   {:lung {:name "Lung Transplants"
           :organ-logo nil
           :primary "black"}
@@ -260,6 +256,9 @@ in the routes table."
 (defn phone-card
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
+  
+  (println ::phone "PHONE!!!")
+  
   [:> bs/ListGroup.Item {:action true
                          :href (apply rfe/href link)} hospital])
 
@@ -275,6 +274,26 @@ in the routes table."
      [col
       [:h1 {:style {:margin-top 20}} title]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
+
+(def mobile-break
+  "Screens of this size or smaller are rendered with mobile oriented views.
+   We take the surface duo as the widest mobile"
+  540)
+
+(defn centre-card
+  [mobile params]
+  (if mobile
+    [phone-card params]
+    [nav-card params]))
+(defn centre-card-deck
+  "A card deck where the cards are simple list items in mobile view, but true cards in desktop view."
+  [mobile]
+  (if mobile
+    [:> bs/ListGroup]
+    [:> bs/CardDeck]))
+
+
+
 
 (defn titled-panel
   [title & children]

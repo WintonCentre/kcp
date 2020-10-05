@@ -42,8 +42,7 @@
         tools (rf/subscribe [:transplants.subs/tools])
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
         centres (rf/subscribe [:transplants.subs/organ-centres])
-        mobile (> @window-width ui/mobile-break)]
-
+        mobile (<= @window-width ui/mobile-break)]
     [ui/card-page "Choose your transplant centre"
      (if-not @centres
        [:div "loading " organ "centres"]
@@ -51,20 +50,17 @@
          [:div "loading " organ "/edn/tools.txt"]
          (let [centres (sort-by :description ((keyword organ) @centres))
                tools @tools
-               centre-card (fn [centre] [(if mobile
-                                           ui/nav-card
-                                           ui/phone-card)
-                                         {:img-src (:image centre)
-                                          :organ organ
-                                          :link [::organ-centre {:organ organ :centre (name (:key centre))}]
-                                          :centre (:key centre)
-                                          :hospital (:description centre)
-                                          :width 200
-                                          :tools tools}])]
-
-           (into (if mobile 
-                   [:> bs/ListGroup] 
-                   [:> bs/CardDeck]) 
+               centre-card (fn [centre]
+                             [ui/centre-card mobile
+                              {:img-src (:image centre)
+                               :organ organ
+                               :link [::organ-centre {:organ organ :centre (name (:key centre))}]
+                               :centre (:key centre)
+                               :hospital (:description centre)
+                               :width 200
+                               :tools tools}])]
+           ;;; THIS IS WRONG NOW
+           (into (ui/centre-card-deck mobile)
                  (map centre-card centres)))))]))
 
 (def background-infos

@@ -3,6 +3,7 @@
   (:require
     ;; require all the namespaces that you want to test
     [transplants.bsio-test]
+    [transplants.spline-test]
     #_[transplants.core-test]
     [figwheel.main.testing :refer [run-tests-async]]))
 

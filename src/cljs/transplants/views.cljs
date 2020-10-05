@@ -41,7 +41,8 @@
   (let [window-width (rf/subscribe [::subs/window-width])
         tools (rf/subscribe [:transplants.subs/tools])
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
-        centres (rf/subscribe [:transplants.subs/organ-centres])]
+        centres (rf/subscribe [:transplants.subs/organ-centres])
+        mobile (> @window-width ui/mobile-break)]
 
     [ui/card-page "Choose your transplant centre"
      (if-not @centres
@@ -50,7 +51,7 @@
          [:div "loading " organ "/edn/tools.txt"]
          (let [centres (sort-by :description ((keyword organ) @centres))
                tools @tools
-               centre-card (fn [centre] [(if (> @window-width ui/mobile-break)
+               centre-card (fn [centre] [(if mobile
                                            ui/nav-card
                                            ui/phone-card)
                                          {:img-src (:image centre)
@@ -61,7 +62,10 @@
                                           :width 200
                                           :tools tools}])]
 
-           (into [:> bs/CardDeck] (map centre-card centres)))))]))
+           (into (if mobile 
+                   [:> bs/ListGroup] 
+                   [:> bs/CardDeck]) 
+                 (map centre-card centres)))))]))
 
 (def background-infos
   {:visits "Visits to hospital after transplant"

@@ -235,6 +235,7 @@ in the routes table."
      label]))
 
 (defn nav-card
+  "Render a desktop compatible card containing of hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    #_[:<> 
@@ -257,39 +258,19 @@ in the routes table."
          (into [:> bs/ButtonGroup {:vertical true}]))]])
 
 (defn phone-card
+  "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
-  [:> bs/Accordion {:defaultActiveKey nil}
-   [:> bs/Card
-    (->> tools
-         (map #(conj % [:organ organ]))
-         (map #(conj % [:centre centre]))
-         (map #(conj % [:tool (:key %)]))
-         (map tool-buttons)
-         (map (fn [button #_{:keys [key level-name description]}]
-                [:> bs/Accordion.Collapse {:eventKey 0}
-                 button
-                 #_[:> bs/Card.Body 
-                  {:style {:background-color "white"
-                           :margin-bottom 2
-                           :padding 0
-                           :border "1px solid white"
-                           :border-radius 5
-                           :opacity 1
-                           :color "white"}} button]]))
-         (into [:> bs/Accordion.Toggle {:as bs/Card.Header
-                                        :eventKey 0
-                                        :variant "outline-primary"
-                                        #_#_:style {:background-color "#007bff"
-                                                    :color "white"}}
-                hospital]))]])
+  [:> bs/ListGroup.Item {:action true
+                         :href (apply rfe/href link)} hospital])
 
 (defn page
+  "A generic page component, rendering a title and the page's children"
   ([title & children]
    [container {:key 1
                :fluid "xl"
                :style {:min-height "calc(100vh - 165px"
-                              :background-color "#ffffffbb"
-                              :margin-bottom 20}}
+                       :background-color "#ffffffbb"
+                       :margin-bottom 20}}
     [row
      [col
       [:h1 {:style {:margin-top 20}} title]

@@ -59,7 +59,6 @@
                                :hospital (:description centre)
                                :width 200
                                :tools tools}])]
-           ;;; THIS IS WRONG NOW
            (into (ui/centre-card-deck mobile)
                  (map centre-card centres)))))]))
 

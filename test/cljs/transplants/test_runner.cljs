@@ -4,13 +4,14 @@
     ;; require all the namespaces that you want to test
     [transplants.bsio-test]
     [transplants.spline-test]
+    [transplants.bundles-test]
     #_[transplants.core-test]
     [figwheel.main.testing :refer [run-tests-async]]))
 
-
-(defn -main [& args]
-  (run-tests-async 5000))
-
-;; uncomment to run tests
-(-main)
+(comment
   
+  ; only needed if running tests from the REPL
+  (defn -main [& args]
+    (run-tests-async 5000))
+  
+  (-main))  

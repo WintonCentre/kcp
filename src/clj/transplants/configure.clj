@@ -163,6 +163,7 @@
   (rest (get-row-maps :kidney :survival-baseline-cifs))
   (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
   (centre-columns :kidney :survival-baseline-cifs  "Belfast")
+  (centre-columns :kidney :survival-baseline-cifs  "Guy's" )
   (centre-columns :kidney :waiting-baseline-cifs "Belfast")
   (cfg/get-bundle :kidney :waiting)
   (cfg/get-bundle :lung :waiting)
@@ -220,6 +221,12 @@
   (headed-vectors-to-map [[":a" 1 2 3] [":b" 4 5 6]])
   (map sheet-type (flatten (vals (cfg/get-bundle :kidney :waiting))))
   (vals (cfg/get-bundle :kidney :waiting))
+  (first (vals (cfg/get-bundle :kidney :survival)))
+ 
+  (def sheet-key (ffirst (vals (cfg/get-bundle :kidney :survival))))
+  (def organ :kidney)
+  (def centre "Belfast")
+  (def centre "Guy's")
   )
 
 (defn collect-mapped-tool-bundle
@@ -239,12 +246,14 @@
        (into {})))
 (comment
   (collect-mapped-tool-bundle :lung "Birmingham" :waiting)
+  (:survival-baseline-cifs (collect-mapped-tool-bundle :kidney "Belfast" :survival))
+  (collect-mapped-tool-bundle :kidney "St George's" :survival)
+  (collect-mapped-tool-bundle :kidney "Guy's" :survival)
   (:waiting-baseline-vars (collect-mapped-tool-bundle :kidney "Oxford" :waiting))
   (string/starts-with? ":centre" ":")
   (keyword (subs ":centre" 1))
   (get-in (cfg/memo-config :lung) [:export :edn-path])
-  (println (collect-mapped-tool-bundle :lung "Birmingham" :waiting))
-  )
+  (println (collect-mapped-tool-bundle :lung "Birmingham" :waiting)))
 
 (defn write-edn-bundle
   "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres."
@@ -262,8 +271,11 @@
 
 (comment
   (get-centres :lung)
+  (get-centres :kidney)
   (bundle-path :lung "Birmingham" nil)
+  (bundle-path :kidney "Guy's" nil)
   (bundle-path nil nil nil)
+  (collect-mapped-tool-bundle :kidney "Belfast" :survival)
   )
 
 (defn write-sheet

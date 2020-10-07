@@ -11,8 +11,8 @@
       (is (= (tx-age-spline 69) 
              0.3432035187969925) 
           "spline on age 69")
-      (is (= (- 1 (js/Math.pow (- 1 cif_0) (js/Math.exp (tx-age-spline 69)))
-                0.4099210121796981))
+      (is (= (- 1 (js/Math.pow (- 1 cif_0) (js/Math.exp (tx-age-spline 69))))
+             0.4099210121796981)
           "cif on age 69 changed"))))
 
 (comment
@@ -29,7 +29,7 @@
 
   ; create a transplant age spline function with these knots and betas 
   ; and a baseline age of 51 partially applied.
-  (def tx-age-spline (partial spline knots betas 51))
+  (def tx-age-spline (partial spl/spline knots betas 51))
 
   ; apply to age 69
   (def beta-age-69 (tx-age-spline 69))

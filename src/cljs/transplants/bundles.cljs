@@ -21,13 +21,38 @@
 
 (defn cif-0
   "Samples a bundle's baseline-cifs for the required day. 
-   If there is no baseline-cif entry for that day, the last baseline-cif
-   which occurs before the target day is returned.
+   Select the last baseline-cif which occurs on or before the target day.
    
    Returns the whole map for the selected day which will contain baseline-cifs
-   under keys prefixed with :cif-."
+   under keys prefixed with :cif-.
+   
+   If the selected day is less than the day of the first baseline, return the first baseline.
+   If it's more than the last, return the last baseline.
+   "
   [bundle day]
-  (->> bundle
-       (:-baseline-cifs)
-       (filter #(<= (:days %) day))
-       (last)))
+  (if-let [rv (->> bundle
+                   (:-baseline-cifs)
+                   (filter #(<= (:days %) day))
+                   (last))]
+    rv (first (:-baseline-cifs bundle))))
+
+(comment
+  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                           {:days 3 :cif 23}
+                           {:days 10 :cif 23}
+                           {:days 20 :cif 23}
+                           {:days 100 :cif 23}]} 3)
+  
+    (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                             {:days 3 :cif 23}
+                             {:days 10 :cif 23}
+                             {:days 20 :cif 23}
+                             {:days 100 :cif 23}]} -1)
+  
+    (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                             {:days 3 :cif 23}
+                             {:days 10 :cif 23}
+                             {:days 20 :cif 23}
+                             {:days 100 :cif 23}]} 200)
+
+  )

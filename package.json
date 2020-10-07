@@ -3,7 +3,8 @@
     "bootstrap": "4.5.2",
     "react": "16.13.0",
     "react-bootstrap": "1.2.2",
-    "react-dom": "16.13.0"
+    "react-dom": "16.13.0",
+    "recharts": "^1.8.5"
   },
   "devDependencies": {
     "webpack": "^4.43.0",

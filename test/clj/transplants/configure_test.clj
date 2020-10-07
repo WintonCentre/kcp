@@ -6,6 +6,7 @@
              [clojure.pprint :refer [pprint]]
              [clojure.string :refer [starts-with?]]))
 
+
 (deftest success
   (is (= 1 1)))
 
@@ -67,6 +68,7 @@
 
 (def kidney-variables (partial cfg/get-variable-keys :kidney))
 
+;
 (defn configured-headers
   "Runs a configuration check on a spreadsheet, ensuring that actual headers
   match configured headers. Note that we are currently looking for exact matches. 
@@ -74,8 +76,9 @@
   We could use a re match instead if we wanted to
   be less fussy. This would be the place to implement re matching."
   [organ sheet]
-  (= (cfg/get-variable-keys organ sheet) 
-     (c/get-header organ sheet)) sheet)
+  (= (cfg/get-variable-keys organ sheet)
+     (keys (c/get-variables :kidney :survival-baseline-cifs)))
+  )
 
 (comment
   ; Add important assertions we need to check here:
@@ -85,6 +88,9 @@
   ; All widgets have a level-name (or label) - todo: there has been a name change here
   ;
   ; All cross-over factors like d-gp*centre should have all possible levels and betas
+  ; 
+  (def organ :kidney)
+  (def sheet :survival-baseline-cifs)
   )
 
 (deftest kidney-variables-check
@@ -177,3 +183,29 @@
     (check-widget-labels :lung :waiting)
     (check-widget-labels :lung :post-transplant)
     (check-widget-labels :lung :from-listing)))
+
+(defn check-baseline-cif-data
+  [organ sheet centre]
+  (let [col-data (mapv rest (c/centre-columns organ sheet centre))]
+    (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
+    (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
+
+(deftest lung-baseline-cifs-should-not-be-empty
+  (testing "Lung baseline-cifs should be consistent"
+    (doseq [centre (c/get-centres :lung)
+            tool ["waiting" "post-transplant" "from-listing"]]
+      (check-baseline-cif-data :lung (keyword (str tool "-baseline-cifs")) centre))))
+
+(deftest kidney-baseline-cifs-should-not-be-empty
+  (testing "Kidney baseline-cifs should be consistent"
+    (doseq [centre (c/get-centres :kidney)
+            tool ["waiting" "graft" "survival"]]
+      (check-baseline-cif-data :kidney (keyword (str tool "-baseline-cifs")) centre))))
+
+(comment 
+  
+  (kidney-baseline-cifs-should-not-be-empty)
+  (every? seq ['(1) '() '(1)])
+  (every? seq ["1" [1] '(1) {:1 1} #{1} '()])
+  (seq '())
+  )

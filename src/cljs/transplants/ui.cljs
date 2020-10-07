@@ -1,7 +1,7 @@
 (ns transplants.ui
   "This should become the high level ui interface and should have all ns references factored out into 
 the low level ui."
-  (:require [clojure.string :refer [ends-with? split capitalize]]
+  (:require [clojure.string :refer [ends-with? capitalize]]
             [reagent.core :as rc]
             [reitit.core :as r]
             [reitit.frontend.easy :as rfe]
@@ -23,13 +23,9 @@ the low level ui."
 (def tabs (rc/adapt-react-class bs/Tabs))
 (def tab (rc/adapt-react-class bs/Tab))
 
-(def mobile-break 
-  "Screens of this size or smaller are rendered with mobile orientedt views"
-  414)
-
 
 (def themes
-  "Very provisional colour palette. "
+  "Very provisional colour palette. Unused as yet."
   {:lung {:name "Lung Transplants"
           :organ-logo nil
           :primary "black"}
@@ -235,6 +231,7 @@ in the routes table."
      label]))
 
 (defn nav-card
+  "Render a desktop compatible card containing of hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    #_[:<> 
@@ -257,43 +254,46 @@ in the routes table."
          (into [:> bs/ButtonGroup {:vertical true}]))]])
 
 (defn phone-card
+  "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
-  [:> bs/Accordion {:defaultActiveKey nil}
-   [:> bs/Card
-    (->> tools
-         (map #(conj % [:organ organ]))
-         (map #(conj % [:centre centre]))
-         (map #(conj % [:tool (:key %)]))
-         (map tool-buttons)
-         (map (fn [button #_{:keys [key level-name description]}]
-                [:> bs/Accordion.Collapse {:eventKey 0}
-                 button
-                 #_[:> bs/Card.Body 
-                  {:style {:background-color "white"
-                           :margin-bottom 2
-                           :padding 0
-                           :border "1px solid white"
-                           :border-radius 5
-                           :opacity 1
-                           :color "white"}} button]]))
-         (into [:> bs/Accordion.Toggle {:as bs/Card.Header
-                                        :eventKey 0
-                                        :variant "outline-primary"
-                                        #_#_:style {:background-color "#007bff"
-                                                    :color "white"}}
-                hospital]))]])
+  
+  (println ::phone "PHONE!!!")
+  
+  [:> bs/ListGroup.Item {:action true
+                         :href (apply rfe/href link)} hospital])
 
 (defn page
+  "A generic page component, rendering a title and the page's children"
   ([title & children]
    [container {:key 1
                :fluid "xl"
                :style {:min-height "calc(100vh - 165px"
-                              :background-color "#ffffffbb"
-                              :margin-bottom 20}}
+                       :background-color "#ffffffbb"
+                       :margin-bottom 20}}
     [row
      [col
       [:h1 {:style {:margin-top 20}} title]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
+
+(def mobile-break
+  "Screens of this size or smaller are rendered with mobile oriented views.
+   We take the surface duo as the widest mobile"
+  540)
+
+(defn centre-card
+  [mobile params]
+  (if mobile
+    [phone-card params]
+    [nav-card params]))
+(defn centre-card-deck
+  "A card deck where the cards are simple list items in mobile view, but true cards in desktop view."
+  [mobile]
+  (if mobile
+    [:> bs/ListGroup]
+    [:> bs/CardDeck]))
+
+
+
 
 (defn titled-panel
   [title & children]

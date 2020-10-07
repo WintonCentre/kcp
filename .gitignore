@@ -48,3 +48,5 @@ resources/public/kidney
 transplants.iml
 dev.cljs.edn
 prod.cljs.edn
+
+webpack*

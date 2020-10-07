@@ -2,7 +2,7 @@
   "Code associated with factors and master factor-maps"
   (:require [clojure.string :refer [starts-with? split join index-of]]
             [clojure.edn :as edn]
-            [clojure.pprint :refer [pprint]]
+            #_[clojure.pprint :refer [pprint]]
             [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
             [transplants.transforms :as xf]
             [transplants.spline :refer [spline]]

@@ -35,6 +35,9 @@
                      :sheet sheet-key}))))
 
 (comment
+  (get-sheet-spec :lung :waiting-baseline-cifs)
+  (get-sheet-spec :kidney :survival-baseline-cifs)
+  (get-sheet-spec :kidney "survival-baseline-cifs")
   (get-config :lung)
   (get-in (memo-config :lung) [:sheets nil])
   )
@@ -55,6 +58,7 @@
   (get-bundle :kidney)
   (get-bundle :lung)
   (get-bundle :kidney :waiting)
+  (get-bundle :kidney :survival)
   )
 
 (defn get-column-selection

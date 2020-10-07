@@ -1,4 +1,6 @@
 {:watch-dirs ["src/cljs" "src/cljc" "test/cljs"]
  :css-dirs ["resources/public/css"]
  :target-dir "resources"
+ :auto-testing true
+ :extra-main-files {:tests {:main transplants.test-runner}}
  }

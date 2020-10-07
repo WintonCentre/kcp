@@ -9,9 +9,9 @@
             [transplants.utils :as utils]
             [transplants.rgb :as rgb]
             [clojure.string :refer [replace]]
-            [clojure.pprint :refer [pprint]]
+            #_[clojure.pprint :refer [pprint]]
             [svg.margin-convention :as convention]
-            [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
+            #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]))
@@ -166,7 +166,21 @@
              :stroke-width "1.5px"}])
 
 (defn bar-chart-graphic
+  "Draw a stacked bar chart.
+   x is a Liner scale deined in svg.scales.Linear containing
+    :in - an input range of numbers to plot on the x-axis.
+    :out - an equivalent x coordinate in he SVG window.
+   X is a function mapping between the two
+   y and Y are similar for the Y axis
+   sample-days are indices into the cif data-series at which bars should be drawn.
+   outcomes are the cif data-series"
   [x y X Y cifs-by-year sample-days outcomes]
+  (println ::cifs-by-year cifs-by-year)
+  (println ::sample-days sample-days)
+  (println ::xX x X)
+  (println ::X14 (X 14))
+
+
   [:g {:key 1}
    [:rect {:key        1
            :class-name (:inner styles)
@@ -174,6 +188,115 @@
            :y 0
            :width      1000
            :height     600}]
+
+  ; draw legend
+   (into [:g {:key 2}]
+         (map (fn [j {:keys [cifs cum-cifs]}]
+                (into [:g {:key j}]
+                      (map (fn [i cif cum-cif outcome]
+                             (let [x0 (- (X (+ (* 2.4 j) 0)) (X 2.1))
+                                   w 100
+                                   x-mid (+ x0 (/ w 2) (- (X 0.2)))
+                                   y0 (if (> (count outcomes) 1)
+                                        (- (Y cum-cif) (Y cif)) (Y cif))
+                                   h (if (> (count outcomes) 1)
+                                       (- (Y cum-cif) (Y (- cum-cif cif)))
+                                       (- (Y 0) (Y cif)))
+                                   y-mid (+ y0 (/ h 2))]
+                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
+                               ;(println i cif x0 y0 w h)
+                               (when (not (js/isNaN y0))
+                                 [:g
+                                  [:rect {:key i
+                                          :x x0
+                                          :y y0
+                                          :width w
+                                          :height h
+                                          :data-title cif
+                                          :class-name ((keyword outcome) styles)}]])))
+                           (range 4)
+                           cifs
+                           cum-cifs
+                           outcomes)))
+              (range 1 (inc (count sample-days)))
+              cifs-by-year))
+
+   ; draw stacked bars with on-bar labels
+   (into [:g {:key 3}]
+         (map (fn [j {:keys [cifs cum-cifs]}]
+                ;draw single bar and label
+                (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                      w 100
+                      x-mid (+ x0 (/ w 2) -10)]
+                  (into [:g {:key j}]
+                        (conj
+                         (map (fn [i cif cum-cif outcome]
+                                (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                      w 100
+                                      x-mid (+ x0 (/ w 2) -10)
+                                      y0 (if (> (count outcomes) 1)
+                                           (- (Y cum-cif) (Y cif)) (Y cif))
+                                      h (if (> (count outcomes) 1)
+                                          (- (Y cum-cif) (Y (- cum-cif cif)))
+                                          (- (Y 0) (Y cif)))
+                                      y-mid (+ y0 (/ h 2))]
+                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
+
+                                  (when (> cif 0.005)
+                                    [:g
+                                     {:transform (str "translate("
+                                                      (if (and (> i 1) (< cif 0.07))
+                                                        (if (odd? i) 20 -60)
+                                                        (if (< cif 1) -20 -30))
+                                                      " 10)")}
+                                     [:rect {:x (- x-mid 5)
+                                             :width (if (>= cif 1)
+                                                      90
+                                                      (if (< cif 0.10) 50 70))
+                                             :y (- y-mid 30)
+                                             :height 40
+                                             :rx 10
+                                             :style {:border "0px"}
+                                             :class-name ((keyword outcome) styles)}]
+                                     [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
+                                      (str (model/to-percent cif) "%")]])))
+                              (range)
+                              cifs
+                              cum-cifs
+                              outcomes)
+                         [:<>
+                          [:text {:x (- x-mid 35) :y 650 :font-size 30}  (if (= j 1) "Day 1" (str "Year " (dec j)))]
+                          #_[:text {:x (- x-mid 2) :y 690 :font-size 30}  (if (= j 1) "" (dec j))]]))))
+              (range 1 (inc (count sample-days)))
+              cifs-by-year))])
+
+
+
+
+#_(defn bar-chart-graphic
+  "Draw a stacked bar chart.
+   x is a Liner scale deined in svg.scales.Linear containing
+    :in - an input range of numbers to plot on the x-axis.
+    :out - an equivalent x coordinate in he SVG window.
+   X is a function mapping between the two
+   y and Y are similar for the Y axis
+   sample-days are indices into the cif data-series at which bars should be drawn.
+   outcomes are the cif data-series"
+  [x y X Y cifs-by-year sample-days outcomes]
+  (println ::cifs-by-year cifs-by-year)
+  (println ::sample-days sample-days)
+  (println ::xX x X)
+  (println ::X14 (X 14))
+
+
+  [:g {:key 1}
+   [:rect {:key        1
+           :class-name (:inner styles)
+           :x 0
+           :y 0
+           :width      1000
+           :height     600}]
+   
   ; draw legend
    (into [:g {:key 2}]
          (map (fn [j {:keys [cifs cum-cifs]}]
@@ -287,7 +410,7 @@
                         (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
                                                                           (map (bun/cif-0 bundle day) outcome-keys)
                                                                           sum-betas)))
-                                       (update 0 (if (>(count outcomes) 1)
+                                       (update 0 (if (> (count outcomes) 1)
                                                    #(- 1 %)
                                                    identity))) ]
                           {:cifs cifs 

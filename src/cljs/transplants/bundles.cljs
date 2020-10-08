@@ -37,6 +37,7 @@
     rv (first (:-baseline-cifs bundle))))
 
 (comment
+  (get-bundle :kidney :belf :waiting)
   (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
                            {:days 3 :cif 23}
                            {:days 10 :cif 23}

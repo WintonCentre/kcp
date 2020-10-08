@@ -484,127 +484,136 @@
          pload "payload"} (js->clj payload)]
     (when active
       (r/as-element
-       (let [p (pload 1)]
-         [:div {:style {:background-color "#fff"
-                        :display "flex"
-                        :flex-direction "column"
-                        :padding "10px 20px 0px 20px"
-                        :border-radius 5
-                        :box-shadow "1px 1px"}}
-          [:h5 label]
-          (into [:div {:style {:display "flex"
-                               :flex-direction "column"
-                               :align-items "flex-end"}}]
-                (mapv
-                 (fn [{name "name" value "value"} d]
-                   [:p {:style {:line-height 0.5
-                                :flex 1
-                                }}
-                    name ": " (Math/round value) "%"])
-                 pload))])))))
+       [:div {:style {:background-color "#fff"
+                      :display "flex"
+                      :flex-direction "column"
+                      :padding "10px 20px 0px 20px"
+                      :border-radius 5
+                      :box-shadow "1px 1px"}}
+        [:h5 label]
+        (into [:div {:style {:display "flex"
+                             :flex-direction "column"
+                             :align-items "flex-end"}}]
+              (mapv
+               (fn [{name "name" value "value"} d]
+                 [:p {:style {:line-height 0.5
+                              :flex 1
+                              }}
+                  name ": " (Math/round value) "%"])
+               pload))]))))
     
 
 (defn bar-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title]}]
-  (let [vis-m (vis-data-map @(rf/subscribe [::subs/cohort-dates]) organ centre tool inputs bundle)
+  [{:keys [organ centre tool inputs bundle title bar-info]}]
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days from-year to-year]} (vis-data-map @(rf/subscribe [::subs/cohort-dates]) organ centre tool inputs bundle)
+        
         cifs-by-year (clj->js (mapv
                                (fn [day year]
-                                 
+
                                  (let [cifs (as-> (vec (apply model/scaled-cifs
                                                               (map (partial model/cif tool)
                                                                    (map (bun/cif-0 bundle day)
-                                                                        (:outcome-keys vis-m))
-                                                                   (:sum-betas vis-m)))) x
-                                              (update x 0 (if (> (count (:outcomes vis-m)) 1)
+                                                                        outcome-keys)
+                                                                   sum-betas))) x
+                                              (update x 0 (if (> (count outcomes) 1)
                                                             #(- 1 %)
                                                             identity))
                                               (map #(* % 100) x))]
-                                   (clj->js (-> {"days" day
-                                                 "year" (if (zero? year)
-                                                          "Day 1"
-                                                          (str "Year " year))}
-                                                (assoc "waiting" (nth cifs 0))
-                                                (assoc "transplanted" (nth cifs 1))
-                                                (assoc "removed" (nth cifs 2))
-                                                (assoc "died" (nth cifs 3))
-                                                (assoc "died or removed" (apply + (map #(nth cifs %) [2 3]))))))) 
-                               (:sample-days vis-m)
-                               (range (count (:sample-days vis-m)))))]
-        
-    [:div {:style {:width "100%"}}
-     (pr-str (:outcome-keys vis-m))
-     (pr-str cifs-by-year)]
+                                   (into {"days" day
+                                          "year" (if (zero? year)
+                                                   "Day 1"
+                                                   (str "Year " year))}
+                                         (mapv
+                                          (fn [bi i]
+                                            ;(println (:ciff bi))
+                                            [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
+                                          bar-info (range)))))
+                               sample-days
+                               (range (count sample-days))))]
+    
     [:> bs/Row 
      [:> bs/Col
-      (tool-rubric organ tool (:from-year vis-m) (:to-year vis-m))
+      (tool-rubric organ tool from-year to-year)
 
-      [:> rech/BarChart {:width 600
-                         :height 400
-                         :data cifs-by-year
-                         :margin {:top 50
-                                  :right 50
-                                  :left 50
-                                  :bottom 50}}
-       
+      (into [:> rech/BarChart {:width 600
+                               :height 400
+                               :data cifs-by-year
+                               :margin {:top 50
+                                        :right 50
+                                        :left 50
+                                        :bottom 50}}
+             
        ; better without?
-       #_[:> rech/CartesianGrid {:stroke "#ccc"
-                               :strokeDasharray "5 5"}]
-       
-       [:> rech/XAxis {:dataKey "year"}]
-       
+             #_[:> rech/CartesianGrid {:stroke "#ccc"
+                                       :strokeDasharray "5 5"}]
+             
+             [:> rech/XAxis {:dataKey "year"}]
+             
        ; better without?
-       #_[:> rech/YAxis {:dataKey "transplants"
-                       :type "number"
-                       :domain #js [0 100]}]
-       
-       [:> rech/Tooltip {:content custom-tool-tip}]
+             #_[:> rech/YAxis {:dataKey "transplants"
+                               :type "number"
+                               :domain #js [0 100]}]
+             
+             [:> rech/Tooltip {:content custom-tool-tip}]
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
-       [:> rech/Legend {:width 100
-                        :wrapperStyle  {:width 600
-                                        :height 0
-                                        :bottom 50
-                                        :left 0
-                                        :line-height 0}}]
-       [:> rech/Bar {:type "monotone"
-                     :dataKey "waiting"
+             [:> rech/Legend {:width 100
+                              :wrapperStyle  {:width 600
+                                              :height 0
+                                              :bottom 50
+                                              :left 0
+                                              :line-height 0}}]]
+            (mapv
+             (fn [{:keys [label fill hide stroke stack-id]}]
+               (when-not hide
+                 [:> rech/Bar {:type "monotone"
+                               :dataKey label
+                               :stroke stroke
+                               :fill fill
+                               :stack-id stack-id
+                               #_#_:strokeDasharray "5 5"
+                               :label custom-y-label}]))
+             bar-info)
+            
+            #_[[:> rech/Bar {:type "monotone"
+                             :dataKey "waiting"
                      ;:stroke "black"
-                     :fill "#7C91D8"
-                     :stack-id "a"
-                     #_#_:strokeDasharray "5 5"
-                     :label custom-y-label}]
-       
-       [:> rech/Bar {:type "monotone"
-                     :dataKey "transplanted"
+                             :fill "#7C91D8"
+                             :stack-id "a"
+                             #_#_:strokeDasharray "5 5"
+                             :label custom-y-label}]])
+      
+      #_[:> rech/Bar {:type "monotone"
+                      :dataKey "transplanted"
                      ;:stroke "black"
-                     :fill "#5BC17B"
-                     :stack-id "b"
-                     #_#_:strokeDasharray "5 5"
-                     :label custom-y-label}]
+                      :fill "#5BC17B"
+                      :stack-id "b"
+                      #_#_:strokeDasharray "5 5"
+                      :label custom-y-label}]
 
-       #_[:> rech/Bar {:type "monotone"
-                     :dataKey "removed"
+      #_[:> rech/Bar {:type "monotone"
+                      :dataKey "removed"
                      ;:stroke "black"
-                     :fill "#7F807C"
-                     #_#_:strokeDasharray "5 5"
-                     :label custom-y-label}]
+                      :fill "#7F807C"
+                      #_#_:strokeDasharray "5 5"
+                      :label custom-y-label}]
 
-       #_[:> rech/Bar {:type "monotone"
-                     :dataKey "died"
+      #_[:> rech/Bar {:type "monotone"
+                      :dataKey "died"
                      ;:stroke "black"
-                     :fill "#000000"
-                     #_#_:strokeDasharray "5 5"
-                     :label custom-y-label}]
-       
-       [:> rech/Bar {:type "monotone"
-                     :dataKey "died or removed"
+                      :fill "#000000"
+                      #_#_:strokeDasharray "5 5"
+                      :label custom-y-label}]
+      
+      #_[:> rech/Bar {:type "monotone"
+                      :dataKey "died or removed"
                      ;:stroke "black"
-                     :fill "#fa0"
-                     :stack-id "c"
-                     #_#_:strokeDasharray "5 5"
-                     :label custom-y-label}]]
+                      :fill "#fa0"
+                      :stack-id "c"
+                      #_#_:strokeDasharray "5 5"
+                      :label custom-y-label}]
       
       
       #_[svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}

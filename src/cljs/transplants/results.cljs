@@ -78,12 +78,42 @@
      #_[ui/tab {:event-key "starter" :title "SVG Starter"}
         [vis/svg-starter]]
      [ui/tab {:event-key "bars" :title "Bar Chart"}
-      [vis/bar-chart {:organ organ
-                      :centre centre 
-                      :tool tool 
+       [vis/bar-chart {:organ organ
+                      :centre centre
+                      :tool tool
                       :inputs inputs
-                      :bundle bundle 
-                      :title "% of people receiving a transplant"}]]
+                      :bundle bundle
+                      :title "% of people receiving a transplant"
+                      :bar-info [{:key "waiting" :label "waiting" :fill "#7C91D8" :ciff nth :hide false}
+                                 {:key "transplant" :label "transplanted" :fill "#5BC17B" :ciff nth :hide true}
+                                 {:key "removal" :label "removed" :fill "#7F807C" :ciff nth :hide true}
+                                 {:key "death" :label "died" :fill "#000" :ciff nth :hide true}
+                                 {:key "died or removed" :label "died or removed" :fill "#666" :hide true
+                                  :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
+      [vis/bar-chart {:organ organ
+                      :centre centre
+                      :tool tool
+                      :inputs inputs
+                      :bundle bundle
+                      :title "% of people receiving a transplant"
+                      :bar-info [{:key "waiting" :label "waiting" :fill "#7C91D8" :ciff nth :hide true}
+                                 {:key "transplant" :label "transplanted" :fill "#5BC17B" :ciff nth}
+                                 {:key "removal" :label "removed" :fill "#7F807C" :ciff nth :hide true}
+                                 {:key "death" :label "died" :fill "#000" :ciff nth :hide true}
+                                 {:key "died or removed" :label "died or removed" :fill "#666" :stroke "#000"
+                                  :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
+      [vis/bar-chart {:organ organ
+                      :centre centre
+                      :tool tool
+                      :inputs inputs
+                      :bundle bundle
+                      :title "% of people receiving a transplant"
+                      :bar-info [{:key "waiting" :label "waiting" :fill "#7C91D8" :ciff nth :hide true}
+                                 {:key "transplant" :label "transplanted" :fill "#5BC17B" :ciff nth :stack-id "a"}
+                                 {:key "removal" :label "removed" :fill "#7F807C" :ciff nth :stack-id "b"}
+                                 {:key "death" :label "died" :fill "#000" :ciff nth :stack-id "b"}
+                                 {:key "died or removed" :label "died or removed" :fill "#666" :stroke "#000" :hide true
+                                  :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]]
      
      [ui/tab {:variant "secondary"
               :event-key "test" :title "Test"}

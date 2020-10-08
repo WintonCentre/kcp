@@ -460,15 +460,24 @@
   (println ::payload payload)
   (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
     (r/as-element
-     [:text {:x (+ x (/ width 2))
-             :y (- y 5)
-             :text-anchor "middle"
-             :fill "black"}
-      (when (>= value 1)
-        (str (Math/round value) "%"))]))
+     [:g
+      #_[:rect {:fill "#fff"
+              :opacity 0.8
+              :x (- x 10)
+              :y (- y 20)
+              :width 40
+              :height 20}]
+      [:text {:x (+ x (/ width 2))
+              :y (- y 5)
+              :text-anchor "middle"
+              ;:font-size "0.7em"
+              :fill "black"}
+       (when (>= value 1)
+         (str (Math/round value) "%"))]]))
   )
 
 (defn custom-tool-tip
+  "bar chart custom tool tips"
   [payload]
   (let [{active "active"
          label "label"
@@ -533,24 +542,24 @@
       [:> rech/BarChart {:width 600
                          :height 400
                          :data cifs-by-year
-                       ;:padding
                          :margin {:top 50
                                   :right 50
                                   :left 50
                                   :bottom 50}}
+       
+       ; better without?
        #_[:> rech/CartesianGrid {:stroke "#ccc"
                                :strokeDasharray "5 5"}]
+       
        [:> rech/XAxis {:dataKey "year"}]
+       
+       ; better without?
        #_[:> rech/YAxis {:dataKey "transplants"
                        :type "number"
                        :domain #js [0 100]}]
+       
        [:> rech/Tooltip {:content custom-tool-tip}]
 
-       #_[:> rech/Bar {:type "monotone"
-                       :dataKey "uv"
-                       :stroke-width 5
-                       :stroke "#82ca9d"
-                       :fill "blue"}]
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
        [:> rech/Legend {:width 100
@@ -558,42 +567,42 @@
                                         :height 0
                                         :bottom 50
                                         :left 0
-                                      ;:background-color "#00f"
-                                      ;:border "20px solid #d5d5d5"
-                                      ;:border-radius 20
                                         :line-height 0}}]
        [:> rech/Bar {:type "monotone"
                      :dataKey "waiting"
-                     :stroke "black"
+                     ;:stroke "black"
                      :fill "#7C91D8"
+                     :stack-id "a"
                      #_#_:strokeDasharray "5 5"
                      :label custom-y-label}]
        
        [:> rech/Bar {:type "monotone"
                      :dataKey "transplanted"
-                     :stroke "black"
+                     ;:stroke "black"
                      :fill "#5BC17B"
+                     :stack-id "b"
                      #_#_:strokeDasharray "5 5"
                      :label custom-y-label}]
 
        #_[:> rech/Bar {:type "monotone"
                      :dataKey "removed"
-                     :stroke "black"
+                     ;:stroke "black"
                      :fill "#7F807C"
                      #_#_:strokeDasharray "5 5"
                      :label custom-y-label}]
 
        #_[:> rech/Bar {:type "monotone"
                      :dataKey "died"
-                     :stroke "black"
+                     ;:stroke "black"
                      :fill "#000000"
                      #_#_:strokeDasharray "5 5"
                      :label custom-y-label}]
        
        [:> rech/Bar {:type "monotone"
                      :dataKey "died or removed"
-                     :stroke "black"
-                     :fill "pink"
+                     ;:stroke "black"
+                     :fill "#fa0"
+                     :stack-id "c"
                      #_#_:strokeDasharray "5 5"
                      :label custom-y-label}]]
       

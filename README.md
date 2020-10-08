@@ -7,6 +7,9 @@ If you come back to this after a while with new data, be particularly careful ab
 ## MOCKUP
 See https://docs.google.com/presentation/d/1uKk0HyclaTMCb-EIZiyVdJPBjzzHflArWoq8ukwbMGE/edit?usp=sharing
 
+## Design Guidelines (Not yet implemented)
+Follow the [NHSBT website guide](https://www.nhsbt.nhs.uk/987643testarea/website-guide/) where possible.
+
 ## Contents
 This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
 

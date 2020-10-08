@@ -78,7 +78,13 @@
      #_[ui/tab {:event-key "starter" :title "SVG Starter"}
         [vis/svg-starter]]
      [ui/tab {:event-key "bars" :title "Bar Chart"}
-      [vis/bar-chart bundles organ centre tool inputs bundle]]
+      [vis/bar-chart {:organ organ
+                      :centre centre 
+                      :tool tool 
+                      :inputs inputs
+                      :bundle bundle 
+                      :title "% of people receiving a transplant"}]]
+     
      [ui/tab {:variant "secondary"
               :event-key "test" :title "Test"}
       [vis/test-rig {:organ organ
@@ -90,7 +96,7 @@
      [ui/tab {:event-key "icons" :title "Icon Array"}
       [:div "not yet"]]
      [ui/tab {:event-key "line" :title "Line Chart"}
-      #_[vis/line-chart bundles organ centre tool inputs bundle]
+      #_[vis/line-chart organ centre tool inputs bundle]
       #_[line-chart test-data]
       [:div "not yet"]]
      [ui/tab {:event-key "table" :title "Table"}

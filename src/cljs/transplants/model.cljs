@@ -34,7 +34,7 @@
    If there is only one cif, there is no need to scale, so just return the seq"
   [all & the-rest]
   (if (seq the-rest)
-    (let [scale (/ all (apply + the-rest))]
+    (let [scale 1 #_(/ all (apply + the-rest))]
       (conj (map #(* % scale) the-rest) all))
     [all]))
 
@@ -62,6 +62,7 @@
   )
 
 (comment
+  (js/Math.pow 0 0)
   ;test lung, Birmingham, day 3, Cystic Fibrosis with:
   (def cif_0 0.008235)
   

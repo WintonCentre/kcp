@@ -1,5 +1,6 @@
 (ns transplants.vis
   (:require ["react-bootstrap" :as bs]
+            [reagent.core :as r]
             [transplants.model :as model]
             [transplants.subs :as subs]
             [re-frame.core :as rf]
@@ -10,6 +11,7 @@
             [transplants.rgb :as rgb]
             [clojure.string :refer [replace]]
             #_[clojure.pprint :refer [pprint]]
+            ["recharts" :as rech]
             [svg.margin-convention :as convention]
             #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             [svg.space :refer [space]]
@@ -388,14 +390,52 @@
    "from-listing" "Survived"
    "graft" "Graft intact"})
 
-(defn bar-chart
-  "Draw the bar chart"
-  [bundles organ centre tool inputs bundle]
-  (let [{:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
-        env [{:organ organ :centre centre :tool tool}
+(defn tool-rubric
+  [organ tool from-year to-year]
+  (case tool
+    :waiting
+    [:<>
+     [:h4 {:style {:margin-top 80}}
+      "What might happen after I join the waiting list for a " (name organ) " transplant?"]
+     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+    :post-transplant
+    [:<>
+     [:h4 {:style {:margin-top 80}}
+      "How long might I survive after a " (name organ) " transplant?"]
+     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+    :from-listing
+    [:<>
+     [:h4 {:style {:margin-top 80}}
+      "How long might I survive from the time I join the " (name organ) " transplant list?"]
+     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+    :survival
+    [:<>
+     [:h4 {:style {:margin-top 80}}
+      "How long might I survive after a " (name organ) " transplant?"]
+     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]
+
+    :graft
+    [:<>
+     [:h4 {:style {:margin-top 80}}
+      "How long might the graft survive after the " (name organ) " transplant?"]
+     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]]))
+
+(defn vis-data-map
+  "Collect into one map all configuration and inputs that are necessary to calculate a data series for the given organ, centre,
+   and tool."
+  [cohort-dates organ centre tool inputs bundle]
+  (let [env [{:organ organ :centre centre :tool tool}
              bundle
-             {organ inputs}]
-        baseline-cifs (:-baseline-cifs bundle) 
+             {organ inputs}] 
+        baseline-cifs (:-baseline-cifs bundle)
         outcomes (model/with-all-reasons-first
                    (fac/get-outcomes* (first baseline-cifs)))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
@@ -405,87 +445,185 @@
         sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (:days (last baseline-cifs))))))
-        cifs-by-year (map
-                      (fn [day]
-                        (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
-                                                                          (map (bun/cif-0 bundle day) outcome-keys)
-                                                                          sum-betas)))
-                                       (update 0 (if (> (count outcomes) 1)
-                                                   #(- 1 %)
-                                                   identity))) ]
-                          {:cifs cifs 
-                           :cum-cifs (reductions + cifs)}))
-                      sample-days)]
+        ]
+    (-> cohort-dates
+        (assoc :baseline-cifs baseline-cifs
+               :outcome-keys outcome-keys
+               :outcomes outcomes
+               :sum-betas sum-betas
+               :sample-days sample-days
+               ))))
+
+(defn custom-y-label
+  "Custom y-axis labels"
+  [payload]
+  (println ::payload payload)
+  (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
+    (r/as-element
+     [:text {:x (+ x (/ width 2))
+             :y (- y 5)
+             :text-anchor "middle"
+             :fill "black"}
+      (when (>= value 1)
+        (str (Math/round value) "%"))]))
+  )
+
+(defn custom-tool-tip
+  [payload]
+  (let [{active "active"
+         label "label"
+         pload "payload"} (js->clj payload)]
+    (when active
+      (r/as-element
+       (let [p (pload 1)]
+         [:div {:style {:background-color "#fff"
+                        :display "flex"
+                        :flex-direction "column"
+                        :padding "10px 20px 0px 20px"
+                        :border-radius 5
+                        :box-shadow "1px 1px"}}
+          [:h5 label]
+          (into [:div {:style {:display "flex"
+                               :flex-direction "column"
+                               :align-items "flex-end"}}]
+                (mapv
+                 (fn [{name "name" value "value"} d]
+                   [:p {:style {:line-height 0.5
+                                :flex 1
+                                }}
+                    name ": " (Math/round value) "%"])
+                 pload))])))))
     
+
+(defn bar-chart
+  "Draw the bar chart"
+  [{:keys [organ centre tool inputs bundle title]}]
+  (let [vis-m (vis-data-map @(rf/subscribe [::subs/cohort-dates]) organ centre tool inputs bundle)
+        cifs-by-year (clj->js (mapv
+                               (fn [day year]
+                                 
+                                 (let [cifs (as-> (vec (apply model/scaled-cifs
+                                                              (map (partial model/cif tool)
+                                                                   (map (bun/cif-0 bundle day)
+                                                                        (:outcome-keys vis-m))
+                                                                   (:sum-betas vis-m)))) x
+                                              (update x 0 (if (> (count (:outcomes vis-m)) 1)
+                                                            #(- 1 %)
+                                                            identity))
+                                              (map #(* % 100) x))]
+                                   (clj->js (-> {"days" day
+                                                 "year" (if (zero? year)
+                                                          "Day 1"
+                                                          (str "Year " year))}
+                                                (assoc "waiting" (nth cifs 0))
+                                                (assoc "transplanted" (nth cifs 1))
+                                                (assoc "removed" (nth cifs 2))
+                                                (assoc "died" (nth cifs 3))
+                                                (assoc "died or removed" (apply + (map #(nth cifs %) [2 3]))))))) 
+                               (:sample-days vis-m)
+                               (range (count (:sample-days vis-m)))))]
+        
+    [:div {:style {:width "100%"}}
+     (pr-str (:outcome-keys vis-m))
+     (pr-str cifs-by-year)]
     [:> bs/Row 
      [:> bs/Col
-      (case tool
+      (tool-rubric organ tool (:from-year vis-m) (:to-year vis-m))
 
-        :waiting
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "What might happen after I join the waiting list for a " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
+      [:> rech/BarChart {:width 600
+                         :height 400
+                         :data cifs-by-year
+                       ;:padding
+                         :margin {:top 50
+                                  :right 50
+                                  :left 50
+                                  :bottom 50}}
+       #_[:> rech/CartesianGrid {:stroke "#ccc"
+                               :strokeDasharray "5 5"}]
+       [:> rech/XAxis {:dataKey "year"}]
+       #_[:> rech/YAxis {:dataKey "transplants"
+                       :type "number"
+                       :domain #js [0 100]}]
+       [:> rech/Tooltip {:content custom-tool-tip}]
 
-        :post-transplant
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might I survive after a " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
+       #_[:> rech/Bar {:type "monotone"
+                       :dataKey "uv"
+                       :stroke-width 5
+                       :stroke "#82ca9d"
+                       :fill "blue"}]
+     ; The legend height has to be zero or it will cause a jump reduction of chart height
+     ; on roll over if tooltips are enabled
+       [:> rech/Legend {:width 100
+                        :wrapperStyle  {:width 600
+                                        :height 0
+                                        :bottom 50
+                                        :left 0
+                                      ;:background-color "#00f"
+                                      ;:border "20px solid #d5d5d5"
+                                      ;:border-radius 20
+                                        :line-height 0}}]
+       [:> rech/Bar {:type "monotone"
+                     :dataKey "waiting"
+                     :stroke "black"
+                     :fill "#7C91D8"
+                     #_#_:strokeDasharray "5 5"
+                     :label custom-y-label}]
+       
+       [:> rech/Bar {:type "monotone"
+                     :dataKey "transplanted"
+                     :stroke "black"
+                     :fill "#5BC17B"
+                     #_#_:strokeDasharray "5 5"
+                     :label custom-y-label}]
 
-        :from-listing
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might I survive from the time I join the " (name organ) " transplant list?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
+       #_[:> rech/Bar {:type "monotone"
+                     :dataKey "removed"
+                     :stroke "black"
+                     :fill "#7F807C"
+                     #_#_:strokeDasharray "5 5"
+                     :label custom-y-label}]
 
-        :survival
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might I survive after a " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
-
-        :graft
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might the graft survive after the " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
-
-        [:<> "Title TBD" "[" (pr-str tool) "]"])
-
-      #_[:p "Sample days:" (pr-str sample-days)]
-      #_[:p "Outcomes:" (pr-str outcomes)]
-
-      [svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
-                                         :margin {:top 10 :right 10 :bottom 10 :left 10}
-                                         :padding {:top 20 :right 20 :bottom 20 :left 20}
-                                         :x-domain [0 14]
-                                         :x-ticks 10
-                                         :y-domain (if (> (count outcomes) 1)
-                                                     [1 0] [0 1])
-                                         :y-ticks 10})
-                                 :styles styles)
-       (fn [x y X Y] (conj (into [:g]
-                                 (map (fn [i outcome]
-                                        [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
-                                         [:rect {:x 0 :y 0 :width 200 :height 60
-                                                 :class-name ((keyword outcome) styles)}]
-                                         [:text {:x 10 :y 40
-                                                 :fill "#fff" :font-size 30}
-                                          (relabel outcome)]]) 
-                                      (range) outcomes))
-                           [:g {:transform "translate(200 0)"}
-                            [:g {:transform "scale(0.8)"}
-                             [bar-chart-graphic x y X Y cifs-by-year sample-days outcomes]]]))]]]))
+       #_[:> rech/Bar {:type "monotone"
+                     :dataKey "died"
+                     :stroke "black"
+                     :fill "#000000"
+                     #_#_:strokeDasharray "5 5"
+                     :label custom-y-label}]
+       
+       [:> rech/Bar {:type "monotone"
+                     :dataKey "died or removed"
+                     :stroke "black"
+                     :fill "pink"
+                     #_#_:strokeDasharray "5 5"
+                     :label custom-y-label}]]
+      
+      
+      #_[svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
+                                           :margin {:top 10 :right 10 :bottom 10 :left 10}
+                                           :padding {:top 20 :right 20 :bottom 20 :left 20}
+                                           :x-domain [0 14]
+                                           :x-ticks 10
+                                           :y-domain (if (> (count (:outcomes vis-m)) 1)
+                                                       [1 0] [0 1])
+                                           :y-ticks 10})
+                                   :styles styles)
+         (fn [x y X Y] (conj (into [:g]
+                                   (map (fn [i outcome]
+                                          [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
+                                           [:rect {:x 0 :y 0 :width 200 :height 60
+                                                   :class-name ((keyword outcome) styles)}]
+                                           [:text {:x 10 :y 40
+                                                   :fill "#fff" :font-size 30}
+                                            (relabel outcome)]])
+                                        (range) (:outcomes vis-m)))
+                             [:g {:transform "translate(200 0)"}
+                              [:g {:transform "scale(0.8)"}
+                               [bar-chart-graphic x y X Y cifs-by-year 
+                                (:sample-days vis-m) (:outcomes vis-m)]]]))]]]))
 ;;;
 ;; 
 ;;;
-(defn svg-starter
+#_(defn svg-starter
   "Layout starter for svg plot"
   []
    [convention/margins (space {:outer    {:width 650, :height 550}

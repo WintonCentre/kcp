@@ -390,16 +390,14 @@
    "from-listing" "Survived"
    "graft" "Graft intact"})
 
-(defn tool-rubric
+#_(defn tool-rubric
   [organ tool]
   (let [{:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])]
     (case tool
       :waiting
       [:<>
-       [:h4 {:style {:margin-top 80}}
-        "What might happen after I join the waiting list for a " (name organ) " transplant?"]
-       [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
+       [:h4 #_{:style {:margin-top 80}}
+        "What might happen after I join the waiting list for a " (name organ) " transplant?"]]
 
       :post-transplant
       [:<>
@@ -504,7 +502,7 @@
 
 (defn bar-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title bar-info]}]
+  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
   (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
         
         cifs-by-year (clj->js (mapv
@@ -533,12 +531,12 @@
     
     [:> bs/Row 
      [:> bs/Col
-      (tool-rubric organ tool)
+      [:div {:style {:margin-top 20}} rubric]
 
       (into [:> rech/BarChart {:width 600
                                :height 400
                                :data cifs-by-year
-                               :margin {:top 50
+                               :margin {:top 30
                                         :right 50
                                         :left 50
                                         :bottom 50}}
@@ -550,7 +548,7 @@
              [:> rech/XAxis {:dataKey "year"}]
 
        ; better without?
-             #_[:> rech/YAxis {:dataKey "transplants"
+             [:> rech/YAxis {:dataKey "transplants"
                                :type "number"
                                :domain #js [0 100]}]
 

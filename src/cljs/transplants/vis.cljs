@@ -391,50 +391,51 @@
    "graft" "Graft intact"})
 
 (defn tool-rubric
-  [organ tool from-year to-year]
-  (case tool
-    :waiting
-    [:<>
-     [:h4 {:style {:margin-top 80}}
-      "What might happen after I join the waiting list for a " (name organ) " transplant?"]
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+  [organ tool]
+  (let [{:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])]
+    (case tool
+      :waiting
+      [:<>
+       [:h4 {:style {:margin-top 80}}
+        "What might happen after I join the waiting list for a " (name organ) " transplant?"]
+       [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]]
 
-    :post-transplant
-    [:<>
-     [:h4 {:style {:margin-top 80}}
-      "How long might I survive after a " (name organ) " transplant?"]
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+      :post-transplant
+      [:<>
+       [:h4 {:style {:margin-top 80}}
+        "How long might I survive after a " (name organ) " transplant?"]
+       [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]]
 
-    :from-listing
-    [:<>
-     [:h4 {:style {:margin-top 80}}
-      "How long might I survive from the time I join the " (name organ) " transplant list?"]
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+      :from-listing
+      [:<>
+       [:h4 {:style {:margin-top 80}}
+        "How long might I survive from the time I join the " (name organ) " transplant list?"]
+       [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]]
 
-    :survival
-    [:<>
-     [:h4 {:style {:margin-top 80}}
-      "How long might I survive after a " (name organ) " transplant?"]
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+      :survival
+      [:<>
+       [:h4 {:style {:margin-top 80}}
+        "How long might I survive after a " (name organ) " transplant?"]
+       [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]]
 
-    :graft
-    [:<>
-     [:h4 {:style {:margin-top 80}}
-      "How long might the graft survive after the " (name organ) " transplant?"]
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]))
+      :graft
+      [:<>
+       [:h4 {:style {:margin-top 80}}
+        "How long might the graft survive after the " (name organ) " transplant?"]
+       [:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " from-year " and " to-year "."]])))
 
 (defn vis-data-map
   "Collect into one map all configuration and inputs that are necessary to calculate a data series for the given organ, centre,
    and tool."
-  [cohort-dates organ centre tool inputs bundle]
+  [organ centre tool inputs bundle]
   (let [env [{:organ organ :centre centre :tool tool}
              bundle
-             {organ inputs}] 
+             {organ inputs}]
         baseline-cifs (:-baseline-cifs bundle)
         outcomes (model/with-all-reasons-first
                    (fac/get-outcomes* (first baseline-cifs)))
@@ -444,15 +445,13 @@
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
         sample-days (map
                      utils/year->day
-                     (range (inc (utils/day->year (:days (last baseline-cifs))))))
-        ]
-    (-> cohort-dates
-        (assoc :baseline-cifs baseline-cifs
-               :outcome-keys outcome-keys
-               :outcomes outcomes
-               :sum-betas sum-betas
-               :sample-days sample-days
-               ))))
+                     (range (inc (utils/day->year (:days (last baseline-cifs))))))]
+
+    {:baseline-cifs baseline-cifs
+     :outcome-keys outcome-keys
+     :outcomes outcomes
+     :sum-betas sum-betas
+     :sample-days sample-days}))
 
 (defn custom-y-label
   "Custom y-axis labels"
@@ -506,7 +505,7 @@
 (defn bar-chart
   "Draw the bar chart"
   [{:keys [organ centre tool inputs bundle title bar-info]}]
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days from-year to-year]} (vis-data-map @(rf/subscribe [::subs/cohort-dates]) organ centre tool inputs bundle)
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
         
         cifs-by-year (clj->js (mapv
                                (fn [day year]
@@ -534,7 +533,7 @@
     
     [:> bs/Row 
      [:> bs/Col
-      (tool-rubric organ tool from-year to-year)
+      (tool-rubric organ tool)
 
       (into [:> rech/BarChart {:width 600
                                :height 400
@@ -543,18 +542,18 @@
                                         :right 50
                                         :left 50
                                         :bottom 50}}
-             
+
        ; better without?
              #_[:> rech/CartesianGrid {:stroke "#ccc"
                                        :strokeDasharray "5 5"}]
-             
+
              [:> rech/XAxis {:dataKey "year"}]
-             
+
        ; better without?
              #_[:> rech/YAxis {:dataKey "transplants"
                                :type "number"
                                :domain #js [0 100]}]
-             
+
              [:> rech/Tooltip {:content custom-tool-tip}]
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
@@ -575,69 +574,7 @@
                                :stack-id stack-id
                                #_#_:strokeDasharray "5 5"
                                :label custom-y-label}]))
-             bar-info)
-            
-            #_[[:> rech/Bar {:type "monotone"
-                             :dataKey "waiting"
-                     ;:stroke "black"
-                             :fill "#7C91D8"
-                             :stack-id "a"
-                             #_#_:strokeDasharray "5 5"
-                             :label custom-y-label}]])
-      
-      #_[:> rech/Bar {:type "monotone"
-                      :dataKey "transplanted"
-                     ;:stroke "black"
-                      :fill "#5BC17B"
-                      :stack-id "b"
-                      #_#_:strokeDasharray "5 5"
-                      :label custom-y-label}]
-
-      #_[:> rech/Bar {:type "monotone"
-                      :dataKey "removed"
-                     ;:stroke "black"
-                      :fill "#7F807C"
-                      #_#_:strokeDasharray "5 5"
-                      :label custom-y-label}]
-
-      #_[:> rech/Bar {:type "monotone"
-                      :dataKey "died"
-                     ;:stroke "black"
-                      :fill "#000000"
-                      #_#_:strokeDasharray "5 5"
-                      :label custom-y-label}]
-      
-      #_[:> rech/Bar {:type "monotone"
-                      :dataKey "died or removed"
-                     ;:stroke "black"
-                      :fill "#fa0"
-                      :stack-id "c"
-                      #_#_:strokeDasharray "5 5"
-                      :label custom-y-label}]
-      
-      
-      #_[svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
-                                           :margin {:top 10 :right 10 :bottom 10 :left 10}
-                                           :padding {:top 20 :right 20 :bottom 20 :left 20}
-                                           :x-domain [0 14]
-                                           :x-ticks 10
-                                           :y-domain (if (> (count (:outcomes vis-m)) 1)
-                                                       [1 0] [0 1])
-                                           :y-ticks 10})
-                                   :styles styles)
-         (fn [x y X Y] (conj (into [:g]
-                                   (map (fn [i outcome]
-                                          [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
-                                           [:rect {:x 0 :y 0 :width 200 :height 60
-                                                   :class-name ((keyword outcome) styles)}]
-                                           [:text {:x 10 :y 40
-                                                   :fill "#fff" :font-size 30}
-                                            (relabel outcome)]])
-                                        (range) (:outcomes vis-m)))
-                             [:g {:transform "translate(200 0)"}
-                              [:g {:transform "scale(0.8)"}
-                               [bar-chart-graphic x y X Y cifs-by-year 
-                                (:sample-days vis-m) (:outcomes vis-m)]]]))]]]))
+             bar-info))]]))
 ;;;
 ;; 
 ;;;

@@ -3,10 +3,8 @@
             [transplants.subs :as subs]
             [transplants.bundles :as bun]
             [transplants.vis :as vis]
-            ["react-bootstrap" :as bs]
             ["recharts" :as rech]
-            [transplants.ui :as ui]
-            [transplants.bsio :as bsio]))
+            [transplants.ui :as ui]))
 
 (comment
   (def bundles @(rf/subscribe [::subs/bundles]))
@@ -75,45 +73,85 @@
         bundle (bun/get-bundle organ centre tool)]
 
     [ui/tabs {:variant "pills" :default-active-key "bars"}
-     #_[ui/tab {:event-key "starter" :title "SVG Starter"}
-        [vis/svg-starter]]
      [ui/tab {:event-key "bars" :title "Bar Chart"}
-       [vis/bar-chart {:organ organ
-                      :centre centre
-                      :tool tool
-                      :inputs inputs
-                      :bundle bundle
-                      :title "% of people receiving a transplant"
-                      :bar-info [{:key "waiting" :label "waiting" :fill "#7C91D8" :ciff nth :hide false}
-                                 {:key "transplant" :label "transplanted" :fill "#5BC17B" :ciff nth :hide true}
-                                 {:key "removal" :label "removed" :fill "#7F807C" :ciff nth :hide true}
-                                 {:key "death" :label "died" :fill "#000" :ciff nth :hide true}
-                                 {:key "died or removed" :label "died or removed" :fill "#666" :hide true
-                                  :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
-      [vis/bar-chart {:organ organ
-                      :centre centre
-                      :tool tool
-                      :inputs inputs
-                      :bundle bundle
-                      :title "% of people receiving a transplant"
-                      :bar-info [{:key "waiting" :label "waiting" :fill "#7C91D8" :ciff nth :hide true}
-                                 {:key "transplant" :label "transplanted" :fill "#5BC17B" :ciff nth}
-                                 {:key "removal" :label "removed" :fill "#7F807C" :ciff nth :hide true}
-                                 {:key "death" :label "died" :fill "#000" :ciff nth :hide true}
-                                 {:key "died or removed" :label "died or removed" :fill "#666" :stroke "#000"
-                                  :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
-      [vis/bar-chart {:organ organ
-                      :centre centre
-                      :tool tool
-                      :inputs inputs
-                      :bundle bundle
-                      :title "% of people receiving a transplant"
-                      :bar-info [{:key "waiting" :label "waiting" :fill "#7C91D8" :ciff nth :hide true}
-                                 {:key "transplant" :label "transplanted" :fill "#5BC17B" :ciff nth :stack-id "a"}
-                                 {:key "removal" :label "removed" :fill "#7F807C" :ciff nth :stack-id "b"}
-                                 {:key "death" :label "died" :fill "#000" :ciff nth :stack-id "b"}
-                                 {:key "died or removed" :label "died or removed" :fill "#666" :stroke "#000" :hide true
-                                  :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]]
+      (condp = tool
+        :post-transplant
+        [vis/bar-chart {:organ organ
+                        :centre centre
+                        :tool tool
+                        :inputs inputs
+                        :bundle bundle
+                        :title "% of people surviving after a transplant"
+                        :bar-info [{:key "post-transplant" :label "Surviving post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+
+        :from-listing
+        [vis/bar-chart {:organ organ
+                        :centre centre
+                        :tool tool
+                        :inputs inputs
+                        :bundle bundle
+                        :title "% of people surviving from time of listing"
+                        :bar-info [{:key "from-listing" :label "Surviving from listing" :fill "#7A79C2" :ciff nth :hide false}]}]
+
+        :survival
+        [vis/bar-chart {:organ organ
+                        :centre centre
+                        :tool tool
+                        :inputs inputs
+                        :bundle bundle
+                        :title "% of people surviving after a transplant"
+                        :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+
+        :graft
+        [vis/bar-chart {:organ organ
+                        :centre centre
+                        :tool tool
+                        :inputs inputs
+                        :bundle bundle
+                        :title "% of people surviving from time of listing"
+                        :bar-info [{:key "graft" :label "Graft survival" :fill "#5BC17B" :ciff nth :hide false}]}]
+
+        :waiting
+        [:<>
+         [vis/bar-chart {:organ organ
+                         :centre centre
+                         :tool tool
+                         :inputs inputs
+                         :bundle bundle
+                         :title "% of people receiving a transplant"
+                         :bar-info [{:key "waiting" :label "Waiting" :fill "#7C91D8" :ciff nth :hide false}
+                                    {:key "transplant" :label "Transplanted" :fill "#5BC17B" :ciff nth :hide true}
+                                    {:key "removal" :label "Removed" :fill "#7F807C" :ciff nth :hide true}
+                                    {:key "death" :label "Died" :fill "#000" :ciff nth :hide true}
+                                    {:key "died or removed" :label "Died or removed" :fill "#666" :hide true
+                                     :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
+         [vis/bar-chart {:organ organ
+                         :centre centre
+                         :tool tool
+                         :inputs inputs
+                         :bundle bundle
+                         :title "% of people receiving a transplant"
+                         :bar-info [{:key "waiting" :label "Waiting" :fill "#7C91D8" :ciff nth :hide true}
+                                    {:key "transplant" :label "Transplanted" :fill "#5BC17B" :ciff nth}
+                                    {:key "removal" :label "Removed" :fill "#7F807C" :ciff nth :hide true}
+                                    {:key "death" :label "Died" :fill "#000" :ciff nth :hide true}
+                                    {:key "died or removed" :label "Died or removed" :fill "#666" :stroke "#000"
+                                     :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
+         
+         [vis/bar-chart {:organ organ
+                         :centre centre
+                         :tool tool
+                         :inputs inputs
+                         :bundle bundle
+                         :title "% of people receiving a transplant"
+                         :bar-info [{:key "waiting" :label "Waiting" :fill "#7C91D8" :ciff nth :hide true}
+                                    {:key "transplant" :label "Transplanted" :fill "#5BC17B" :ciff nth :stack-id "a"}
+                                    {:key "removal" :label "Removed" :fill "#7F807C" :ciff nth :stack-id "b"}
+                                    {:key "death" :label "Died" :fill "#000" :ciff nth :stack-id "b"}
+                                    {:key "died or removed" :label "Died or removed" :fill "#666" :stroke "#000" :hide true
+                                     :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]])
+
+      ]
      
      [ui/tab {:variant "secondary"
               :event-key "test" :title "Test"}

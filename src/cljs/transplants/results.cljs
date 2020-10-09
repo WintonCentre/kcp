@@ -89,7 +89,7 @@
                           :rubric [:<> 
                                   [:h4 "About how long do these people stay on the list?"]
                                   [:p "People will leave the list if they get a transplant, die,
-                                       or are removed for some other reaso."]]
+                                       or are removed for some other reason."]]
                           :bar-info [{:key "waiting"
                                       :title "How long are these people stay on the list?"
                                       :label "Still waiting" :fill "#7C91D8" :ciff nth :hide false}

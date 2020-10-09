@@ -51,12 +51,16 @@
    "
   []
   (rf/dispatch-sync [::events/initialize-db])
-  (rf/dispatch-sync [::events/load-edn [paths/metadata-path [:metadata]]])
-  (rf/dispatch [::events/load-and-transpose [(paths/centres-path :lung) [:organ-centres :lung]]])
-  (rf/dispatch [::events/load-and-transpose [(paths/centres-path :kidney) [:organ-centres :kidney]]])
+  (rf/dispatch-sync [::events/load-metadata [paths/metadata-path [:metadata]]])
+
+  ;;; Removing the following two lines as they hard-coded lung and kidney organs into the tool
+  ;;; Instead, we obtain the organ list by reading in the metadata file above.
+  ;(rf/dispatch [::events/load-and-transpose [(paths/centres-path :lung) [:organ-centres :lung]]])
+  ;(rf/dispatch [::events/load-and-transpose [(paths/centres-path :kidney) [:organ-centres :kidney]]])
 
   (.addEventListener js/window "resize" on-window-resize)
   (dev-setup)
+
   (mount-root)) 
 
 (defonce start-up (do (init) true))

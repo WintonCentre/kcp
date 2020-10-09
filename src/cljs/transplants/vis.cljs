@@ -176,10 +176,11 @@
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
   [x y X Y cifs-by-year sample-days outcomes]
-  (println ::cifs-by-year cifs-by-year)
-  (println ::sample-days sample-days)
-  (println ::xX x X)
-  (println ::X14 (X 14))
+  
+  ;(println ::cifs-by-year cifs-by-year)
+  ;(println ::sample-days sample-days)
+  ;(println ::xX x X)
+  ;(println ::X14 (X 14))
 
 
   [:g {:key 1}
@@ -453,7 +454,7 @@
 (defn custom-y-label
   "Custom y-axis labels"
   [payload]
-  (println ::payload payload)
+  ;(println ::payload payload)
   (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
     (r/as-element
      [:g

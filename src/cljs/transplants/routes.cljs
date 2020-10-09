@@ -97,7 +97,6 @@
 
 (def router
   (rfr/router
-  ; (routes [:lung :kidney])
    routes
    {:data {:coercion rss/coercion}}))
 

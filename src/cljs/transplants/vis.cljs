@@ -44,7 +44,7 @@
         outcomes (model/with-all-reasons-first
                    (fac/get-outcomes* (first baseline-cifs)))
         #_(model/with-all-reasons-first
-                   (fac/get-outcomes (first (vals master-fmaps))))
+            (fac/get-outcomes (first (vals master-fmaps))))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
@@ -54,78 +54,77 @@
         ;; in the outcomes vector (currently first). 
         ;;
         cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)]
-
-    [:> bs/Container
-     [:> bs/Row
-      (when factors
-        [:> bs/Col
-         [ui/test-day-selector 10]
-         [:> bs/Row
-          [:> bs/Col
-           [:> bs/Table {:striped true
-                         :bordered true
-                         :hover true}
-            [:thead [outcome-tr 1005 outcomes]]
-            (into [:tbody
+ 
+    [:> bs/Row {:style {:margin-top 20}}
+     (when factors
+       [:> bs/Col
+        [ui/test-day-selector 10]
+        [:> bs/Row
+         [:> bs/Col
+          [:> bs/Table {:striped true
+                        :bordered true
+                        :hover true}
+           [:thead [outcome-tr 1005 outcomes]]
+           (into [:tbody
 
                    ; Scaled cifs
-                   [:tr {:key 1000}
-                    [:td [:b "Scaled CIF"]]
-                    (map-indexed
-                     (fn [i cif]
-                       [:td {:key i} (model/to-precision cif 4)])
-                     (apply model/scaled-cifs cifs))]
+                  [:tr {:key 1000}
+                   [:td [:b "Scaled CIF"]]
+                   (map-indexed
+                    (fn [i cif]
+                      [:td {:key i} (model/to-precision cif 4)])
+                    (apply model/scaled-cifs cifs))]
 
                    ; Individualised raw cifs
-                   [:tr {:key 1001}
-                    [:td [:b "Unscaled CIF"]]
-                    (map
-                     (fn [outcome cif]
-                       [:td {:key outcome :id outcome} (model/to-precision cif 4)])
-                     (short-outcomes outcomes) cifs)] 
-                   
-                   #_[:tr {:key 1001}
-                    [:td [:b "Unscaled CIF"]]
-                    (map-indexed
-                     (fn [i cif]
-                       [:td {:key i} (model/to-precision cif 4)])
-                     cifs)]
+                  [:tr {:key 1001}
+                   [:td [:b "Unscaled CIF"]]
+                   (map
+                    (fn [outcome cif]
+                      [:td {:key outcome :id outcome} (model/to-precision cif 4)])
+                    (short-outcomes outcomes) cifs)] 
+                  
+                  #_[:tr {:key 1001}
+                     [:td [:b "Unscaled CIF"]]
+                     (map-indexed
+                      (fn [i cif]
+                        [:td {:key i} (model/to-precision cif 4)])
+                      cifs)]
 
                            ; Show Baseline CIFS for selected day
-                   [:tr {:key 1002}
-                    [:td [:b "CIF" [:sub "0"]]]
-                    (map-indexed
-                     (fn [i cif-0-day]
-                       [:td {:key i} (model/to-precision cif-0-day 4)])
-                     baseline-cifs-for-day)]
+                  [:tr {:key 1002}
+                   [:td [:b "CIF" [:sub "0"]]]
+                   (map-indexed
+                    (fn [i cif-0-day]
+                      [:td {:key i} (model/to-precision cif-0-day 4)])
+                    baseline-cifs-for-day)]
 
                            ; Show sum-beta-xs for selected inputs
-                   [:tr {:key 1003}
-                    [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
-                    (map-indexed
-                     (fn [i sb]
-                       [:td {:key i} (model/to-precision sb 4)])
-                     sum-betas)]
+                  [:tr {:key 1003}
+                   [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
+                   (map-indexed
+                    (fn [i sb]
+                      [:td {:key i} (model/to-precision sb 4)])
+                    sum-betas)]
 
-                   [:tr {:key 1004 :style {:background-color rgb/secondary :color "#fff"}}
-                    [:th "Factor" [:sub [:i "𝒌"]]]
-                    [:th {:col-span (str (count outcomes))}
-                     [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]
-                     #_[:i "Beta * x"]]]
+                  [:tr {:key 1004 :style {:background-color rgb/secondary :color "#fff"}}
+                   [:th "Factor" [:sub [:i "𝒌"]]]
+                   [:th {:col-span (str (count outcomes))}
+                    [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]
+                    #_[:i "Beta * x"]]]
 
-                   (outcome-tr 1006 outcomes)
-                   (conj
-                    (map-indexed
-                     (fn [i [factor fmap]]
+                  (outcome-tr 1006 outcomes)
+                  (conj
+                   (map-indexed
+                    (fn [i [factor fmap]]
                               ; Show individual beta-x contribution
-                       [:tr {:key i}
-                        [:td {:key i} factor]
-                        (when fmap
-                          (map-indexed
-                           (fn [j b]
-                             [:td {:key j} (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
-                           beta-keys))])
-                     master-fmaps))])]]]])]]))
+                      [:tr {:key i}
+                       [:td {:key i} factor]
+                       (when fmap
+                         (map-indexed
+                          (fn [j b]
+                            [:td {:key j} (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
+                          beta-keys))])
+                    master-fmaps))])]]]])]))
 
 
 ;;;

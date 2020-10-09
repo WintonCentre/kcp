@@ -145,16 +145,14 @@ in the routes table."
                   }
        [:> bs/Nav.Link {:event-key :home
                         :href (href :transplants.views/home)} "Home"]
-       (if organ
-         [:> bs/Nav.Link  {:event-key (name organ)
-                           :href (href :transplants.views/organ {:organ organ})} (capitalize (name organ))]
-         [:<>
-          [:> bs/Nav.Link {:event-key "lung"
-                           :key "lung"
-                           :href (href :transplants.views/organ {:organ "lung"})} "Lung"]
-          [:> bs/Nav.Link  {:event-key "kidney"
-                            :key "kidney"
-                            :href (href :transplants.views/organ {:organ "kidney"})} "Kidney"]])
+       (into 
+        [:> bs/NavDropdown {:title (if organ (capitalize organ) "Organs") :id "basic-nav-dropdown"}]
+        (map (fn [organ]
+               [:> bs/NavDropdown.Item
+                {:href (href :transplants.views/organ {:organ (name organ)})
+                 :key organ}
+                (name organ)])
+              (keys @(rf/subscribe [::subs/organ-centres]))))
        
        (when-let [centres (and organ ((keyword organ) @(rf/subscribe [::subs/organ-centres])))]
          #_(when (and organ centres))
@@ -172,13 +170,13 @@ in the routes table."
                                          :centre (name (:key centre))}))
                           :key (name (:key centre))}
 
-                         #_{:href (href :transplants.views/organ-centre {:organ (name organ)
-                                                                         :centre (name (:key centre))})
-                            :key (name (:key centre))} (:name centre)])
+                          (:name centre)])
                       centres))))]]]))
 
 (comment 
-  (transplants.ui/href :transplants.views/organ-centre {:organ (name :kidney)
+  (keys @(rf/subscribe [::subs/organ-centres]))
+  @(rf/subscribe [::subs/organ-centre])
+  (transplants.ui/href :transplants.views/organ-centres {:organ (name :kidney)
                                          :centre "card"})
   )
 

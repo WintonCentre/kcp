@@ -31,7 +31,7 @@
                      :height 400
                      :data data
                        ;:padding
-                     :margin {:top 55
+                     :margin {:top 0
                               :right 10
                               :left 20
                               :bottom 0}}
@@ -40,12 +40,7 @@
    [:> rech/XAxis {:dataKey "name"}]
    [:> rech/YAxis {:dataKey "pv"}]
    [:> rech/Tooltip]
-   
-   #_[:> rech/Bar {:type "monotone"
-                   :dataKey "uv"
-                   :stroke-width 5
-                   :stroke "#82ca9d"
-                   :fill "blue"}]
+
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
    [:> rech/Legend {:width 100
@@ -86,9 +81,9 @@
                           :tool tool
                           :inputs inputs
                           :bundle bundle
-                          :rubric [:<> 
-                                  [:h4 "About how long do these people stay on the list?"]
-                                  [:p "People will leave the list if they get a transplant, die,
+                          :rubric [:<>
+                                   [:h4 "About how long do these people stay on the list?"]
+                                   [:p "People will leave the list if they get a transplant, die,
                                        or are removed for some other reason."]]
                           :bar-info [{:key "waiting"
                                       :title "How long are these people stay on the list?"
@@ -101,30 +96,55 @@
                           :tool tool
                           :inputs inputs
                           :bundle bundle
-                          :rubric [:<> 
+                          :rubric [:<>
                                    [:h4 "When are these people likely to receive a transplant?"]
                                    [:p "The Year 2 value tells you how many people are likely to get a transplant 
                                         in year 2 after already having waited one year."]]
-                          
+
                           :bar-info [{:key "waiting" :label "Waiting" :fill "#7C91D8" :ciff nth :hide true}
                                      {:key "transplant" :label "Transplanted" :fill "#5BC17B" :ciff nth}
                                      {:key "removal" :label "Removed" :fill "#7F807C" :ciff nth :hide true}
-                                     {:key "death" :label "Died" :fill "#000" :ciff nth :hide true}
-                                     ]}]
+                                     {:key "death" :label "Died" :fill "#000" :ciff nth :hide true}]}]
 
           [vis/bar-chart {:organ organ
                           :centre centre
                           :tool tool
                           :inputs inputs
                           :bundle bundle
-                          :rubric [:<> 
+                          :rubric [:<>
                                    [:h4 "Some of these people may die or be removed from the list"]]
                           :bar-info [{:key "waiting" :label "Waiting" :fill "#7C91D8" :ciff nth :hide true}
                                      {:key "transplant" :label "Transplanted" :fill "#5BC17B" :ciff nth :hide true}
                                      {:key "removal" :label "Removed" :fill "#7F807C" :ciff nth :stack-id "a"}
                                      {:key "death" :label "Died" :fill "#000" :ciff nth :stack-id "b"}
                                      {:key "died or removed" :label "Died or removed" :fill "#666" :stroke "#000" :hide true
-                                      :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]]
+                                      :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
+
+          [vis/bar-chart {:organ organ
+                          :centre centre
+                          :tool tool
+                          :inputs inputs
+                          :bundle bundle
+                          :rubric [:<>
+                                   [:h4 "Sanity check on model"]
+                                   [:p "Top of stacked bars should be close to 100%"]]
+                          :bar-info [{:key "waiting"
+                                      :stack-id "a"
+                                      :bar-label {:fill "#fff" :at :centre}
+                                      :title "How long are these people stay on the list?"
+                                      :label "Still waiting" :fill "#7C91D8" :ciff nth :hide false}
+                                     {:key "transplant"
+                                      :stack-id "a"
+                                      :bar-label :none
+                                      :label "Transplanted" :fill "#5BC17B" :ciff nth :hide false}
+                                     {:key "removal"
+                                      :stack-id "a"
+                                      :bar-label :none
+                                      :label "Removed" :fill "#7F807C" :ciff nth :hide false}
+                                     {:key "death"
+                                      :stack-id "a"
+                                      :bar-label :none
+                                      :label "Died" :fill "#000" :ciff nth :hide false}]}]]
          :post-transplant
          [vis/bar-chart {:organ organ
                          :centre centre
@@ -162,6 +182,7 @@
                         :bar-info [{:key "graft" :label "Graft survival" :fill "#5BC17B" :ciff nth :hide false}]}])
 
        ]
+      
       [ui/tab {:event-key "line" :title "Line Chart"}
        #_[vis/line-chart organ centre tool inputs bundle]
        #_[line-chart test-data]

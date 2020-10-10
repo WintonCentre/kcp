@@ -1,8 +1,6 @@
 (ns transplants.paths
  ; "Configuration file paths"
-  (:require [transplants.utils :as utils]
-            [transplants.shared :refer [underscore]]
-            [re-frame.core :as rf]))
+  (:require [transplants.shared :refer [underscore]]))
 
 (def slash "/")
 

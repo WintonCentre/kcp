@@ -350,15 +350,14 @@
  ::load-bundles
  (fn ;-traced 
    [{:keys [db]} [evt [path data-path]]]
-   (when (nil? (get-in db data-path)))
-   (println ::load-bundles (get-in db data-path))
-   {:http-xhrio {:method :get
-                 :uri path
-                 :timeout 8000
-                 :format          (ajax/text-request-format)
-                 :response-format (ajax/text-response-format)
-                 :on-success [::store-bundle-inputs data-path]
-                 :on-failure [::bad-response data-path]}}))
+   (when (nil? (get-in db data-path))
+     {:http-xhrio {:method :get
+                   :uri path
+                   :timeout 8000
+                   :format          (ajax/text-request-format)
+                   :response-format (ajax/text-response-format)
+                   :on-success [::store-bundle-inputs data-path]
+                   :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-and-transpose

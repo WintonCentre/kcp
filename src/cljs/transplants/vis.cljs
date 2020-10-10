@@ -3,7 +3,6 @@
             [reagent.core :as r]
             [transplants.model :as model]
             [transplants.subs :as subs]
-            [re-frame.core :as rf]
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
             [transplants.ui :as ui]
@@ -12,11 +11,9 @@
             [clojure.string :refer [replace]]
             #_[clojure.pprint :refer [pprint]]
             ["recharts" :as rech]
-            [svg.margin-convention :as convention]
             #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
-            [svg.space :refer [space]]
-            [svg.container :as svgc]
-            [cljs-css-modules.macro :refer-macros [defstyle]]))
+            [cljs-css-modules.macro :refer-macros [defstyle]]
+            [cljs.pprint :refer [pprint]]))
 
 (defn short-outcomes
   "Shorter outcome names. Used in ... ; todo"
@@ -379,16 +376,7 @@
                           #_[:text {:x (- x-mid 2) :y 690 :font-size 30}  (if (= j 1) "" (dec j))]]))))
               (range 1 (inc (count sample-days)))
               cifs-by-year))])
-      
-(def relabel
-  {"all-reasons" "Waiting"
-   "transplant" "Transplanted"
-   "removal" "Removed"
-   "death" "Died"
-   "survival" "Survived"
-   "post-transplant" "Survived"
-   "from-listing" "Survived"
-   "graft" "Graft intact"})
+  
 
 #_(defn tool-rubric
   [organ tool]
@@ -451,27 +439,46 @@
      :sum-betas sum-betas
      :sample-days sample-days}))
 
-(defn custom-y-label
+
+(defn simple-bar-label
   "Custom y-axis labels"
   [payload]
-  ;(println ::payload payload)
+  (pprint (js->clj payload))
   (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
     (r/as-element
      [:g
-      #_[:rect {:fill "#fff"
-              :opacity 0.8
-              :x (- x 10)
-              :y (- y 20)
-              :width 40
-              :height 20}]
-      [:text {:x (+ x (/ width 2))
-              :y (- y 5)
-              :text-anchor "middle"
+      (if (and (> width 30) (> value 15))
+        [:text {:x (+ x (/ width 2))
+                :y (+ y 25)
+                :text-anchor "middle"
+                :font-size (if (> width 30) "1.3em" "0.8em")
+                :font-weight "bold"
+                :fill "white"}
+         (str (Math/round value) "%")]
+        [:text {:x (+ x (/ width 2))
+                :y (- y 5)
+                :text-anchor "middle"
+                :font-size (if (> width 30) "1.3em" "1em")
+                :font-weight "bold"
               ;:font-size "0.7em"
-              :fill "black"}
-       (when (>= value 1)
-         (str (Math/round value) "%"))]]))
-  )
+                :fill "grey"}
+         (str (Math/round value) "%")])])))
+
+(defn label-stack-top
+  "Custom y-axis labels"
+  [payload]
+  (pprint (js->clj payload))
+  (let [{x "x" y "y" width "width" value "value" index "index"} (js->clj payload)]
+    (r/as-element
+     [:g
+      (when (> value 99)
+        [:text {:x (+ x (/ width 2))
+                :y (+ y 25)
+                :text-anchor "middle"
+                :font-size (if (> width 30) "1.3em" "0.8em")
+                :font-weight "bold"
+                :fill "white"}
+         (str (Math/round value) "%")])])))
 
 (defn custom-tool-tip
   "bar chart custom tool tips"
@@ -541,16 +548,16 @@
                                         :left 50
                                         :bottom 50}}
 
-       ; better without?
-             #_[:> rech/CartesianGrid {:stroke "#ccc"
-                                       :strokeDasharray "5 5"}]
+             (when (some? (:stack-id bar-info))
+               [:> rech/CartesianGrid {:stroke "#ccc"
+                                       :strokeDasharray "5 5"}])
 
              [:> rech/XAxis {:dataKey "year"}]
 
        ; better without?
              [:> rech/YAxis {:dataKey "transplants"
-                               :type "number"
-                               :domain #js [0 100]}]
+                             :type "number"
+                             :domain #js [0 100]}]
 
              [:> rech/Tooltip {:content custom-tool-tip}]
 
@@ -571,7 +578,8 @@
                                :fill fill
                                :stack-id stack-id
                                #_#_:strokeDasharray "5 5"
-                               :label custom-y-label}]))
+                               :label (when (nil? stack-id)
+                                        simple-bar-label)}]))
              bar-info))]]))
 ;;;
 ;; 

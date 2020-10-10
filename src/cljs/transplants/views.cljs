@@ -2,7 +2,6 @@
   (:require
    [clojure.string :as string]
    [re-frame.core :as rf]
-   [reitit.frontend.easy :as rfe]
    ["react-bootstrap" :as bs]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
@@ -233,28 +232,33 @@
    TODO: Pull from a file somehow. We need an EDN/Hiccup template mechanism for that. Somebody must
    have written one?"
   [organ]
-  [ui/row
-   [ui/col {:md 4}
-    [:h3 {:style {:margin-top 40}} "Background guidance"]
-    [:> bs/ListGroup
-     [:> bs/ListGroup.Item {:action true
-                            :on-click #(rf/dispatch [::events/background-info :visits])}
-      (:visits background-infos)]
-     [:> bs/ListGroup.Item {:action true
-                            :on-click #(rf/dispatch [::events/background-info :donors])}
-      (:donors background-infos)]
-     [:> bs/ListGroup.Item {:action true
-                            :on-click #(rf/dispatch [::events/background-info :medications])}
-      (:medications background-infos)]
-     [:> bs/ListGroup.Item {:action true
-                            :on-click #(rf/dispatch [::events/background-info :window])}
-      (:window background-infos)]
-     [:> bs/ListGroup.Item {:action true
-                            :on-click #(rf/dispatch [::events/background-info :percent])}
-      (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]]
-   [ui/col {:md 8}
-    [:div {:style {:margin-top 40}}
-     (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]])
+  (if (= organ :kidney)
+    [ui/row
+     [ui/col
+      [:h3 "Kidney info TBD"]]]
+    [ui/row
+     [ui/col {:md 4}
+      [:h3 {:style {:margin-top 40}} "Background guidance"]
+
+      [:> bs/ListGroup
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :visits])}
+        (:visits background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :donors])}
+        (:donors background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :medications])}
+        (:medications background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :window])}
+        (:window background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :percent])}
+        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]]
+     [ui/col {:md 8}
+      [:div {:style {:margin-top 40}}
+       (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]))
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
@@ -286,7 +290,7 @@
                   (map #(conj % [:tool (name (:key %))]))
                   (map ui/tool-buttons)
                   (into [:> bs/ButtonGroup {:vertical false}]))]]
-         [background-info]
+         [background-info organ]
          ]))))
 
 (defn get-tool-meta
@@ -353,13 +357,7 @@
              [:<>
 
               [ui/tools-menu tools organ-name centre-name {:vertical false}]
-              #_(->> tools
-                   (map #(conj % [:organ organ-name]))
-                   (map #(conj % [:centre centre-name]))
-                   (map #(conj % [:tool (name (:key %))]))
-                   (map ui/tool-buttons)
-                   (into [:> bs/ButtonGroup {:vertical false}]))
-              [background-info]]
+              [background-info organ]]
              (let [path (paths/organ-centre-name-tool organ-name
                                                       (:name centre-info)
                                                       tool-name)]

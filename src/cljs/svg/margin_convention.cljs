@@ -1,10 +1,7 @@
 (ns svg.margin-convention
-  (:require 
-            [clojure.string :as s]
-            [cljs.pprint :refer [cl-format]]
-            [cljs-css-modules.macro :refer-macros [defstyle]]
+  (:require [cljs-css-modules.macro :refer-macros [defstyle]]
             [svg.axis :refer [axisBottom axisTop axisLeft axisRight]]
-            [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks]]
+            [svg.scales :refer [->Identity out ticks]]
             ))
 
 (defstyle styles

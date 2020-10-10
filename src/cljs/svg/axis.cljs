@@ -1,8 +1,7 @@
 (ns svg.axis
-  (:require [clojure.string :as s]
-            [cljs.pprint :refer [cl-format]]
+  (:require [cljs.pprint :refer [cl-format]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            [svg.scales :refer [->Identity ->Linear in out i->o o->i tick-format-specifier]]))
+            [svg.scales :refer [->Identity in i->o tick-format-specifier]]))
 
 (def default-axis-color "#888")
 

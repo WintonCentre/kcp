@@ -239,9 +239,7 @@ in the routes table."
 
 (defn background-link
   [organ centre]
-  [:p "For more information that will be helpful to patients, follow the link to "
-   [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
-    "background guidance"] "."])
+  [:p "For more information that will be helpful to patients, follow the link to background guidance."])
 
 (defn nav-card
   "Render a desktop compatible card containing of hospital-local links to tools"

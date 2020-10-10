@@ -228,9 +228,25 @@ in the routes table."
                                        :tool tool}])}
      label]))
 
+(defn tools-menu
+  [tools organ-name centre-name orientation]
+  (->> tools
+       (map #(conj % [:organ organ-name]))
+       (map #(conj % [:centre centre-name]))
+       (map #(conj % [:tool (:key %)]))
+       (map tool-buttons)
+       (into [:> bs/ButtonGroup orientation])))
+
+(defn background-link
+  [organ centre]
+  [:p "For more information that will be helpful to patients, follow the link to "
+   [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
+    "background guidance"] "."])
+
 (defn nav-card
   "Render a desktop compatible card containing of hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
+  (println ::tools tools)
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    #_[:<> 
     [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]
@@ -244,7 +260,8 @@ in the routes table."
                              :justify-content "space-around"
                              :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
-    (->> tools
+    [tools-menu tools organ centre {:vertical true}]
+    #_(->> tools
          (map #(conj % [:organ organ]))
          (map #(conj % [:centre centre]))
          (map #(conj % [:tool (:key %)]))
@@ -255,7 +272,7 @@ in the routes table."
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
   
-  (println ::phone "PHONE!!!")
+  ;(println ::phone "PHONE!!!")
   
   [:> bs/ListGroup.Item {:action true
                          :href (apply rfe/href link)} hospital])
@@ -276,7 +293,7 @@ in the routes table."
 (def mobile-break
   "Screens of this size or smaller are rendered with mobile oriented views.
    We take the surface duo as the widest mobile"
-  540)
+  800)
 
 (defn centre-card
   [mobile params]

@@ -21,9 +21,12 @@
 
 (defn organ-centre-name-tool
   [organ centre-name tool]
-  (str (prefix organ)
-       (underscore centre-name) slash
-       (underscore tool) ".txt"))
+  ;(println ::tool tool)
+  (if (= (name tool) "guidance")
+    nil
+    (str (prefix organ)
+         (underscore centre-name) slash
+         (underscore tool) ".txt")))
 
 (comment
   (prefix "lung")

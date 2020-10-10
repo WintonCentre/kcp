@@ -228,6 +228,33 @@
   (- i)
   )
 
+(defn background-info
+  "Organ specific background-info.
+   TODO: Pull from a file somehow. We need an EDN/Hiccup template mechanism for that. Somebody must
+   have written one?"
+  [organ]
+  [ui/row
+   [ui/col {:md 4}
+    [:h3 {:style {:margin-top 40}} "Background guidance"]
+    [:> bs/ListGroup
+     [:> bs/ListGroup.Item {:action true
+                            :on-click #(rf/dispatch [::events/background-info :visits])}
+      (:visits background-infos)]
+     [:> bs/ListGroup.Item {:action true
+                            :on-click #(rf/dispatch [::events/background-info :donors])}
+      (:donors background-infos)]
+     [:> bs/ListGroup.Item {:action true
+                            :on-click #(rf/dispatch [::events/background-info :medications])}
+      (:medications background-infos)]
+     [:> bs/ListGroup.Item {:action true
+                            :on-click #(rf/dispatch [::events/background-info :window])}
+      (:window background-infos)]
+     [:> bs/ListGroup.Item {:action true
+                            :on-click #(rf/dispatch [::events/background-info :percent])}
+      (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]]
+   [ui/col {:md 8}
+    [:div {:style {:margin-top 40}}
+     (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]])
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
@@ -245,65 +272,22 @@
       
       ;;; TODO: Tidy organ centre tool up here
       
-      (let [centre-info (utils/get-centre-info centres organ centre) #_(first (get (group-by :key centres) (name centre)))]
+      (let [centre-info (utils/get-centre-info centres organ centre)]
         [ui/page [:span (:description centre-info) 
                   (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
-          #_[ui/col
-           [:h2 (str (string/capitalize (name organ)) " transplant centre")]]
           [ui/col
-           [:h2  "Available trac tools"]
-           (->> tools
-                (map #(conj % [:organ organ-name]))
-                (map #(conj % [:centre centre-name]))
-                (map #(conj % [:tool (name (:key %))]))
-                (map ui/tool-buttons)
-                (into [:> bs/ButtonGroup {:vertical false}]))]]
-         [ui/row
-          [ui/col {:md 4}
-           [:h3 {:style {:margin-top 40}} "Background guidance"]
-           [:> bs/ListGroup
-            [:> bs/ListGroup.Item {:action true
-                                   :on-click #(rf/dispatch [::events/background-info :visits])}
-             (:visits background-infos)
-             ]
-            [:> bs/ListGroup.Item {:action true
-                                   :on-click #(rf/dispatch [::events/background-info :donors])}
-             (:donors background-infos)]
-            [:> bs/ListGroup.Item {:action true
-                                   :on-click #(rf/dispatch [::events/background-info :medications])}
-             (:medications background-infos)]
-            [:> bs/ListGroup.Item {:action true
-                                   :on-click #(rf/dispatch [::events/background-info :window])}
-             (:window background-infos)]
-            [:> bs/ListGroup.Item {:action true
-                                   :on-click #(rf/dispatch [::events/background-info :percent])}
-             (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]
-           
-           ]
-          [ui/col {:md 8}
-           [:div {:style {:margin-top 40}}
-            (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]
-           ]
-          
-          #_[:div
-           [:h4 "Examples of:"]
-           [:ul
-            [:li "Donor decisions"]
-            [:li "Matching criteria"]
-            [:li "What happens if you're called in"]
-            [:li "What happens after transplant"]
-            [:ul
-             [:li "Visit schedule"]
-             [:li "Drug regime"]]]
-           [ui/col
-            [:h3 {:style {:margin-top 40}} "What does " [:i "x"] "% look like?"]
-            [:p "WHAT DOES % LOOK LIKE (eg to demonstrate cancer risk of meds)"]]
-           [ui/col
-            [:h3 {:style {:margin-top 40}} "The Window"]
-            [:p "ILL ENOUGH / WELL ENOUGH?"]
-            [:p "Graph of ‘the window’?"]
-            [:p "Graph of disease trajectory?"]]]]]))))
+           ;[:p  "Available trac tools"]
+           [ui/background-link organ centre]
+           [ui/tools-menu tools organ-name centre-name {:vertical false}]
+           #_(->> tools
+                  (map #(conj % [:organ organ-name]))
+                  (map #(conj % [:centre centre-name]))
+                  (map #(conj % [:tool (name (:key %))]))
+                  (map ui/tool-buttons)
+                  (into [:> bs/ButtonGroup {:vertical false}]))]]
+         [background-info]
+         ]))))
 
 (defn get-tool-meta
   [tools tool-key]
@@ -320,6 +304,10 @@
                                 "waiting"))
 
 
+(defn tool-page-content
+  []
+  )
+
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
@@ -334,17 +322,17 @@
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-meta (get-tool-meta tools tool)]
-        [ui/page    
-         (:description centre-info)
+        [ui/page (:description centre-info)
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
            (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
-             [ui/row 
+             [ui/row
               [ui/col {:xs 12 :md 5}
-               [:p "For more information that will be helpful to patients, follow the link to "
+               [ui/background-link organ centre]
+               #_[:p "For more information that will be helpful to patients, follow the link to "
                 [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
-                 "background guidance"] "."
-                #_(str (string/capitalize organ-name) " transplant centre")]
-               (->> tools
+                 "background guidance"] "."]
+               [ui/tools-menu tools organ-name centre-name {:vertical false}]
+               #_(->> tools
                     (map #(conj % [:organ organ-name]))
                     (map #(conj % [:centre centre-name]))
                     (map #(conj % [:tool (name (:key %))]))
@@ -361,23 +349,38 @@
                       (get tool-centre-bundle :-inputs)))]
               [ui/col
                [results/results-panel bundles organ centre tool]]])
-           (let [path (paths/organ-centre-name-tool organ-name
-                                                    (:name centre-info)
-                                                    tool-name)]
+           (if (= tool :guidance)
+             [:<>
 
-             (rf/dispatch [::events/load-bundles [path
-                                                  [:bundles organ centre tool]]])
-             [:div "Loading " path]))
+              [ui/tools-menu tools organ-name centre-name {:vertical false}]
+              #_(->> tools
+                   (map #(conj % [:organ organ-name]))
+                   (map #(conj % [:centre centre-name]))
+                   (map #(conj % [:tool (name (:key %))]))
+                   (map ui/tool-buttons)
+                   (into [:> bs/ButtonGroup {:vertical false}]))
+              [background-info]]
+             (let [path (paths/organ-centre-name-tool organ-name
+                                                      (:name centre-info)
+                                                      tool-name)]
+
+               (rf/dispatch [::events/load-bundles [path
+                                                    [:bundles organ centre tool]]])
+               #_[:div "Loading " path])))
          [ui/row
-          [ui/col {:class-name "d-none d-md-block"}]]
-         
-         ]))))
+          [ui/col {:class-name "d-none d-md-block"}]]]))))
 
 (comment
   (+ 1 1)
   (paths/organ-centre-name-tool :kidney
                                 "The Royal Free"
                                 :waiting)
+    (paths/organ-centre-name-tool :kidney
+                                  "The Royal Free"
+                                  "waiting")
+  (paths/organ-centre-name-tool :kidney
+                                "The Royal Free"
+                                :guidance)
   )
 
 ;-------------- Text views below --------------

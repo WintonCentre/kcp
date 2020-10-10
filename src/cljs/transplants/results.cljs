@@ -127,7 +127,9 @@
                           :bundle bundle
                           :rubric [:<>
                                    [:h4 "Sanity check on model"]
-                                   [:p "Top of stacked bars should be close to 100%"]]
+                                   [:p "The top of each stacked bar should always be close to 100%. 
+                                        However, each bar shows the combined result of 4 independent 
+                                        statistical models, each with its own error."]]
                           :bar-info [{:key "waiting"
                                       :stack-id "a"
                                       :bar-label {:fill "#fff" :at :centre}

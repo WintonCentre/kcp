@@ -3,6 +3,7 @@
             [reagent.core :as r]
             [transplants.model :as model]
             [transplants.subs :as subs]
+            [transplants.events :as events]
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
             [transplants.ui :as ui]
@@ -139,9 +140,6 @@
     {:fill fill :stroke stroke :stroke-width stroke-width :opacity opacity}))
 
 
-
-
-
 (defn vis-data-map
   "Collect into one map all configuration and inputs that are necessary to calculate a data series for the given organ, centre,
    and tool."
@@ -174,7 +172,7 @@
   (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
     (r/as-element
      [:g
-      (if (and (> width 30) (> value 15))
+      (if (and (> width 50) (> value 15))
         [:text {:x (+ x (/ width 2))
                 :y (+ y 25)
                 :text-anchor "middle"
@@ -185,7 +183,7 @@
         [:text {:x (+ x (/ width 2))
                 :y (- y 5)
                 :text-anchor "middle"
-                :font-size (if (> width 30) "1.3em" "1em")
+                :font-size (if (> width 50) "1.3em" "1em")
                 :font-weight "bold"
               ;:font-size "0.7em"
                 :fill "grey"}
@@ -305,8 +303,7 @@
                                :fill fill
                                :stack-id stack-id
                                #_#_:strokeDasharray "5 5"
-                               :label (when (nil? stack-id)
-                                        simple-bar-label)}]))
+                               :label simple-bar-label}]))
              bar-info))]]))
 
 (defn area-chart
@@ -325,7 +322,8 @@
                                               (update x 0 (if (> (count outcomes) 1)
                                                             #(- 1 %)
                                                             identity))
-                                              (map #(* % 100) x))]
+                                              (map #(* % 100) x))
+                                       cum-cifs (reductions + cifs)]
                                    (into {"days" day
                                           "year" (if (zero? year)
                                                    "Day 1"
@@ -333,12 +331,17 @@
                                          (mapv
                                           (fn [bi i]
                                             ;(println (:ciff bi))
-                                            [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
+                                            [(:label bi) (if (:stack-id bi)
+                                                           (if (zero? i)
+                                                             [0 ((:ciff bi) cum-cifs i)]
+                                                             [((:ciff bi) cum-cifs (dec i)) ((:ciff bi) cum-cifs i)])
+                                                           ((:ciff bi) cifs i) #_(nth cifs i))]
+                                            )
                                           bar-info (range)))))
                                sample-days
                                (range (count sample-days))))]
     
-    ;(println ::area-chart cifs-by-year)
+    (println ::area-chart cifs-by-year)
     [:> bs/Row
      [:> bs/Col
       [:div {:style {:margin-top 20}} rubric]
@@ -365,26 +368,168 @@
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
-             #_[:> rech/Legend {:width 100
+             [:> rech/Legend {:width 100
                                 :wrapperStyle  {:width 600
                                                 :height 0
                                                 :bottom 50
                                                 :left 0
                                                 :line-height 0}}]]
             (mapv
+             (fn [{:keys [label fill hide stroke stroke-width]}]
+               (when-not hide
+                 [:> rech/Area {:type "monotone"
+                                :dataKey label
+                                :stroke stroke
+                                :stroke-width (if stroke-width
+                                                stroke-width
+                                                "none")
+                                :fill fill
+                                #_#_:stack-id stack-id
+                                #_#_:strokeDasharray "5 5"
+                                #_#_:label (when (nil? stack-id)
+                                             simple-bar-label)}]))
+             bar-info))]]))
+
+#_(defn line-chart
+  "Draw the bar chart"
+  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
+
+        cifs-by-year (clj->js (mapv
+                               (fn [day year]
+
+                                 (let [cifs (as-> (vec (apply model/scaled-cifs
+                                                              (map (partial model/cif tool)
+                                                                   (map (bun/cif-0 bundle day)
+                                                                        outcome-keys)
+                                                                   sum-betas))) x
+                                              (update x 0 (if (> (count outcomes) 1)
+                                                            #(- 1 %)
+                                                            identity))
+                                              (map #(* % 100) x))
+                                       cum-cifs (reductions + cifs)]
+                                   (into {"days" day
+                                          "year" (if (zero? year)
+                                                   "Day 1"
+                                                   (str "Year " year))}
+                                         (mapv
+                                          (fn [bi i]
+                                            ;(println (:ciff bi))
+                                            [(:label bi) (if false
+                                                           (if (zero? i)
+                                                             [0 ((:ciff bi) cum-cifs i)]
+                                                             [((:ciff bi) cum-cifs (dec i)) ((:ciff bi) cum-cifs i)])
+                                                           ((:ciff bi) cifs i) #_(nth cifs i))])
+                                          bar-info (range)))))
+                               sample-days
+                               (range (count sample-days))))]
+
+    (println ::area-chart cifs-by-year)
+    [:> bs/Row
+     [:> bs/Col
+      [:div {:style {:margin-top 20}} rubric]
+
+      (into [:> rech/AreaChart {:width 600
+                                :height 400
+                                :data cifs-by-year
+                                :margin {:top 30
+                                         :right 50
+                                         :left 50
+                                         :bottom 50}}
+
+             [:> rech/CartesianGrid {:stroke "#ccc"
+                                     :strokeDasharray "5 5"}]
+
+             [:> rech/XAxis {:dataKey "year"}]
+
+       ; better without?
+             [:> rech/YAxis {:dataKey "transplants"
+                             :type "number"
+                             :domain #js [0 100]}]
+
+             [:> rech/Tooltip {:content custom-tool-tip}]
+
+     ; The legend height has to be zero or it will cause a jump reduction of chart height
+     ; on roll over if tooltips are enabled
+             [:> rech/Legend {:width 100
+                              :wrapperStyle  {:width 600
+                                              :height 0
+                                              :bottom 50
+                                              :left 0
+                                              :line-height 0}}]]
+            (mapv
              (fn [{:keys [label fill hide stroke]}]
                (when-not hide
                  [:> rech/Area {:type "monotone"
-                               :dataKey label
-                               :stroke stroke
-                               :fill fill
-                               #_#_:stack-id stack-id
-                               #_#_:strokeDasharray "5 5"
-                               #_#_:label (when (nil? stack-id)
-                                            simple-bar-label)}]))
+                                :dataKey label
+                                :stroke stroke
+                                :fill fill
+                                #_#_:stack-id stack-id
+                                #_#_:strokeDasharray "5 5"
+                                #_#_:label (when (nil? stack-id)
+                                             simple-bar-label)}]))
              bar-info))]]))
 
+(defn icon-array
+  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
+  (let [{:keys [outcome-keys
+                outcomes
+                sum-betas
+                sample-days]} (vis-data-map organ centre tool inputs bundle)
+        cifs-by-year (clj->js (mapv
+                               (fn [day year]
 
+                                 (let [cifs (as-> (vec (apply model/scaled-cifs
+                                                              (map (partial model/cif tool)
+                                                                   (map (bun/cif-0 bundle day)
+                                                                        outcome-keys)
+                                                                   sum-betas))) x
+                                              (update x 0 (if (> (count outcomes) 1)
+                                                            #(- 1 %)
+                                                            identity))
+                                              (map #(* % 100) x))]
+                                   (into {"days" day
+                                          "year" (if (zero? year)
+                                                   "Day 1"
+                                                   (str "Year " year))}
+                                         (mapv
+                                          (fn [bi i]
+                                            ;(println (:ciff bi))
+                                            [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
+                                          bar-info (range)))))
+                               sample-days
+                               (range (count sample-days))))])
+
+  [:<>
+   (let [percent 20]
+     [ui/row {:margin-bottom 5
+              :display :flex
+              :justify-content "start"
+              :flex-wrap "wrap"}
+      [ui/col
+       [:div {:sm 3 :style {;:margin-bottom 5
+                            :display :flex
+                            :justify-content "flex-start"
+                            :flex-wrap "wrap"}}]]
+      [ui/col {:sm 9}
+       (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
+         (into
+          [:<>
+           (map
+            (fn [j]
+              [ui/row {:key (str "icon-row-" j)}
+               [ui/col
+                (into [:<>
+                       (map (fn [i]
+                              [ui/open-icon
+                               {:key (str "icon-col-" i)
+                                :color (if (neg? (if false #_randomise-icons
+                                                     (order (- 100 (+ 10 (* j 10) (- i))))
+                                                     (- percent (- 101 (+ 10 (* j 10) (- i))))))
+                                         "#CCC"
+                                         "red")
+                                :padding "4px 5px"} "person"]) (range 10))])]])
+            (range 10))]))]])])
 ;;;
 ;; 
 ;;;

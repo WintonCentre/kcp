@@ -23,8 +23,10 @@
    (merge init-db/default-db
           {:current-route nil
            :inputs {}
+           :selected-vis "bars"
            :window-width (.-innerWidth js/window)
-           :test-day 100})))
+           :test-day 100
+           })))
 
 (rf/reg-event-db
  ::update-window-width
@@ -245,6 +247,12 @@
  (fn ;-traced
    [db [_ day]]
    (assoc db :test-day day)))
+
+(rf/reg-event-db
+ ::selected-vis
+ (fn ;-traced
+   [db [_ selection]]
+   (assoc db :selected-vis selection)))
 
 
 ;;;

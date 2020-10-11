@@ -46,3 +46,6 @@
 (rf/reg-sub ::test-day (fn [db] (get-in db [:test-day])))
 
 (rf/reg-sub ::cohort-dates (fn [db] (get-in db [:cohort-dates])))
+
+(rf/reg-sub ::selected-vis (fn [db] (get-in db [:selected-vis])))
+

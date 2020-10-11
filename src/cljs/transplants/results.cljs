@@ -25,10 +25,10 @@
                     #js {"name" "Page F" "uv" 2390 "pv" 3800 "amt" 2500}
                     #js {"name" "Page G" "uv" 3490 "pv" 4300 "amt" 2100}])
 
-(def waiting-fill "#7C91D8")
-(def transplant-fill "#3BC17B")
+(def waiting-fill "#557788" #_"#7C91D8")
+(def transplant-fill "#44dd99")
 (def death-fill "#002244")
-(def removal-fill "#888877")
+(def removal-fill "#777777")
 
 (defn line-chart
   [data]

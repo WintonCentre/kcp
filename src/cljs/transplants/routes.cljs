@@ -34,9 +34,9 @@
      :link-text "Trac tools"
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
-                    :start (fn [& params] (js/console.log "Entering Home"))
+                    :start (fn [& params] (println ::routes "Entering Home " params))
        ;; Teardown can be done here.
-                    :stop  (fn [& params] (js/console.log "Leaving Home"))}]}]
+                    :stop   (fn [& params] (println ::routes "Leaving Home " params))}]}]
    
    [":organ" {:name      ::views/organ
               :view      views/organ-home
@@ -53,9 +53,8 @@
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
                                 :start (fn [& params]
-                                         (js/console.log "params " params)
                                          (let [centre (keyword (get-in (first params) [:path :centre]))]
-                                           (js/console.log "Entering organ-centre: " params)
+                                           (println ::organ-centre "params " params)
                                            #_(rf/dispatch [::events/centre centre])))
                                 :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}
      [""]

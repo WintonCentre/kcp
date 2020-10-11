@@ -215,7 +215,8 @@ in the routes table."
 (defn tool-buttons
   "Create buttons for each transplant tool"
   [{:keys [key label description organ centre tool] :as tool-button-params}]
-  (let [active (= tool  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
+  ;(println ::tool tool)
+  (let [active (= (name tool)  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2
@@ -304,8 +305,6 @@ in the routes table."
   (if mobile
     [:> bs/ListGroup]
     [:> bs/CardDeck]))
-
-
 
 
 (defn titled-panel

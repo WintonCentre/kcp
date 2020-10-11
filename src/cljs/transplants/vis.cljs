@@ -338,7 +338,7 @@
                                sample-days
                                (range (count sample-days))))]
     
-    (println ::area-chart cifs-by-year)
+    ;(println ::area-chart cifs-by-year)
     [:> bs/Row
      [:> bs/Col
       [:div {:style {:margin-top 20}} rubric]

@@ -205,31 +205,34 @@
                 :fill "white"}
          (str (Math/round value) "%")])])))
 
-(defn custom-tool-tip
+
+(defn custom-tool-tip 
   "bar chart custom tool tips"
-  [payload]
-  (let [{active "active"
-         label "label"
-         pload "payload"} (js->clj payload)]
-    (when active
-      (r/as-element
-       [:div {:style {:background-color "#fff"
-                      :display "flex"
-                      :flex-direction "column"
-                      :padding "10px 20px 0px 20px"
-                      :border-radius 5
-                      :box-shadow "1px 1px"}}
-        [:h5 label]
-        (into [:div {:style {:display "flex"
-                             :flex-direction "column"
-                             :align-items "flex-end"}}]
-              (mapv
-               (fn [{name "name" value "value"} d]
-                 [:p {:style {:line-height 0.5
-                              :flex 1
-                              }}
-                  name ": " (Math/round value) "%"])
-               pload))]))))
+  [area]
+  (fn [payload]
+    [payload]
+    (let [{active "active"
+           label "label"
+           pload "payload"} (js->clj payload)]
+      (when active
+        (r/as-element
+         [:div {:style {:background-color "#fff"
+                        :display "flex"
+                        :flex-direction "column"
+                        :padding "10px 20px 0px 20px"
+                        :border-radius 5
+                        :box-shadow "1px 1px"}}
+          [:h5 label]
+          (into [:div {:style {:display "flex"
+                               :flex-direction "column"
+                               :align-items "flex-end"}}]
+                (mapv
+                 (fn [{name "name" value "value"} d]
+                   [:p {:style {:line-height 0.5
+                                :flex 1
+                                }}
+                    name ": " (Math/round (if area (second value) value)) "%"])
+                 pload))])))))
     
 
 (defn bar-chart
@@ -284,11 +287,13 @@
                              :type "number"
                              :domain #js [0 100]}]
 
-             [:> rech/Tooltip {:content custom-tool-tip}]
+             [:> rech/Tooltip {:content (custom-tool-tip nil)}]
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
              [:> rech/Legend {:width 100
+                              :iconType "square"
+                              :iconSize 20
                               :wrapperStyle  {:width 600
                                               :height 0
                                               :bottom 50
@@ -341,7 +346,7 @@
                                sample-days
                                (range (count sample-days))))]
     
-    (println ::area-chart cifs-by-year)
+    ;(println ::area-chart cifs-by-year)
     [:> bs/Row
      [:> bs/Col
       [:div {:style {:margin-top 20}} rubric]
@@ -364,16 +369,18 @@
                              :type "number"
                              :domain #js [0 100]}]
 
-             [:> rech/Tooltip {:content custom-tool-tip}]
+             [:> rech/Tooltip {:content (custom-tool-tip (:stack-id (first bar-info)))}]
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
              [:> rech/Legend {:width 100
-                                :wrapperStyle  {:width 600
-                                                :height 0
-                                                :bottom 50
-                                                :left 0
-                                                :line-height 0}}]]
+                              :iconType "square"
+                              :iconSize 20
+                              :wrapperStyle  {:width 600
+                                              :height 0
+                                              :bottom 50
+                                              :left 0
+                                              :line-height 0}}]]
             (mapv
              (fn [{:keys [label fill hide stroke stroke-width]}]
                (when-not hide
@@ -383,86 +390,6 @@
                                 :stroke-width (if stroke-width
                                                 stroke-width
                                                 "none")
-                                :fill fill
-                                #_#_:stack-id stack-id
-                                #_#_:strokeDasharray "5 5"
-                                #_#_:label (when (nil? stack-id)
-                                             simple-bar-label)}]))
-             bar-info))]]))
-
-#_(defn line-chart
-  "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
-
-        cifs-by-year (clj->js (mapv
-                               (fn [day year]
-
-                                 (let [cifs (as-> (vec (apply model/scaled-cifs
-                                                              (map (partial model/cif tool)
-                                                                   (map (bun/cif-0 bundle day)
-                                                                        outcome-keys)
-                                                                   sum-betas))) x
-                                              (update x 0 (if (> (count outcomes) 1)
-                                                            #(- 1 %)
-                                                            identity))
-                                              (map #(* % 100) x))
-                                       cum-cifs (reductions + cifs)]
-                                   (into {"days" day
-                                          "year" (if (zero? year)
-                                                   "Day 1"
-                                                   (str "Year " year))}
-                                         (mapv
-                                          (fn [bi i]
-                                            ;(println (:ciff bi))
-                                            [(:label bi) (if false
-                                                           (if (zero? i)
-                                                             [0 ((:ciff bi) cum-cifs i)]
-                                                             [((:ciff bi) cum-cifs (dec i)) ((:ciff bi) cum-cifs i)])
-                                                           ((:ciff bi) cifs i) #_(nth cifs i))])
-                                          bar-info (range)))))
-                               sample-days
-                               (range (count sample-days))))]
-
-    (println ::area-chart cifs-by-year)
-    [:> bs/Row
-     [:> bs/Col
-      [:div {:style {:margin-top 20}} rubric]
-
-      (into [:> rech/AreaChart {:width 600
-                                :height 400
-                                :data cifs-by-year
-                                :margin {:top 30
-                                         :right 50
-                                         :left 50
-                                         :bottom 50}}
-
-             [:> rech/CartesianGrid {:stroke "#ccc"
-                                     :strokeDasharray "5 5"}]
-
-             [:> rech/XAxis {:dataKey "year"}]
-
-       ; better without?
-             [:> rech/YAxis {:dataKey "transplants"
-                             :type "number"
-                             :domain #js [0 100]}]
-
-             [:> rech/Tooltip {:content custom-tool-tip}]
-
-     ; The legend height has to be zero or it will cause a jump reduction of chart height
-     ; on roll over if tooltips are enabled
-             [:> rech/Legend {:width 100
-                              :wrapperStyle  {:width 600
-                                              :height 0
-                                              :bottom 50
-                                              :left 0
-                                              :line-height 0}}]]
-            (mapv
-             (fn [{:keys [label fill hide stroke]}]
-               (when-not hide
-                 [:> rech/Area {:type "monotone"
-                                :dataKey label
-                                :stroke stroke
                                 :fill fill
                                 #_#_:stack-id stack-id
                                 #_#_:strokeDasharray "5 5"
@@ -501,34 +428,35 @@
                                (range (count sample-days))))])
 
   [:<>
-   (let [percent 20]
-     [ui/row {:margin-bottom 5
-              :display :flex
-              :justify-content "start"
-              :flex-wrap "wrap"}
-      [ui/col
-       [:div {:sm 3 :style {;:margin-bottom 5
-                            :display :flex
-                            :justify-content "flex-start"
-                            :flex-wrap "wrap"}}]]
-      [ui/col {:sm 9}
+   [:h4 "not yet"]
+   (let [percent 20 
+         fill "red" 
+         no-fill "#bbb" 
+         caption "Hello, here is a whole load of text that goes on and on and on."]
+     [ui/row {:style {:margin-bottom 5
+                      :margin-top 20}}
+      [ui/col {:md 7}
+       "Hello, here is a whole load of text that goes on and on and on."]
+      [ui/col {:md 5}
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
          (into
           [:<>
            (map
             (fn [j]
               [ui/row {:key (str "icon-row-" j)}
-               [ui/col
+               [ui/col {:style {:line-height "17px"}}
                 (into [:<>
                        (map (fn [i]
                               [ui/open-icon
                                {:key (str "icon-col-" i)
+                                :font-size "10px"
+                                
                                 :color (if (neg? (if false #_randomise-icons
                                                      (order (- 100 (+ 10 (* j 10) (- i))))
                                                      (- percent (- 101 (+ 10 (* j 10) (- i))))))
-                                         "#CCC"
-                                         "red")
-                                :padding "4px 5px"} "person"]) (range 10))])]])
+                                         no-fill
+                                         fill)
+                                :padding "4px 4px"} "person"]) (range 10))])]])
             (range 10))]))]])])
 ;;;
 ;; 

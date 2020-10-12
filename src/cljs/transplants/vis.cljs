@@ -432,11 +432,11 @@
    (let [percent 20 
          fill "red" 
          no-fill "#bbb" 
-         caption "Hello, here is a whole load of text that goes on and on and on."]
+         caption "Placeholder: Add a year selector with text"]
      [ui/row {:style {:margin-bottom 5
                       :margin-top 20}}
       [ui/col {:md 7}
-       "Hello, here is a whole load of text that goes on and on and on."]
+       caption]
       [ui/col {:md 5}
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
          (into

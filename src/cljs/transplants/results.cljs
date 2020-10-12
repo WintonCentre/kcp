@@ -25,10 +25,12 @@
                     #js {"name" "Page F" "uv" 2390 "pv" 3800 "amt" 2500}
                     #js {"name" "Page G" "uv" 3490 "pv" 4300 "amt" 2100}])
 
-(def waiting-fill "#557788" #_"#7C91D8")
-(def transplant-fill "#44dd99")
+(def waiting-fill "#0088EE" #_"#7C91D8")
+(def transplant-fill "#66CC88" #_"#44dd99")
 (def death-fill "#002244")
-(def removal-fill "#777777")
+(def removal-fill "#FF4455" #_"#777777")
+(def survival-fill "#927AAA")
+(def graft-fill "#0099DD")
 
 (defn line-chart
   [data]
@@ -163,7 +165,7 @@
                          :inputs inputs
                          :bundle bundle
                          :rubric [:h4 "About how long do these people survive after a transplant?"]                     
-                         :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+                         :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :from-listing
          [vis/bar-chart {:organ organ
@@ -181,7 +183,7 @@
                          :inputs inputs
                          :bundle bundle
                          :rubric [:h4 "About how long do these people survive after a transplant?"]
-                         :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+                         :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :graft
          [vis/bar-chart {:organ organ
@@ -190,7 +192,7 @@
                          :inputs inputs
                          :bundle bundle
                          :rubric [:h4 "About how long does the graft survive?"]
-                         :bar-info [{:key "graft" :label "Graft survival" :fill transplant-fill :ciff nth :hide false}]}])
+                         :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])
 
        ]
       
@@ -278,7 +280,7 @@
                             :inputs inputs
                             :bundle bundle
                             :rubric [:h4 "About how long do these people survive after a transplant?"]
-                            :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+                            :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
            :from-listing
            [vis/area-chart {:organ organ
@@ -296,7 +298,7 @@
                             :inputs inputs
                             :bundle bundle
                             :rubric [:h4 "About how long do these people survive after a transplant?"]
-                            :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+                            :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
            :graft
            [vis/area-chart {:organ organ
@@ -305,7 +307,7 @@
                             :inputs inputs
                             :bundle bundle
                             :rubric [:h4 "About how long does the graft survive?"]
-                            :bar-info [{:key "graft" :label "Graft survival" :fill transplant-fill :ciff nth :hide false}]}]))]
+                            :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]))]
       [ui/tab {:event-key "icons" :title "Icon Array"}       
        (condp = tool
          :waiting
@@ -387,7 +389,7 @@
                           :inputs inputs
                           :bundle bundle
                           :rubric [:h4 "About how long do these people survive after a transplant?"]
-                          :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+                          :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :from-listing
          [vis/icon-array {:organ organ
@@ -405,7 +407,7 @@
                           :inputs inputs
                           :bundle bundle
                           :rubric [:h4 "About how long do these people survive after a transplant?"]
-                          :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill "#927AAA" :ciff nth :hide false}]}]
+                          :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :graft
          [vis/icon-array {:organ organ
@@ -414,7 +416,7 @@
                           :inputs inputs
                           :bundle bundle
                           :rubric [:h4 "About how long does the graft survive?"]
-                          :bar-info [{:key "graft" :label "Graft survival" :fill transplant-fill :ciff nth :hide false}]}])
+                          :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])
        ]
       [ui/tab {:event-key "table" :title "Table"}
        (do

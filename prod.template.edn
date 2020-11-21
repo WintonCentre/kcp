@@ -2,6 +2,8 @@
 {:main transplants.core
  :target :bundle
  :cljs-devtools false
+ :language-in :ecmascript5
+ :language-out :ecmascript5
  :closure-defines {cljs.core/*global* "window"}
  :bundle-cmd {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]
               :default ["npx" "webpack" "--mode=production" :output-to "-o" :final-output-to]}}

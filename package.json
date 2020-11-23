@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bootstrap": "4.5.2",
+    "core-js": "^3.7.0",
     "react": "16.13.0",
     "react-bootstrap": "1.2.2",
     "react-dom": "16.13.0",

@@ -3,6 +3,7 @@
    [clojure.string :as string]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
+   ["core-js/es"]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
    [transplants.events :as events]

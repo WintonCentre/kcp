@@ -4,7 +4,7 @@
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs "2.9.3"] ; was "2.9.3"
+                 [thheller/shadow-cljs "2.9.3"] 
                  [reagent "0.10.0"]
                  [re-frame "0.12.0"]
                  [day8.re-frame/tracing "0.5.5"]
@@ -63,7 +63,8 @@
                                                                           day8.re-frame.tracing.trace-enabled? true}}}
                                :release {:build-options
                                          {:ns-aliases
-                                          {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
+                                          {day8.re-frame.tracing day8.re-frame.tracing-stubs}}
+                                         :strip-type-prefixes #{"cljs.pprint"}}
                                :devtools {:http-root "resources/public"
                                           :http-port 8280
                                           :repl-pprint true
@@ -91,7 +92,7 @@
                             ["shadow" "release" "app"]]
             "build-report" ["with-profile" "prod" "do"
                             ["shadow" "run" "shadow.cljs.build-report" "app" "target/build-report.html"]
-                            ["shell" "open" "target/build-report.html"]]
+                            ["shell" "open" "target/build-report.html"]]gzio -
             "karma"        ["with-profile" "prod" "do"
                             ["shadow" "compile" "karma-test"]
                             ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]}

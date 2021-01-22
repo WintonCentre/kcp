@@ -23,13 +23,14 @@
  :bundles #profile {:kidney {:centres [:centres]
                              :tools [:tools]
                              :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
-                             :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]
-                             :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]}
+                             :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]
+                             :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]
+                             :ldgraft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]
+                             :ldsurvival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]}
                     :lung {:centres [:centres]
                            :tools [:tools]
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                            :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]
-                           :from-listing [:from-listing-baseline-cifs :from-listing-baseline-vars :from-listing-inputs]
                            }}
 
  :sheets #profile {:kidney {:centres {:key {:column :A :match "key"}
@@ -113,20 +114,6 @@
                                                        :match "info"}
                                            :order {:column :I
                                                    :match "order"}}
-                            :bmi-calculator {:label {:column :A
-                                                     :match "label"}
-                                             :factor {:column :B
-                                                      :match "factor"}
-                                             :level {:column :C
-                                                     :match "level"}
-                                             :min {:column :D
-                                                   :match "min"}
-                                             :max {:column :E
-                                                   :match "max"}
-                                             :dps {:column :F
-                                                   :match "dps"}
-                                             :type {:column :G
-                                                    :match "type"}}
                             :survival-baseline-cifs {:centre {:column :A
                                                               :match "centre"}
                                                      :days {:column :B
@@ -206,7 +193,7 @@
                                            :order {:column :L
                                                    :match "order"}}
 
-                          :numerics {:model {:column :A
+                          #_#_:numerics {:model {:column :A
                                              :match "model"}
                                      :factor {:column :B
                                               :match "factor"}

@@ -51,3 +51,4 @@ prod.cljs.edn
 
 webpack*
 report.html
+.ls

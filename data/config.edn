@@ -8,13 +8,13 @@
 ;; A :match key of "abc" will be matched against lowercase(:name) with leading and trailing white-space trimmed.
 ;;;
 {:workbook #profile {:kidney "data/kidney-models-master.xlsx"
-                     :lung "data/lung-models-master.xlsx"} 
+                     :lung "data/lung-models-master.xlsx"}
 
  :export #profile {:kidney {:csv-path "resources/public/kidney/csv"
                             :edn-path "resources/public/kidney/edn"}
                    :lung {:csv-path "resources/public/lung/csv"
                           :edn-path "resources/public/lung/edn"}}
- 
+
 
  ;
  ; Configuration files may also be exported in bundles appropriate for embedded tools. 
@@ -25,13 +25,12 @@
                              :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                              :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]
                              :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]
-                             :ldgraft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]
-                             :ldsurvival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]}
+                             :ldgraft [:ldgraft-baseline-cifs :ldgraft-baseline-vars :ldgraft-inputs]
+                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]}
                     :lung {:centres [:centres]
                            :tools [:tools]
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
-                           :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]
-                           }}
+                           :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}}
 
  :sheets #profile {:kidney {:centres {:key {:column :A :match "key"}
                                       :name {:column :B :match "name"}
@@ -52,36 +51,32 @@
                                                     :cif-death {:column :E
                                                                 :match "death"}
                                                     :cif-all-reasons {:column :F
-                                                              :match "all"}}
+                                                                      :match "all"}}
 
                             :waiting-baseline-vars {:factor {:column :A
-                                                                      :match "factor"}
+                                                             :match "factor"}
                                                     :level {:column :B
-                                                                     :match "level"}}
+                                                            :match "level"}}
 
                             :waiting-inputs {:factor {:column :A
                                                       :match "factor"}
                                              :level {:column :B
                                                      :match "level"}
                                              :factor-name {:column :C
-                                                     :match "(Factor)|(label)"}
+                                                           :match "(Factor)|(label)"}
                                              :level-name {:column :D
-                                                             :match "(level)|(button)"}
+                                                          :match "(level)|(button)"}
                                              :beta-transplant {:column :E
                                                                :match "transplant"}
-                                             :beta-removal {:column :F
-                                                            :match "remov"}
-                                             :beta-death {:column :G
+                                             :beta-death {:column :F
                                                           :match "death"}
-                                             :beta-all-reasons {:column :H
-                                                                :match "all"}
-                                             :type {:column :I
+                                             :type {:column :G
                                                     :match "type"}
-                                             :sub-text {:column :J
+                                             :sub-text {:column :H
                                                         :match "sub"}
-                                             :info-box? {:column :K
+                                             :info-box? {:column :I
                                                          :match "info"}
-                                             :order {:column :L
+                                             :order {:column :J
                                                      :match "order"}}
 
                             :graft-baseline-cifs {:centre {:column :A
@@ -92,18 +87,18 @@
                                                               :match "graft"}}
 
                             :graft-baseline-vars {:factor {:column :A
-                                                                    :match "factor"}
+                                                           :match "factor"}
                                                   :level {:column :B
-                                                                   :match "level"}}
+                                                          :match "level"}}
 
                             :graft-inputs {:factor {:column :A
                                                     :match "factor"}
                                            :level {:column :B
                                                    :match "level"}
                                            :factor-name {:column :C
-                                                   :match "inputs"}
+                                                         :match "inputs"}
                                            :level-name {:column :D
-                                                           :match "(label)|(level)"}
+                                                        :match "(label)|(level)"}
                                            :beta-graft {:column :E
                                                         :match "graft"}
                                            :type {:column :F
@@ -121,17 +116,75 @@
                                                      :cif-survival {:column :C
                                                                     :match "survival"}}
                             :survival-baseline-vars {:factor {:column :A
-                                                                       :match "factor"}
+                                                              :match "factor"}
                                                      :level {:column :B
-                                                                      :match "level"}}
+                                                             :match "level"}}
                             :survival-inputs {:factor {:column :A
                                                        :match "factor"}
                                               :level {:column :B
                                                       :match "level"}
                                               :factor-name {:column :C
-                                                      :match "inputs"}
+                                                            :match "inputs"}
                                               :level-name {:column :D
-                                                              :match "(label)|(level)"}
+                                                           :match "(label)|(level)"}
+                                              :beta-survival {:column :E
+                                                              :match "survival"}
+                                              :type {:column :F
+                                                     :match "type"}
+                                              :sub-text {:column :G
+                                                         :match "sub-text"}
+                                              :info-box? {:column :H
+                                                          :match "info"}
+                                              :order {:column :I
+                                                      :match "order"}}
+                            :ldgraft-baseline-cifs {:centre {:column :A
+                                                           :match "centre"}
+                                                  :days {:column :B
+                                                         :match "(time)|(days)"}
+                                                  :cif-graft {:column :C
+                                                              :match "graft"}}
+
+                            :ldgraft-baseline-vars {:factor {:column :A
+                                                           :match "factor"}
+                                                  :level {:column :B
+                                                          :match "level"}}
+
+                            :ldgraft-inputs {:factor {:column :A
+                                                    :match "factor"}
+                                           :level {:column :B
+                                                   :match "level"}
+                                           :factor-name {:column :C
+                                                         :match "inputs"}
+                                           :level-name {:column :D
+                                                        :match "(label)|(level)"}
+                                           :beta-graft {:column :E
+                                                        :match "graft"}
+                                           :type {:column :F
+                                                  :match "type"}
+                                           :sub-text {:column :G
+                                                      :match "sub-text"}
+                                           :info-box? {:column :H
+                                                       :match "info"}
+                                           :order {:column :I
+                                                   :match "order"}}
+                            :ldsurvival-baseline-cifs {:centre {:column :A
+                                                              :match "centre"}
+                                                     :days {:column :B
+                                                            :match "(time)|(days)"}
+                                                     :cif-survival {:column :C
+                                                                    :match "survival"}}
+                            :ldsurvival-baseline-vars {:factor {:column :A
+                                                              :match "factor"}
+                                                     :level {:column :B
+                                                             :match "level"}}
+                            :ldsurvival-inputs {:factor {:column :A
+                                                       :match "factor"}
+                                              :level {:column :B
+                                                      :match "level"}
+                                              :factor-name {:column :C
+                                                            :match "inputs"}
+                                              :level-name {:column :D
+                                                           :match "(label)|(level)"}
                                               :beta-survival {:column :E
                                                               :match "survival"}
                                               :type {:column :F
@@ -161,76 +214,72 @@
                                                   :cif-death {:column :E
                                                               :match "death"}
                                                   :cif-all-reasons {:column :F
-                                                            :match "all"}}
+                                                                    :match "all"}}
 
                           :waiting-baseline-vars {:factor {:column :A
-                                                                    :match "factor"}
+                                                           :match "factor"}
                                                   :level {:column :B
-                                                                   :match "level"}}
+                                                          :match "level"}}
 
                           :waiting-inputs {:factor {:column :A
                                                     :match "factor"}
                                            :level {:column :B
                                                    :match "level"}
                                            :factor-name {:column :C
-                                                   :match "(Factor)|(label)"}
+                                                         :match "factor"}
                                            :level-name {:column :D
-                                                           :match "(level)|(button)"}
+                                                        :match "level"}
                                            :beta-transplant {:column :E
                                                              :match "transplant"}
-                                           :beta-removal {:column :F
-                                                          :match "remov"}
-                                           :beta-death {:column :G
+                                           :beta-death {:column :F
                                                         :match "death"}
-                                           :beta-all-reasons {:column :H
-                                                              :match "all"}
-                                           :type {:column :I
+                                           :type {:column :G
                                                   :match "type"}
-                                           :sub-text {:column :J
+                                           :sub-text {:column :H
                                                       :match "sub"}
-                                           :info-box? {:column :K
+                                           :info-box? {:column :I
                                                        :match "info"}
-                                           :order {:column :L
+                                           :order {:column :J
                                                    :match "order"}}
 
                           #_#_:numerics {:model {:column :A
-                                             :match "model"}
-                                     :factor {:column :B
-                                              :match "factor"}
-                                     :min {:column :C
-                                           :match "min"}
-                                     :max {:column :D
-                                           :match "max"}
-                                     :dps {:column :E
-                                           :match "dps"}
-                                     :knot1 {:column :F
-                                             :match "knot1"}
-                                     :knot2 {:column :G
-                                             :match "knot2"}
-                                     :knot3 {:column :H
-                                             :match "knot3"}
-                                     :knot4 {:column :I
-                                             :match "knot4"}}
+                                                 :match "model"}
+                                         :factor {:column :B
+                                                  :match "factor"}
+                                         :min {:column :C
+                                               :match "min"}
+                                         :max {:column :D
+                                               :match "max"}
+                                         :dps {:column :E
+                                               :match "dps"}
+                                         :knot1 {:column :F
+                                                 :match "knot1"}
+                                         :knot2 {:column :G
+                                                 :match "knot2"}
+                                         :knot3 {:column :H
+                                                 :match "knot3"}
+                                         :knot4 {:column :I
+                                                 :match "knot4"}}
                           :post-transplant-baseline-cifs {:centre {:column :A
                                                                    :match "centre"}
                                                           :days {:column :B
                                                                  :match "(time)|(days)"}
                                                           :cif-post-transplant {:column :C
-                                                                         :match "graft"}}
+                                                                                :match "graft"}}
 
                           :post-transplant-baseline-vars {:factor {:column :A
-                                                                            :match "factor"}
+                                                                   :match "factor"}
                                                           :level {:column :B
-                                                                           :match "level"}}
+                                                                  :match "level"}}
 
                           :post-transplant-inputs {:factor {:column :A
                                                             :match "factor"}
                                                    :level {:column :B
                                                            :match "level"}
                                                    :factor-name {:column :C
-                                                           :match "inputs"}
+                                                                 :match "inputs"}
                                                    :level-name {:column :D
-                                                                   :match "(label)|(level)"}
+                                                                :match "(label)|(level)"}
                                                    :beta-post-transplant {:column :E
                                                                           :match "graft"}
                                                    :type {:column :F
@@ -249,17 +298,17 @@
                                                        :cif-from-listing {:column :C
                                                                           :match "survival"}}
                           :from-listing-baseline-vars {:factor {:column :A
-                                                                         :match "factor"}
+                                                                :match "factor"}
                                                        :level {:column :B
-                                                                        :match "level"}}
+                                                               :match "level"}}
                           :from-listing-inputs {:factor {:column :A
                                                          :match "factor"}
                                                 :level {:column :B
-                                                        :match "level"} 
+                                                        :match "level"}
                                                 :factor-name {:column :C
-                                                        :match "inputs"}
+                                                              :match "inputs"}
                                                 :level-name {:column :D
-                                                                :match "(label)|(level)"}
+                                                             :match "(label)|(level)"}
                                                 :beta-from-listing {:column :E
                                                                     :match "survival"}
                                                 :type {:column :F

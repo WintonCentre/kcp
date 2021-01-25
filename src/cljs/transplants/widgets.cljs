@@ -4,7 +4,8 @@
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
             [transplants.events :as events]
-            [transplants.numeric-input :as num]))
+            [transplants.numeric-input :as num]
+            ))
 
 (defn key->id
   "Convert a namespaced factor key to an id"
@@ -20,19 +21,21 @@
    widget type. If it's a keyword, dispatch on that. If it's a string, read it into a map and dispatch on that map's :type.
    This allows us to add parameters to the widget inside the type column in the spreadsheet."
   ;:type
-  (fn [m] (if (keyword? (:type m))
-            (:type m)
-            (try
-              (let [ms (edn/read-string (:type m))]
-                (if (and (map? ms) (= (:type ms) :numeric))
-                  :numeric
-                  (do 
-                    (bad-widget-type ":type :numeric should be like {:type :numeric :dps 0 :min 0 :max 100}" )
-                    (js/console.log "culprit is: " (pr-str m))
-                      :unsupported)))
-              (catch :default e
-                (bad-widget-type "Invalid type")
-                :unsupported))))
+  (fn [m]
+    ;(println "widget-map " m)
+    (if (keyword? (:type m))
+      (:type m)
+      (try
+        (let [ms (edn/read-string (:type m))]
+          (if (and (map? ms) (= (:type ms) :numeric))
+            :numeric
+            (do 
+              (bad-widget-type ":type :numeric should be like {:type :numeric :dps 0 :min 0 :max 100}" )
+              (js/console.log "culprit is: " (pr-str m))
+              :unsupported)))
+        (catch :default e
+          (bad-widget-type "Invalid type")
+          :unsupported))))
   :default :unsupported)
 
 (comment

@@ -69,7 +69,8 @@
 
 
 (defn results-panel
-  "Display results"
+  "Display results.
+   TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [bundles organ centre tool]
   ;(println ::results-panel "render")
   (let [day @(rf/subscribe [::subs/test-day])
@@ -192,8 +193,24 @@
                          :inputs inputs
                          :bundle bundle
                          :rubric [:h4 "About how long does the graft survive?"]
-                         :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])
+                         :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]
+         :ldsurvival
+         [vis/bar-chart {:organ organ
+                         :centre centre
+                         :tool tool
+                         :inputs inputs
+                         :bundle bundle
+                         :rubric [:h4 "About how long do these people survive after a transplant from a living donor?"]
+                         :bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
+         :ldgraft
+         [vis/bar-chart {:organ organ
+                         :centre centre
+                         :tool tool
+                         :inputs inputs
+                         :bundle bundle
+                         :rubric [:h4 "About how long does the graft from a living donor survive?"]
+                         :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])
        ]
       
 
@@ -241,38 +258,38 @@
                                       [:h4 "Some of these people may die or be removed from the list"]]
                              :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
                                         {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                        {:key "removal" :label "Removed" :stroke-width 2 :stroke removal-fill :fill "none" :ciff nth }
+                                        {:key "removal" :label "Removed" :stroke-width 2 :stroke removal-fill :fill "none" :ciff nth}
                                         {:key "death" :label "Died" :stroke-width 2 :stroke death-fill :fill "none" :ciff nth}
                                         {:key "died or removed" :label "Died or removed" :fill "#666" :stroke death-fill :hide true
                                          :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
 
             [vis/area-chart {:organ organ
-                            :centre centre
-                            :tool tool
-                            :inputs inputs
-                            :bundle bundle
-                            :rubric [:<>
-                                     [:h4 "Sanity check on model"]
-                                     [:p "The height of this stacked chart should always be close to 100%. 
+                             :centre centre
+                             :tool tool
+                             :inputs inputs
+                             :bundle bundle
+                             :rubric [:<>
+                                      [:h4 "Sanity check on model"]
+                                      [:p "The height of this stacked chart should always be close to 100%. 
                                           However, as we are summing the results of 4 independent 
                                         statistical models, each with its own error, this is not always the case."]]
-                            :bar-info [{:key "waiting"
-                                        :stack-id "a"
+                             :bar-info [{:key "waiting"
+                                         :stack-id "a"
                                         ;:bar-label {:fill "#fff" :at :centre}
                                         ;;:title "How long are these people stay on the list?"
-                                        :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
-                                       {:key "transplant"
-                                        :stack-id "a"
+                                         :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
+                                        {:key "transplant"
+                                         :stack-id "a"
                                         ;:bar-label :none
-                                        :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
-                                       {:key "removal"
-                                        :stack-id "a"
+                                         :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
+                                        {:key "removal"
+                                         :stack-id "a"
                                         ;:bar-label :none
-                                        :label "Removed" :fill removal-fill :ciff nth :hide false}
-                                       {:key "death"
-                                        :stack-id "a"
+                                         :label "Removed" :fill removal-fill :ciff nth :hide false}
+                                        {:key "death"
+                                         :stack-id "a"
                                         ;:bar-label :none
-                                        :label "Died" :fill death-fill :ciff nth :hide false}]}]]
+                                         :label "Died" :fill death-fill :ciff nth :hide false}]}]]
            :post-transplant
            [vis/area-chart {:organ organ
                             :centre centre
@@ -307,7 +324,24 @@
                             :inputs inputs
                             :bundle bundle
                             :rubric [:h4 "About how long does the graft survive?"]
-                            :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]))]
+                            :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]
+           :ldsurvival
+           [vis/area-chart {:organ organ
+                            :centre centre
+                            :tool tool
+                            :inputs inputs
+                            :bundle bundle
+                            :rubric [:h4 "About how long do these people survive after a transplant from a living donor?"]
+                            :bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
+
+           :ldgraft
+           [vis/area-chart {:organ organ
+                            :centre centre
+                            :tool tool
+                            :inputs inputs
+                            :bundle bundle
+                            :rubric [:h4 "About how long does the graft survive?"]
+                            :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]))]
       [ui/tab {:event-key "icons" :title "Icon Array"}       
        (condp = tool
          :waiting
@@ -416,7 +450,24 @@
                           :inputs inputs
                           :bundle bundle
                           :rubric [:h4 "About how long does the graft survive?"]
-                          :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])
+                          :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]
+         :ldsurvival
+         [vis/icon-array {:organ organ
+                          :centre centre
+                          :tool tool
+                          :inputs inputs
+                          :bundle bundle
+                          :rubric [:h4 "About how long do these people survive after a transplant from a living donor?"]
+                          :bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
+
+         :ldgraft
+         [vis/icon-array {:organ organ
+                          :centre centre
+                          :tool tool
+                          :inputs inputs
+                          :bundle bundle
+                          :rubric [:h4 "About how long does the graft from a living donor survive?"]
+                          :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])
        ]
       [ui/tab {:event-key "table" :title "Table"}
        (do

@@ -1,6 +1,7 @@
 (ns transplants.config
   (:require [aero.core :as aero]
             [clojure.java.io :as io]
+            [clojure.core.memoize :as memo]
             [transplants.utils :as utils]))
 
 ;--- EDN configuation
@@ -17,30 +18,33 @@
   (aero/read-config "data/config.edn" {:profile profile}))
 
 ;**
-(def memo-config 
+(def memo-config
   "A function that memoizes a call to get-config.
   Things run faster when utils/MEMO is true. 
   Debugging can be easier when it's false."
-  (if utils/MEMO (memoize get-config) get-config))
+  (if utils/MEMO (memo/ttl get-config {} :ttl/threshold 1000) get-config))
 
 (defn get-sheet-spec
   "get sheet spec given sheet-key"
   [organ sheet-key]
   ;(println "sheet-key" sheet-key)
   (if-let [sheet (get-in (memo-config organ) [:sheets sheet-key])]
-    sheet
+    (do
+      (tap> sheet)
+      sheet)
     (throw (ex-info (str "Unable to read sheet " sheet-key)
                     {:cause "sheet name missing?"
                      :organ organ
                      :sheet sheet-key}))))
 
 (comment
+  (memo-config :lung)
+  (get-sheet-spec :lung :waiting-inputs)
   (get-sheet-spec :lung :waiting-baseline-cifs)
   (get-sheet-spec :kidney :survival-baseline-cifs)
   (get-sheet-spec :kidney "survival-baseline-cifs")
   (get-config :lung)
-  (get-in (memo-config :lung) [:sheets nil])
-  )
+  (get-in (memo-config :lung) [:sheets nil]))
 
 ;**
 (defn get-bundle
@@ -58,8 +62,7 @@
   (get-bundle :kidney)
   (get-bundle :lung)
   (get-bundle :kidney :waiting)
-  (get-bundle :kidney :survival)
-  )
+  (get-bundle :kidney :survival))
 
 (defn get-column-selection
   "Return a map of columns suitable for docjure select-columns. Column order may not be preserved in the map."
@@ -79,5 +82,4 @@
   get-columns)
 
 (comment
-  (get-columns :lung :numerics)
-  )
+  (get-columns :lung :numerics))

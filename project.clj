@@ -92,7 +92,7 @@
                             ["shadow" "release" "app"]]
             "build-report" ["with-profile" "prod" "do"
                             ["shadow" "run" "shadow.cljs.build-report" "app" "target/build-report.html"]
-                            ["shell" "open" "target/build-report.html"]]gzio -
+                            ["shell" "open" "target/build-report.html"]]
             "karma"        ["with-profile" "prod" "do"
                             ["shadow" "compile" "karma-test"]
                             ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]}

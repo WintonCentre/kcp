@@ -25,8 +25,8 @@
                      slash "Winton Centre" 
                      slash "TRANSPLANT"
                      slash "configuration"))
-(def kidney (str "data" slash "kidney-models-master.xlsx"))
-(def lung (str "data" slash "lung-models-master.xlsx"))
+(def kidney (str "resources" slash "kidney-models-master.xlsx"))
+(def lung (str "resouurces" slash "lung-models-master.xlsx"))
 
 (comment
   (sh "ls" lung)

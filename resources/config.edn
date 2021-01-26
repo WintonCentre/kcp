@@ -7,8 +7,8 @@
 ;; 
 ;; A :match key of "abc" will be matched against lowercase(:name) with leading and trailing white-space trimmed.
 ;;;
-{:workbook #profile {:kidney "data/kidney-models-master.xlsx"
-                     :lung "data/lung-models-master.xlsx"}
+{:workbook #profile {:kidney "kidney-models-master.xlsx"
+                     :lung "lung-models-master.xlsx"}
 
  :export #profile {:kidney {:csv-path "resources/public/kidney/csv"
                             :edn-path "resources/public/kidney/edn"}

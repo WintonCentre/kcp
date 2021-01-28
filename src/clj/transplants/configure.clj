@@ -16,6 +16,7 @@
    [clojure.string :as string]
    [clojure.stacktrace :as stack]
    [clojure.core.memoize :as memo]
+   [clojure.set :as st]
    [transplants.utils :as utils]
    [transplants.transforms :as xf]
    [transplants.shared :refer [underscore]])
@@ -56,13 +57,6 @@
        (into {} [(find bs tool-key)])
        bs))))
 
-(comment
-  (get-bundle :kidney)
-  (get-bundle :lung)
-  (get-bundle :kidney :waiting)
-  (get-bundle :kidney :survival)
-  ;
-  )
 
 
 (defn get-workbook
@@ -127,6 +121,20 @@
          (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
          (into {}))))
 
+(defn get-tools
+  "get a list of tools attached to sheets. Used by configuration tests"
+  [organ]
+  (st/intersection 
+   (into #{} (:key (get-col-maps organ :tools)))
+   (into #{} (keys (get-bundle organ)))))
+
+(comment
+  (def organ :lung)
+  (get-tools :lung)
+  (keys (get-bundle :lung))
+  (get-tools :kidney)
+  (st/intersection #{:tools :post-transplant :centres :waiting} #{:post-transplant :guidance :waiting}))
+
 (defn select-columns
   "Return selected columns of a spreadsheet"
   [organ sheet-key & columns]
@@ -185,67 +193,7 @@
   [organ centre tool-key]
   (-bundle-path "edn" organ centre tool-key))
 
-(comment
 
-  (get-centres :lung)
-  (get-centres :kidney)
-
-  (get-row-maps :lung :waiting-baseline-vars)
-  (get-row-maps :kidney :waiting-baseline-vars)
-
-  (get-row-maps :lung :waiting-inputs)
-  (get-row-maps :kidney :waiting-inputs)
-
-  (get-col-maps :lung :waiting-baseline-vars)
-  (get-col-maps :kidney :waiting-baseline-vars)
-
-  (get-col-maps :lung :waiting-inputs true)
-  (get-col-maps :kidney :waiting-inputs true)
-
-  (get-col-maps :lung :waiting-baseline-cifs)
-  (get-col-maps :kidney :waiting-baseline-cifs)
-  
-  (remove nil? (:name (get-col-maps :kidney :centres)))
- 
-  (rest (get-row-maps :kidney :survival-baseline-cifs))
-
-  (def organ :lung)
-  (def sheet-key :waiting-baseline-vars)
-
-  (subs ":foo" 1)
-  (keyword ":foo")
-  (get-workbook organ)
-
-  (get-column-keys organ :waiting-inputs)
-
-  (get-column-selection organ :waiting-inputs)
-  ;
-
-
-  (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Guy's")
-  (centre-columns :kidney :waiting-baseline-cifs "Belfast")
-  (get-bundle :kidney :waiting)
-  (centre-row-maps :kidney :ldsurvival-baseline-cifs  "UK")
-  (get-bundle :kidney :ldsurvival)
-
-  (get-bundle :lung :waiting)
-  (get-column-keys :lung :numerics)
-  ;
-  (-> (centre-columns :lung :waiting-baseline-cifs "Papworth") first first)
-  (drop 1 (centre-row-maps :kidney :waiting-baseline-vars "Oxford"))
-  (centre-columns :lung :waiting-baseline-cifs nil)
-  (get-bundle :lung :waiting)
-  (flatten (vals (get-bundle :lung nil)))
-  ;
-
-
-  (bundle-path :lung nil nil)
-  (bundle-path :lung "Papworth" nil)
-  (bundle-path :lung "Papworth" :waiting)
-  ;
-  )
 
 (defn headed-vectors-to-map
   "Given a sequence of vectors where the first element of each is a header, convert this to a map keyed by those headers"
@@ -271,76 +219,6 @@
            [sheet-key (headed-vectors-to-map (centre-columns organ sheet-key centre))]))
        (into {})))
 
-(comment
-  (def organ :lung)
-  (def tool-key :waiting) 
-  (def centre "Papworth")
-  (collect-mapped-tool-bundle organ centre tool-key)
-  (map :cif-transplant (:waiting-baseline-cifs (collect-mapped-tool-bundle organ centre tool-key)))
-  (map :cif-death (:waiting-baseline-cifs (collect-mapped-tool-bundle organ centre tool-key)))
-  
-
-  (get-centres :lung)
-  (get-centres :kidney)
-
-  (get-row-maps :lung :waiting-baseline-vars)
-  (get-row-maps :kidney :waiting-baseline-vars)
-  ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
-  
-  (get-row-maps :kidney :waiting-inputs)
-  ; [{:beta-transplant ":beta-transplant", :beta-death ":beta-death", :info-box? ":info-box?", :beta-removal ":beta-removal", :beta-all-reasons ":beta-all-reasons", :type ":type", :sub-text ":sub-text", :level ":level", :button-labels ":button-labels", :factor ":factor", :label ":label"} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type ":dropdown", :sub-text nil, :level "[:centre-keys]", :button-labels "[:centre-labels]", :factor ":centre", :label "Transplant Centre"} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? "Male", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "Sex", :level ":male", :button-labels "Male", :factor ":sex", :label "Sex"} {:beta-transplant -0.06289, :beta-death -0.10852, :info-box? "Female", :beta-removal 0.01097, :beta-all-reasons -0.10876, :type nil, :sub-text nil, :level ":female", :button-labels "Female", :factor ":sex", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.60387, :beta-death -1.43819, :info-box? nil, :beta-removal -0.99622, :beta-all-reasons 0.3303, :type ":dropdown", :sub-text "Age (years)", :level ":18+", :button-labels "18 - 29 ", :factor ":age", :label "Age (years)"} {:beta-transplant 0.46442, :beta-death -1.04978, :info-box? nil, :beta-removal -0.75824, :beta-all-reasons 0.22041, :type nil, :sub-text nil, :level ":30+", :button-labels "30 - 39", :factor ":age", :label nil} {:beta-transplant 0.26097, :beta-death -0.57859, :info-box? nil, :beta-removal -0.43028, :beta-all-reasons 0.09241, :type nil, :sub-text nil, :level ":40+", :button-labels "40 - 49", :factor ":age", :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type nil, :sub-text nil, :level ":50+", :button-labels "50 - 59", :factor ":age", :label nil} {:beta-transplant -0.28334, :beta-death 0.09774, :info-box? nil, :beta-removal 0.66553, :beta-all-reasons -0.03388, :type nil, :sub-text nil, :level ":60+", :button-labels "60 - 69", :factor ":age", :label nil} {:beta-transplant -0.77722, :beta-death 0.13967, :info-box? nil, :beta-removal 1.56677, :beta-all-reasons 0.11484, :type nil, :sub-text nil, :level ":70+", :button-labels "70 +", :factor ":age", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? ":yes", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":white", :button-labels "White", :factor ":ethnicity", :label "Ethnicity"} {:beta-transplant -0.01539, :beta-death -0.26636, :info-box? nil, :beta-removal -0.13979, :beta-all-reasons -0.09953, :type nil, :sub-text nil, :level ":non-white", :button-labels "Non-white", :factor ":ethnicity", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":O", :button-labels "O", :factor ":blood-group", :label "Blood group"} {:beta-transplant 0.54305, :beta-death -0.19369, :info-box? nil, :beta-removal -0.19443, :beta-all-reasons 0.57296, :type nil, :sub-text nil, :level ":A", :button-labels "A", :factor ":blood-group", :label nil} {:beta-transplant 0.00727, :beta-death 0.03454, :info-box? nil, :beta-removal -0.03596, :beta-all-reasons 0.00578, :type nil, :sub-text nil, :level ":B", :button-labels "B", :factor ":blood-group", :label nil} {:beta-transplant 0.54305, :beta-death -0.19369, :info-box? nil, :beta-removal -0.19443, :beta-all-reasons 0.57296, :type nil, :sub-text nil, :level ":AB", :button-labels "AB", :factor ":blood-group", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? ":yes", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":dropdown", :sub-text "match score 1-3", :level ":easy", :button-labels "easy", :factor ":matchability", :label "Matchability group"} {:beta-transplant -0.28893, :beta-death 0.09036, :info-box? nil, :beta-removal 0.09631, :beta-all-reasons -0.29547, :type nil, :sub-text "match score 4-6", :level ":moderate", :button-labels "moderate", :factor ":matchability", :label nil} {:beta-transplant -0.61033, :beta-death 0.14314, :info-box? nil, :beta-removal 0.2109, :beta-all-reasons -0.62205, :type nil, :sub-text "match score 7-10", :level ":difficult", :button-labels "difficult", :factor ":matchability", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "No previous graft", :level ":first", :button-labels "first", :factor ":graft", :label "Graft number"} {:beta-transplant -0.35381, :beta-death 0.46463, :info-box? nil, :beta-removal -0.10169, :beta-all-reasons -0.32497, :type nil, :sub-text "Replacing previous graft", :level ":re-graft", :button-labels "re-graft", :factor ":graft", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":yes", :button-labels "Yes", :factor ":dialysis", :label "Dialysis at registration?"} {:beta-transplant 0.29132, :beta-death -0.50041, :info-box? nil, :beta-removal -0.31226, :beta-all-reasons 0.11702, :type nil, :sub-text nil, :level ":no", :button-labels "No", :factor ":dialysis", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "cRF less than 85%", :level ":no", :button-labels "No", :factor ":sensitised", :label "Highly sensitised?"} {:beta-transplant -0.74768, :beta-death 0.33496, :info-box? nil, :beta-removal 0.32677, :beta-all-reasons -0.56793, :type nil, :sub-text "cRF 85% or more", :level ":yes", :button-labels "Yes", :factor ":sensitised", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.86605, :info-box? nil, :beta-removal 0.18723, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":no", :button-labels "No", :factor ":diabetes", :label "Primary renal disease - diabetes?"} {:beta-transplant -0.32635, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.05058, :type nil, :sub-text "?", :level ":yes", :button-labels "Yes", :factor ":diabetes", :label nil} nil nil nil nil nil] 
-  
-
-  (get-col-maps :kidney :waiting-baseline-vars)
-  (get-col-maps :kidney :waiting-inputs)
-  (get-col-maps :kidney :waiting-inputs true)
-  (get-col-maps :lung :waiting-inputs true)
-
-  (remove nil? (:name (get-col-maps :kidney :centres)))
-
-  (rest (get-row-maps :kidney :survival-baseline-cifs))
-  (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Guy's")
-  (centre-columns :kidney :waiting-baseline-cifs "Belfast")
-  (get-bundle :kidney :waiting)
-  (centre-row-maps :kidney :ldsurvival-baseline-cifs  "UK")
-  (get-bundle :kidney :ldsurvival)
-
-  (get-bundle :lung :waiting)
-  (get-column-keys :lung :numerics)
-  ;
-  (-> (centre-columns :lung :waiting-baseline-cifs "Papworth") first first)
-  (drop 1 (centre-row-maps :kidney :waiting-baseline-vars "Oxford"))
-  (centre-columns :lung :waiting-baseline-cifs nil)
-  (get-bundle :lung :waiting)
-  (flatten (vals (get-bundle :lung nil)))
-  ;
-  
-  (headed-vectors-to-map [[":a" 1 2 3] [":b" 4 5 6]])
-  (map sheet-type (flatten (vals (get-bundle :kidney :waiting))))
-  (vals (get-bundle :kidney :waiting))
-  (first (vals (get-bundle :kidney :survival)))
-
-
-
-
-  (bundle-path :lung nil nil)
-  (bundle-path :lung "Papworth" nil)
-  (bundle-path :lung "Papworth" :waiting)
-  ;
-  (collect-mapped-tool-bundle :lung "Birmingham" :waiting)
-  (:survival-baseline-cifs (collect-mapped-tool-bundle :kidney "Belfast" :survival))
-  (collect-mapped-tool-bundle :kidney "St George's" :survival)
-  (collect-mapped-tool-bundle :kidney "Guy's" :survival)
-  (:waiting-baseline-vars (collect-mapped-tool-bundle :kidney "Oxford" :waiting))
-  (string/starts-with? ":centre" ":")
-  (keyword (subs ":centre" 1))
-  (get-in (memo-config :lung) [:export :edn-path])
-  (collect-mapped-tool-bundle :lung "Birmingham" :waiting)
-  ;
-  )
-
 (defn write-edn-bundle
   "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres."
   ([organ]
@@ -355,36 +233,61 @@
      (io/make-parents f)
      (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
 
+
+(defn write-sheet
+  "writes a generic sheet out in edn format. Used for tools and centres"
+  [organ key]
+  (let [sheet (get-col-maps organ key)
+        sheet-path (str (get-in (memo-config organ) [:export :edn-path])
+                        slash (str (name key)) ".txt")]
+    (io/make-parents sheet-path)
+    (spit sheet-path sheet)))
+
+(defn export-all-edn-bundles
+  "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
+  []
+  (doseq [organ [:lung :kidney]
+          sheet [:tools :centres]]
+    
+    (write-sheet organ sheet))
+
+  (doseq [organ [:lung :kidney]
+          :let [centres (get-centres organ)]
+          centre centres]
+
+    (write-edn-bundle organ centre)
+    (doseq [tool-key (keys (get-bundle organ))]
+      (println ::organ organ :centre centre :tool-key tool-key)
+      (write-edn-bundle organ centre tool-key))))
+
+;-------- MAIN -----------
+(defn -main
+  "Main entry point. This function reads config.edn and the spreadsheets and writes out edn files.
+When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
+  [& args]
+  (try
+    (export-all-edn-bundles)
+    (catch Exception e
+      (println (str ">>-configuration error - see stack trace:" (.getMessage e) " -<<"))
+      (stack/print-stack-trace e)
+      #_(System/exit 1))))
+
+;----------------------------------------------
+;
 (comment
-  (get-centres :lung)
-  (get-centres :kidney)
-
-  (get-row-maps :lung :waiting-baseline-vars)
-  (get-row-maps :kidney :waiting-baseline-vars)
-  ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
+  (-main)
+  ) ; Run this
   
-  (get-row-maps :kidney :waiting-inputs)
-  ; [{:beta-transplant ":beta-transplant", :beta-death ":beta-death", :info-box? ":info-box?", :beta-removal ":beta-removal", :beta-all-reasons ":beta-all-reasons", :type ":type", :sub-text ":sub-text", :level ":level", :button-labels ":button-labels", :factor ":factor", :label ":label"} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type ":dropdown", :sub-text nil, :level "[:centre-keys]", :button-labels "[:centre-labels]", :factor ":centre", :label "Transplant Centre"} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? "Male", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "Sex", :level ":male", :button-labels "Male", :factor ":sex", :label "Sex"} {:beta-transplant -0.06289, :beta-death -0.10852, :info-box? "Female", :beta-removal 0.01097, :beta-all-reasons -0.10876, :type nil, :sub-text nil, :level ":female", :button-labels "Female", :factor ":sex", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.60387, :beta-death -1.43819, :info-box? nil, :beta-removal -0.99622, :beta-all-reasons 0.3303, :type ":dropdown", :sub-text "Age (years)", :level ":18+", :button-labels "18 - 29 ", :factor ":age", :label "Age (years)"} {:beta-transplant 0.46442, :beta-death -1.04978, :info-box? nil, :beta-removal -0.75824, :beta-all-reasons 0.22041, :type nil, :sub-text nil, :level ":30+", :button-labels "30 - 39", :factor ":age", :label nil} {:beta-transplant 0.26097, :beta-death -0.57859, :info-box? nil, :beta-removal -0.43028, :beta-all-reasons 0.09241, :type nil, :sub-text nil, :level ":40+", :button-labels "40 - 49", :factor ":age", :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type nil, :sub-text nil, :level ":50+", :button-labels "50 - 59", :factor ":age", :label nil} {:beta-transplant -0.28334, :beta-death 0.09774, :info-box? nil, :beta-removal 0.66553, :beta-all-reasons -0.03388, :type nil, :sub-text nil, :level ":60+", :button-labels "60 - 69", :factor ":age", :label nil} {:beta-transplant -0.77722, :beta-death 0.13967, :info-box? nil, :beta-removal 1.56677, :beta-all-reasons 0.11484, :type nil, :sub-text nil, :level ":70+", :button-labels "70 +", :factor ":age", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? ":yes", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":white", :button-labels "White", :factor ":ethnicity", :label "Ethnicity"} {:beta-transplant -0.01539, :beta-death -0.26636, :info-box? nil, :beta-removal -0.13979, :beta-all-reasons -0.09953, :type nil, :sub-text nil, :level ":non-white", :button-labels "Non-white", :factor ":ethnicity", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":O", :button-labels "O", :factor ":blood-group", :label "Blood group"} {:beta-transplant 0.54305, :beta-death -0.19369, :info-box? nil, :beta-removal -0.19443, :beta-all-reasons 0.57296, :type nil, :sub-text nil, :level ":A", :button-labels "A", :factor ":blood-group", :label nil} {:beta-transplant 0.00727, :beta-death 0.03454, :info-box? nil, :beta-removal -0.03596, :beta-all-reasons 0.00578, :type nil, :sub-text nil, :level ":B", :button-labels "B", :factor ":blood-group", :label nil} {:beta-transplant 0.54305, :beta-death -0.19369, :info-box? nil, :beta-removal -0.19443, :beta-all-reasons 0.57296, :type nil, :sub-text nil, :level ":AB", :button-labels "AB", :factor ":blood-group", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? ":yes", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":dropdown", :sub-text "match score 1-3", :level ":easy", :button-labels "easy", :factor ":matchability", :label "Matchability group"} {:beta-transplant -0.28893, :beta-death 0.09036, :info-box? nil, :beta-removal 0.09631, :beta-all-reasons -0.29547, :type nil, :sub-text "match score 4-6", :level ":moderate", :button-labels "moderate", :factor ":matchability", :label nil} {:beta-transplant -0.61033, :beta-death 0.14314, :info-box? nil, :beta-removal 0.2109, :beta-all-reasons -0.62205, :type nil, :sub-text "match score 7-10", :level ":difficult", :button-labels "difficult", :factor ":matchability", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "No previous graft", :level ":first", :button-labels "first", :factor ":graft", :label "Graft number"} {:beta-transplant -0.35381, :beta-death 0.46463, :info-box? nil, :beta-removal -0.10169, :beta-all-reasons -0.32497, :type nil, :sub-text "Replacing previous graft", :level ":re-graft", :button-labels "re-graft", :factor ":graft", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":yes", :button-labels "Yes", :factor ":dialysis", :label "Dialysis at registration?"} {:beta-transplant 0.29132, :beta-death -0.50041, :info-box? nil, :beta-removal -0.31226, :beta-all-reasons 0.11702, :type nil, :sub-text nil, :level ":no", :button-labels "No", :factor ":dialysis", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "cRF less than 85%", :level ":no", :button-labels "No", :factor ":sensitised", :label "Highly sensitised?"} {:beta-transplant -0.74768, :beta-death 0.33496, :info-box? nil, :beta-removal 0.32677, :beta-all-reasons -0.56793, :type nil, :sub-text "cRF 85% or more", :level ":yes", :button-labels "Yes", :factor ":sensitised", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.86605, :info-box? nil, :beta-removal 0.18723, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":no", :button-labels "No", :factor ":diabetes", :label "Primary renal disease - diabetes?"} {:beta-transplant -0.32635, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.05058, :type nil, :sub-text "?", :level ":yes", :button-labels "Yes", :factor ":diabetes", :label nil} nil nil nil nil nil] 
-  
+(comment
 
-  (get-col-maps :kidney :waiting-baseline-vars)
-  (get-col-maps :kidney :waiting-inputs)
-  (get-col-maps :kidney :waiting-inputs true)
-  (get-col-maps :lung :waiting-inputs true)
 
-  (remove nil? (:name (get-col-maps :kidney :centres)))
-
-  (rest (get-row-maps :kidney :survival-baseline-cifs))
-  (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Guy's")
-  (centre-columns :kidney :waiting-baseline-cifs "Belfast")
+  (get-bundle :kidney)
+  (get-bundle :lung)
   (get-bundle :kidney :waiting)
-  (centre-row-maps :kidney :ldsurvival-baseline-cifs  "UK")
+  (get-bundle :kidney :survival)
   (get-bundle :kidney :ldsurvival)
-
   (get-bundle :lung :waiting)
-  (get-column-keys :lung :numerics)
+
   ;
   (-> (centre-columns :lung :waiting-baseline-cifs "Papworth") first first)
   (drop 1 (centre-row-maps :kidney :waiting-baseline-vars "Oxford"))
@@ -415,60 +318,8 @@
   ;
   )
 
-(defn write-sheet
-  "writes a generic sheet out in edn format. Used for tools and centres"
-  [organ key]
-  (let [sheet (get-col-maps organ key)
-        sheet-path (str (get-in (memo-config organ) [:export :edn-path])
-                        slash (str (name key)) ".txt")]
-    (io/make-parents sheet-path)
-    (spit sheet-path sheet)))
-
-(defn export-all-edn-bundles
-  "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
-  []
-  (doseq [organ [:lung :kidney]
-          sheet [:tools :centres]]
-    
-    (write-sheet organ sheet))
-
-  (doseq [organ [:lung :kidney]
-          :let [centres (get-centres organ)]
-          centre centres]
-
-    (write-edn-bundle organ centre)
-    (doseq [tool-key (keys (get-bundle organ))]
-      (println ::organ organ :centre centre :tool-key tool-key)
-      (write-edn-bundle organ centre tool-key))))
-
 (comment
-  (def tool-key :ldsurvival)
-  (def organ :kidney)
-  (def centre "WLRTC")
-  (write-edn-bundle organ centre tool-key)
-  (collect-mapped-tool-bundle organ centre tool-key)
-  ) 
 
-
-;-------- MAIN -----------
-(defn -main
-  "Main entry point. This function reads config.edn and the spreadsheets and writes out edn files.
-When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
-  [& args]
-  (try
-    (export-all-edn-bundles)
-    (catch Exception e
-      (println (str ">>-configuration error - see stack trace:" (.getMessage e) " -<<"))
-      (stack/print-stack-trace e)
-      #_(System/exit 1))))
-
-;----------------------------------------------
-;
-(comment
-  (-main)
-  ) ; Run this
-  
-(comment
 
   (get-config :kidney)
   (memo-config :kidney)
@@ -506,10 +357,10 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   (centre-columns :kidney :waiting-baseline-cifs "Belfast")
   (get-bundle :kidney :waiting)
   (centre-row-maps :kidney :ldsurvival-baseline-cifs  "UK")
+  
   (get-bundle :kidney :ldsurvival)
-
   (get-bundle :lung :waiting)
-  (get-column-keys :lung :numerics)
+
   ;
   (-> (centre-columns :lung :waiting-baseline-cifs "Papworth") first first)
   (drop 1 (centre-row-maps :kidney :waiting-baseline-vars "Oxford"))

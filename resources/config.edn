@@ -138,63 +138,63 @@
                                               :order {:column :I
                                                       :match "order"}}
                             :ldgraft-baseline-cifs {:centre {:column :A
-                                                           :match "centre"}
-                                                  :days {:column :B
-                                                         :match "(time)|(days)"}
-                                                  :cif-graft {:column :C
-                                                              :match "graft"}}
+                                                             :match "centre"}
+                                                    :days {:column :B
+                                                           :match "(time)|(days)"}
+                                                    :cif-graft {:column :C
+                                                                :match "graft"}}
 
                             :ldgraft-baseline-vars {:factor {:column :A
-                                                           :match "factor"}
-                                                  :level {:column :B
-                                                          :match "level"}}
+                                                             :match "factor"}
+                                                    :level {:column :B
+                                                            :match "level"}}
 
                             :ldgraft-inputs {:factor {:column :A
-                                                    :match "factor"}
-                                           :level {:column :B
-                                                   :match "level"}
-                                           :factor-name {:column :C
-                                                         :match "inputs"}
-                                           :level-name {:column :D
-                                                        :match "(label)|(level)"}
-                                           :beta-graft {:column :E
-                                                        :match "graft"}
-                                           :type {:column :F
-                                                  :match "type"}
-                                           :sub-text {:column :G
-                                                      :match "sub-text"}
-                                           :info-box? {:column :H
-                                                       :match "info"}
-                                           :order {:column :I
-                                                   :match "order"}}
+                                                      :match "factor"}
+                                             :level {:column :B
+                                                     :match "level"}
+                                             :factor-name {:column :C
+                                                           :match "inputs"}
+                                             :level-name {:column :D
+                                                          :match "(label)|(level)"}
+                                             :beta-graft {:column :E
+                                                          :match "graft"}
+                                             :type {:column :F
+                                                    :match "type"}
+                                             :sub-text {:column :G
+                                                        :match "sub-text"}
+                                             :info-box? {:column :H
+                                                         :match "info"}
+                                             :order {:column :I
+                                                     :match "order"}}
                             :ldsurvival-baseline-cifs {:centre {:column :A
-                                                              :match "centre"}
-                                                     :days {:column :B
-                                                            :match "(time)|(days)"}
-                                                     :cif-survival {:column :C
-                                                                    :match "survival"}}
+                                                                :match "centre"}
+                                                       :days {:column :B
+                                                              :match "(time)|(days)"}
+                                                       :cif-survival {:column :C
+                                                                      :match "survival"}}
                             :ldsurvival-baseline-vars {:factor {:column :A
-                                                              :match "factor"}
-                                                     :level {:column :B
-                                                             :match "level"}}
+                                                                :match "factor"}
+                                                       :level {:column :B
+                                                               :match "level"}}
                             :ldsurvival-inputs {:factor {:column :A
-                                                       :match "factor"}
-                                              :level {:column :B
-                                                      :match "level"}
-                                              :factor-name {:column :C
-                                                            :match "inputs"}
-                                              :level-name {:column :D
-                                                           :match "(label)|(level)"}
-                                              :beta-survival {:column :E
-                                                              :match "survival"}
-                                              :type {:column :F
-                                                     :match "type"}
-                                              :sub-text {:column :G
-                                                         :match "sub-text"}
-                                              :info-box? {:column :H
-                                                          :match "info"}
-                                              :order {:column :I
-                                                      :match "order"}}}
+                                                         :match "factor"}
+                                                :level {:column :B
+                                                        :match "level"}
+                                                :factor-name {:column :C
+                                                              :match "inputs"}
+                                                :level-name {:column :D
+                                                             :match "(label)|(level)"}
+                                                :beta-survival {:column :E
+                                                                :match "survival"}
+                                                :type {:column :F
+                                                       :match "type"}
+                                                :sub-text {:column :G
+                                                           :match "sub-text"}
+                                                :info-box? {:column :H
+                                                            :match "info"}
+                                                :order {:column :I
+                                                        :match "order"}}}
                    :lung {:centres {:key {:column :A :match "centres"}
                                     :name {:column :B :match "name"}
                                     :link {:column :C :match "link"}

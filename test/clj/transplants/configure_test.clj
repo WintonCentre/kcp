@@ -1,103 +1,116 @@
 (ns transplants.configure-test
   (:require  [transplants.configure :as c]
              [transplants.utils :as utils]
-             [transplants.config :as cfg]
              [clojure.test :as t :refer [deftest is testing]]
              [clojure.pprint :refer [pprint]]
-             [clojure.string :refer [starts-with?]]))
+             [clojure.string :refer [starts-with?]]
+             [clojure.spec.alpha :as s]))
 
 
 (deftest success
   (is (= 1 1)))
+
+(deftest spec-test
+  (testing "spec is working"
+    (is (s/valid? int? 3))))
 
 (deftest utils
   (testing "utilities"
     (is (= (utils/maybe-key ":a") :a))
     (is (= (utils/maybe-key "A") "A"))
     (is (= (utils/maybe-key 1) 1))
-    (is (= (utils/transpose [[1 2 3] [4 5 6]]) [[1 4] [2 5] [3 6]] ))))
+    (is (= (utils/transpose [[1 2 3] [4 5 6]]) [[1 4] [2 5] [3 6]]))))
+
+;;
+; Define the structure of config.edn
+;;
+(def organs [:lung :kidney])
+(def lung-config (c/get-config :lung))
+(def kidney-config (c/get-config :kidney))
+
+(s/def ::config-edn (s/keys :req-un [::workbook ::export ::bundles]
+                            :opt-un [::sheets]))
+
+(def bundle-specs {:lung (s/keys :req-un [::centres
+                                          ::tools
+                                          ::waiting
+                                          ::post-transplant]
+                                 :opt-un [::sheets])
+                   :kidney (s/keys :req-un [::centres
+                                            ::tools
+                                            ::waiting
+                                            ::graft
+                                            ::survival
+                                            ::ldgraft
+                                            ::ldsurvival]
+                                   :opt-un [::sheets])})
+
+; A bundle is a sequence of spreadsheets represented by keywords
+(s/def ::bundle (s/+ keyword?))
+(s/def ::seq-of-bundles (s/coll-of ::bundle))
+
+
+;;
+; Test the structure of config.edn
+;;
+(deftest config-edn
+  (testing "config.edn structure")
+  (doseq [organ organs]
+    (is (s/valid? ::config-edn (c/get-config organ)))))
+
+(deftest top-level-bundles
+  (testing "top-level bundles structure"
+    (doseq [organ organs]
+      (is (s/valid? (bundle-specs organ) (c/get-bundle organ))))))
 
 (deftest bundles
-  (testing "bundles exist in config"
-    (is (= (c/get-bundle :kidney :graft) {:graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs :bmi-calculator]}))))
+  (testing "all bundles are sequences of keyworded sheet names"
+    (doseq [organ organs]
+      (is (s/valid? ::seq-of-bundles (vals (c/get-bundle organ))) (name organ)))))
 
-#_ (bundles)
+
+#_(deftest kidney-bundles
+  (testing "kidney bundles match spreadsheet"
+    (is (= (c/get-bundle :kidney :waiting)
+           {:waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]})
+        "kidney waiting")
+    (is (= (c/get-bundle :kidney :graft)
+           {:graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]})
+        "kidney graft")))
+
+
+#_(bundles)
+(def organ :kidney)
+(def sheet :waiting-inputs)
 
 (defn rectangular [organ sheet]
-  (let [variables (c/get-col-maps :kidney :waiting-baseline-cifs)
+  (let [variables (c/get-col-maps organ sheet)
         lengths (map count (vals variables))]
-    (is (= (count (distinct lengths)) 1))
-    (is (pos? (first (distinct lengths))))))
+    (is (= (count (distinct lengths)) 1) (str "rectangular?:"  organ sheet))
+    (is (pos? (first (distinct lengths))) (str "rectangular?:"  organ sheet))))
 
-;--- KIDNEY
-(deftest kidney-data-frames
-  (testing "kidney data-frames are rectangular and not empty"
-    (rectangular :kidney :waiting-baseline-cifs)
-    (rectangular :kidney :waiting-baseline-vars)
-    (rectangular :kidney :waiting-inputs)
-    (rectangular :kidney :graft-baseline-cifs)
-    (rectangular :kidney :graft-baseline-vars)
-    (rectangular :kidney :graft-inputs)
-    (rectangular :kidney :survival-baseline-cifs)
-    (rectangular :kidney :survival-baseline-vars)
-    (rectangular :kidney :survival-inputs)
-    (rectangular :kidney :bmi-calculator)
-    ))
-
-(def kidney-variables (partial c/get-column-keys :kidney))
-
-;
-(defn configured-headers
-  "Runs a configuration check on a spreadsheet, ensuring that actual headers
-  match configured headers. Note that we are currently looking for exact matches. 
-  
-  We could use a re match instead if we wanted to
-  be less fussy. This would be the place to implement re matching."
-  [organ sheet]
-  (= (c/get-column-keys organ sheet)
-     (keys (c/get-col-maps :kidney :survival-baseline-cifs)))
-  )
-
-(comment
-  ; Add important assertions we need to check here:
-  ; 
-  ; Apart from :centre, factors in baseline-vars should agree with those in inputs
-  ; All data frames are rectangular once read in
-  ; All widgets have a level-name (or label) - todo: there has been a name change here
-  ;
-  ; All cross-over factors like d-gp*centre should have all possible levels and betas
-  ; 
-  (def organ :kidney)
-  (def sheet :survival-baseline-cifs)
-  )
-
-(deftest kidney-variables-check
-  (testing "configured variables are spreadsheet headers"
-    (is (configured-headers :kidney :waiting-baseline-cifs))
-    (is (configured-headers :kidney :waiting-baseline-vars))
-    (is (configured-headers :kidney :waiting-inputs))
-    (is (configured-headers :kidney :graft-baseline-cifs))
-    (is (configured-headers :kidney :graft-baseline-vars))
-    (is (configured-headers :kidney :graft-inputs))
-    (is (configured-headers :kidney :survival-baseline-cifs)) 
-    (is (configured-headers :kidney :survival-baseline-vars))
-    (is (configured-headers :kidney :survival-inputs))))
+(deftest rectangular-data-frames
+  (testing "all data-frames are rectangular and not empty"
+    (doseq [organ organs
+            sheet (reduce concat [] (vals (c/get-bundle organ)))]
+      (rectangular organ sheet))))
 
 (defn check-factors
-  [organ sheet-prefix] 
+  "Baseline var keywords should agree with input factor keywords"
+  [organ sheet-prefix]
   (let [sheet1 (keyword (str (name sheet-prefix) "-baseline-vars"))
         sheet2 (keyword (str (name sheet-prefix) "-inputs"))
         b-factors (:factor  (c/get-col-maps organ sheet1))
         i-factors (distinct (:factor (c/get-col-maps organ sheet2)))]
-    (is (=  (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) b-factors)) 
+    (is (=  (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) b-factors))
             (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) i-factors)))
         [:check-factors organ sheet-prefix])))
 
-(deftest check-kidney-factors
+(deftest check-organ-factors
   (testing "apart from :centre, factors in baseline-vars should agree with those in inputs"
-    (check-factors :kidney :waiting)
-    (check-factors :kidney :graft)
-    (check-factors :kidney :survival)))
+    (doseq [organ organs
+            tool  (c/get-tools organ)]
+      (check-factors organ tool))))
 
 (defn check-levels-are-named
   [organ sheet row]
@@ -112,78 +125,82 @@
         rows (c/get-row-maps organ sheet)]
     (mapv (partial check-levels-are-named organ sheet) rows)))
 
-(deftest kidney-widgets-have-a-level-name
-  (testing "All kidney widget types have a Label"
-    (check-widget-labels :kidney :waiting)
-    (check-widget-labels :kidney :graft)
-    (check-widget-labels :kidney :survival)))
+
+  (deftest widgets-have-a-level-name
+    (testing "All widget types have a Label"
+      (doseq [organ organs
+              tool (c/get-tools organ)]
+        (check-widget-labels organ tool))
+      #_(check-widget-labels :kidney :graft)
+      #_(check-widget-labels :kidney :survival)))
+
+  (defn check-baseline-cif-data
+    [organ sheet centre]
+    (let [col-data (mapv (comp vec rest) (c/centre-columns organ sheet centre))]
+      (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
+      (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
+
+(deftest baseline-cifs-should-not-be-empty
+  (testing "Lung baseline-cifs should be consistent"
+    (doseq [organ organs
+            centre (c/get-centres organ)
+            tool (c/get-tools organ)]
+      (check-baseline-cif-data organ (keyword (str (name tool) "-baseline-cifs")) centre))))
+
+(comment
+  (def organ :lung)
+  (c/get-bundle :lung)
+  (c/get-col-maps :lung :tools)
+  (c/get-col-maps :kidney :tools)
+  (str :foo "-bar")
+  (def organ :kidney)
+  (def sheet :survival-baseline-cifs)
+  (def centre "St George's")
+  (def col-data (mapv rest (c/centre-columns organ sheet centre)))
+  (seq ["St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"
+"St George's"])
+  
+
+
 
 ;---- LUNG
-
-(deftest lung-data-frames
-  (testing "lung data-frames are rectangular and not empty"
-    (rectangular :lung :waiting-baseline-cifs)
-    (rectangular :lung :waiting-baseline-vars)
-    (rectangular :lung :waiting-inputs)
-    (rectangular :lung :post-transplant-baseline-cifs)
-    (rectangular :lung :post-transplant-baseline-vars)
-    (rectangular :lung :post-transplant-inputs)
-    (rectangular :lung :from-listing-baseline-cifs)
-    (rectangular :lung :from-listing-baseline-vars)
-    (rectangular :lung :from-listing-inputs)
-    (rectangular :lung :numerics)))
-
-#_(lung-data-frames)
-
-(def lung-headers (partial c/get-column-keys :lung))
-
-(deftest lung-variables-check
-  (testing "lung headers"
-    (configured-headers :lung :waiting-baseline-cifs)
-    (configured-headers :lung :waiting-baseline-vars)
-    (configured-headers :lung :waiting-inputs)
-    (configured-headers :lung :numerics)
-    (configured-headers :lung :post-transplant-baseline-cifs)
-    (configured-headers :lung :post-transplant-baseline-vars)
-    (configured-headers :lung :post-transplant-inputs)
-    (configured-headers :lung :from-listing-baseline-cifs)
-    (configured-headers :lung :from-listing-baseline-vars)
-    (configured-headers :lung :from-listing-inputs)))
-
-(deftest check-lung-factors
-  (testing "apart from :centre, lung factors in baseline-vars should agree with those in inputs"
-    (check-factors :lung :waiting)
-    (check-factors :lung :post-transplant)
-    (check-factors :lung :from-listing)))
-
-(deftest lung-widgets-have-a-label
-  (testing "All lung widget types have a Label"
-    (check-widget-labels :lung :waiting)
-    (check-widget-labels :lung :post-transplant)
-    (check-widget-labels :lung :from-listing)))
-
-(defn check-baseline-cif-data
-  [organ sheet centre]
-  (let [col-data (mapv rest (c/centre-columns organ sheet centre))]
-    (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
-    (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
-
-(deftest lung-baseline-cifs-should-not-be-empty
-  (testing "Lung baseline-cifs should be consistent"
-    (doseq [centre (c/get-centres :lung)
-            tool ["waiting" "post-transplant" "from-listing"]]
-      (check-baseline-cif-data :lung (keyword (str tool "-baseline-cifs")) centre))))
-
-(deftest kidney-baseline-cifs-should-not-be-empty
-  (testing "Kidney baseline-cifs should be consistent"
-    (doseq [centre (c/get-centres :kidney)
-            tool ["waiting" "graft" "survival"]]
-      (check-baseline-cif-data :kidney (keyword (str tool "-baseline-cifs")) centre))))
-
-(comment 
   
-  (kidney-baseline-cifs-should-not-be-empty)
-  (every? seq ['(1) '() '(1)])
-  (every? seq ["1" [1] '(1) {:1 1} #{1} '()])
-  (seq '())
-  )
+
+  (defn check-baseline-cif-data
+    [organ sheet centre]
+    (let [col-data (mapv rest (c/centre-columns organ sheet centre))]
+      (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
+      (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
+
+  (deftest lung-baseline-cifs-should-not-be-empty
+    (testing "Lung baseline-cifs should be consistent"
+      (doseq [centre (c/get-centres :lung)
+              tool ["waiting" "post-transplant" "from-listing"]]
+        (check-baseline-cif-data :lung (keyword (str tool "-baseline-cifs")) centre))))
+
+  (deftest kidney-baseline-cifs-should-not-be-empty
+    (testing "Kidney baseline-cifs should be consistent"
+      (doseq [centre (c/get-centres :kidney)
+              tool ["waiting" "graft" "survival"]]
+        (check-baseline-cif-data :kidney (keyword (str tool "-baseline-cifs")) centre)))))

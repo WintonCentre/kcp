@@ -32,7 +32,7 @@
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                            :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}}
 
- :sheets #profile {:kidney {:centres {:key {:column :A :match "key"}
+ #_#_:sheets #profile {:kidney {:centres {:key {:column :A :match "key"}
                                       :name {:column :B :match "name"}
                                       :link {:column :C :match "link"}
                                       :image {:column :D :match "image"}
@@ -83,7 +83,7 @@
                                                            :match "centre"}
                                                   :days {:column :B
                                                          :match "(time)|(days)"}
-                                                  :cif-graft {:column :C
+                                                  :graft {:column :C
                                                               :match "graft"}}
 
                             :graft-baseline-vars {:factor {:column :A
@@ -113,7 +113,7 @@
                                                               :match "centre"}
                                                      :days {:column :B
                                                             :match "(time)|(days)"}
-                                                     :cif-survival {:column :C
+                                                     :patient {:column :C
                                                                     :match "survival"}}
                             :survival-baseline-vars {:factor {:column :A
                                                               :match "factor"}
@@ -141,7 +141,7 @@
                                                              :match "centre"}
                                                     :days {:column :B
                                                            :match "(time)|(days)"}
-                                                    :cif-graft {:column :C
+                                                    :ldpatient {:column :C
                                                                 :match "graft"}}
 
                             :ldgraft-baseline-vars {:factor {:column :A
@@ -171,7 +171,7 @@
                                                                 :match "centre"}
                                                        :days {:column :B
                                                               :match "(time)|(days)"}
-                                                       :cif-survival {:column :C
+                                                       :ldsurvival {:column :C
                                                                       :match "survival"}}
                             :ldsurvival-baseline-vars {:factor {:column :A
                                                                 :match "factor"}

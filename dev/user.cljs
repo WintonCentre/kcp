@@ -5,4 +5,5 @@
     [cljs.repl :refer (Error->map apropos dir doc error->str ex-str ex-triage
                        find-doc print-doc pst source)]
     [clojure.pprint :refer (pprint)]
-    [clojure.string :as str]))
+    [clojure.string :as str]
+   ))

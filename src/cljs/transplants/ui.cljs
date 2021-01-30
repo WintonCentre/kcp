@@ -245,7 +245,7 @@ in the routes table."
 (defn nav-card
   "Render a desktop compatible card containing of hospital-local links to tools"
   [{:keys [img-src organ centre hospital link width tools]}]
-  (println ::tools tools)
+  ;(println ::tools tools)
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    #_[:<> 
     [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]

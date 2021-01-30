@@ -3,4 +3,8 @@
  :target-dir "resources"
  :auto-testing true
  :extra-main-files {:tests {:main transplants.test-runner}}
+ ;:post-build-hooks [user/foo]
+ ;:auto-bundle :webpack
+
+ ;:bundle-freq :always
  }

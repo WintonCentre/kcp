@@ -32,42 +32,6 @@
 (def survival-fill "#927AAA")
 (def graft-fill "#0099DD")
 
-(defn line-chart
-  [data]
-  
-  [:> rech/BarChart {:width 600
-                     :height 400
-                     :data data
-                       ;:padding
-                     :margin {:top 0
-                              :right 10
-                              :left 20
-                              :bottom 0}}
-   [:> rech/CartesianGrid {:stroke "#ccc"
-                           :strokeDasharray "5 5"}]
-   [:> rech/XAxis {:dataKey "name"}]
-   [:> rech/YAxis {:dataKey "pv"}]
-   [:> rech/Tooltip]
-
-     ; The legend height has to be zero or it will cause a jump reduction of chart height
-     ; on roll over if tooltips are enabled
-   [:> rech/Legend {:width 100
-                    :wrapperStyle  {:width 600
-                                    :height 0
-                                    :bottom 0
-                                      ;:left 300
-                                      ;:background-color "#fff"
-                                      ;:border "20px solid #d5d5d5"
-                                      ;:border-radius 20
-                                    :line-height 0}}]
-   [:> rech/Bar {:type "monotone"
-                 :dataKey "pv"
-                 :stroke "red"
-                 :fill "orange"
-                 :strokeDasharray "5 5"}]])
-      ;[:> rech/Legend]
-
-
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
@@ -99,7 +63,7 @@
                                    [:p "People will leave the list if they get a transplant, die,
                                        or are removed for some other reason."]]
                           :bar-info [{:key "waiting"
-                                      :title "How long are these people stay on the list?"
+                                      :title "How long do these people stay on the list?"
                                       :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
                                      {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
                                      {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}

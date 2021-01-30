@@ -1,6 +1,4 @@
-(ns config)
 #!/usr/bin/env bb
-
 (ns config)
   (require '[clojure.java.shell :as shell])
 

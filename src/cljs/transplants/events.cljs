@@ -191,7 +191,7 @@
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
- (fn ;-traced
+ (fn-traced
    [{:keys [_ db]} [_ data-path response]]
    (let [path-params (get-in db [:current-route :path-params])
          [organ centre tool] (utils/path-keys path-params)

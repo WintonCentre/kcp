@@ -237,8 +237,9 @@
 
 (defn bar-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
+  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
+  [:div (pr-str params)]
+  #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
         
         cifs-by-year (clj->js (mapv
                                (fn [day year]
@@ -313,8 +314,9 @@
 
 (defn area-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
+  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
+  [:div (pr-str params)]
+  #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
 
         cifs-by-year (clj->js (mapv
                                (fn [day year]
@@ -398,66 +400,67 @@
              bar-info))]]))
 
 (defn icon-array
-  [{:keys [organ centre tool inputs bundle title rubric bar-info]}]
-  (let [{:keys [outcome-keys
-                outcomes
-                sum-betas
-                sample-days]} (vis-data-map organ centre tool inputs bundle)
-        cifs-by-year (clj->js (mapv
-                               (fn [day year]
+  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
+  [:div (pr-str params)]
+  #_(let [{:keys [outcome-keys
+                  outcomes
+                  sum-betas
+                  sample-days]} (vis-data-map organ centre tool inputs bundle)
+          cifs-by-year (clj->js (mapv
+                                 (fn [day year]
 
-                                 (let [cifs (as-> (vec (apply model/scaled-cifs
-                                                              (map (partial model/cif tool)
-                                                                   (map (bun/cif-0 bundle day)
-                                                                        outcome-keys)
-                                                                   sum-betas))) x
-                                              (update x 0 (if (> (count outcomes) 1)
-                                                            #(- 1 %)
-                                                            identity))
-                                              (map #(* % 100) x))]
-                                   (into {"days" day
-                                          "year" (if (zero? year)
-                                                   "Day 1"
-                                                   (str "Year " year))}
-                                         (mapv
-                                          (fn [bi i]
+                                   (let [cifs (as-> (vec (apply model/scaled-cifs
+                                                                (map (partial model/cif tool)
+                                                                     (map (bun/cif-0 bundle day)
+                                                                          outcome-keys)
+                                                                     sum-betas))) x
+                                                (update x 0 (if (> (count outcomes) 1)
+                                                              #(- 1 %)
+                                                              identity))
+                                                (map #(* % 100) x))]
+                                     (into {"days" day
+                                            "year" (if (zero? year)
+                                                     "Day 1"
+                                                     (str "Year " year))}
+                                           (mapv
+                                            (fn [bi i]
                                             ;(println (:ciff bi))
-                                            [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
-                                          bar-info (range)))))
-                               sample-days
-                               (range (count sample-days))))])
+                                              [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
+                                            bar-info (range)))))
+                                 sample-days
+                                 (range (count sample-days))))]
 
-  [:<>
-   [:h4 "not yet"]
-   (let [percent 20 
-         fill "red" 
-         no-fill "#bbb" 
-         caption "Placeholder: Add a year selector with text"]
-     [ui/row {:style {:margin-bottom 5
-                      :margin-top 20}}
-      [ui/col {:md 7}
-       caption]
-      [ui/col {:md 5}
-       (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
-         (into
-          [:<>
-           (map
-            (fn [j]
-              [ui/row {:key (str "icon-row-" j)}
-               [ui/col {:style {:line-height "17px"}}
-                (into [:<>
-                       (map (fn [i]
-                              [ui/open-icon
-                               {:key (str "icon-col-" i)
-                                :font-size "10px"
-                                
-                                :color (if (neg? (if false #_randomise-icons
-                                                     (order (- 100 (+ 10 (* j 10) (- i))))
-                                                     (- percent (- 101 (+ 10 (* j 10) (- i))))))
-                                         no-fill
-                                         fill)
-                                :padding "4px 4px"} "person"]) (range 10))])]])
-            (range 10))]))]])])
+      [:<>
+       [:h4 "not yet"]
+       (let [percent 20
+             fill "red"
+             no-fill "#bbb"
+             caption "Placeholder: Add a year selector with text"]
+         [ui/row {:style {:margin-bottom 5
+                          :margin-top 20}}
+          [ui/col {:md 7}
+           caption]
+          [ui/col {:md 5}
+           (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
+             (into
+              [:<>
+               (map
+                (fn [j]
+                  [ui/row {:key (str "icon-row-" j)}
+                   [ui/col {:style {:line-height "17px"}}
+                    (into [:<>
+                           (map (fn [i]
+                                  [ui/open-icon
+                                   {:key (str "icon-col-" i)
+                                    :font-size "10px"
+
+                                    :color (if (neg? (if false #_randomise-icons
+                                                         (order (- 100 (+ 10 (* j 10) (- i))))
+                                                         (- percent (- 101 (+ 10 (* j 10) (- i))))))
+                                             no-fill
+                                             fill)
+                                    :padding "4px 4px"} "person"]) (range 10))])]])
+                (range 10))]))]])]))
 ;;;
 ;; 
 ;;;

@@ -2,7 +2,9 @@
 {:deps {org.clojure/clojure {:mvn/version "1.10.1"}
         winton-utils/winton-utils {:mvn/version "0.2.1"}}
  :paths ["src/cljc" "src/cljs" "test/cljs" "resources" "target"]
- :aliases {:fig {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.773"}
+ :aliases {:env {:extra-paths ["env"]}
+           :fig {
+                 :extra-deps {org.clojure/clojurescript {:mvn/version "1.10.773"}
                               reagent/reagent {:mvn/version "0.10.0"
                                                #_#_:mvn/version "1.0.0-alpha2" ; causes 10x warning
                                                :exclusions [cljsjs/react

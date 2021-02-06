@@ -13,7 +13,7 @@
   (def day 100)
   (:-baseline-cifs bundle)
   (def baseline-cifs-for-day (bun/cif-0 bundle day))
-  (def outcome-keys [:cif-all-reasons :cif-transplant :cif-removal :cif-death])
+  (def outcome-keys [:cif-all-reasons :cif-transplant :cif-death])
   (bun/cif-0 bundle day)
   )
 
@@ -28,7 +28,6 @@
 (def waiting-fill "#0088EE" #_"#7C91D8")
 (def transplant-fill "#66CC88" #_"#44dd99")
 (def death-fill "#002244")
-(def removal-fill "#FF4455" #_"#777777")
 (def survival-fill "#927AAA")
 (def graft-fill "#0099DD")
 
@@ -60,13 +59,11 @@
                           :bundle bundle
                           :rubric [:<>
                                    [:h4 "About how long do these people stay on the list?"]
-                                   [:p "People will leave the list if they get a transplant, die,
-                                       or are removed for some other reason."]]
-                          :bar-info [{:key "waiting"
+                                   [:p "People will leave the list if they get a transplant, or if they die or are otherwise removed."]]
+                          :bar-info [#_{:key "waiting"
                                       :title "How long do these people stay on the list?"
                                       :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
-                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                     {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}
+                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
                                      {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
           [vis/bar-chart {:organ organ
                           :centre centre
@@ -77,12 +74,11 @@
                                    [:h4 "When are these people likely to receive a transplant?"]
                                    [:p "By way of example, the 'Year 2' value tells you how many people are likely to get a transplant  in year 2 after already having waited one year."]]
 
-                          :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
-                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth}
-                                     {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}
-                                     {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
+                          :bar-info [#_{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
+                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
+                                     {:key "death" :label "Died" :fill death-fill :ciff nth :hide false}]}]
 
-          [vis/bar-chart {:organ organ
+          #_[vis/bar-chart {:organ organ
                           :centre centre
                           :tool tool
                           :inputs inputs
@@ -91,7 +87,6 @@
                                    [:h4 "Some of these people may die or be removed from the list"]]
                           :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
                                      {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                     {:key "removal" :label "Removed" :fill removal-fill :ciff nth :stack-id "a"}
                                      {:key "death" :label "Died" :fill death-fill :ciff nth :stack-id "b"}
                                      #_{:key "died or removed" :label "Died or removed" :fill "#666" :stroke death-fill :hide true
                                         :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
@@ -106,7 +101,7 @@
                                    [:p "The top of each stacked bar should always be close to 100%. 
                                         However, each bar shows the combined result of 4 independent 
                                         statistical models, each with its own error."]]
-                          :bar-info [{:key "waiting"
+                          :bar-info [#_{:key "waiting"
                                       :stack-id "a"
                                       :bar-label {:fill "#fff" :at :centre}
                                       :title "How long are these people stay on the list?"
@@ -115,10 +110,6 @@
                                       :stack-id "a"
                                       :bar-label :none
                                       :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
-                                     {:key "removal"
-                                      :stack-id "a"
-                                      :bar-label :none
-                                      :label "Removed" :fill removal-fill :ciff nth :hide false}
                                      {:key "death"
                                       :stack-id "a"
                                       :bar-label :none
@@ -132,7 +123,7 @@
                          :rubric [:h4 "About how long do these people survive after a transplant?"]                     
                          :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
-         :from-listing
+         #_#_:from-listing
          [vis/bar-chart {:organ organ
                          :centre centre
                          :tool tool
@@ -197,7 +188,6 @@
                                          :title "How long are these people stay on the list?"
                                          :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
                                         {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                        {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}
                                         {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
             [vis/area-chart {:organ organ
                              :centre centre
@@ -210,7 +200,6 @@
 
                              :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
                                         {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth}
-                                        {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}
                                         {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
 
             [vis/area-chart {:organ organ
@@ -222,7 +211,6 @@
                                       [:h4 "Some of these people may die or be removed from the list"]]
                              :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
                                         {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                        {:key "removal" :label "Removed" :stroke-width 2 :stroke removal-fill :fill "none" :ciff nth}
                                         {:key "death" :label "Died" :stroke-width 2 :stroke death-fill :fill "none" :ciff nth}
                                         {:key "died or removed" :label "Died or removed" :fill "#666" :stroke death-fill :hide true
                                          :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
@@ -246,15 +234,11 @@
                                          :stack-id "a"
                                         ;:bar-label :none
                                          :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
-                                        {:key "removal"
-                                         :stack-id "a"
-                                        ;:bar-label :none
-                                         :label "Removed" :fill removal-fill :ciff nth :hide false}
                                         {:key "death"
                                          :stack-id "a"
                                         ;:bar-label :none
-                                         :label "Died" :fill death-fill :ciff nth :hide false}]}]]
-           :post-transplant
+                                         :label "Died" :fill death-fill :ciff nth :hide false}]}]
+            :post-transplant]
            [vis/area-chart {:organ organ
                             :centre centre
                             :tool tool
@@ -323,7 +307,6 @@
                                        :title "How long do these people stay on the list?"
                                        :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
                                       {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                      {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}
                                       {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
           [vis/icon-array {:organ organ
                            :centre centre
@@ -336,7 +319,6 @@
 
                            :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
                                       {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth}
-                                      {:key "removal" :label "Removed" :fill removal-fill :ciff nth :hide true}
                                       {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
 
           [vis/icon-array {:organ organ
@@ -348,7 +330,6 @@
                                     [:h4 "Some of these people may die or be removed from the list"]]
                            :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
                                       {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                      {:key "removal" :label "Removed" :fill removal-fill :ciff nth :stack-id "a"}
                                       {:key "death" :label "Died" :fill death-fill :ciff nth :stack-id "b"}
                                       #_{:key "died or removed" :label "Died or removed" :fill "#666" :stroke death-fill :hide true
                                          :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
@@ -372,10 +353,6 @@
                                        :stack-id "a"
                                        :bar-label :none
                                        :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
-                                      {:key "removal"
-                                       :stack-id "a"
-                                       :bar-label :none
-                                       :label "Removed" :fill removal-fill :ciff nth :hide false}
                                       {:key "death"
                                        :stack-id "a"
                                        :bar-label :none

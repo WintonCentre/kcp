@@ -283,6 +283,7 @@ in the routes table."
                :fluid "xl"
                :style {:min-height "calc(100vh - 165px"
                        :background-color "#ffffffbb"
+                       :max-width 2000 ;todo: adjust for side margins
                        :margin-bottom 20}}
     [row
      [col

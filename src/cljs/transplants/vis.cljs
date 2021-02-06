@@ -9,7 +9,7 @@
             [transplants.ui :as ui]
             [transplants.utils :as utils]
             [transplants.rgb :as rgb]
-            [clojure.string :refer [replace]]
+            [clojure.string :as str :refer [replace]]
             #_[clojure.pprint :refer [pprint]]
             ["recharts" :as rech]
             #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
@@ -30,6 +30,12 @@
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
 
+(comment
+  (def first-bcifs {:centre "Birmingham", :days 0, :cif-transplant 1, :cif-death 1})
+  (fac/get-outcomes* first-bcifs)
+  (model/with-all-reasons-first (fac/get-outcomes* first-bcifs))
+  )
+
 (defn test-rig
   [{:keys [organ centre tool day inputs bundle]}]
   (let [env [{:organ organ :centre centre :tool tool}
@@ -39,8 +45,7 @@
                                                      :-inputs :-baseline-cifs :-baseline-vars)
                                                     bundle)
         factors (keys master-fmaps)
-        outcomes (model/with-all-reasons-first
-                   (fac/get-outcomes* (first baseline-cifs)))
+        outcomes (fac/get-outcomes* (first baseline-cifs))
         #_(model/with-all-reasons-first
             (fac/get-outcomes (first (vals master-fmaps))))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
@@ -148,8 +153,7 @@
              bundle
              {organ inputs}]
         baseline-cifs (:-baseline-cifs bundle)
-        outcomes (model/with-all-reasons-first
-                   (fac/get-outcomes* (first baseline-cifs)))
+        outcomes (fac/get-outcomes* (first baseline-cifs))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
 
@@ -234,37 +238,48 @@
                     name ": " (Math/round (if area (second value) value)) "%"])
                  pload))])))))
     
+(defn data-series
+  "Creates a plot series from toool and data context"
+  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
+  (println ::params params)
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days] } (vis-data-map organ centre tool inputs bundle)]
+    (mapv
+     (fn [day year]
+
+       (let [cifs (as-> (vec (apply model/scaled-cifs
+                                    (map (partial model/cif tool)
+                                         (map (bun/cif-0 bundle day)
+                                              outcome-keys)
+                                         sum-betas))) x
+                    (update x 0 (if (> (count outcomes) 1)
+                                  #(- 1 %)
+                                  identity))
+                    (map #(* % 100) x))]
+         cifs
+         (into {"days" day
+                "year" (if (zero? year)
+                         "Day 1"
+                         (str "Year " year))}
+               (mapv
+                (fn [bi i]
+                  [(:label bi) ((:ciff bi) cifs i)])
+                bar-info (range)))))
+     sample-days
+     (range (count sample-days)))))
 
 (defn bar-chart
   "Draw the bar chart"
   [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  [:div (pr-str params)]
-  #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
-        
-        cifs-by-year (clj->js (mapv
-                               (fn [day year]
-
-                                 (let [cifs (as-> (vec (apply model/scaled-cifs
-                                                              (map (partial model/cif tool)
-                                                                   (map (bun/cif-0 bundle day)
-                                                                        outcome-keys)
-                                                                   sum-betas))) x
-                                              (update x 0 (if (> (count outcomes) 1)
-                                                            #(- 1 %)
-                                                            identity))
-                                              (map #(* % 100) x))]
-                                   (into {"days" day
-                                          "year" (if (zero? year)
-                                                   "Day 1"
-                                                   (str "Year " year))}
-                                         (mapv
-                                          (fn [bi i]
-                                            ;(println (:ciff bi))
-                                            [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
-                                          bar-info (range)))))
-                               sample-days
-                               (range (count sample-days))))]
-    
+  #_[:div "Not yet"]
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days] :as data-map} (vis-data-map organ centre tool inputs bundle)
+        cifs-by-year (clj->js (data-series params))]
+    [:div 
+     [:p organ " " centre " " tool " " title " " rubric]
+     [:p "outcome-keys: " (str/join " " outcome-keys)]
+     [:p "outcomes: " (str/join " " outcomes)]
+     [:p "sample-days: " (str/join " " sample-days)]
+     
+     ]
     [:> bs/Row 
      [:> bs/Col
       [:div {:style {:margin-top 20}} rubric]
@@ -315,7 +330,7 @@
 (defn area-chart
   "Draw the bar chart"
   [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  [:div (pr-str params)]
+  [:div "Not yet"]
   #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
 
         cifs-by-year (clj->js (mapv
@@ -401,7 +416,7 @@
 
 (defn icon-array
   [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  [:div (pr-str params)]
+  [:div "Not yet"]
   #_(let [{:keys [outcome-keys
                   outcomes
                   sum-betas

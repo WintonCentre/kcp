@@ -257,7 +257,7 @@
 
     (write-edn-bundle organ centre)
     (doseq [tool-key (keys (get-bundle organ))]
-      (println ::organ organ :centre centre :tool-key tool-key)
+      ;(println ::organ organ :centre centre :tool-key tool-key)
       
       (write-edn-bundle organ 
                         (if (contains? #{:ldgraft :ldsurvival} tool-key) "UK" centre) 

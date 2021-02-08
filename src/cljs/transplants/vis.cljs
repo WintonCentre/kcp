@@ -10,7 +10,7 @@
             [transplants.utils :as utils]
             [transplants.rgb :as rgb]
             [clojure.string :as str :refer [replace]]
-            #_[clojure.pprint :refer [pprint]]
+            [clojure.pprint :as pp]
             ["recharts" :as rech]
             #_[svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             #_[cljs-css-modules.macro :refer-macros [defstyle]]
@@ -153,6 +153,8 @@
              bundle
              {organ inputs}]
         baseline-cifs (:-baseline-cifs bundle)
+
+        ;todo: The following slavishly follows the input. We may need to calculate an outcome too (e.g. waiting = 100 - (transplants + removal))
         outcomes (fac/get-outcomes* (first baseline-cifs))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
@@ -162,17 +164,55 @@
                      utils/year->day
                      (range (inc (utils/day->year (:days (last baseline-cifs))))))]
 
+    (println ::outcomes (conj outcomes "waiting"))
+    (println ::outcome-keys (conj outcome-keys :cif-waiting))
+
     {:baseline-cifs baseline-cifs
-     :outcome-keys outcome-keys
-     :outcomes outcomes
-     :sum-betas sum-betas
+     
+     :outcome-keys (if (= tool :waiting)
+                     [:cif-transplant :cif-waiting :cif-death]   ;; FIXME: DO NOT HARD CODE 
+                     outcome-keys)
+     :outcomes (if (= tool :waiting)
+                 ["transplant" "waiting" "death"] ;; FIXME: DO NOT HARD CODE 
+                 outcomes)
+     :sum-betas [(nth sum-betas 0) 0 (nth sum-betas 1)]
      :sample-days sample-days}))
 
+
+(defn data-series
+  "Creates a plot series from tool and data context"
+  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)]
+    (mapv
+     (fn [day year]
+
+       (let [cifs (as-> (vec (apply model/scaled-cifs
+                                    (map (partial model/cif tool)
+                                         (map (bun/cif-0 bundle day)
+                                              outcome-keys)
+                                         sum-betas))) x
+
+                    ; for simple survival - leave as is, else invert
+                    (update x 0 (if (> (count outcomes) 1)
+                                  #(- 1 %)
+                                  identity))
+                    (map #(* % 100) x))]
+
+         (into {"days" day
+                "year" (if (zero? year)
+                         "Day 1"
+                         (str "Year " year))}
+               (mapv
+                (fn [bi i]
+                  [(:label bi) ((:ciff bi) cifs i)])
+                bar-info (range)))))
+     sample-days
+     (range (count sample-days)))))
 
 (defn simple-bar-label
   "Custom y-axis labels"
   [payload]
-  ;(pprint (js->clj payload))
+  (pp/pprint (js->clj payload))
   (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
     (r/as-element
      [:g
@@ -237,50 +277,16 @@
                                 }}
                     name ": " (Math/round (if area (second value) value)) "%"])
                  pload))])))))
-    
-(defn data-series
-  "Creates a plot series from toool and data context"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  (println ::params params)
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days] } (vis-data-map organ centre tool inputs bundle)]
-    (mapv
-     (fn [day year]
 
-       (let [cifs (as-> (vec (apply model/scaled-cifs
-                                    (map (partial model/cif tool)
-                                         (map (bun/cif-0 bundle day)
-                                              outcome-keys)
-                                         sum-betas))) x
-                    (update x 0 (if (> (count outcomes) 1)
-                                  #(- 1 %)
-                                  identity))
-                    (map #(* % 100) x))]
-         cifs
-         (into {"days" day
-                "year" (if (zero? year)
-                         "Day 1"
-                         (str "Year " year))}
-               (mapv
-                (fn [bi i]
-                  [(:label bi) ((:ciff bi) cifs i)])
-                bar-info (range)))))
-     sample-days
-     (range (count sample-days)))))
 
 (defn bar-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
+  [{:keys [organ centre tool inputs bundle title rubric bar-info y-range] :as params}]
   #_[:div "Not yet"]
+  (println ::bar-info bar-info)
   (let [{:keys [outcome-keys outcomes sum-betas sample-days] :as data-map} (vis-data-map organ centre tool inputs bundle)
         cifs-by-year (clj->js (data-series params))]
-    [:div 
-     [:p organ " " centre " " tool " " title " " rubric]
-     [:p "outcome-keys: " (str/join " " outcome-keys)]
-     [:p "outcomes: " (str/join " " outcomes)]
-     [:p "sample-days: " (str/join " " sample-days)]
-     
-     ]
-    [:> bs/Row 
+    [:> bs/Row
      [:> bs/Col
       [:div {:style {:margin-top 20}} rubric]
 
@@ -301,7 +307,9 @@
        ; better without?
              [:> rech/YAxis {:dataKey "transplants"
                              :type "number"
-                             :domain #js [0 100]}]
+                             :domain (if (vector? y-range)
+                                       (clj->js y-range)
+                                       #js [0 100])}]
 
              [:> rech/Tooltip {:content (custom-tool-tip nil)}]
 
@@ -329,40 +337,11 @@
 
 (defn area-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  [:div "Not yet"]
-  #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
+  [{:keys [organ centre tool inputs bundle title rubric bar-info y-range] :as params}]
+  #_[:div "Not yet"]
+  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
+        cifs-by-year (clj->js (data-series params))]
 
-        cifs-by-year (clj->js (mapv
-                               (fn [day year]
-
-                                 (let [cifs (as-> (vec (apply model/scaled-cifs
-                                                              (map (partial model/cif tool)
-                                                                   (map (bun/cif-0 bundle day)
-                                                                        outcome-keys)
-                                                                   sum-betas))) x
-                                              (update x 0 (if (> (count outcomes) 1)
-                                                            #(- 1 %)
-                                                            identity))
-                                              (map #(* % 100) x))
-                                       cum-cifs (reductions + cifs)]
-                                   (into {"days" day
-                                          "year" (if (zero? year)
-                                                   "Day 1"
-                                                   (str "Year " year))}
-                                         (mapv
-                                          (fn [bi i]
-                                            ;(println (:ciff bi))
-                                            [(:label bi) (if (:stack-id bi)
-                                                           (if (zero? i)
-                                                             [0 ((:ciff bi) cum-cifs i)]
-                                                             [((:ciff bi) cum-cifs (dec i)) ((:ciff bi) cum-cifs i)])
-                                                           ((:ciff bi) cifs i) #_(nth cifs i))]
-                                            )
-                                          bar-info (range)))))
-                               sample-days
-                               (range (count sample-days))))]
-    
     ;(println ::area-chart cifs-by-year)
     [:> bs/Row
      [:> bs/Col
@@ -384,9 +363,11 @@
        ; better without?
              [:> rech/YAxis {:dataKey "transplants"
                              :type "number"
-                             :domain #js [0 100]}]
+                             :domain (if (vector? y-range)
+                                       (clj->js y-range)
+                                       #js [0 100])}]
 
-             [:> rech/Tooltip {:content (custom-tool-tip (:stack-id (first bar-info)))}]
+             [:> rech/Tooltip {:content (custom-tool-tip (:stack-id "1"#_(first bar-info)))}]
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
@@ -407,6 +388,7 @@
                                 :stroke-width (if stroke-width
                                                 stroke-width
                                                 "none")
+                                :stack-id "1"
                                 :fill fill
                                 #_#_:stack-id stack-id
                                 #_#_:strokeDasharray "5 5"

@@ -58,62 +58,26 @@
                           :inputs inputs
                           :bundle bundle
                           :rubric [:<>
-                                   [:h4 "About how long do these people stay on the list?"]
-                                   [:p "People will leave the list if they get a transplant, or if they die or are otherwise removed."]]
-                          :bar-info [#_{:key "waiting"
-                                      :title "How long do these people stay on the list?"
-                                      :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
-                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
-                                     {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
-          [vis/bar-chart {:organ organ
-                          :centre centre
-                          :tool tool
-                          :inputs inputs
-                          :bundle bundle
-                          :rubric [:<>
-                                   [:h4 "When are these people likely to receive a transplant?"]
-                                   [:p "By way of example, the 'Year 2' value tells you how many people are likely to get a transplant  in year 2 after already having waited one year."]]
-
-                          :bar-info [#_{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
-                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                     {:key "death" :label "Died" :fill death-fill :ciff nth :hide false}]}]
-
-          #_[vis/bar-chart {:organ organ
-                          :centre centre
-                          :tool tool
-                          :inputs inputs
-                          :bundle bundle
-                          :rubric [:<>
-                                   [:h4 "Some of these people may die or be removed from the list"]]
-                          :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
-                                     {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                     {:key "death" :label "Died" :fill death-fill :ciff nth :stack-id "b"}
-                                     #_{:key "died or removed" :label "Died or removed" :fill "#666" :stroke death-fill :hide true
-                                        :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
-
-          [vis/bar-chart {:organ organ
-                          :centre centre
-                          :tool tool
-                          :inputs inputs
-                          :bundle bundle
-                          :rubric [:<>
-                                   [:h4 "Sanity check on model"]
-                                   [:p "The top of each stacked bar should always be close to 100%. 
-                                        However, each bar shows the combined result of 4 independent 
-                                        statistical models, each with its own error."]]
-                          :bar-info [#_{:key "waiting"
-                                      :stack-id "a"
-                                      :bar-label {:fill "#fff" :at :centre}
-                                      :title "How long are these people stay on the list?"
-                                      :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
+                                   [:h4 "Proportions of people waiting, transplanted, died or removed"]
+                                   [:p "As time goes by, people on the waiting list either receive a transplant or leave the list due to death or some other reason."]]
+                          :bar-info [
                                      {:key "transplant"
                                       :stack-id "a"
                                       :bar-label :none
                                       :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
+                                     {:key "waiting"
+                                      :stack-id "a"
+                                      :bar-label {:fill "#fff" :at :centre}
+                                      :title "How long are these people stay on the list?"
+                                      :label "Still waiting" :fill waiting-fill :ciff (fn [cifs i]
+                                                                                        (- 200
+                                                                                           (+ (nth cifs 0)
+                                                                                              (- 100 (nth cifs 2))))) :hide false}
                                      {:key "death"
                                       :stack-id "a"
                                       :bar-label :none
-                                      :label "Died" :fill death-fill :ciff nth :hide false}]}]]
+                                      :label "Died" :fill death-fill :ciff (fn [cifs i] (- 100 (nth cifs 2))) :hide false}]
+                          :y-range [0 200]}]]
          :post-transplant
          [vis/bar-chart {:organ organ
                          :centre centre
@@ -174,71 +138,33 @@
          ;(rf/dispatch [::events/selected-vis "area"])
          (condp = tool
            :waiting
-           [:<>
-            [vis/area-chart {:organ organ
-                             :centre centre
-                             :tool tool
-                             :inputs inputs
-                             :bundle bundle
-                             :rubric [:<>
-                                      [:h4 "About how long do these people stay on the list?"]
-                                      [:p "People will leave the list if they get a transplant, die,
-                                       or are removed for some other reason."]]
-                             :bar-info [{:key "waiting"
-                                         :title "How long are these people stay on the list?"
-                                         :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
-                                        {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                        {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
-            [vis/area-chart {:organ organ
-                             :centre centre
-                             :tool tool
-                             :inputs inputs
-                             :bundle bundle
-                             :rubric [:<>
-                                      [:h4 "When are these people likely to receive a transplant?"]
-                                      [:p "By way of example, the 'Year 2' value tells you how many people are likely to get a transplant  in year 2 after already having waited one year."]]
+           [vis/area-chart {:organ organ
+                            :centre centre
+                            :tool tool
+                            :inputs inputs
+                            :bundle bundle
+                            :rubric [:<>
+                                     [:h4 "Proportions of people waiting, transplanted, died or removed"]
+                                     [:p "As time goes by, people on the waiting list either receive a transplant or leave the list due to death or some other reason."]]
+                            :bar-info [{:key "transplant"
+                                        :stack-id "a"
+                                        :bar-label :none
+                                        :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
+                                       {:key "waiting"
+                                        :stack-id "a"
+                                        :bar-label {:fill "#fff" :at :centre}
+                                        :title "How long are these people stay on the list?"
+                                        :label "Still waiting" :fill waiting-fill :ciff (fn [cifs i]
+                                                                                          (- 200
+                                                                                             (+ (nth cifs 0)
+                                                                                                (- 100 (nth cifs 2))))) :hide false}
+                                       {:key "death"
+                                        :stack-id "a"
+                                        :bar-label :none
+                                        :label "Died" :fill death-fill :ciff (fn [cifs i] (- 100 (nth cifs 2))) :hide false}]
+                            :y-range [0 200]}]
 
-                             :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
-                                        {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth}
-                                        {:key "death" :label "Died" :fill death-fill :ciff nth :hide true}]}]
-
-            [vis/area-chart {:organ organ
-                             :centre centre
-                             :tool tool
-                             :inputs inputs
-                             :bundle bundle
-                             :rubric [:<>
-                                      [:h4 "Some of these people may die or be removed from the list"]]
-                             :bar-info [{:key "waiting" :label "Waiting" :fill waiting-fill :ciff nth :hide true}
-                                        {:key "transplant" :label "Transplanted" :fill transplant-fill :ciff nth :hide true}
-                                        {:key "death" :label "Died" :stroke-width 2 :stroke death-fill :fill "none" :ciff nth}
-                                        {:key "died or removed" :label "Died or removed" :fill "#666" :stroke death-fill :hide true
-                                         :ciff (fn [cifs i] (apply + (map #(nth cifs %) [2 3])))}]}]
-
-            [vis/area-chart {:organ organ
-                             :centre centre
-                             :tool tool
-                             :inputs inputs
-                             :bundle bundle
-                             :rubric [:<>
-                                      [:h4 "Sanity check on model"]
-                                      [:p "The height of this stacked chart should always be close to 100%. 
-                                          However, as we are summing the results of 4 independent 
-                                        statistical models, each with its own error, this is not always the case."]]
-                             :bar-info [{:key "waiting"
-                                         :stack-id "a"
-                                        ;:bar-label {:fill "#fff" :at :centre}
-                                        ;;:title "How long are these people stay on the list?"
-                                         :label "Still waiting" :fill waiting-fill :ciff nth :hide false}
-                                        {:key "transplant"
-                                         :stack-id "a"
-                                        ;:bar-label :none
-                                         :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
-                                        {:key "death"
-                                         :stack-id "a"
-                                        ;:bar-label :none
-                                         :label "Died" :fill death-fill :ciff nth :hide false}]}]
-            :post-transplant]
+           :post-transplant
            [vis/area-chart {:organ organ
                             :centre centre
                             :tool tool

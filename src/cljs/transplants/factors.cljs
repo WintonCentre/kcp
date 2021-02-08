@@ -316,7 +316,7 @@
                (selected-beta-x env factor master-fmap beta-outcome-key)))))
 
  (defn sum-beta-xs
-   "returns  of all xs and betas (keyed by input factor?)"
+   "returns sum of all xs and betas (keyed by input factor?)"
    [[{:keys [organ centre tool] :as path-params}
      {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
      inputs :as env]

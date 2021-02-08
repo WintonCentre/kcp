@@ -71,7 +71,7 @@
   (cif :waiting cif_0 sum-x-betas)
   )
 
-(defn with-all-reasons-first
+#_(defn with-all-reasons-first
   "Outcomes with the all reasons outcome in the first slot. 
    
    We should probably plan to replace the hard coded 'all-reasons' constant with a

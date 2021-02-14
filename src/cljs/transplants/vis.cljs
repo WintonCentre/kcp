@@ -30,12 +30,6 @@
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
 
-(comment
-  (def first-bcifs {:centre "Birmingham", :days 0, :cif-transplant 1, :cif-death 1})
-  (fac/get-outcomes* first-bcifs)
-  (model/with-all-reasons-first (fac/get-outcomes* first-bcifs))
-  )
-
 (defn test-rig
   [{:keys [organ centre tool day inputs bundle]}]
   (let [env [{:organ organ :centre centre :tool tool}
@@ -46,8 +40,6 @@
                                                     bundle)
         factors (keys master-fmaps)
         outcomes (fac/get-outcomes* (first baseline-cifs))
-        #_(model/with-all-reasons-first
-            (fac/get-outcomes (first (vals master-fmaps))))
         beta-keys (fac/prefix-outcomes-keys outcomes "beta")
         outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
@@ -164,8 +156,8 @@
                      utils/year->day
                      (range (inc (utils/day->year (:days (last baseline-cifs))))))]
 
-    (println ::outcomes (conj outcomes "waiting"))
-    (println ::outcome-keys (conj outcome-keys :cif-waiting))
+    ;(println ::outcomes (conj outcomes "waiting"))
+    ;(println ::outcome-keys (conj outcome-keys :cif-waiting))
 
     {:baseline-cifs baseline-cifs
      

@@ -313,6 +313,12 @@
   []
   )
 
+(comment
+  (def tools @(rf/subscribe [::subs/tools]))
+  (def tool :waiting)
+  (get-tool-meta tools tool)
+  ,)
+
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."

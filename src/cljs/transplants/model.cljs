@@ -45,6 +45,7 @@
   (= tool :waiting)
 )
 
+
 (defn cif
   "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
    The competing risk tool needs the direct cumulative incidence frequency.

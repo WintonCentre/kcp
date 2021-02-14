@@ -37,10 +37,26 @@
 
 (defn day->year
   "Convert a day count to the nearest whole year"
-  [d] 
+  [d]
   (js/Math.round (/ d 365.25)))
 
 (defn year->day
   "Convert a year count to the nearest whole day"
-  [y] 
+  [y]
   (js/Math.round (* y 365.25)))
+
+(def transpose
+  "transpose  matrix"
+  (partial apply map vector))
+
+(defn baseline-cif-outcome-keys
+  "extract the outcome-keys used in a raw baseline-cifs table, eliminating the cif- prefix"
+  [baseline-cifs]
+  (->> baseline-cifs
+       first
+       keys
+       (map name)
+       (filter #(starts-with? % "cif"))
+       ;(map #(subs % 4))
+       (map keyword)))
+

@@ -20,7 +20,7 @@
   )
 
 (defn cif-0
-  "Samples a bundle's baseline-cifs for the required day. 
+  "Samples an oct-bundle's baseline-cifs for the required day. 
    Select the last baseline-cif which occurs on or before the target day.
    
    Returns the whole map for the selected day which will contain baseline-cifs
@@ -29,12 +29,14 @@
    If the selected day is less than the day of the first baseline, return the first baseline.
    If it's more than the last, return the last baseline.
    "
-  [bundle day]
-  (if-let [rv (->> bundle
-                   (:-baseline-cifs)
-                   (filter #(<= (:days %) day))
-                   (last))]
-    rv (first (:-baseline-cifs bundle))))
+  [oct-bundle day]
+  (let [rv (->> oct-bundle
+                (:-baseline-cifs)
+                (filter #(<= (:days %) day))
+                (last))]
+    (if (and rv (pos? (:days rv)))
+      rv
+      (first (:-baseline-cifs oct-bundle)))))
 
 (comment
   (get-bundle :kidney :belf :waiting)
@@ -43,17 +45,38 @@
                            {:days 10 :cif 23}
                            {:days 20 :cif 23}
                            {:days 100 :cif 23}]} 3)
-  
-    (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
-                             {:days 3 :cif 23}
-                             {:days 10 :cif 23}
-                             {:days 20 :cif 23}
-                             {:days 100 :cif 23}]} -1)
-  
-    (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
-                             {:days 3 :cif 23}
-                             {:days 10 :cif 23}
-                             {:days 20 :cif 23}
-                             {:days 100 :cif 23}]} 200)
+   ;; => {:days 3, :cif 23}
 
+
+  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                           {:days 0 :cif 25}
+                           {:days 3 :cif 23}
+                           {:days 10 :cif 23}
+                           {:days 20 :cif 23}
+                           {:days 100 :cif 23}]} 0)
+    ;; => {:days 0, :cif 23}
+
+
+  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                           {:days 3 :cif 23}
+                           {:days 10 :cif 23}
+                           {:days 20 :cif 23}
+                           {:days 100 :cif 23}]} 10)
+    ;; => {:days 10, :cif 23}
+
+
+  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                           {:days 3 :cif 23}
+                           {:days 10 :cif 23}
+                           {:days 20 :cif 23}
+                           {:days 100 :cif 23}]} 15)
+    ;; => {:days 10, :cif 23}
+
+
+  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+                           {:days 3 :cif 23}
+                           {:days 10 :cif 23}
+                           {:days 20 :cif 23}
+                           {:days 100 :cif 23}]} 200)
+    ;; => {:days 100, :cif 23}
   )

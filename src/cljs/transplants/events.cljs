@@ -1,6 +1,6 @@
 (ns transplants.events
   (:require
-   (winton-utils.data-frame :refer [map-of-vs->v-of-maps])
+   (winton-utils.data-frame :refer [map-of-vs->v-of-maps v-of-maps->map-of-vs])
    [re-frame.core :as rf]
    [day8.re-frame.http-fx]
    [transplants.fx :as fx]
@@ -220,7 +220,14 @@
                             (into {}))
 
          baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
-         baseline-cifs (get raw baseline-cifs-key)]
+         baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
+
+         ;; Convert legacy cifs to survivals keyed by outcome
+         outcome-keys (utils/baseline-cif-outcome-keys baseline-cifs)
+
+         ;; A map representing S_0_i(t) where i is an outcome key
+         S0-outcome  (zipmap (conj outcome-keys :days)
+                             (utils/transpose baseline-cifs))]
 
     ;(into {} (map (fn [[k [{:keys [level]}]]] [k level]) (group-by :factor (get raw (bundle-sheet bundle-name "-baseline-vars")))))
     ;(println "data path " data-path " baseline-vars" baseline-vars)
@@ -228,9 +235,11 @@
      {:db (assoc-in db data-path
                     (-> raw
                        ;(assoc inputs-key tool-inputs*
-                        (assoc :-inputs tool-inputs;(group-by :factor fmaps)
-                               :-baseline-cifs baseline-cifs ;(get raw (bundle-sheet bundle-name "-baseline-cifs"))
-                               :-baseline-vars baseline-vars)
+                        (assoc :-inputs tool-inputs
+                               :-baseline-cifs baseline-cifs 
+                               :-baseline-vars baseline-vars
+                               :-S0-outcome S0-outcome
+                        )
                         (dissoc inputs-key)
                         (dissoc baseline-cifs-key)
                         (dissoc baseline-vars-key)))

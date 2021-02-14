@@ -53,9 +53,7 @@
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
                                 :start (fn [& params]
-                                         (let [centre (keyword (get-in (first params) [:path :centre]))]
-                                           (println ::organ-centre "params " params)
-                                           #_(rf/dispatch [::events/centre centre])))
+                                         (let [centre (keyword (get-in (first params) [:path :centre]))]))
                                 :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}
      [""]
      ["/:tool" {:name ::views/organ-centre-tool

@@ -52,3 +52,4 @@ prod.cljs.edn
 webpack*
 report.html
 .lsp
+.Rproj.user

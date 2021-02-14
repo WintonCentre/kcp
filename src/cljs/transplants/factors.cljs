@@ -2,7 +2,7 @@
   "Code associated with factors and master factor-maps"
   (:require [clojure.string :refer [starts-with? split join index-of]]
             [clojure.edn :as edn]
-            #_[clojure.pprint :refer [pprint]]
+            [clojure.pprint :refer [pprint]]
             [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
             [transplants.transforms :as xf]
             [transplants.spline :refer [spline]]
@@ -161,12 +161,12 @@
        (remove nil?)))
 
 (defn is-categorical?
-  [[_ {:keys [-inputs]} _ :as env] factor]
+  [[_ {:keys [-inputs]} _] factor]
   (let [level-key (get-in -inputs [factor :level])]
     (and (keyword? level-key) (not= level-key :x))))
 
 (defn is-spline?
-  [[{:keys [organ centre tool] :as path-params}
+  [[_ #_{:keys [organ centre tool] :as path-params}
     {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
     inputs :as env] factor]
   (let [master-level (get-in -inputs [factor :level])
@@ -245,9 +245,11 @@
     ; Find the level of each e.g. [:copd :birm]
     ; And encode this as a single level e.g. :copd*birm
     ; 
+    ;     
     ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
+    ;     But we no longer have cross overs 
     ; 
-    (is-cross-over? env factor)
+    #_#_(is-cross-over? env factor)
     (try 
       (let [level-key (lookup-cross-over-factor-level env factor)
                beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]

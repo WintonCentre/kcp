@@ -35,6 +35,64 @@
   [tool suffix]
   (keyword (str (name tool) suffix)))
 
+(def year 365.25)
+(def quarter (/ year 4))
+(def month (/ year 12))
+(def week 7)
+
+(defn day->week 
+  [d] (js/Math.ceil (/ d week)))
+(defn day->month
+  [d] (js/Math.ceil (/ d month)))
+(defn day->quarter
+  [d] (js/Math.ceil (/ d quarter)))
+
+                  
+(defn day-in?
+  "Given an x and an accessor function for day in x, discover whether the day is within given period of days"
+  [get-day period]
+  (fn [x] (<= (get-day x) period)))
+
+(comment
+  (day->week 0)
+  ;; => 0
+  (day->week 1)
+  ;; => 1
+  (day->week 7)
+  ;; => 1
+  (day->week 8)
+  ;; => 2
+  (day->week 364)
+  ;; => 52
+  (day->week 365)
+  ;; => 53
+
+  (day->month 0)
+  ;; => 0
+  (day->month 30.4375)
+  ;; => 1
+  (day->month 30.4376)
+  ;; => 2
+  (day->month 365)
+  ;; => 12
+  (day->month 366)
+  ;; => 13
+
+  (day->quarter 1)
+  ;; => 1
+  (day->quarter 91)
+  ;; => 1
+  (day->quarter 92)
+  ;; => 2
+  (day->quarter 365)
+  ;; => 4
+  (day->quarter 366)
+  ;; => 5
+  )
+
+;; => 
+
+
 (defn day->year
   "Convert a day count to the nearest whole year"
   [d]
@@ -49,7 +107,32 @@
   "transpose  matrix"
   (partial apply map vector))
 
+
+(defn baseline-outcome-names
+  "extract the outcome-keys used in a raw baseline-cifs table, eliminating the cif- prefix"
+  [baseline-cifs]
+  (->> baseline-cifs
+       first
+       keys
+       (map name)
+       (remove #{"centre" "days"})
+       ;(filter #(starts-with? % "cif"))
+       (map #(subs % 4))
+       ;(map keyword)
+       ))
+
 (defn baseline-cif-outcome-keys
+  "extract the outcome-keys used in a raw baseline-cifs table, eliminating the cif- prefix"
+  [baseline-cifs]
+  (->> baseline-cifs
+       (baseline-outcome-names)
+       (map #(keyword (str "cif-" (name %))))
+       ;(filter #(starts-with? % "cif"))
+       ;(map #(subs % 4))
+       ;(map keyword)
+       ))
+
+#_(defn baseline-cif-outcome-keys
   "extract the outcome-keys used in a raw baseline-cifs table, eliminating the cif- prefix"
   [baseline-cifs]
   (->> baseline-cifs

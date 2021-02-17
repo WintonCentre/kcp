@@ -31,7 +31,7 @@
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
 
 (defn test-rig
-  [{:keys [organ centre tool day inputs bundle]}]
+  [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
   (let [env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
@@ -40,9 +40,11 @@
                                                     bundle)
         factors (keys master-fmaps)
         outcomes (fac/get-outcomes* (first baseline-cifs))
-        beta-keys (fac/prefix-outcomes-keys outcomes "beta")
-        outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
+        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+        outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
+
+
         baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
         ;;
         ;; The following code assumes we have the "all-reasons" outcome in a well known slot
@@ -148,9 +150,8 @@
 
         ;todo: The following slavishly follows the input. We may need to calculate an outcome too (e.g. waiting = 100 - (transplants + removal))
         outcomes (fac/get-outcomes* (first baseline-cifs))
-        beta-keys (fac/prefix-outcomes-keys outcomes "beta")
-        outcome-keys (fac/prefix-outcomes-keys outcomes "cif")
-
+        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+        outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
         sample-days (map
                      utils/year->day

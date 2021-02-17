@@ -90,11 +90,12 @@
       
    
    cif-0: "
-  [survival time]
+  [H0]
   )
 
 
 (comment
+  ; this is fac/sum-beta-xs
   (defn sum-beta-xs
     "returns sum of all xs and betas for an outcome"
     [[{:keys [organ centre tool] :as path-params}
@@ -151,13 +152,14 @@
         {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
         selected-vis @(rf/subscribe [::subs/selected-vis])]
     
+    
     [:<>
      [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]
      [ui/tabs {:variant "pills" :default-active-key selected-vis
                :active-key selected-vis
                :on-select #(rf/dispatch [::events/selected-vis %])}
-      [ui/tab {:event-key "bars" :title "Bar Chart"}
+      #_[ui/tab {:event-key "bars" :title "Bar Chart"}
        #_(condp = tool
          :waiting
          [:<>
@@ -240,7 +242,7 @@
                          :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])]
 
 
-      [ui/tab {:event-key "area" :title "Area Chart"}
+      #_[ui/tab {:event-key "area" :title "Area Chart"}
        (do
          ;(rf/dispatch [::events/selected-vis "area"])
          #_(condp = tool
@@ -323,7 +325,7 @@
                             :bundle bundle
                             :rubric [:h4 "About how long does the graft survive?"]
                             :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]))]
-      [ui/tab {:event-key "icons" :title "Icon Array"}
+      #_[ui/tab {:event-key "icons" :title "Icon Array"}
        #_(condp = tool
          :waiting
          [:<>
@@ -442,7 +444,7 @@
                           :bundle bundle
                           :rubric [:h4 "About how long does the graft from a living donor survive?"]
                           :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])]
-      [ui/tab {:event-key "table" :title "Table"}
+      #_[ui/tab {:event-key "table" :title "Table"}
        [:div "not yet"]]
       
       [ui/tab {:variant "secondary"
@@ -452,4 +454,6 @@
                       :tool tool
                       :day day
                       :inputs inputs
-                      :bundle bundle}]]]]))
+                      :bundle bundle
+                      :rubric [[:h4 "Test Rig"]]
+                      :bar-info nil}]]]]))

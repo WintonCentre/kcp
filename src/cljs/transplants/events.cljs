@@ -183,6 +183,57 @@
                                   (get-in fmaps [k2 :order]))))
         fmaps))
 
+(defn sample-from
+  "returns a selection of data from H0."
+  [H0]
+  (let [day-in-first? (partial utils/day-in? first)
+
+        W1H0 (->> H0
+                  (take-while (day-in-first? utils/week)))
+        M1H0 (->> H0
+                  (drop-while (day-in-first? utils/week))
+                  (take-while (day-in-first? utils/month)))
+        Q1H0 (->> H0
+                  (drop-while (day-in-first? utils/month))
+                  (take-while (day-in-first? utils/quarter)))
+        Qs (->> H0
+                (drop-while (day-in-first? utils/quarter)))]
+
+    ;; Selected days are: 
+    ;;     weekly for first month; 
+    ;;     then monthly for 1st quarter; 
+    ;;     then by quarter
+    (concat W1H0
+            (map last (partition-by (fn [[day H]] (utils/day->week day)) M1H0))
+            (map last (partition-by (fn [[day H]] (utils/day->month day)) Q1H0))
+            (map last (partition-by (fn [[day H]] (utils/day->quarter day)) Qs)))))
+
+#_(defn sample-from*
+  "WIP attempt at optimising above function."
+  [H0]
+  (let [day-in-first? (partial utils/day-in? first)]
+  (loop [rv []
+         last-day 0
+         day-data H0]
+
+    (if (seq day-data)
+      (cond
+
+        (day-in-first? utils/week day-data)
+        (recur (conj rv day-data) day-data (rest day-data))
+
+        (day-in-first? utils/month day-data)
+        (recur rv day-data (rest day-data))
+
+        (day-in-first? utils/quarter day-data)
+        (recur (conj rv last-day) day-data (rest day-data))
+        
+        :else
+        (concat rv
+                (map last (partition-by (fn [[day H]] (utils/day->quarter day)) rv))))
+      
+      rv))))
+
 
 ;;;
 ;; Process raw tool bundles into db. 
@@ -223,23 +274,27 @@
          baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
 
          ;; Convert legacy cifs to survivals keyed by outcome
-         outcome-keys (utils/baseline-cif-outcome-keys baseline-cifs)
+         timed-outcome-keys (keys (first baseline-cifs))
+         outcome-keys (remove #(= :days %) timed-outcome-keys)
 
-         ;; A map representing S_0_i(t) where i is an outcome key
-         S0-outcome  (zipmap (conj outcome-keys :days)
-                             (utils/transpose baseline-cifs))]
 
-    ;(into {} (map (fn [[k [{:keys [level]}]]] [k level]) (group-by :factor (get raw (bundle-sheet bundle-name "-baseline-vars")))))
-    ;(println "data path " data-path " baseline-vars" baseline-vars)
+
+
+         H0 (map (fn [bc] [(:days bc)
+                           (map (comp - js/Math.log)
+                                ((apply juxt outcome-keys) bc))]) baseline-cifs)
+
+         H0* (sample-from H0)]
 
      {:db (assoc-in db data-path
                     (-> raw
-                       ;(assoc inputs-key tool-inputs*
                         (assoc :-inputs tool-inputs
-                               :-baseline-cifs baseline-cifs 
+                               :-baseline-cifs baseline-cifs
                                :-baseline-vars baseline-vars
-                               :-S0-outcome S0-outcome
-                        )
+                               :outcome-keys outcome-keys
+                               :H0 H0*
+                               :H0+ H0
+                               :count (count H0*))
                         (dissoc inputs-key)
                         (dissoc baseline-cifs-key)
                         (dissoc baseline-vars-key)))

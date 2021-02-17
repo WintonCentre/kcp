@@ -60,13 +60,13 @@
 
 (defn prefix-outcome-key
   "adds a prefix to an outcome and returns it as a keyword"
-  [outcome prefix]
+  [prefix outcome]
   (keyword (str (name prefix) "-" (name outcome))))
 
 (defn prefix-outcomes-keys
   "Given a seq of outcomes, returns them as prefixed keywords"
-  [outcomes prefix]
-  (map #(prefix-outcome-key % prefix) outcomes))
+  [prefix outcomes]
+  (map (partial prefix-outcome-key prefix) outcomes))
 
 (defn remove-prefix-key
   "remove first prefix from a key, returning resulting string. Useful for converting
@@ -78,10 +78,10 @@
   (get-outcomes  {:beta-transplant 1 :beta-waiting 2 :beta-all-reasons 3})
   ; => '("transplant" "waiting")
 
-  (prefix-outcome-key  :transplant "beta")
+  (prefix-outcome-key "beta" :transplant)
 ; => :beta-transplant
 
-  (prefix-outcomes-keys '("transplant" "waiting") "beta")
+  (prefix-outcomes-keys "beta" '("transplant" "waiting"))
 ; => '(:beta-transplant :beta-waiting)
 
   (remove-prefix-key :beta-transplant-name)

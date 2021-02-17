@@ -335,31 +335,30 @@
             tool-meta (get-tool-meta tools tool)]
         [ui/page (:description centre-info)
          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
-           (let [inputs-key (utils/make-sheet-key tool-name "-inputs")]
-             [ui/row
-              [ui/col {:xs 12 :md 5}
-               [ui/background-link organ centre]
-               #_[:p "For more information that will be helpful to patients, follow the link to "
+           [ui/row
+            [ui/col {:xs 12 :md 5}
+             [ui/background-link organ centre]
+             #_[:p "For more information that will be helpful to patients, follow the link to "
                 [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
                  "background guidance"] "."]
-               [ui/tools-menu tools organ-name centre-name {:vertical false}]
-               #_(->> tools
+             [ui/tools-menu tools organ-name centre-name {:vertical false}]
+             #_(->> tools
                     (map #(conj % [:organ organ-name]))
                     (map #(conj % [:centre centre-name]))
                     (map #(conj % [:tool (name (:key %))]))
                     (map ui/tool-buttons)
                     (into [:> bs/ButtonGroup {:vertical false}]))
-               [:h4 {:style {:margin-top 10}}
-                (:label tool-meta) " – " (:description tool-meta)]
-               (widg/widget {:type :reset})
-               (into [:<>]
-                     (map
-                      (fn [[k w]] ^{:key (:factor w)}
-                        [:div {:style {:margin-bottom 15}}
-                         (widg/widget (assoc w :model tool))])
-                      (get tool-centre-bundle :-inputs)))]
-              [ui/col
-               [results/results-panel bundles organ centre tool]]])
+             [:h4 {:style {:margin-top 10}}
+              (:label tool-meta) " – " (:description tool-meta)]
+             (widg/widget {:type :reset})
+             (into [:<>]
+                   (map
+                    (fn [[k w]] ^{:key (:factor w)}
+                      [:div {:style {:margin-bottom 15}}
+                       (widg/widget (assoc w :model tool))])
+                    (get tool-centre-bundle :-inputs)))]
+            [ui/col
+             [results/results-panel bundles organ centre tool]]]
            (if (= tool :guidance)
              [:<>
 

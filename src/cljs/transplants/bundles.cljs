@@ -38,6 +38,16 @@
       rv
       (first (:-baseline-cifs oct-bundle)))))
 
+(defn baseline-H
+  [oct-bundle day]
+  (let [H0 (:H0 oct-bundle)
+        days (keys H0)]
+    (loop [d day
+           data (H0 d)]
+      (if data
+        data
+        (recur (dec d) (H0 (dec d)))))))
+
 (comment
   (get-bundle :kidney :belf :waiting)
   (cif-0 {:-baseline-cifs [{:days 0 :cif 23}

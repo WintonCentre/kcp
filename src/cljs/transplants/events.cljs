@@ -25,8 +25,7 @@
            :inputs {}
            :selected-vis "bars"
            :window-width (.-innerWidth js/window)
-           :test-day 100
-           })))
+           :test-day 100})))
 
 (rf/reg-event-db
  ::update-window-width
@@ -204,35 +203,35 @@
     ;;     then monthly for 1st quarter; 
     ;;     then by quarter
     (concat W1H0
-            (map last (partition-by (fn [[day H]] (utils/day->week day)) M1H0))
-            (map last (partition-by (fn [[day H]] (utils/day->month day)) Q1H0))
-            (map last (partition-by (fn [[day H]] (utils/day->quarter day)) Qs)))))
+            (mapv last (partition-by (fn [[day H]] (utils/day->week day)) M1H0))
+            (mapv last (partition-by (fn [[day H]] (utils/day->month day)) Q1H0))
+            (mapv last (partition-by (fn [[day H]] (utils/day->quarter day)) Qs)))))
 
 #_(defn sample-from*
-  "WIP attempt at optimising above function."
-  [H0]
-  (let [day-in-first? (partial utils/day-in? first)]
-  (loop [rv []
-         last-day 0
-         day-data H0]
+    "WIP attempt at optimising above function."
+    [H0]
+    (let [day-in-first? (partial utils/day-in? first)]
+      (loop [rv []
+             last-day 0
+             day-data H0]
 
-    (if (seq day-data)
-      (cond
+        (if (seq day-data)
+          (cond
 
-        (day-in-first? utils/week day-data)
-        (recur (conj rv day-data) day-data (rest day-data))
+            (day-in-first? utils/week day-data)
+            (recur (conj rv day-data) day-data (rest day-data))
 
-        (day-in-first? utils/month day-data)
-        (recur rv day-data (rest day-data))
+            (day-in-first? utils/month day-data)
+            (recur rv day-data (rest day-data))
 
-        (day-in-first? utils/quarter day-data)
-        (recur (conj rv last-day) day-data (rest day-data))
-        
-        :else
-        (concat rv
-                (map last (partition-by (fn [[day H]] (utils/day->quarter day)) rv))))
-      
-      rv))))
+            (day-in-first? utils/quarter day-data)
+            (recur (conj rv last-day) day-data (rest day-data))
+
+            :else
+            (concat rv
+                    (map last (partition-by (fn [[day H]] (utils/day->quarter day)) rv))))
+
+          rv))))
 
 
 ;;;
@@ -243,62 +242,106 @@
 (rf/reg-event-fx
  ::store-bundle-inputs
  (fn-traced
-   [{:keys [_ db]} [_ data-path response]]
-   (let [path-params (get-in db [:current-route :path-params])
-         [organ centre tool] (utils/path-keys path-params)
-         raw (edn/read-string response)
+  [{:keys [_ db]} [_ data-path response]]
+  (let [path-params (get-in db [:current-route :path-params])
+        [organ centre tool] (utils/path-keys path-params)
+        raw (edn/read-string response)
 
-         bundle-name (name tool)
-         inputs-key (bundle-sheet bundle-name "-inputs")
-         fmaps (fac/master-f-maps organ (inputs-key raw))
-         fmaps* (->> fmaps
-                     (group-by :factor)
-                     (map (fn [[k [v]]] [k v]))
-                     (into {}))
+        bundle-name (name tool)
+        inputs-key (bundle-sheet bundle-name "-inputs")
+        fmaps (fac/master-f-maps organ (inputs-key raw))
+        fmaps* (->> fmaps
+                    (group-by :factor)
+                    (map (fn [[k [v]]] [k v]))
+                    (into {}))
         ; tool-inputs* fmaps* ;(map (fn [[k [v]]] [k v]) (group-by :factor fmaps))
         ; tool-inputs must be sorted by spreadsheet factor order   
-         tool-inputs (into (sorted-map-by (fn [k1 k2]
-                                            (compare (get-in fmaps* [k1 :order])
-                                                     (get-in fmaps* [k2 :order]))))
-                           fmaps*)
+        tool-inputs (into (sorted-map-by (fn [k1 k2]
+                                           (compare (get-in fmaps* [k1 :order])
+                                                    (get-in fmaps* [k2 :order]))))
+                          fmaps*)
 
-         baseline-vars-key (bundle-sheet bundle-name "-baseline-vars")
-         baseline-vars (->> baseline-vars-key
-                            (get raw)
-                            (group-by :factor)
-                            (remove (comp nil? first))
-                            (map (fn [[k [{:keys [level]}]]] [k level]))
-                            (into {}))
+        baseline-vars-key (bundle-sheet bundle-name "-baseline-vars")
+        baseline-vars (->> baseline-vars-key
+                           (get raw)
+                           (group-by :factor)
+                           (remove (comp nil? first))
+                           (map (fn [[k [{:keys [level]}]]] [k level]))
+                           (into {}))
 
-         baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
-         baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
+        baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
+        baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
 
          ;; Convert legacy cifs to survivals keyed by outcome
-         timed-outcome-keys (keys (first baseline-cifs))
-         outcome-keys (remove #(= :days %) timed-outcome-keys)
+        timed-outcome-keys (keys (first baseline-cifs))
+        outcome-keys (remove #(= :days %) timed-outcome-keys)
 
 
 
 
-         H0 (map (fn [bc] [(:days bc)
+        H0+ (map (fn [bc] [(:days bc)
                            (map (comp - js/Math.log)
                                 ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
-         H0* (sample-from H0)]
+        H0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
+                            %2) (sample-from H0+))
 
-     {:db (assoc-in db data-path
-                    (-> raw
-                        (assoc :-inputs tool-inputs
-                               :-baseline-cifs baseline-cifs
-                               :-baseline-vars baseline-vars
-                               :outcome-keys outcome-keys
-                               :H0 H0*
-                               :H0+ H0
-                               :count (count H0*))
-                        (dissoc inputs-key)
-                        (dissoc baseline-cifs-key)
-                        (dissoc baseline-vars-key)))
-      :reg-factors [organ fmaps]})))
+        delta-t (map #(- (first %2) (first %1)) H0 (rest H0))
+        delta-H (map #((partial map -) (second %2) (second %1)) H0 (rest H0))
+        h (map (fn [dH-i dt] (map #(/ % dt) dH-i)) delta-H delta-t)
+
+        ;;dH-i-by-dt (fn [dH-i dt] (map #(/ % dt) dH-i))
+        ;h 7
+        tool-centre-bundle {:fmaps tool-inputs
+                            :baseline-vars baseline-vars
+                            :outcome-keys outcome-keys
+                            :timed-outcome-keys timed-outcome-keys
+                            :H0 H0
+                            :h h
+
+
+
+                            ;;:delta-h delta-h
+                             ;;:H0+ H0+
+                            }]
+
+
+  ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
+  ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
+  ;;   p_tx[i] <- h_tx[i] * capS[i]
+  ;;   capF_tx[i+1] <- capF_tx[i] + p_tx[i]
+
+  ;;   h_rem[i] <- smoothed_cent$capHrem[i+1] - smoothed_cent$capHrem[i]
+  ;;   p_rem[i] <- h_rem[i] * capS[i]
+  ;;   capF_rem[i+1] <- capF_rem[i] + p_rem[i]
+
+  ;;   capS[i+1] <- capS[i] - p_tx[i] - p_rem[i]
+
+  ;;   sumall[i] <- capS[i] + capF_rem[i] + capF_tx[i]
+
+  ;; }
+
+  ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
+
+    {:db (-> (assoc db :oct-bundle tool-centre-bundle)
+             (assoc-in data-path
+                       (-> raw
+                           (assoc :-inputs tool-inputs
+                                  :-baseline-cifs baseline-cifs
+                                  :-baseline-vars baseline-vars
+                                  :outcome-keys outcome-keys
+                                   ;;:H0 H0*
+                                  :H0 H0
+                                  :cH (count delta-H)
+                                  :ct (count delta-t)
+                                  :delta-t delta-t
+                                  :delta-H delta-H
+                                  :h h
+                                  )
+                           (dissoc inputs-key)
+                           (dissoc baseline-cifs-key)
+                           (dissoc baseline-vars-key))))
+     :reg-factors [organ fmaps]})))
 
 (rf/reg-event-db
  ::inc-test-day
@@ -325,9 +368,9 @@
 (rf/reg-event-db
  ::store-response
  (fn-traced
-   [db [_ data-path response]]
-   (-> db
-       (assoc-in data-path (edn/read-string response)))))
+  [db [_ data-path response]]
+  (-> db
+      (assoc-in data-path (edn/read-string response)))))
 
 (comment
   (def tool-meta-match string/ends-with?)
@@ -361,99 +404,97 @@
 (rf/reg-event-db
  ::transpose-response
  (fn-traced
-   [db [_ data-path response]]
-   (-> db
-       (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response))))))
+  [db [_ data-path response]]
+  (-> db
+      (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response))))))
 
 (rf/reg-event-db
  ::bad-response
  (fn-traced
-   [db [_ data-path response]]
-   #_(when (or data-path response)
-     (js/alert (str "bad-response while loading " data-path "response = " response)))
-   db))
+  [db [_ data-path response]]
+  #_(when (or data-path response)
+      (js/alert (str "bad-response while loading " data-path "response = " response)))
+  db))
 
 (rf/reg-event-fx
  ::store-metadata-response
  (fn-traced
-   [{:keys [db]} [_ data-path response]]
-   (let [mdata (edn/read-string response)
-         organs (map :organ (:organ-meta mdata))]
+  [{:keys [db]} [_ data-path response]]
+  (let [mdata (edn/read-string response)
+        organs (map :organ (:organ-meta mdata))]
 
      ; Todo: remove this side-effecting code!! (though it does work)
      ; We need a load and transpose effect for multiple organs
-     (doseq [organ organs]
-       (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
+    (doseq [organ organs]
+      (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
 
-     {:db (-> db
-              (assoc-in data-path mdata))})))
+    {:db (-> db
+             (assoc-in data-path mdata))})))
 
 (rf/reg-event-fx
  ::load-metadata
  (fn-traced
-   [{:keys [db]} [evt [path data-path]]]
-   (println ::meta3 path)
-   (println ::meta4 data-path)
-   (when (nil? (get-in db data-path))
-     {:http-xhrio {:method :get
-                   :uri path
-                   :timeout 8000
-                   :format          (ajax/text-request-format)
-                   :response-format (ajax/text-response-format)
-                   :on-success [::store-metadata-response data-path]
-                   :on-failure [::bad-response data-path]}})))
+  [{:keys [db]} [evt [path data-path]]]
+  (println ::meta3 path)
+  (println ::meta4 data-path)
+  (when (nil? (get-in db data-path))
+    {:http-xhrio {:method :get
+                  :uri path
+                  :timeout 8000
+                  :format          (ajax/text-request-format)
+                  :response-format (ajax/text-response-format)
+                  :on-success [::store-metadata-response data-path]
+                  :on-failure [::bad-response data-path]}})))
 
 ;;;;;;;;;;;;
 
 (rf/reg-event-fx
  ::load-edn
  (fn-traced
-   [{:keys [db]} [evt [path data-path]]]
-   (when (nil? (get-in db data-path))
-     {:http-xhrio {:method :get
-                   :uri path
-                   :timeout 8000
-                   :format          (ajax/text-request-format)
-                   :response-format (ajax/text-response-format)
-                   :on-success [::store-response data-path]
-                   :on-failure [::bad-response data-path]}})))
+  [{:keys [db]} [evt [path data-path]]]
+  (when (nil? (get-in db data-path))
+    {:http-xhrio {:method :get
+                  :uri path
+                  :timeout 8000
+                  :format          (ajax/text-request-format)
+                  :response-format (ajax/text-response-format)
+                  :on-success [::store-response data-path]
+                  :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-bundles
- (fn-traced 
-   [{:keys [db]} [evt [path data-path]]]
-   (when (nil? (get-in db data-path))
-     {:http-xhrio {:method :get
-                   :uri path
-                   :timeout 8000
-                   :format          (ajax/text-request-format)
-                   :response-format (ajax/text-response-format)
-                   :on-success [::store-bundle-inputs data-path]
-                   :on-failure [::bad-response data-path]}})))
+ (fn-traced
+  [{:keys [db]} [evt [path data-path]]]
+  (when (nil? (get-in db data-path))
+    {:http-xhrio {:method :get
+                  :uri path
+                  :timeout 8000
+                  :format          (ajax/text-request-format)
+                  :response-format (ajax/text-response-format)
+                  :on-success [::store-bundle-inputs data-path]
+                  :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-and-transpose
- (fn-traced 
-   [{:keys [db]} [evt [path data-path]]]
-   (when (nil? (get-in db data-path))
-     {:http-xhrio {:method :get
-                   :uri path
-                   :timeout 8000
-                   :format          (ajax/text-request-format)
-                   :response-format (ajax/text-response-format)
-                   :on-success [::transpose-response data-path]
-                   :on-failure [::bad-response data-path]}})))
+ (fn-traced
+  [{:keys [db]} [evt [path data-path]]]
+  (when (nil? (get-in db data-path))
+    {:http-xhrio {:method :get
+                  :uri path
+                  :timeout 8000
+                  :format          (ajax/text-request-format)
+                  :response-format (ajax/text-response-format)
+                  :on-success [::transpose-response data-path]
+                  :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-and-transpose-always
- (fn-traced 
-   [{:keys [db]} [evt [path data-path]]]
-   {:http-xhrio {:method :get
-                 :uri path
-                 :timeout 8000
-                 :format          (ajax/text-request-format)
-                 :response-format (ajax/text-response-format)
-                 :on-success [::transpose-response data-path]
-                 :on-failure [::bad-response data-path]}}))
-
-
+ (fn-traced
+  [{:keys [db]} [evt [path data-path]]]
+  {:http-xhrio {:method :get
+                :uri path
+                :timeout 8000
+                :format          (ajax/text-request-format)
+                :response-format (ajax/text-response-format)
+                :on-success [::transpose-response data-path]
+                :on-failure [::bad-response data-path]}}))

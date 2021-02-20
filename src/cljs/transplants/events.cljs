@@ -235,7 +235,7 @@
          s 1
          f [0 0]
          sumall 1
-         result []]
+         result [{:days 0 :remaining s :left f :sum 1}]]
     (let [[days S] (first SD)
           SDs (rest SD)]
       (if (seq SDs)
@@ -252,7 +252,7 @@
                  s+
                  f+
                  sumall+
-                 (conj result {:days days+ :H H+ :h h+ :s s+ :f f+ :sumall sumall})))
+                 (conj result {:days days+ :remaining s+ :left f+ :sum sumall+})))
         result))))
 
 (comment

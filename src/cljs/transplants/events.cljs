@@ -225,39 +225,6 @@
   ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
 
 
-
-#_(defn cox-adjusted
-  "Hs is like capHtx, but is a vector of maps like {:days d :transplant tx :death rem}. It is like capHtx <- -log(tx_surv) * exp (tx_xbeta)"
-  [H]
-  (loop [H H
-         [_ h-outcomes :as h] []
-         [_ s-outcomes :as s] [0 [1 1]]
-         [_ f-outcomes :as f] [0 [0 0]]
-         ;[_ sumall-outcomes :as sumall] [0 [0 0]]
-         ]
-    (let [H+ (rest H)]
-      (if (seq H+)
-        (let [[days H-outcomes] (first H)
-              [days+ H-outcomes+] (first H+)
-              h-outcomes+ (mapv #(/ (- %2 %1) (- days+ days)) H-outcomes H-outcomes+)
-              ps (mapv * h-outcomes+ s-outcomes)
-              f-outcomes+ (mapv + f-outcomes ps)
-              s-outcomes+ (mapv #(- % (apply + ps)) s-outcomes)
-              ;sumall-outcomes+ (mapv #(+ % (apply + f-outcomes)) s-outcomes )
-              ]
-          (recur (rest H)
-                 (conj h [days+ h-outcomes+])
-                 (conj s [days+ s-outcomes+])
-                 (conj f [days+ f-outcomes+])
-                 #_(conj sumall-outcomes [days+ sumall-outcomes+]))
-                 )
-        {:h h 
-         :s s 
-         :f f
-         ;:sumall sumall
-         }))))
-
-
 (defn cox-adjusted
   "survival-data is a a vector of [day survival-by-outcomes].
    survival-by-outcome is a vector of survivals for each outcome.
@@ -268,10 +235,9 @@
          s 1
          f [0 0]
          sumall 1
-         result [{:days 0 :h [0 0] :s 1 :f [0 0]}]]
+         result []]
     (let [[days S] (first SD)
-          SDs (rest SD)
-          ]
+          SDs (rest SD)]
       (if (seq SDs)
         (let [[days+ S+] (first SDs)
               H (map * (map identity #_#(- (js/Math.log %)) S) sum-beta-xs)
@@ -286,7 +252,7 @@
                  s+
                  f+
                  sumall+
-                 (conj result {:days days+ :h h+ :s s+ :f f+ :sumall sumall})))
+                 (conj result {:days days+ :H H+ :h h+ :s s+ :f f+ :sumall sumall})))
         result))))
 
 (comment
@@ -299,6 +265,35 @@
         sum-beta-xs [1 1]]
 
        (cox-adjusted surv-data sum-beta-xs))
+  ;; => [{:days 0, :h [0 0], :s 1, :f [0 0]}
+  ;;     {:days 1,
+  ;;      :h [0.01224178 0.003931381],
+  ;;      :s 0.983826839,
+  ;;      :f [0.01224178 0.003931381],
+  ;;      :sumall 1}
+  ;;     {:days 2,
+  ;;      :h [0.003556339999999998 0.003995230999999999],
+  ;;      :s 0.9763974007735859,
+  ;;      :f [0.01574060274060926 0.00786199648580481],
+  ;;      :sumall 1}
+  ;;     {:days 3,
+  ;;      :h [0 0],
+  ;;      :s 0.9763974007735859,
+  ;;      :f [0.01574060274060926 0.00786199648580481],
+  ;;      :sumall 1}
+  ;;     {:days 4,
+  ;;      :h [0.0035856700000000026 0.002029144],
+  ;;      :s 0.9709151109781587,
+  ;;      :f [0.019241641608641086 0.009843247413200126],
+  ;;      :sumall 1}
+  ;;     {:days 5,
+  ;;      :h [0 0],
+  ;;      :s 0.9709151109781587,
+  ;;      :f [0.019241641608641086 0.009843247413200126], 
+  ;;      :sumall 1}]
+
+  
+  ;; PREVIOUSLY
   ;; => [{:h [0 0], :s 1, :f [0 0], :ps [0 0]}
   ;;     {:h [0.01224178 0.003931381],
   ;;      :s 0.983826839,

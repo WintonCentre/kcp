@@ -207,33 +207,127 @@
             (mapv last (partition-by (fn [[day H]] (utils/day->month day)) Q1H0))
             (mapv last (partition-by (fn [[day H]] (utils/day->quarter day)) Qs)))))
 
-#_(defn sample-from*
-    "WIP attempt at optimising above function."
-    [H0]
-    (let [day-in-first? (partial utils/day-in? first)]
-      (loop [rv []
-             last-day 0
-             day-data H0]
+  ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
+  ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
+  ;;   p_tx[i] <- h_tx[i] * capS[i]
+  ;;   capF_tx[i+1] <- capF_tx[i] + p_tx[i]
 
-        (if (seq day-data)
-          (cond
+  ;;   h_rem[i] <- smoothed_cent$capHrem[i+1] - smoothed_cent$capHrem[i]
+  ;;   p_rem[i] <- h_rem[i] * capS[i]
+  ;;   capF_rem[i+1] <- capF_rem[i] + p_rem[i]
 
-            (day-in-first? utils/week day-data)
-            (recur (conj rv day-data) day-data (rest day-data))
+  ;;   capS[i+1] <- capS[i] - p_tx[i] - p_rem[i]
 
-            (day-in-first? utils/month day-data)
-            (recur rv day-data (rest day-data))
+  ;;   sumall[i] <- capS[i] + capF_rem[i] + capF_tx[i]
 
-            (day-in-first? utils/quarter day-data)
-            (recur (conj rv last-day) day-data (rest day-data))
+  ;; }
 
-            :else
-            (concat rv
-                    (map last (partition-by (fn [[day H]] (utils/day->quarter day)) rv))))
-
-          rv))))
+  ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
 
 
+
+#_(defn cox-adjusted
+  "Hs is like capHtx, but is a vector of maps like {:days d :transplant tx :death rem}. It is like capHtx <- -log(tx_surv) * exp (tx_xbeta)"
+  [H]
+  (loop [H H
+         [_ h-outcomes :as h] []
+         [_ s-outcomes :as s] [0 [1 1]]
+         [_ f-outcomes :as f] [0 [0 0]]
+         ;[_ sumall-outcomes :as sumall] [0 [0 0]]
+         ]
+    (let [H+ (rest H)]
+      (if (seq H+)
+        (let [[days H-outcomes] (first H)
+              [days+ H-outcomes+] (first H+)
+              h-outcomes+ (mapv #(/ (- %2 %1) (- days+ days)) H-outcomes H-outcomes+)
+              ps (mapv * h-outcomes+ s-outcomes)
+              f-outcomes+ (mapv + f-outcomes ps)
+              s-outcomes+ (mapv #(- % (apply + ps)) s-outcomes)
+              ;sumall-outcomes+ (mapv #(+ % (apply + f-outcomes)) s-outcomes )
+              ]
+          (recur (rest H)
+                 (conj h [days+ h-outcomes+])
+                 (conj s [days+ s-outcomes+])
+                 (conj f [days+ f-outcomes+])
+                 #_(conj sumall-outcomes [days+ sumall-outcomes+]))
+                 )
+        {:h h 
+         :s s 
+         :f f
+         ;:sumall sumall
+         }))))
+
+
+(defn cox-adjusted
+  "survival-data is a a vector of [day survival-by-outcomes].
+   survival-by-outcome is a vector of survivals for each outcome.
+   sum-beta-xs is a vector of sum-beta-xs for each outcome"
+  [survival-data sum-beta-xs]
+  (loop [SD survival-data
+         h [0 0]
+         s 1
+         f [0 0]
+         sumall 1
+         result [{:days 0 :h [0 0] :s 1 :f [0 0]}]]
+    (let [[days S] (first SD)
+          SDs (rest SD)
+          ]
+      (if (seq SDs)
+        (let [[days+ S+] (first SDs)
+              H (map * (map identity #_#(- (js/Math.log %)) S) sum-beta-xs)
+              H+ (map * (map identity #_#(- (js/Math.log %)) S+) sum-beta-xs)
+              h+ (mapv #(/ (- %2 %1) (- days+ days)) H H+)
+              ps+ (mapv #(* s %) h+)
+              f+ (mapv + f ps+)
+              s+ (- s (apply + ps+))
+              sumall+ (+ s (apply + f))]
+          (recur SDs
+                 h+
+                 s+
+                 f+
+                 sumall+
+                 (conj result {:days days+ :h h+ :s s+ :f f+ :sumall sumall})))
+        result))))
+
+(comment
+  (let [surv-data [[0, [0, 0]]
+           [1, [0.01224178 0.003931381]]
+           [2, [0.01579812 0.007926612]]
+           [3, [0.01579812 0.007926612]]
+           [4, [0.01938379 0.009955756]]
+           [5, [0.01938379 0.009955756]]]
+        sum-beta-xs [1 1]]
+
+       (cox-adjusted surv-data sum-beta-xs))
+  ;; => [{:h [0 0], :s 1, :f [0 0], :ps [0 0]}
+  ;;     {:h [0.01224178 0.003931381],
+  ;;      :s 0.983826839,
+  ;;      :f [0.01224178 0.003931381],
+  ;;      :ps [0.01224178 0.003931381],
+  ;;      :sumall 1}
+  ;;     {:h [0.003556339999999998 0.003995230999999999],
+  ;;      :s 0.9763974007735859,
+  ;;      :f [0.01574060274060926 0.00786199648580481],
+  ;;      :ps [0.0034988227406092583 0.003930615485804808],
+  ;;      :sumall 1}
+  ;;     {:h [0 0],
+  ;;      :s 0.9763974007735859,
+  ;;      :f [0.01574060274060926 0.00786199648580481],
+  ;;      :ps [0 0],
+  ;;      :sumall 1}
+  ;;     {:h [0.0035856700000000026 0.002029144],
+  ;;      :s 0.9709151109781587,
+  ;;      :f [0.019241641608641086 0.009843247413200126],
+  ;;      :ps [0.0035010388680318263 0.001981250927395317],
+  ;;      :sumall 1}
+  ;;     {:h [0 0],
+  ;;      :s 0.9709151109781587,
+  ;;      :f [0.019241641608641086 0.009843247413200126], 
+  ;;      :ps [0 0], 
+  ;;      :sumall 1}]
+
+  ;; => 
+  0)
 ;;;
 ;; Process raw tool bundles into db. 
 ;; 
@@ -241,7 +335,7 @@
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
- (fn-traced
+ (fn ;;-traced
   [{:keys [_ db]} [_ data-path response]]
   (let [path-params (get-in db [:current-route :path-params])
         [organ centre tool] (utils/path-keys path-params)
@@ -286,8 +380,8 @@
         H0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
                             %2) (sample-from H0+))
 
-        delta-t (map #(- (first %2) (first %1)) H0 (rest H0))
-        delta-H (map #((partial map -) (second %2) (second %1)) H0 (rest H0))
+        delta-t [0];(map #(- (first %2) (first %1)) H0 (rest H0))
+        delta-H [0];(map #((partial map -) (second %2) (second %1)) H0 (rest H0))
         h (map (fn [dH-i dt] (map #(/ % dt) dH-i)) delta-H delta-t)
 
         ;;dH-i-by-dt (fn [dH-i dt] (map #(/ % dt) dH-i))
@@ -305,24 +399,6 @@
                              ;;:H0+ H0+
                             }]
 
-
-  ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
-  ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
-  ;;   p_tx[i] <- h_tx[i] * capS[i]
-  ;;   capF_tx[i+1] <- capF_tx[i] + p_tx[i]
-
-  ;;   h_rem[i] <- smoothed_cent$capHrem[i+1] - smoothed_cent$capHrem[i]
-  ;;   p_rem[i] <- h_rem[i] * capS[i]
-  ;;   capF_rem[i+1] <- capF_rem[i] + p_rem[i]
-
-  ;;   capS[i+1] <- capS[i] - p_tx[i] - p_rem[i]
-
-  ;;   sumall[i] <- capS[i] + capF_rem[i] + capF_tx[i]
-
-  ;; }
-
-  ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
-
     {:db (-> (assoc db :oct-bundle tool-centre-bundle)
              (assoc-in data-path
                        (-> raw
@@ -336,8 +412,7 @@
                                   :ct (count delta-t)
                                   :delta-t delta-t
                                   :delta-H delta-H
-                                  :h h
-                                  )
+                                  :h h)
                            (dissoc inputs-key)
                            (dissoc baseline-cifs-key)
                            (dissoc baseline-vars-key))))

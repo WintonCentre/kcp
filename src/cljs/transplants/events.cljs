@@ -8,6 +8,7 @@
    [transplants.db :as init-db]
    [transplants.factors :as fac]
    [transplants.paths :as paths]
+   [transplants.model :as model]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
@@ -182,112 +183,8 @@
                                   (get-in fmaps [k2 :order]))))
         fmaps))
 
-(defn sample-from
-  "returns a selection of data from H0."
-  [H0]
-  (let [day-in-first? (partial utils/day-in? first)
-
-        W1H0 (->> H0
-                  (take-while (day-in-first? utils/week)))
-        M1H0 (->> H0
-                  (drop-while (day-in-first? utils/week))
-                  (take-while (day-in-first? utils/month)))
-        Q1H0 (->> H0
-                  (drop-while (day-in-first? utils/month))
-                  (take-while (day-in-first? utils/quarter)))
-        Qs (->> H0
-                (drop-while (day-in-first? utils/quarter)))]
-
-    ;; Selected days are: 
-    ;;     weekly for first month; 
-    ;;     then monthly for 1st quarter; 
-    ;;     then by quarter
-    (concat W1H0
-            (mapv last (partition-by (fn [[day H]] (utils/day->week day)) M1H0))
-            (mapv last (partition-by (fn [[day H]] (utils/day->month day)) Q1H0))
-            (mapv last (partition-by (fn [[day H]] (utils/day->quarter day)) Qs)))))
-
-  ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
-  ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
-  ;;   p_tx[i] <- h_tx[i] * capS[i]
-  ;;   capF_tx[i+1] <- capF_tx[i] + p_tx[i]
-
-  ;;   h_rem[i] <- smoothed_cent$capHrem[i+1] - smoothed_cent$capHrem[i]
-  ;;   p_rem[i] <- h_rem[i] * capS[i]
-  ;;   capF_rem[i+1] <- capF_rem[i] + p_rem[i]
-
-  ;;   capS[i+1] <- capS[i] - p_tx[i] - p_rem[i]
-
-  ;;   sumall[i] <- capS[i] + capF_rem[i] + capF_tx[i]
-
-  ;; }
-
-  ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
 
 
-(defn cox-adjusted
-  "survival-data is a a vector of [day survival-by-outcomes].
-   survival-by-outcome is a vector of survivals for each outcome.
-   exp-sum-beta-xs is a vector of exponentials of sum-beta-xs for each outcome"
-  [survival-data exp-sum-beta-xs]
-  (loop [SD survival-data
-         h [0 0]
-         s 1
-         f [0 0]
-         sumall 1
-         result [{:days 0 :remaining s :left f :sum 1}]]
-    (let [[days S] (first SD)
-          SD+ (rest SD)]
-      (if (seq SD+)
-        (let [[days+ S+] (first SD+)
-              H (map * (map identity #_#(- (js/Math.log %)) S) exp-sum-beta-xs)
-              H+ (map * (map identity #_#(- (js/Math.log %)) S+) exp-sum-beta-xs)
-              h+ (mapv #(/ (- %2 %1) (- days+ days)) H H+)
-              ps+ (mapv #(* s %) h+)
-              f+ (mapv + f ps+)
-              s+ (- s (apply + ps+))
-              sumall+ (+ s (apply + f))]
-          (recur SD+
-                 h+
-                 s+
-                 f+
-                 sumall+
-                 (conj result {:days days+ :remaining s+ :left f+ :sum sumall+})))
-        result))))
-
-(comment
-  (let [surv-data [[0, [0, 0]]
-           [1, [0.01224178 0.003931381]]
-           [2, [0.01579812 0.007926612]]
-           [3, [0.01579812 0.007926612]]
-           [4, [0.01938379 0.009955756]]
-           [5, [0.01938379 0.009955756]]]
-        sum-beta-xs [1 1]]
-
-       (cox-adjusted surv-data sum-beta-xs))
-  ;; => [{:days 0, :remaining 1, :left [0 0], :sum 1}
-  ;;     {:days 1,
-  ;;      :remaining 0.983826839,
-  ;;      :left [0.01224178 0.003931381],
-  ;;      :sum 1}
-  ;;     {:days 2,
-  ;;      :remaining 0.9763974007735859,
-  ;;      :left [0.01574060274060926 0.00786199648580481],
-  ;;      :sum 1}
-  ;;     {:days 3,
-  ;;      :remaining 0.9763974007735859,
-  ;;      :left [0.01574060274060926 0.00786199648580481],
-  ;;      :sum 1}
-  ;;     {:days 4,
-  ;;      :remaining 0.9709151109781587,
-  ;;      :left [0.019241641608641086 0.009843247413200126],
-  ;;      :sum 1}
-  ;;     {:days 5,
-  ;;      :remaining 0.9709151109781587,
-  ;;      :left [0.019241641608641086 0.009843247413200126], 
-  ;;      :sum 1}]
-
-  0)
 
 ;;;
 ;; Process raw tool bundles into db. 
@@ -331,52 +228,28 @@
         timed-outcome-keys (keys (first baseline-cifs))
         outcome-keys (remove #(= :days %) timed-outcome-keys)
 
-
-
-
+        ;; Use the following if calculating ALL data points
         H0+ (map (fn [bc] [(:days bc)
                            (map (comp - js/Math.log)
                                 ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
+        ;; Otherwise, filter for an optimised calculation
         H0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
-                            %2) (sample-from H0+))
+                            %2) (model/sample-from H0+))]
 
-        delta-t [0];(map #(- (first %2) (first %1)) H0 (rest H0))
-        delta-H [0];(map #((partial map -) (second %2) (second %1)) H0 (rest H0))
-        h (map (fn [dH-i dt] (map #(/ % dt) dH-i)) delta-H delta-t)
-
-        ;;dH-i-by-dt (fn [dH-i dt] (map #(/ % dt) dH-i))
-        ;h 7
-        tool-centre-bundle {:fmaps tool-inputs
-                            :baseline-vars baseline-vars
-                            :outcome-keys outcome-keys
-                            :timed-outcome-keys timed-outcome-keys
-                            :H0 H0
-                            :h h
-
-
-
-                            ;;:delta-h delta-h
-                             ;;:H0+ H0+
-                            }]
-
-    {:db (-> (assoc db :oct-bundle tool-centre-bundle)
-             (assoc-in data-path
-                       (-> raw
-                           (assoc :-inputs tool-inputs
-                                  :-baseline-cifs baseline-cifs
-                                  :-baseline-vars baseline-vars
-                                  :outcome-keys outcome-keys
-                                   ;;:H0 H0*
-                                  :H0 H0
-                                  :cH (count delta-H)
-                                  :ct (count delta-t)
-                                  :delta-t delta-t
-                                  :delta-H delta-H
-                                  :h h)
-                           (dissoc inputs-key)
-                           (dissoc baseline-cifs-key)
-                           (dissoc baseline-vars-key))))
+    {:db ;(assoc db :oct-bundle tool-centre-bundle)
+     (assoc-in db data-path
+               (-> raw
+                   (assoc :-inputs tool-inputs
+                          :fmaps tool-inputs
+                          :-baseline-cifs baseline-cifs
+                          :-baseline-vars baseline-vars
+                          :outcome-keys outcome-keys
+                          :timed-outcome-keys timed-outcome-keys
+                          :H0 H0)
+                   (dissoc inputs-key)
+                   (dissoc baseline-cifs-key)
+                   (dissoc baseline-vars-key)))
      :reg-factors [organ fmaps]})))
 
 (rf/reg-event-db

@@ -228,8 +228,8 @@
 (defn cox-adjusted
   "survival-data is a a vector of [day survival-by-outcomes].
    survival-by-outcome is a vector of survivals for each outcome.
-   sum-beta-xs is a vector of sum-beta-xs for each outcome"
-  [survival-data sum-beta-xs]
+   exp-sum-beta-xs is a vector of exponentials of sum-beta-xs for each outcome"
+  [survival-data exp-sum-beta-xs]
   (loop [SD survival-data
          h [0 0]
          s 1
@@ -237,17 +237,17 @@
          sumall 1
          result [{:days 0 :remaining s :left f :sum 1}]]
     (let [[days S] (first SD)
-          SDs (rest SD)]
-      (if (seq SDs)
-        (let [[days+ S+] (first SDs)
-              H (map * (map identity #_#(- (js/Math.log %)) S) sum-beta-xs)
-              H+ (map * (map identity #_#(- (js/Math.log %)) S+) sum-beta-xs)
+          SD+ (rest SD)]
+      (if (seq SD+)
+        (let [[days+ S+] (first SD+)
+              H (map * (map identity #_#(- (js/Math.log %)) S) exp-sum-beta-xs)
+              H+ (map * (map identity #_#(- (js/Math.log %)) S+) exp-sum-beta-xs)
               h+ (mapv #(/ (- %2 %1) (- days+ days)) H H+)
               ps+ (mapv #(* s %) h+)
               f+ (mapv + f ps+)
               s+ (- s (apply + ps+))
               sumall+ (+ s (apply + f))]
-          (recur SDs
+          (recur SD+
                  h+
                  s+
                  f+
@@ -265,64 +265,30 @@
         sum-beta-xs [1 1]]
 
        (cox-adjusted surv-data sum-beta-xs))
-  ;; => [{:days 0, :h [0 0], :s 1, :f [0 0]}
+  ;; => [{:days 0, :remaining 1, :left [0 0], :sum 1}
   ;;     {:days 1,
-  ;;      :h [0.01224178 0.003931381],
-  ;;      :s 0.983826839,
-  ;;      :f [0.01224178 0.003931381],
-  ;;      :sumall 1}
+  ;;      :remaining 0.983826839,
+  ;;      :left [0.01224178 0.003931381],
+  ;;      :sum 1}
   ;;     {:days 2,
-  ;;      :h [0.003556339999999998 0.003995230999999999],
-  ;;      :s 0.9763974007735859,
-  ;;      :f [0.01574060274060926 0.00786199648580481],
-  ;;      :sumall 1}
+  ;;      :remaining 0.9763974007735859,
+  ;;      :left [0.01574060274060926 0.00786199648580481],
+  ;;      :sum 1}
   ;;     {:days 3,
-  ;;      :h [0 0],
-  ;;      :s 0.9763974007735859,
-  ;;      :f [0.01574060274060926 0.00786199648580481],
-  ;;      :sumall 1}
+  ;;      :remaining 0.9763974007735859,
+  ;;      :left [0.01574060274060926 0.00786199648580481],
+  ;;      :sum 1}
   ;;     {:days 4,
-  ;;      :h [0.0035856700000000026 0.002029144],
-  ;;      :s 0.9709151109781587,
-  ;;      :f [0.019241641608641086 0.009843247413200126],
-  ;;      :sumall 1}
+  ;;      :remaining 0.9709151109781587,
+  ;;      :left [0.019241641608641086 0.009843247413200126],
+  ;;      :sum 1}
   ;;     {:days 5,
-  ;;      :h [0 0],
-  ;;      :s 0.9709151109781587,
-  ;;      :f [0.019241641608641086 0.009843247413200126], 
-  ;;      :sumall 1}]
+  ;;      :remaining 0.9709151109781587,
+  ;;      :left [0.019241641608641086 0.009843247413200126], 
+  ;;      :sum 1}]
 
-  
-  ;; PREVIOUSLY
-  ;; => [{:h [0 0], :s 1, :f [0 0], :ps [0 0]}
-  ;;     {:h [0.01224178 0.003931381],
-  ;;      :s 0.983826839,
-  ;;      :f [0.01224178 0.003931381],
-  ;;      :ps [0.01224178 0.003931381],
-  ;;      :sumall 1}
-  ;;     {:h [0.003556339999999998 0.003995230999999999],
-  ;;      :s 0.9763974007735859,
-  ;;      :f [0.01574060274060926 0.00786199648580481],
-  ;;      :ps [0.0034988227406092583 0.003930615485804808],
-  ;;      :sumall 1}
-  ;;     {:h [0 0],
-  ;;      :s 0.9763974007735859,
-  ;;      :f [0.01574060274060926 0.00786199648580481],
-  ;;      :ps [0 0],
-  ;;      :sumall 1}
-  ;;     {:h [0.0035856700000000026 0.002029144],
-  ;;      :s 0.9709151109781587,
-  ;;      :f [0.019241641608641086 0.009843247413200126],
-  ;;      :ps [0.0035010388680318263 0.001981250927395317],
-  ;;      :sumall 1}
-  ;;     {:h [0 0],
-  ;;      :s 0.9709151109781587,
-  ;;      :f [0.019241641608641086 0.009843247413200126], 
-  ;;      :ps [0 0], 
-  ;;      :sumall 1}]
-
-  ;; => 
   0)
+
 ;;;
 ;; Process raw tool bundles into db. 
 ;; 

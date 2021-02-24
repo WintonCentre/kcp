@@ -253,7 +253,7 @@
                           :outcome-keys outcome-keys
                           :timed-outcome-keys timed-outcome-keys
                           :beta-keys beta-keys
-                          :S0+ S0+
+                          :all-S0 S0+
                           :S0 S0
                           )
                    (dissoc inputs-key)

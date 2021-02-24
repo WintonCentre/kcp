@@ -99,39 +99,84 @@
 
   ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
 
-
 (defn cox-adjusted
   "survival-data is a a vector of [day survival-by-outcomes].
    survival-by-outcome is a vector of survivals for each outcome.
-   exp-sum-beta-xs is a vector of exponentials of sum-beta-xs for each outcome"
-  [survival-data exp-sum-beta-xs]
-  (loop [SD survival-data
-         s 1
-         f [0 0]
-         sumall 1
-         result [{:days 0 :waiting s :left f :sum 1}]]
-    (let [[days S] (first SD)
-          SD+ (rest SD)]
-      (if (seq SD+)
-        (let [[days+ S+] (first SD+)
-              H (map * (map #(- (js/Math.log %)) S) exp-sum-beta-xs)
-              H+ (map * (map #(- (js/Math.log %)) S+) exp-sum-beta-xs)
-              delta-h (map - H+ H)
-              p (map #(* s %) delta-h)
-              f+ (map + f p)
-              s+ (- s (apply + p))
-              sumall+ (+ s (apply + f))]
-          (recur SD+
-                 s+
-                 f+
-                 sumall+
-                 (conj result {:days+ days+ :waiting s+ :left f+ :sum sumall+})))
-        result))))
+   exp-sum-beta-xs is a vector of exponentials of sum-beta-xs for each outcome.
+   
+   Run the cox-adustment over survival-data, returning a vector of [day leaving-proportion-by-outcome] having taken 
+   account of the input contributions to exp-sum-beta-xs, and having ensured the sum of all outcomes is 1.
+   Formally it has the same form as the input survival-data vector."
+  [survival-data sum-beta-xs]
+  (let [exp-sum-beta-xs (map js/Math.exp sum-beta-xs)]
+    (loop [SD survival-data
+           s 1
+           f [0 0]
+           sumall 1
+           result [[0 [1 1]]]]
+      (let [[days S] (first SD)
+            SD+ (rest SD)]
+        (if (seq SD+)
+          (let [[days+ S+] (first SD+)
+                H (map * (map #(- (js/Math.log %)) S) exp-sum-beta-xs)
+                H+ (map * (map #(- (js/Math.log %)) S+) exp-sum-beta-xs)
+                delta-h (map - H+ H)
+                p (map #(* s %) delta-h)
+                f+ (map + f p)
+                s+ (- s (apply + p))
+                sumall+ (+ s (apply + f))]
+            (recur SD+
+                   s+
+                   f+
+                   sumall+
+                   (conj result [days+ f+])))
+          result)))))
+
+
+(defn S0-for-day
+  "Returns a vector of [day outcome-baselines] for the given day from S0.
+   
+   Since S0 may not collect all days, but S0-for-day will return the last known value 
+   at or before the given day. The returned day may therefore be earlier or equal to the
+   input day.
+   "
+  [S0 day]
+  (let [rv (->> S0
+                (filter #(<= (first %) day))
+                (last))]
+    (if (and rv (pos? (first rv)))
+      rv
+      (first S0))))
+
+
+(defn use-cox-adjusted?
+  "Competing risk tools demand the cox-adjusted model"
+  [tool]
+  (= tool :waiting))
+
+(defn cox
+  "For a single cox calculation we should use the formula based on all-S0 rather than S0"
+  [all-S0 day sum-x-betas]
+  (- 1 (js/Math.pow (S0-for-day all-S0 day) (js/Math.exp sum-x-betas))))
+
+;; todo: remove this
+(defn cif
+  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
+   The competing risk tool needs the direct cumulative incidence frequency.
+   "
+  [tool cif-0 sum-x-betas]
+  #_(when (number? tool)
+      (js/console.error "number?" tool))
+  (if (use-cox-adjusted? tool)
+    (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas)))
+    (js/Math.pow cif-0 (js/Math.exp sum-x-betas))))
+
+
 
 (comment
   ;; cox-adjusted gives exactly the same results as the R adjcox on the original data.
   ;; adjcox uses the same data, but inserts values at every day by copying the previous day if there is no data.
-  ;; cox-adjusted does a reasonable job if further days are deleted from the input set, but there may be a secod order improvement to be made.
+  ;; cox-adjusted does a reasonable job if further days are deleted from the input set, but there may be a second order improvement to be made.
   (let [surv-data [[0, [1, 1]]
                    [1, [0.9857067 0.9980149]]
                    [2, [0.9815928 0.9960016]]
@@ -170,116 +215,33 @@
                       [1095 [0.080756853 0.5165745583]]]
            sum-beta-xs (map js/Math.exp [-0.162124472180451 0.682324669172932])]
 
-       (cox-adjusted surv-data sum-beta-xs))))
-  ;; => [{:days 0, :waiting 1, :left [0 0], :sum 1}
-  ;;     {:days+ 1,
-  ;;      :waiting 0.9838268440086021,
-  ;;      :left (0.01224177520106726 0.003931380790330616),
-  ;;      :sum 1}
-  ;;     {:days+ 2,
-  ;;      :waiting 0.9763973998116431,
-  ;;      :left (0.015740602763125524 0.007861997425231353),
-  ;;      :sum 1}
-  ;;     {:days+ 4,
-  ;;      :waiting 0.9709151066846756,
-  ;;      :left (0.019241645870730743 0.009843247444593597),
-  ;;      :sum 1}
-  ;;     {:days+ 6,
-  ;;      :waiting 0.9671383896206894,
-  ;;      :left (0.020995372988407125 0.01186623739090344),
-  ;;      :sum 1}
-  ;;     {:days+ 7,
-  ;;      :waiting 0.9653799415126608,
-  ;;      :left (0.02275382109643579 0.01186623739090344),
-  ;;      :sum 1}
-  ;;     {:days+ 13,
-  ;;      :waiting 0.9547545373336582,
-  ;;      :left (0.033379225275438434 0.01186623739090344),
-  ;;      :sum 1}
-  ;;     {:days+ 21,
-  ;;      :waiting 0.9420734975246721,
-  ;;      :left (0.04401672215277627 0.013909780322551722),
-  ;;      :sum 1}
-  ;;     {:days+ 28,
-  ;;      :waiting 0.9250340113228949,
-  ;;      :left (0.05289400387003364 0.02207198480707156),
-  ;;      :sum 1}
-  ;;     {:days+ 30,
-  ;;      :waiting 0.9194690413182931,
-  ;;      :left (0.05643251324663601 0.02409844543507091),
-  ;;      :sum 1}
-  ;;     {:days+ 60,
-  ;;      :waiting 0.831690475885841,
-  ;;      :left (0.11411861674289629 0.054190907371262725),
-  ;;      :sum 1}
-  ;;     {:days+ 91,
-  ;;      :waiting 0.7473377833896315,
-  ;;      :left (0.16582834519531353 0.0868338714150549),
-  ;;      :sum 1}
-  ;;     {:days+ 182,
-  ;;      :waiting 0.5102563881173592,
-  ;;      :left (0.3294450785025679 0.16029853338007288),
-  ;;      :sum 1}
-  ;;     {:days+ 270,
-  ;;      :waiting 0.37349189141776995,
-  ;;      :left (0.41620046620357787 0.21030764237865213),
-  ;;      :sum 1}
-  ;;     {:days+ 363,
-  ;;      :waiting 0.2914231657065238,
-  ;;      :left (0.46699210437328914 0.24158472992018698),
-  ;;      :sum 0.9999999999999999}
-  ;;     {:days+ 452,
-  ;;      :waiting 0.22057372131736763,
-  ;;      :left (0.5104806307064491 0.2689456479761832),
-  ;;      :sum 1}
-  ;;     {:days+ 547,
-  ;;      :waiting 0.16164667579842912,
-  ;;      :left (0.547017400528714 0.29133592367285693),
-  ;;      :sum 0.9999999999999999}
-  ;;     {:days+ 638,
-  ;;      :waiting 0.10179944830680927,
-  ;;      :left (0.5902581775974212 0.3079423740957695),
-  ;;      :sum 1}
-  ;;     {:days+ 730,
-  ;;      :waiting 0.059519258956123616,
-  ;;      :left (0.6157149646541598 0.3247657763897166),
-  ;;      :sum 1}
-  ;;     {:days+ 821,
-  ;;      :waiting 0.045840302117720264,
-  ;;      :left (0.623141087363417 0.3310186105188627),
-  ;;      :sum 1}
-  ;;     {:days+ 883,
-  ;;      :waiting 0.03217073999580891,
-  ;;      :left (0.631799078315709 0.33603018168848203),
-  ;;      :sum 1}
-  ;;     {:days+ 954,
-  ;;      :waiting 0.026320065088413527,
-  ;;      :left (0.635357471759502 0.33832246315208453),
-  ;;      :sum 1}
-  ;;     {:days+ 1095,
-  ;;      :waiting 0.016962926533131608,
-  ;;      :left (0.6399569479176096 0.34308012554925876), 
-  ;;      :sum 1}]
+       (cox-adjusted surv-data sum-beta-xs))
+     ;; => [[0 [0 0]]
+     ;;     [1 (0.01224177520106726 0.003931380790330616)]
+     ;;     [2 (0.015740602763125524 0.007861997425231353)]
+     ;;     [4 (0.019241645870730743 0.009843247444593597)]
+     ;;     [6 (0.020995372988407125 0.01186623739090344)]
+     ;;     [7 (0.02275382109643579 0.01186623739090344)]
+     ;;     [13 (0.033379225275438434 0.01186623739090344)]
+     ;;     [21 (0.04401672215277627 0.013909780322551722)]
+     ;;     [28 (0.05289400387003364 0.02207198480707156)]
+     ;;     [30 (0.05643251324663601 0.02409844543507091)]
+     ;;     [60 (0.11411861674289629 0.054190907371262725)]
+     ;;     [91 (0.16582834519531353 0.0868338714150549)]
+     ;;     [182 (0.3294450785025679 0.16029853338007288)]
+     ;;     [270 (0.41620046620357787 0.21030764237865213)]
+     ;;     [363 (0.46699210437328914 0.24158472992018698)]
+     ;;     [452 (0.5104806307064491 0.2689456479761832)]
+     ;;     [547 (0.547017400528714 0.29133592367285693)]
+     ;;     [638 (0.5902581775974212 0.3079423740957695)]
+     ;;     [730 (0.6157149646541598 0.3247657763897166)]
+     ;;     [821 (0.623141087363417 0.3310186105188627)]
+     ;;     [883 (0.631799078315709 0.33603018168848203)]
+     ;;     [954 (0.635357471759502 0.33832246315208453)]
+     ;;     [1095 (0.6399569479176096 0.34308012554925876)]]
+))
 
   0)
-
-;;
-;; 
-;;
-(defn S0-for-day
-  "Returns a vector of [day outcome-baselines] for the given day from S0.
-   
-   Since S0 may not collect all days, but S0-for-day will return the last known value 
-   at or before the given day. The returned day may therefore be earlier or equal to the
-   input day.
-   "
-  [S0 day]
-  (let [rv (->> S0
-                (filter #(<= (first %) day))
-                (last))]
-    (if (and rv (pos? (first rv)))
-      rv
-      (first S0))))
 
 (comment
   (let [S0 [[0 [1 1]]
@@ -317,34 +279,5 @@
   ;;     [1095 [0.080756853 0.5165745583]])
   0)
 
-(defn use-cox-adjusted?
-  "Competing risk tools demand the cox-adjusted model"
-  [tool]
-  ;(println ::waiting tool)
-  (= tool :waiting))
 
-(defn cox
-  "For a single cox calculation we should use the formula based on all available data points rather than a filtered set"
-  [S0 day sum-x-betas]
-  (- 1 (js/Math.pow (S0-for-day S0 day) (js/Math.exp sum-x-betas))))
-
-(defn cif
-  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
-   The competing risk tool needs the direct cumulative incidence frequency.
-   "
-  [tool cif-0 sum-x-betas]
-  #_(when (number? tool)
-      (js/console.error "number?" tool))
-  (if (use-cox-adjusted? tool)
-    (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas)))
-    (js/Math.pow cif-0 (js/Math.exp sum-x-betas))))
-
-(comment
-  (js/Math.pow 0 0)
-  ;test lung, Birmingham, day 3, Cystic Fibrosis with:
-  (def cif_0 0.008235)
-
-  (def sum-x-betas -0.6827) ;(== -0.1121 + -0.5706) 
-
-  (cif :waiting cif_0 sum-x-betas))
 

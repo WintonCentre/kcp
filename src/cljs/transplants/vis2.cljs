@@ -55,8 +55,9 @@
         cox? (model/use-cox-adjusted? tool)
 
         ;; baseline-cifs-for-day is a seq of cif-0s - one for each outcome on the selected day
+        s0 (:all-S0 bundle)
         baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
-        [_ s0-for-day] (model/S0-for-day (:S0 bundle) day)
+        [_ all-s0-for-day] (model/S0-for-day s0 day)
 
 
         ;;
@@ -64,11 +65,16 @@
         ;; in the outcomes vector (currently first). 
         ;;
         cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)
-        S (if cox? 
-            (map model/cox-adjusted s0-for-day sum-betas)
-            (map (partial model/cif tool) baseline-cifs-for-day sum-betas))]
+
+
+        F (model/cox-adjusted s0 sum-betas)
+        #_(if cox?
+            (model/cox-adjusted s0 exp-sum-betas)
+            (map model/cox all-s0-for-day sum-betas))]
+
 
     [:> bs/Row {:style {:margin-top 20}}
+     [:p (count s0)]
      (when factors
        [:> bs/Col
         [ui/test-day-selector 10]
@@ -80,45 +86,51 @@
            [:thead [outcome-tr 1005 outcomes]]
            (into [:tbody
 
-                    ;;  Show Baseline CIFS for selected day
-                    [:tr {:key 1002}
-                     [:td [:b "S" [:sub "0"]]]
-                     (map-indexed
-                      (fn [i cif-0-day]
-                        [:td {:key i} (model/to-precision cif-0-day 4)])
-                      (if (model/use-cox-adjusted? tool)
-                          S
-                          baseline-cifs-for-day))]
+                    ;;  Show Baseline S0s for selected day
+                  [:tr {:key 1002}
+                   [:td [:b "S" [:sub "0"]]]
+                   #_(pr-str (model/S0-for-day s0 day))
+                   (map-indexed
+                    (fn [i S0_i]
+                      [:td {:key i} (model/to-precision (- 1 S0_i) 4)])
+                    (second (model/S0-for-day s0 day)))]                    ;;  Show Baseline S0s for selected day
+                  [:tr {:key 1002}
+                   [:td [:b "F"]]
+                   (map-indexed
+                    (fn [i F_i]
+                      [:td {:key i} (model/to-precision F_i 4)])
+                    (second (model/S0-for-day F day)))]
 
                     ;; Show sum-beta-xs for selected inputs
-                    [:tr {:key 1003}
-                     [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
-                     (map-indexed
-                      (fn [i sb]
-                        [:td {:key i} (model/to-precision sb 4)])
-                      sum-betas)]
+                  [:tr {:key 1003}
+                   [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
+                   (map-indexed
+                    (fn [i sb]
+                      [:td {:key i} (model/to-precision sb 4)])
+                    sum-betas)]
 
-                    [:tr {:key 1004 :style {:background-color rgb/secondary :color "#fff"}}
-                     [:th "Factor" [:sub [:i "𝒌"]]]
-                     [:th {:col-span (str (count outcomes))}
-                      [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]
-                      #_[:i "Beta * x"]]]
+                  [:tr {:key 1004 :style {:background-color rgb/secondary :color "#fff"}}
+                   [:th "Factor" [:sub [:i "𝒌"]]]
+                   [:th {:col-span (str (count outcomes))}
+                    [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]
+                    #_[:i "Beta * x"]]]
 
-                    (outcome-tr 1006 outcomes)
-                    (conj
-                     (map-indexed
-                      (fn [i [factor fmap]]
+                  (outcome-tr 1006 outcomes)
+                  (conj
+                   (map-indexed
+                    (fn [i [factor fmap]]
                               ; Show individual beta-x contribution
-                        [:tr {:key i}
-                         [:td {:key i} factor]
-                         (when fmap
-                           (map-indexed
-                            (fn [j b]
-                              [:td {:key j} (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
-                            beta-keys))])
-                      fmaps))])]]]])]))
+                      [:tr {:key i}
+                       [:td {:key i} factor]
+                       (when fmap
+                         (map-indexed
+                          (fn [j b]
+                            [:td {:key j} (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
+                          beta-keys))])
+                    fmaps))])]]]])]))
 
 (comment
+
   (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)
   (fac/selected-beta-x env factor fmap :beta-transplant)
   )

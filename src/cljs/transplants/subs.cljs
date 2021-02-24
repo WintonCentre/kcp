@@ -38,11 +38,6 @@
 
 (rf/reg-sub ::inputs (fn [db] (get-in db [:inputs])))
 
-
-;(rf/reg-sub ::baseline-vars (fn [db] (get-in db [:-baseline-vars])))
-
-;(rf/reg-sub ::master-f-maps (fn [db] (get-in db [:-inputs])))
-
 (rf/reg-sub ::test-day (fn [db] (get-in db [:test-day])))
 
 (rf/reg-sub ::cohort-dates (fn [db] (get-in db [:cohort-dates])))

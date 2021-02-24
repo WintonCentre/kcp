@@ -228,25 +228,34 @@
         timed-outcome-keys (keys (first baseline-cifs))
         outcome-keys (remove #(= :days %) timed-outcome-keys)
 
+        outcomes (fac/get-outcomes* (first baseline-cifs))
+        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+        ;outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
+
         ;; Use the following if calculating ALL data points
-        H0+ (map (fn [bc] [(:days bc)
+        S0+ (map (fn [bc] [(:days bc)
+                           ((apply juxt outcome-keys) bc)]) baseline-cifs)
+        #_#_S0+ (map (fn [bc] [(:days bc)
                            (map (comp - js/Math.log)
                                 ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
         ;; Otherwise, filter for an optimised calculation
-        H0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
-                            %2) (model/sample-from H0+))]
+        S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
+                            %2) (model/sample-from S0+))]
 
     {:db ;(assoc db :oct-bundle tool-centre-bundle)
      (assoc-in db data-path
                (-> raw
-                   (assoc :-inputs tool-inputs
-                          :fmaps tool-inputs
-                          :-baseline-cifs baseline-cifs
-                          :-baseline-vars baseline-vars
+                   (assoc :fmaps tool-inputs
+                          :baseline-cifs baseline-cifs
+                          :baseline-vars baseline-vars
+                          :outcomes outcomes
                           :outcome-keys outcome-keys
                           :timed-outcome-keys timed-outcome-keys
-                          :H0 H0)
+                          :beta-keys beta-keys
+                          :S0+ S0+
+                          :S0 S0
+                          )
                    (dissoc inputs-key)
                    (dissoc baseline-cifs-key)
                    (dissoc baseline-vars-key)))

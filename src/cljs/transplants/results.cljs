@@ -4,13 +4,13 @@
             [transplants.subs :as subs]
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
-            [transplants.vis2 :as vis2]
+            [transplants.vis2 :as vis]
             ["recharts" :as rech]
             [transplants.ui :as ui]
             [transplants.utils :as utils]))
 
 
-(defn s-baseline-t
+#_(defn s-baseline-t
   "Given a baseline-cif table and an outcome cif-key and an interval dt, 
    return a table of S_baseline maps at regular intervals dt spanning the times in the data"
   [baseline-cifs  dt]
@@ -26,13 +26,7 @@
         rv)
       rv)))
 
-(def bc->v 
-  "Returns a function that converts a vector of [k v] maps to a vecror"
-  (juxt :days :cif-transplant :cif-death))
-
-
-
-(defn s-baseline-v
+#_(defn s-baseline-v
   "Given a baseline-cif table and an outcome cif-key and an interval dt, 
    return a table of S_baseline maps at regular intervals dt spanning the times in the data"
   [baseline-v dt]
@@ -48,25 +42,9 @@
         rv)
       rv)))
 
-;; $$
-;; H(t) = -log(S(t))
-;; $$
-;; Where you calculate $S(t)$ for a particular patient combination in the usual way by:
-;; $$
-;; S(t) = S_0(t)^\exp{beta_0 x_0 + beta_1 x_1 + ...}
-;; $$
-
-;; Adopting the notation of the R code where capHtx/rem is the cumulative (c) ap? Hazard function of "transplant" "death/removal"
-(defn H [outcome sum-x-betas oct-bundle]
-  (let [S (:-S0-outcome oct-bundle)
-        H (map (comp - js/Math.log) S)])
-  )
 
 (defn survival [outcome baseline-cifs sum-x-betas oct-bundle day]
   (let [s-outcome-day (js/Math.pow (bun/cif-0 oct-bundle day) (js/Math.exp sum-x-betas))]))
-
-
-
 
 (comment
   (assoc  [1 2 3] 0 9)
@@ -90,7 +68,7 @@
       
    
    cif-0: "
-  [H0]
+  [S0]
   )
 
 
@@ -118,7 +96,7 @@
   (def oct-names (utils/path-names (:path-params route)))
   (def oct-keys (map keyword oct-names))
   (def oct-bundle (get-in bundles oct-keys))
-  (def baseline-cifs  (:-baseline-cifs oct-bundle))
+  (def baseline-cifs  (:baseline-cifs oct-bundle))
   (def baseline-cifs-for-day (bun/cif-0 oct-bundle day))
   (def outcome-names (fac/get-outcomes* (bun/cif-0 oct-bundle day)))
   (def outcome-keys (map keyword outcome-names))

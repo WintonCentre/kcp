@@ -356,7 +356,7 @@
                     (fn [[k w]] ^{:key (:factor w)}
                       [:div {:style {:margin-bottom 15}}
                        (widg/widget (assoc w :model tool))])
-                    (get tool-centre-bundle :-inputs)))]
+                    (get tool-centre-bundle :fmaps)))]
             [ui/col
              [results/results-panel bundles organ centre tool]]]
            (if (= tool :guidance)

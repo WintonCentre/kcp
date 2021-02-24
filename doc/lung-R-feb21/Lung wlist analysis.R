@@ -152,8 +152,8 @@ adjcox <- function(cent = "Newcastle", sex = 1, disgrp = "COPD", pred = "0", inh
   sumall <- numeric(length = dim(smoothed_cent)[1])
   sumall[1] <- 0
   
-  for (i in 1:6){
-  #for (i in 1:(dim(smoothed_cent)[1]-1)){
+  #for (i in 1:10){
+  for (i in 1:(dim(smoothed_cent)[1]-1)){
     h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
     p_tx[i] <- h_tx[i] * capS[i]
     capF_tx[i+1] <- capF_tx[i] + p_tx[i]

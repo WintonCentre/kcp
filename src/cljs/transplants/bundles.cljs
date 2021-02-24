@@ -31,18 +31,18 @@
    "
   [oct-bundle day]
   (let [rv (->> oct-bundle
-                (:-baseline-cifs)
+                (:baseline-cifs)
                 (filter #(<= (:days %) day))
                 (last))]
     (if (and rv (pos? (:days rv)))
       rv
-      (first (:-baseline-cifs oct-bundle)))))
+      (first (:baseline-cifs oct-bundle)))))
 
 (comment
   (get-bundle :lung :new :waiting)
  
 
-  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+  (cif-0 {:baseline-cifs [{:days 0 :cif 23}
                            {:days 3 :cif 23}
                            {:days 10 :cif 23}
                            {:days 20 :cif 23}
@@ -50,7 +50,7 @@
    ;; => {:days 3, :cif 23}
 
 
-  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+  (cif-0 {:baseline-cifs [{:days 0 :cif 23}
                            {:days 0 :cif 25}
                            {:days 3 :cif 23}
                            {:days 10 :cif 23}
@@ -59,7 +59,7 @@
     ;; => {:days 0, :cif 23}
 
 
-  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+  (cif-0 {:baseline-cifs [{:days 0 :cif 23}
                            {:days 3 :cif 23}
                            {:days 10 :cif 23}
                            {:days 20 :cif 23}
@@ -67,7 +67,7 @@
     ;; => {:days 10, :cif 23}
 
 
-  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+  (cif-0 {:baseline-cifs [{:days 0 :cif 23}
                            {:days 3 :cif 23}
                            {:days 10 :cif 23}
                            {:days 20 :cif 23}
@@ -75,7 +75,7 @@
     ;; => {:days 10, :cif 23}
 
 
-  (cif-0 {:-baseline-cifs [{:days 0 :cif 23}
+  (cif-0 {:baseline-cifs [{:days 0 :cif 23}
                            {:days 3 :cif 23}
                            {:days 10 :cif 23}
                            {:days 20 :cif 23}

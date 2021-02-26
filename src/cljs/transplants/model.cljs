@@ -113,7 +113,7 @@
            s 1
            f [0 0]
            sumall 1
-           result [[0 [1 1]]]]
+           result [[0 [0 0]]]]
       (let [[days S] (first SD)
             SD+ (rest SD)]
         (if (seq SD+)

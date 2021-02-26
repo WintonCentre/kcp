@@ -137,8 +137,8 @@
      [ui/tabs {:variant "pills" :default-active-key selected-vis
                :active-key selected-vis
                :on-select #(rf/dispatch [::events/selected-vis %])}
-      #_[ui/tab {:event-key "bars" :title "Bar Chart"}
-       #_(condp = tool
+      [ui/tab {:event-key "bars" :title "Bar Chart"}
+       (condp = tool
          :waiting
          [:<>
           [vis/bar-chart {:organ organ

@@ -220,7 +220,7 @@
                          :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])]
 
 
-      #_[ui/tab {:event-key "area" :title "Area Chart"}
+      [ui/tab {:event-key "area" :title "Area Chart"}
        (do
          ;(rf/dispatch [::events/selected-vis "area"])
          #_(condp = tool
@@ -303,7 +303,7 @@
                             :bundle bundle
                             :rubric [:h4 "About how long does the graft survive?"]
                             :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]))]
-      #_[ui/tab {:event-key "icons" :title "Icon Array"}
+      [ui/tab {:event-key "icons" :title "Icon Array"}
        #_(condp = tool
          :waiting
          [:<>
@@ -422,11 +422,11 @@
                           :bundle bundle
                           :rubric [:h4 "About how long does the graft from a living donor survive?"]
                           :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])]
-      #_[ui/tab {:event-key "table" :title "Table"}
+      [ui/tab {:event-key "table" :title "Table"}
        [:div "not yet"]]
       
       [ui/tab {:variant "secondary"
-               :event-key "test" :title "Test"}
+               :event-key "test" :title "[Test]"}
        [vis/test-rig {:organ organ
                       :centre centre
                       :tool tool

@@ -50,3 +50,5 @@ dev.cljs.edn
 prod.cljs.edn
 
 webpack*
+.lsp/
+report.html

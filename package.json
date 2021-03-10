@@ -1,12 +1,19 @@
 {
   "dependencies": {
     "bootstrap": "4.5.2",
+    "highlight.js": "9.18.1",
     "react": "16.13.0",
     "react-bootstrap": "1.2.2",
     "react-dom": "16.13.0",
+    "react-highlight.js": "1.0.7",
     "recharts": "^1.8.5"
   },
   "devDependencies": {
+    "karma": "4.4.1",
+    "karma-chrome-launcher": "3.1.0",
+    "karma-cljs-test": "0.1.0",
+    "karma-junit-reporter": "2.0.1",
+    "shadow-cljs": "2.9.3",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   }

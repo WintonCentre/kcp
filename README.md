@@ -127,13 +127,19 @@ The problem here is that all of these tests are still requiring user interaction
 browser context somehow, with results appearing in the test.html console in the browser, or in the REPL. I'm not clear how to do this server side.
 
 
-### Use of lein shadow
-We have included the lein-shadow plugin which moves all the shadow configuration into the leiningen project file.
-* See https://gitlab.com/nikperic/lein-shadow/-/tree/docs
-* lein shadow compile app
-* lein shadow watch app
-* lein shadow release app
+# The front-end trac tool
 
+This is a Shadow-cljs app 
+## Getting Started
+
+```
+git clone https://github.com/wintoncentre/transplants
+cd transplants
+npm install
+npm start
+```
+
+Then, open `http://localhost:3000` in your browser, and enjoy!
 
 ## Tests
 Run `lein karma` for cljs unit tests

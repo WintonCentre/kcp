@@ -11,7 +11,6 @@
    [transplants.model :as model]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]
    [clojure.string :as string]
    [clojure.set :as rel]))
 
@@ -285,7 +284,7 @@
 ;;;
 (rf/reg-event-db
  ::store-response
- (fn-traced
+ (fn
   [db [_ data-path response]]
   (-> db
       (assoc-in data-path (edn/read-string response)))))
@@ -321,14 +320,14 @@
 
 (rf/reg-event-db
  ::transpose-response
- (fn-traced
+ (fn
   [db [_ data-path response]]
   (-> db
       (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response))))))
 
 (rf/reg-event-db
  ::bad-response
- (fn-traced
+ (fn
   [db [_ data-path response]]
   #_(when (or data-path response)
       (js/alert (str "bad-response while loading " data-path "response = " response)))
@@ -336,7 +335,7 @@
 
 (rf/reg-event-fx
  ::store-metadata-response
- (fn-traced
+ (fn
   [{:keys [db]} [_ data-path response]]
   (let [mdata (edn/read-string response)
         organs (map :organ (:organ-meta mdata))]
@@ -351,7 +350,7 @@
 
 (rf/reg-event-fx
  ::load-metadata
- (fn-traced
+ (fn
   [{:keys [db]} [evt [path data-path]]]
   (println ::meta3 path)
   (println ::meta4 data-path)
@@ -368,7 +367,7 @@
 
 (rf/reg-event-fx
  ::load-edn
- (fn-traced
+ (fn
   [{:keys [db]} [evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
@@ -381,7 +380,7 @@
 
 (rf/reg-event-fx
  ::load-bundles
- (fn-traced
+ (fn
   [{:keys [db]} [evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
@@ -394,7 +393,7 @@
 
 (rf/reg-event-fx
  ::load-and-transpose
- (fn-traced
+ (fn
   [{:keys [db]} [evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
@@ -407,7 +406,7 @@
 
 (rf/reg-event-fx
  ::load-and-transpose-always
- (fn-traced
+ (fn
   [{:keys [db]} [evt [path data-path]]]
   {:http-xhrio {:method :get
                 :uri path

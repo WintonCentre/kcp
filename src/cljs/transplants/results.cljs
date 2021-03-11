@@ -5,7 +5,6 @@
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
             [transplants.vis2 :as vis]
-            ["recharts" :as rech]
             [transplants.ui :as ui]
             [transplants.utils :as utils]))
 

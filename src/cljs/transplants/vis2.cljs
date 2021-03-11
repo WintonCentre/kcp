@@ -12,7 +12,7 @@
             [transplants.rgb :as rgb]
             [clojure.string :as str :refer [replace]]
             [clojure.pprint :as pp]
-            ["recharts" :as rech]
+            ;["recharts" :as rech]
             [svg.scales :refer [->Identity nice-linear i->o o->i in out ticks tick-format-specifier]]
             [svg.space :refer [space]]
             [svg.container :as svgc]
@@ -45,6 +45,7 @@
 
 (defn test-rig
   [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
+  (tap> bundle)
   (let [env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
@@ -625,7 +626,7 @@
   "Draw the bar chart"
   [{:keys [organ centre tool inputs bundle title rubric bar-info y-range] :as params}]
   #_[:div "Not yet"]
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
+  #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
         cifs-by-year (clj->js (data-series params))]
 
     ;(println ::area-chart cifs-by-year)

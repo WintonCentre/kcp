@@ -1,5 +1,3 @@
-# shadow-cljs.edn is now generated
-shadow-cljs.edn
 
 /out/
 /resources/public/js/compiled/
@@ -49,7 +47,6 @@ transplants.iml
 dev.cljs.edn
 prod.cljs.edn
 
-webpack*
 report.html
 .lsp
 .Rproj.user

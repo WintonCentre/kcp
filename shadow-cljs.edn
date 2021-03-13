@@ -1,0 +1,27 @@
+{:source-paths ["src/cljc" "src/cljs"]
+
+ :dependencies
+ [[reagent               "1.0.0"]
+  [re-frame              "1.2.0"]
+  [metosin/reitit        "0.4.2"]
+  [cljs-ajax             "0.8.1"]
+  [day8.re-frame/http-fx "0.2.2"]
+  [winton-utils          "0.2.1"]
+  [cljs-css-modules     "0.2.1"]
+  [binaryage/devtools    "1.0.2"]]
+
+ :dev-http
+ {3000 "resources/public"}
+
+ :builds
+ {:app {:target     :browser
+        :output-dir "resources/public/js"
+        :asset-path "/js"
+        :compiler-options {:optimizations  :simple
+                           :output-wrapper false}
+        :modules {:app {:init-fn transplants.core/init}}}}
+
+ :test-browser {:target     :browser-test
+                :test-dir   "out/browser/test"
+                :devtools   {:http-port 3021
+                             :http-root "out/browser/test"}}}

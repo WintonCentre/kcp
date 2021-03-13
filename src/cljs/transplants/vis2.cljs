@@ -17,7 +17,7 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            [cljs.pprint :refer [pprint]]))
+            ))
 
 (defn short-outcomes
   "Shorter outcome names. Possibly used in barchart. Replace wth something else as needed."
@@ -45,7 +45,6 @@
 
 (defn test-rig
   [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
-  (tap> bundle)
   (let [env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
@@ -70,8 +69,11 @@
 
         F (if cox?
             (model/cox-adjusted s0 sum-betas)
-            (map model/cox all-s0-for-day sum-betas))]
+            (model/cox all-s0-for-day sum-betas))]
 
+    (tap> [::all-s0-for-day all-s0-for-day])
+    (tap> [::sum-betas  sum-betas])
+    (tap> [::all-F (map #(model/cox % sum-betas) all-s0-for-day)])
 
     [:> bs/Row {:style {:margin-top 20}}
      [:p (count s0)]

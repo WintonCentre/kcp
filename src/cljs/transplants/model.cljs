@@ -156,8 +156,15 @@
 
 (defn cox
   "For a single cox calculation we should use the formula based on all-S0 rather than S0"
-  [all-S0 day sum-x-betas]
-  (- 1 (js/Math.pow (S0-for-day all-S0 day) (js/Math.exp sum-x-betas))))
+  [s0-for-day sum-x-betas]
+  (map #(- 1 (js/Math.pow s0-for-day (js/Math.exp %))) sum-x-betas))
+
+(comment
+  (cox 0.9 [0.9 0.7])
+  ;; => (0.22828892339131668 0.1911728338852633)
+  ;;   
+  (map #(- 1 (js/Math.pow 0.9 (js/Math.exp %))) [0.9 0.7])
+  )
 
 ;; todo: remove this
 (defn cif

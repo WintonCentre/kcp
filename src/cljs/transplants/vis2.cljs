@@ -71,9 +71,9 @@
             (model/cox-adjusted s0 sum-betas)
             (model/cox all-s0-for-day sum-betas))]
 
-    (tap> [::all-s0-for-day all-s0-for-day])
-    (tap> [::sum-betas  sum-betas])
-    (tap> [::all-F (map #(model/cox % sum-betas) all-s0-for-day)])
+    ;(tap> [::all-s0-for-day all-s0-for-day])
+    ;(tap> [::sum-betas  sum-betas])
+    ;(tap> [::all-F (map #(model/cox % sum-betas) all-s0-for-day)])
 
     [:> bs/Row {:style {:margin-top 20}}
      [:p (count s0)]
@@ -195,10 +195,15 @@
   (remainders [[0 [0.3 0.4]]
                [1 [0.2 0.3]]
                [2 [0.1 0.2]]])
+  ;; => ([0 0.30000000000000004] [1 0.5] [2 0.7])
+
 
   (fs-cum-fs [[0 [0.3 0.4]]
               [1 [0.2 0.3]]
               [2 [0.1 0.2]]])
+  ;; => ({:cifs [0.3 0.4], :cum-cifs (0.3 0.7)}
+  ;;     {:cifs [0.2 0.3], :cum-cifs (0.2 0.5)}
+  ;;     {:cifs [0.1 0.2], :cum-cifs (0.1 0.30000000000000004)})
 
   (insert-at [[0 [0.3 0.4]]
               [1 [0.2 0.3]]
@@ -207,7 +212,61 @@
                           [1 [0.2 0.3]]
                           [2 [0.1 0.2]]])
              1)
+  ;; => ([0 (0.3 0.30000000000000004 0.4)] [1 (0.2 0.5 0.3)] [2 (0.1 0.7 0.2)])
+
   0)
+
+(defn pairwise-stagger
+  [threshold]
+  (fn
+    [staggers [i [f1 f2]]]
+    ;(tap> [staggers [i [f1 f2]]])
+    (if (and f2 (< (+ f1 f2) threshold))
+      (-> staggers
+          (assoc i true)
+          (assoc (inc i) true))
+      (update staggers i #(or % nil)))))
+
+(defn label-staggers
+  "Take a sequence of Fs, and a threshold value"
+  [threshold fs]
+  ;(tap> fs)
+  (reduce (pairwise-stagger threshold)
+          []
+          (zipmap (range) (partition-all 2 1 fs))))
+
+(comment
+  (label-staggers 7 [5 3 3 5])
+  ;; => [nil true true nil]
+
+  (label-staggers 7 [5 3 3 5 8 1])
+  ;; => [nil true true nil nil nil]
+
+  (label-staggers 10 [5 3 3 5 8 1])
+  ;; => [true true true true true true]
+
+
+
+  (label-staggers 7 [5 3 3 5 8 1 1])
+  ;; => [nil true true nil nil true true]
+  ;;   
+  (label-staggers 7 [5 3 3 5 8])
+  ;; => [nil true true nil nil]
+
+  (label-staggers 7 [1 1 1 1])
+  ;; => [true true true true]
+
+  ((pairwise-stagger 7) [] [0 [5 3]])
+  ;; => [nil]
+  
+  ((pairwise-stagger 7) [nil] [1 [3 3]])
+  ;; => [nil true true]
+    
+  ((pairwise-stagger 7) [nil true true] [2 [3 5]])
+  ;; => [nil nil true]
+  ((pairwise-stagger 7) [nil true true] [3 [5 nil]])
+  0)
+;; => nil
 
 
 (defn bar-chart-graphic
@@ -223,13 +282,8 @@
   (let [outcomes ["transplant" "waiting" "death"]
         rems (remainders fs-by-year)
         fs-with-rems (insert-at fs-by-year rems 1) 
-        cifs-by-year (fs-cum-fs fs-with-rems)]
-    
-    (println ::cifs-by-year cifs-by-year)
-    (println ::sample-days sample-days)
-    (println ::xX x X)
-    (println ::X14 (X 14))
-
+        fs-with-rem-by-year (fs-cum-fs fs-with-rems)
+        pairwise #(partition-all 2 1 %)]
 
     [:g {:key 1}
      [:rect {:key        1
@@ -269,10 +323,61 @@
                              cum-cifs
                              outcomes)))
                 (range 1 (inc (count sample-days)))
-                cifs-by-year))
+                fs-with-rem-by-year))
 
    ; draw labels
-     (into [:g {:key 3}]
+     (into [:g {:key 3 :style {:opacity 1}}]
+             (map (fn [j {:keys [cifs cum-cifs]}]
+                ;draw single bar and label
+                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                          w 100
+                          x-mid (+ x0 (/ w 2) -10)
+                          staggers (label-staggers 0.1 cifs)
+                          ]
+
+                      (into [:g {:key j}]
+                            (conj
+                             (map (fn [i cif cum-cif outcome]
+                                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                          w 100
+                                          x-mid (+ x0 (/ w 2) -10)
+                                          y0 (if (> (count outcomes) 1)
+                                               (- (Y cum-cif) (Y cif)) (Y cif))
+                                          h (if (> (count outcomes) 1)
+                                              (- (Y cum-cif) (Y (- cum-cif cif)))
+                                              (- (Y 0) (Y cif)))
+                                          y-mid (+ y0 (/ h 2))]
+                                      (when true ;(> cif 0.005)
+                                        [:g
+                                         {:transform (str "translate("
+                                                          (if (staggers i)
+                                                            (if (odd? i) 40 -60)
+                                                            (if (< cif 1) -20 -30))
+                                                          " 10)")}
+                                         [:rect {:x (- x-mid 5)
+                                                 :width (if (>= cif 1)
+                                                          90
+                                                          (if (< cif 0.10) 50 70))
+                                                 :y (- y-mid 30)
+                                                 :height 40
+                                                 :rx 10
+                                                 :style {:border "0px"}
+                                                 :class-name ((keyword outcome) styles)}]
+                                         [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
+                                          (str (model/to-percent cif) "%")]])))
+                                  (range)
+                                  cifs
+                                  cum-cifs
+                                  outcomes)
+                             [:<>
+                              (if (= j 1)
+                                [:text {:x (- x-mid 58) :y 660 :font-size 30}  "At Listing"]
+                                [:text {:x (- x-mid 32) :y 660 :font-size 30}  (str "Year " (dec j))])]))))
+                  (range 1 (inc (count sample-days)))
+                  fs-with-rem-by-year))
+
+
+     #_(into [:g {:key 3 :style {:opacity 0.3}}]
            (map (fn [j {:keys [cifs cum-cifs]}]
                 ;draw single bar and label
                   (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
@@ -281,6 +386,7 @@
                     (into [:g {:key j}]
                           (conj
                            (map (fn [i cif cum-cif outcome]
+
                                   (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
                                         w 100
                                         x-mid (+ x0 (/ w 2) -10)
@@ -290,7 +396,6 @@
                                             (- (Y cum-cif) (Y (- cum-cif cif)))
                                             (- (Y 0) (Y cif)))
                                         y-mid (+ y0 (/ h 2))]
-                             ;(println i ":" cif " " cum-cif " " (count sample-days) (Y 0) (Y cif) (Y 1))
 
                                     (when (> cif 0.005)
                                       [:g
@@ -315,10 +420,11 @@
                                 cum-cifs
                                 outcomes)
                            [:<>
-                            [:text {:x (- x-mid 35) :y 650 :font-size 30}  (if (= j 1) "Listed" (str "Year " (dec j)))]
-                            #_[:text {:x (- x-mid 2) :y 690 :font-size 30}  (if (= j 1) "" (dec j))]]))))
+                            (if (= j 1)
+                              [:text {:x (- x-mid 58) :y 650 :font-size 30}  "At Listing"]
+                              [:text {:x (- x-mid 32) :y 650 :font-size 30}  (str "Year " (dec j))])]))))
                 (range 1 (inc (count sample-days)))
-                cifs-by-year))]))
+                fs-with-rem-by-year))]))
 
 
 (defn vis-data-map
@@ -476,12 +582,7 @@
         factors (keys fmaps)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
         cox? (model/use-cox-adjusted? tool)
-
-        ;; baseline-cifs-for-day is a seq of cif-0s - one for each outcome on the selected day
         s0 all-S0
-        ;; baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
-        ;; [_ all-s0-for-day] (model/S0-for-day s0 day)
-
         F (model/cox-adjusted s0 sum-betas)
         ;;;;;
         {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
@@ -489,17 +590,6 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         F-for-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        cifs-by-year (map
-                      (fn [day]
-                        (let [cifs (-> (vec (apply model/scaled-cifs (map (partial model/cif tool)
-                                                                          (map (bun/cif-0 bundle day) outcome-keys)
-                                                                          sum-betas)))
-                                       (update 0 (if (> (count outcomes) 1)
-                                                   #(- 1 %)
-                                                   identity)))]
-                          {:cifs cifs
-                           :cum-cifs (reductions + cifs)}))
-                      sample-days)
         outcomes ["transplant" "waiting" "death"]]
     [:> bs/Row
      [:> bs/Col
@@ -547,7 +637,7 @@
       ;; [:p ::F-for-year (pr-str F-for-year)]
 
       [svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
-                                         :margin {:top 10 :right 10 :bottom 10 :left 10}
+                                         :margin {:top 0 :right 10 :bottom 10 :left 0}
                                          :padding {:top 20 :right 20 :bottom 20 :left 20}
                                          :x-domain [0 14]
                                          :x-ticks 10
@@ -555,7 +645,7 @@
                                                      [1 0] [0 1])
                                          :y-ticks 10})
                                  :styles styles)
-       (fn [x y X Y] (conj (into [:g]
+       (fn [x y X Y] (conj (into [:<>]
                                  (map (fn [i outcome]
                                         [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
                                          [:rect {:x 0 :y 0 :width 200 :height 60
@@ -564,65 +654,11 @@
                                                  :fill "#fff" :font-size 30}
                                           (relabel outcome)]])
                                       (range) outcomes))
-                           [:g {:transform "translate(200 0)"}
-                            [:g {:transform "scale(0.8)"}
+                           [:g {:transform "translate(300 0)"}
+                            [:g {:transform "scale(0.9)"}
                              [bar-chart-graphic x y X Y F-for-year sample-days outcomes]]]))]]]))
 
-#_(defn bar-chart
-    "Draw the bar chart"
-    [{:keys [organ centre tool inputs bundle title rubric bar-info y-range] :as params}]
-    #_[:div "Not yet"]
-    (println ::bar-info bar-info)
-    (let [{:keys [outcome-keys outcomes sum-betas sample-days] :as data-map} (vis-data-map organ centre tool inputs bundle)
-          cifs-by-year (clj->js (data-series params))]
-      [:> bs/Row
-       [:> bs/Col
-        [:div {:style {:margin-top 20}} rubric]
 
-        (into [:> rech/BarChart {:width 600
-                                 :height 400
-                                 :data cifs-by-year
-                                 :margin {:top 30
-                                          :right 50
-                                          :left 50
-                                          :bottom 50}}
-
-               (when (some? (:stack-id bar-info))
-                 [:> rech/CartesianGrid {:stroke "#ccc"
-                                         :strokeDasharray "5 5"}])
-
-               [:> rech/XAxis {:dataKey "year"}]
-
-       ; better without?
-               [:> rech/YAxis {:dataKey "transplants"
-                               :type "number"
-                               :domain (if (vector? y-range)
-                                         (clj->js y-range)
-                                         #js [0 100])}]
-
-               [:> rech/Tooltip {:content (custom-tool-tip nil)}]
-
-     ; The legend height has to be zero or it will cause a jump reduction of chart height
-     ; on roll over if tooltips are enabled
-               [:> rech/Legend {:width 100
-                                :iconType "square"
-                                :iconSize 20
-                                :wrapperStyle  {:width 600
-                                                :height 0
-                                                :bottom 50
-                                                :left 0
-                                                :line-height 0}}]]
-              (mapv
-               (fn [{:keys [label fill hide stroke stack-id]}]
-                 (when-not hide
-                   [:> rech/Bar {:type "monotone"
-                                 :dataKey label
-                                 :stroke stroke
-                                 :fill fill
-                                 :stack-id stack-id
-                                 #_#_:strokeDasharray "5 5"
-                                 :label simple-bar-label}]))
-               bar-info))]]))
 
 (defn area-chart
   "Draw the bar chart"

@@ -37,36 +37,46 @@
                     :start (fn [& params] (println ::routes "Entering Home " params))
        ;; Teardown can be done here.
                     :stop   (fn [& params] (println ::routes "Leaving Home " params))}]}]
-   
+
    [":organ" {:name      ::views/organ
               :view      views/organ-home
               :link-text "organ"
               :controllers [{:parameters {:path [:organ]}
-                             :start (fn [& [params]]
+                             :start (fn [params]
                                       (js/console.log "Entering organ:" params)
                                       (let [organ (keyword (get-in params [:path :organ]))]
                                         (rf/dispatch [::events/load-and-transpose-always [(paths/tools-path organ) [:tools]]])))
-                             :stop  (fn [& params] (js/console.log (str "Leaving " :organ " Home")))}]}
+                             :stop  (fn [params] (js/console.log (str "Leaving " :organ " Home")))}]}
     [""] ; required to make [":organ"] a leaf route
     ["/:centre" {:name ::views/organ-centre
                  :view views/organ-centre
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
-                                :start (fn [& params]
-                                         (let [centre (keyword (get-in (first params) [:path :centre]))]))
-                                :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :centre])))}]}
-     [""]
+                                :start (fn [params]
+                                         (let [centre (keyword (get-in params [:path :centre]))]))
+                                :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :centre])))}]}
+     [""] ; required to make [":organ/:centre"] a leaf route
      ["/:tool" {:name ::views/organ-centre-tool
                 :view views/organ-centre-tool
                 :link-text "organ-centre-tool"
                 :controllers [{:parameters {:path [:organ :centre :tool]}
-                               :start (fn [& params]
-                                        (let [tool (keyword (get-in (first params) [:path :tool]))]
-                                          ;(js/console.log "Entering organ-centre-tool: " params)
-                                          )
-                                        )
-                               :stop (fn [& params] (js/console.log "Leaving " (get-in (first params) [:path :tool])))}]}]]]]
-)
+                               :start (fn [params]
+                                        (let [tool (keyword (get-in params [:path :tool]))]
+                                          (js/console.log "Entering organ-centre-tool: " params)))
+                               :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :tool])))}]}
+      [""] ; required to make [":organ/:centre/:tool"] a leaf route
+      ["/:tab" ; 
+       {:name ::views/organ-centre-tool-tab
+        :view views/organ-centre-tool-tab
+        :link-text "organ-centre-tool-tab"
+        :controllers [{:parameters {:path [:organ :centre :tool :tab]}
+                       :start (fn [params]
+                                (let [tool (keyword (get-in params [:path :tool]))
+                                      tab (keyword (get-in params [:path :tab]))]
+                                  (js/console.log "Entering organ-centre-tool-tab: " params)
+                                  (tap> {:tab  tab
+                                         :params params})))
+                       :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]])
 
 
 (comment

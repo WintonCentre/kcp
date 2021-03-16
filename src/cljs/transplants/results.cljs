@@ -85,13 +85,43 @@
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [bundles organ centre tool]
-  ;(println ::results-panel "render")
   (let [day @(rf/subscribe [::subs/test-day])
         inputs (get @(rf/subscribe [::subs/inputs]) organ)
         bundle (bun/get-bundle organ centre tool)
         {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
         selected-vis @(rf/subscribe [::subs/selected-vis])]
+    
+    (comment
+        [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
+  (let [env [{:organ organ :centre centre :tool tool}
+             bundle
+             {organ inputs}]
+        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0]} bundle
 
+        factors (keys fmaps)
+        sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
+        cox? (model/use-cox-adjusted? tool)
+
+        ;; baseline-cifs-for-day is a seq of cif-0s - one for each outcome on the selected day
+        s0 (:all-S0 bundle)
+        baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
+        [_ all-s0-for-day] (model/S0-for-day s0 day)
+
+
+        ;;
+        ;; The following code assumes we have the "all-reasons" outcome in a well known slot
+        ;; in the outcomes vector (currently first). 
+        ;;
+        cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)
+
+
+        F (if cox?
+            (model/cox-adjusted s0 sum-betas)
+            (model/cox all-s0-for-day sum-betas))]))
+
+
+
+    (tap> [::selected-vis selected-vis])
 
     [:<>
      [:p "These are the outcomes we would expect for people who entered the same information as you, based

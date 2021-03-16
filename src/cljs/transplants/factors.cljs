@@ -7,6 +7,7 @@
             [transplants.transforms :as xf]
             [transplants.spline :refer [spline]]
             [transplants.subs :as subs]
+            [transplants.bundles :as bun]
             [re-frame.core :as rf]))
 
 (comment
@@ -334,11 +335,10 @@
  (comment
 
 
-   (def bundle
-     (get-in @(rf/subscribe [::subs/bundles]) [:lung :new :waiting]))
+   (def bundle (bun/get-bundle :lung :new :waiting))
 
   ;inputs
-   (def inputs {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :dd-pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
+   (def inputs* {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :dd-pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
 
    (def path-params {:organ :lung, :centre :birm, :tool :waiting})
 

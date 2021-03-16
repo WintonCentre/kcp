@@ -322,57 +322,58 @@
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
-  []
-  (let [route @(rf/subscribe [::subs/current-route])
-        tools @(rf/subscribe [::subs/tools])
-        organ-centres @(rf/subscribe [::subs/organ-centres])
-        bundles @(rf/subscribe [::subs/bundles])
-        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
-        [organ centre tool] (map keyword p-names)
-        ]
-    (when (and organ centre ((keyword organ) organ-centres) tool)
-      (let [centre-info (utils/get-centre-info organ-centres organ centre)
-            tool-meta (get-tool-meta tools tool)]
-        [ui/page (:description centre-info)
-         (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
-           [ui/row
-            [ui/col {:xs 12 :md 5}
-             [ui/background-link organ centre]
-             #_[:p "For more information that will be helpful to patients, follow the link to "
-                [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
-                 "background guidance"] "."]
-             [ui/tools-menu tools organ-name centre-name {:vertical false}]
-             #_(->> tools
-                    (map #(conj % [:organ organ-name]))
-                    (map #(conj % [:centre centre-name]))
-                    (map #(conj % [:tool (name (:key %))]))
-                    (map ui/tool-buttons)
-                    (into [:> bs/ButtonGroup {:vertical false}]))
-             [:h4 {:style {:margin-top 10}}
-              (:label tool-meta) " – " (:description tool-meta)]
-             (widg/widget {:type :reset})
-             (into [:<>]
-                   (map
-                    (fn [[k w]] ^{:key (:factor w)}
-                      [:div {:style {:margin-bottom 15}}
-                       (widg/widget (assoc w :model tool))])
-                    (get tool-centre-bundle :fmaps)))]
-            [ui/col
-             [results/results-panel bundles organ centre tool]]]
-           (if (= tool :guidance)
-             [:<>
-
+  ([]
+   (organ-centre-tool nil))
+  ([tab]
+   (let [route @(rf/subscribe [::subs/current-route])
+         tools @(rf/subscribe [::subs/tools])
+         organ-centres @(rf/subscribe [::subs/organ-centres])
+         bundles @(rf/subscribe [::subs/bundles])
+         [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+         [organ centre tool] (map keyword p-names)]
+     (when (and organ centre ((keyword organ) organ-centres) tool)
+       (let [centre-info (utils/get-centre-info organ-centres organ centre)
+             tool-meta (get-tool-meta tools tool)]
+         [ui/page (:description centre-info)
+          (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
+            [ui/row
+             [ui/col {:xs 12 :md 5}
+              [ui/background-link organ centre]
+              #_[:p "For more information that will be helpful to patients, follow the link to "
+                 [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
+                  "background guidance"] "."]
               [ui/tools-menu tools organ-name centre-name {:vertical false}]
-              [background-info organ]]
-             (let [path (paths/organ-centre-name-tool organ-name
-                                                      (:name centre-info)
-                                                      tool-name)]
+              #_(->> tools
+                     (map #(conj % [:organ organ-name]))
+                     (map #(conj % [:centre centre-name]))
+                     (map #(conj % [:tool (name (:key %))]))
+                     (map ui/tool-buttons)
+                     (into [:> bs/ButtonGroup {:vertical false}]))
+              [:h4 {:style {:margin-top 10}}
+               (:label tool-meta) " – " (:description tool-meta)]
+              (widg/widget {:type :reset})
+              (into [:<>]
+                    (map
+                     (fn [[k w]] ^{:key (:factor w)}
+                       [:div {:style {:margin-bottom 15}}
+                        (widg/widget (assoc w :model tool))])
+                     (get tool-centre-bundle :fmaps)))]
+             [ui/col
+              [results/results-panel bundles organ centre tool]]]
+            (if (= tool :guidance)
+              [:<>
 
-               (rf/dispatch [::events/load-bundles [path
-                                                    [:bundles organ centre tool]]])
-               #_[:div "Loading " path])))
-         [ui/row
-          [ui/col {:class-name "d-none d-md-block"}]]]))))
+               [ui/tools-menu tools organ-name centre-name {:vertical false}]
+               [background-info organ]]
+              (let [path (paths/organ-centre-name-tool organ-name
+                                                       (:name centre-info)
+                                                       tool-name)]
+
+                (rf/dispatch [::events/load-bundles [path
+                                                     [:bundles organ centre tool]]])
+                #_[:div "Loading " path])))
+          [ui/row
+           [ui/col {:class-name "d-none d-md-block"}]]])))))
 
 (comment
   (+ 1 1)
@@ -387,60 +388,7 @@
                                 :guidance)
   )
 
-(defn organ-centre-tool-tab
-  "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
-   for that organ and centre."
-  []
-  (let [route @(rf/subscribe [::subs/current-route])
-        tools @(rf/subscribe [::subs/tools])
-        organ-centres @(rf/subscribe [::subs/organ-centres])
-        bundles @(rf/subscribe [::subs/bundles])
-        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
-        [organ centre tool tab] (map keyword p-names)]
-    (tap> [::paths [organ centre tool tab]])
-    (when (and organ centre ((keyword organ) organ-centres) tool)
-      (let [centre-info (utils/get-centre-info organ-centres organ centre)
-            tool-meta (get-tool-meta tools tool)]
-        [ui/page (:description centre-info)
-         (if-let [tool-centre-bundle (get-in bundles [organ centre tool])]
-           [ui/row
-            [ui/col {:xs 12 :md 5}
-             [ui/background-link organ centre]
-             #_[:p "For more information that will be helpful to patients, follow the link to "
-                [:a {:href  (rfe/href ::organ-centre {:organ organ :centre centre})}
-                 "background guidance"] "."]
-             [ui/tools-menu tools organ-name centre-name {:vertical false}]
-             #_(->> tools
-                    (map #(conj % [:organ organ-name]))
-                    (map #(conj % [:centre centre-name]))
-                    (map #(conj % [:tool (name (:key %))]))
-                    (map ui/tool-buttons)
-                    (into [:> bs/ButtonGroup {:vertical false}]))
-             [:h4 {:style {:margin-top 10}}
-              (:label tool-meta) " – " (:description tool-meta)]
-             (widg/widget {:type :reset})
-             (into [:<>]
-                   (map
-                    (fn [[k w]] ^{:key (:factor w)}
-                      [:div {:style {:margin-bottom 15}}
-                       (widg/widget (assoc w :model tool))])
-                    (get tool-centre-bundle :fmaps)))]
-            [ui/col
-             [results/results-panel bundles organ centre tool]]]
-           (if (= tool :guidance)
-             [:<>
 
-              [ui/tools-menu tools organ-name centre-name {:vertical false}]
-              [background-info organ]]
-             (let [path (paths/organ-centre-name-tool organ-name
-                                                      (:name centre-info)
-                                                      tool-name)]
-
-               (rf/dispatch [::events/load-bundles [path
-                                                    [:bundles organ centre tool]]])
-               #_[:div "Loading " path])))
-         [ui/row
-          [ui/col {:class-name "d-none d-md-block"}]]]))))
 
 ;-------------- Text views below --------------
 ;

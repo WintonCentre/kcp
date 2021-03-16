@@ -67,15 +67,17 @@
       [""] ; required to make [":organ/:centre/:tool"] a leaf route
       ["/:tab" ; 
        {:name ::views/organ-centre-tool-tab
-        :view views/organ-centre-tool-tab
-        :link-text "organ-centre-tool-tab"
+        :view views/organ-centre-tool
+        :link-text "organ-centre-tool"
         :controllers [{:parameters {:path [:organ :centre :tool :tab]}
                        :start (fn [params]
                                 (let [tool (keyword (get-in params [:path :tool]))
                                       tab (keyword (get-in params [:path :tab]))]
-                                  (js/console.log "Entering organ-centre-tool-tab: " params)
+                                  (js/console.log "Entering organ-centre-tool: " params)
                                   (tap> {:tab  tab
-                                         :params params})))
+                                         :params params})
+                                  (rf/dispatch [::events/selected-vis tab])
+                                  ))
                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]])
 
 

@@ -1,6 +1,6 @@
 (ns transplants.events
   (:require
-   (winton-utils.data-frame :refer [map-of-vs->v-of-maps v-of-maps->map-of-vs])
+   (winton-utils.data-frame :refer [map-of-vs->v-of-maps])
    [re-frame.core :as rf]
    [day8.re-frame.http-fx]
    [transplants.fx :as fx]

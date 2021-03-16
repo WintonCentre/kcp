@@ -37,21 +37,6 @@
 
 
 (comment
-  ; this is fac/sum-beta-xs
-  (defn sum-beta-xs
-    "returns sum of all xs and betas for an outcome"
-    [[{:keys [organ centre tool] :as path-params}
-      {:keys [-inputs -baseline-cifs -baseline-vars :as bundle]}
-      inputs :as env]
-     beta-outcome-key]
-    (->> -inputs
-         (map (fn [[factor master-fmap]]
-                (fac/selected-beta-x env factor master-fmap beta-outcome-key)))
-         (map last)
-         (apply +)))
-
-
-
   (def day 100)
   (def route @(rf/subscribe [::subs/current-route]))
   (def tools @(rf/subscribe [::subs/tools]))
@@ -59,8 +44,9 @@
   (def bundles @(rf/subscribe [::subs/bundles]))
   (def oct-names (utils/path-names (:path-params route)))
   (def oct-keys (map keyword oct-names))
-  (def oct-bundle (get-in bundles oct-keys))
+  (def oct-bundle (apply bun/get-bundle oct-keys))
   (def baseline-cifs  (:baseline-cifs oct-bundle))
+  (tap> oct-bundle)
   (def baseline-cifs-for-day (bun/cif-0 oct-bundle day))
   (def outcome-names (fac/get-outcomes* (bun/cif-0 oct-bundle day)))
   (def outcome-keys (map keyword outcome-names))
@@ -68,10 +54,8 @@
   (def beta-outcome-keys (map #(keyword (str "beta-" %)) outcome-names))
   (def cif-outcome-keys (map #(keyword (str "cif-" %)) outcome-names))
   (def inputs @(rf/subscribe [::subs/inputs]))
+  (tap> [::inputs inputs]) s
   (def env [oct-names oct-bundle inputs])
-
-  ;; YOU ARE HERE!!!
-
   (def  sum-betas (map #(fac/sum-beta-xs env %) beta-outcome-keys))
   0)
 

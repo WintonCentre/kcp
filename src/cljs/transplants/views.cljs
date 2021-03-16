@@ -331,6 +331,7 @@
          bundles @(rf/subscribe [::subs/bundles])
          [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
          [organ centre tool] (map keyword p-names)]
+     (tap> [::bundles bundles])
      (when (and organ centre ((keyword organ) organ-centres) tool)
        (let [centre-info (utils/get-centre-info organ-centres organ centre)
              tool-meta (get-tool-meta tools tool)]

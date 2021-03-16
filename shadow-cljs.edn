@@ -1,4 +1,4 @@
-{:source-paths ["src/cljc" "src/cljs"]
+{:source-paths ["src/cljc" "src/cljs" "test/cljs"]
 
  :dependencies
  [[reagent               "1.0.0"]
@@ -19,9 +19,9 @@
         :asset-path "/js"
         :compiler-options {:optimizations  :simple
                            :output-wrapper false}
-        :modules {:app {:init-fn transplants.core/init}}}}
+        :modules {:app {:init-fn transplants.core/init}}}
 
- :test-browser {:target     :browser-test
-                :test-dir   "out/browser/test"
-                :devtools   {:http-port 3021
-                             :http-root "out/browser/test"}}}
+  :test-browser {:target     :browser-test
+                 :test-dir   "out/browser/test"
+                 :devtools   {:http-port 3021
+                              :http-root "out/browser/test"}}}}

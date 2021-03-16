@@ -4,6 +4,7 @@
     "description": "A data driven survival tool",
     "scripts": {
         "start": "shadow-cljs watch app",
+        "stop": "shadow-cljs stop",
         "watch-all": "shadow-cljs watch app test-browser",
         "build": "shadow-cljs release app",
         "build-verbose": "shadow-cljs release --verbose app",

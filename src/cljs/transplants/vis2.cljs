@@ -130,12 +130,6 @@
                           beta-keys))])
                     fmaps))])]]]])]))
 
-(comment
-
-  (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)
-  (fac/selected-beta-x env factor fmap :beta-transplant)
-  )
-
 ;;;
 ;; svg styles
 ;;;

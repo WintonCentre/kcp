@@ -228,7 +228,13 @@
       (update staggers i #(or % nil)))))
 
 (defn label-staggers
-  "Take a sequence of Fs, and a threshold value"
+  "Take a sequence of values (the fs) to be plotted in a stacked bar chart. We want to label the bars with its
+   f-value which indicates the height of its bar. Bar heights can be smaller than the height of readable text, 
+   and as it's possible for 2 adjacent bars to be next to each other, their labels can overlap unless we staagger
+   them left to right. 
+
+   This function returns a vector indicating which of the f labels should be staggered. 
+"
   [threshold fs]
   ;(tap> fs)
   (reduce (pairwise-stagger threshold)
@@ -245,15 +251,13 @@
   (label-staggers 10 [5 3 3 5 8 1])
   ;; => [true true true true true true]
 
-
-
   (label-staggers 7 [5 3 3 5 8 1 1])
   ;; => [nil true true nil nil true true]
   ;;   
   (label-staggers 7 [5 3 3 5 8])
   ;; => [nil true true nil nil]
 
-  (label-staggers 7 [1 1 1 1])
+  (label-staggers 7 [1 1 1 1]) ;this never happens but if it did it would need a 4 position horizontal stagger
   ;; => [true true true true]
 
   ((pairwise-stagger 7) [] [0 [5 3]])
@@ -533,33 +537,6 @@
            (str (Math/round value) "%")])])))
 
 
-(defn custom-tool-tip
-  "bar chart custom tool tips"
-  [area]
-  (fn [payload]
-    [payload]
-    (let [{active "active"
-           label "label"
-           pload "payload"} (js->clj payload)]
-      (when active
-        (r/as-element
-         [:div {:style {:background-color "#fff"
-                        :display "flex"
-                        :flex-direction "column"
-                        :padding "10px 20px 0px 20px"
-                        :border-radius 5
-                        :box-shadow "1px 1px"}}
-          [:h5 label]
-          (into [:div {:style {:display "flex"
-                               :flex-direction "column"
-                               :align-items "flex-end"}}]
-                (mapv
-                 (fn [{name "name" value "value"} d]
-                   [:p {:style {:line-height 0.5
-                                :flex 1}}
-                    name ": " (Math/round (if area (second value) value)) "%"])
-                 pload))])))))
-
 (def relabel
   {"waiting" "Waiting"
    "transplant" "Transplanted"
@@ -632,10 +609,6 @@
 
         [:<> "Title TBD" "[" (pr-str tool) "]"])
 
-      ;; [:p "Sample days:" (pr-str sample-days)]
-      ;; [:p "Outcomes:" (pr-str outcomes)]
-      ;; [:p ::F-for-year (pr-str F-for-year)]
-
       [svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
                                          :margin {:top 0 :right 10 :bottom 10 :left 0}
                                          :padding {:top 20 :right 20 :bottom 20 :left 20}
@@ -692,7 +665,6 @@
                                        (clj->js y-range)
                                        #js [0 100])}]
 
-             [:> rech/Tooltip {:content (custom-tool-tip (:stack-id "1" #_(first bar-info)))}]
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled

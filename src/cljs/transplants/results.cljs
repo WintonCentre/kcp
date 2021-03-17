@@ -12,28 +12,14 @@
   (let [s-outcome-day (js/Math.pow (bun/cif-0 oct-bundle day) (js/Math.exp sum-x-betas))]))
 
 (comment
-  (assoc  [1 2 3] 0 9)
-  ;; => [9 2 3]
-
+  ;; Check marix transposition
+  ;;   
   (utils/transpose [[1 2 3 4] [-1 -2 -3 -4]])
   ;; => ([1 -1] [2 -2] [3 -3] [4 -4])
 
   (utils/transpose '([1 -1] [2 -2] [3 -3] [4 -4]))
   ;; => ([1 2 3 4] [-1 -2 -3 -4])
   0)
-
-
-(defn competing-risks
-  "Inputs to a competing risks algorithm for multistage survival.
-   survival: A table of S_i(time) containing a seq of maps such as 
-                  {:days 860, :transplant 0.1183483505, :death 0.4769499187}
-                  [In David's notation this is: exp(- H_i(t))]
-   Note that all S_outcome(time) can be extracted from this map.
-   Note also that the times tabulated may be derived from a smoothed curve
-      
-   
-   cif-0: "
-  [S0])
 
 
 (comment

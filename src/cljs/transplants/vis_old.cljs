@@ -1,4 +1,4 @@
-(ns transplants.vis
+(ns transplants.vis-old
   (:require ["react-bootstrap" :as bs]
             [transplants.model :as model]
             [transplants.subs :as subs]

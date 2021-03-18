@@ -4,23 +4,14 @@
             [transplants.subs :as subs]
             [transplants.factors :as fac]
             [transplants.bundles :as bun]
+            [transplants.model :as model]
             [transplants.vis2 :as vis]
             [transplants.ui :as ui]
-            [transplants.utils :as utils]))
+            [transplants.utils :as utils]
+            [shadow.debug :refer [locals ?> ?->]]))
 
-(defn survival [outcome baseline-cifs sum-x-betas oct-bundle day]
+#_(defn survival [outcome baseline-cifs sum-x-betas oct-bundle day]
   (let [s-outcome-day (js/Math.pow (bun/cif-0 oct-bundle day) (js/Math.exp sum-x-betas))]))
-
-(comment
-  ;; Check marix transposition
-  ;;   
-  (utils/transpose [[1 2 3 4] [-1 -2 -3 -4]])
-  ;; => ([1 -1] [2 -2] [3 -3] [4 -4])
-
-  (utils/transpose '([1 -1] [2 -2] [3 -3] [4 -4]))
-  ;; => ([1 2 3 4] [-1 -2 -3 -4])
-  0)
-
 
 (comment
   (def day 100)
@@ -33,16 +24,16 @@
   (def oct-bundle (apply bun/get-bundle oct-keys))
   (def baseline-cifs  (:baseline-cifs oct-bundle))
   (tap> oct-bundle)
-  (def baseline-cifs-for-day (bun/cif-0 oct-bundle day))
+  ;(def baseline-cifs-for-day (bun/cif-0 oct-bundle day))
   (def outcome-names (fac/get-outcomes* (bun/cif-0 oct-bundle day)))
   (def outcome-keys (map keyword outcome-names))
 
   (def beta-outcome-keys (map #(keyword (str "beta-" %)) outcome-names))
   (def cif-outcome-keys (map #(keyword (str "cif-" %)) outcome-names))
   (def inputs @(rf/subscribe [::subs/inputs]))
-  (tap> [::inputs inputs]) s
+  (tap> [::inputs inputs])
   (def env [oct-names oct-bundle inputs])
-  (def  sum-betas (map #(fac/sum-beta-xs env %) beta-outcome-keys))
+  (def  sum-betas (map #(fac/sum-beta-xs oct-bundle %) beta-outcome-keys))
   0)
 
 (def waiting-fill "#0088EE" #_"#7C91D8")
@@ -54,47 +45,29 @@
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
-  [bundles organ centre tool]
+  [organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
         inputs (get @(rf/subscribe [::subs/inputs]) organ)
         bundle (bun/get-bundle organ centre tool)
-        {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
-        selected-vis @(rf/subscribe [::subs/selected-vis])]
-    
-    (comment
-        [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
-  (let [env [{:organ organ :centre centre :tool tool}
+        env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
         {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0]} bundle
-
+        {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
+        selected-vis @(rf/subscribe [::subs/selected-vis])
         factors (keys fmaps)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
+        #_#_sum-betas (map #(fac/sum-beta-xs bundle %) beta-keys)
         cox? (model/use-cox-adjusted? tool)
-
-        ;; baseline-cifs-for-day is a seq of cif-0s - one for each outcome on the selected day
         s0 (:all-S0 bundle)
-        baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
         [_ all-s0-for-day] (model/S0-for-day s0 day)
-
-
-        ;;
-        ;; The following code assumes we have the "all-reasons" outcome in a well known slot
-        ;; in the outcomes vector (currently first). 
-        ;;
-        cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)
-
 
         F (if cox?
             (model/cox-adjusted s0 sum-betas)
-            (model/cox all-s0-for-day sum-betas))]))
-
-
-
-    (tap> [::selected-vis selected-vis])
-
+            (model/cox all-s0-for-day sum-betas))]
+    (locals)
     [:<>
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
+     #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]
      [ui/tabs {:variant "pills" :default-active-key selected-vis
                :active-key selected-vis
@@ -118,7 +91,7 @@
                                      {:key "waiting"
                                       :stack-id "a"
                                       :bar-label {:fill "#fff" :at :centre}
-                                      :title "How long are these people stay on the list?"
+                                      :title "How long do people stay on the list?"
                                       :label "Still waiting" :fill waiting-fill :ciff (fn [cifs i]
                                                                                         (- 200
                                                                                            (+ (nth cifs 0)
@@ -134,7 +107,7 @@
                          :tool tool
                          :inputs inputs
                          :bundle bundle
-                         :rubric [:h4 "About how long do these people survive after a transplant?"]
+                         :rubric [:h4 "About how long do people survive after a transplant?"]
                          :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :survival
@@ -143,7 +116,7 @@
                          :tool tool
                          :inputs inputs
                          :bundle bundle
-                         :rubric [:h4 "About how long do these people survive after a transplant?"]
+                         :rubric [:h4 "About how long do people survive after a transplant?"]
                          :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :graft
@@ -160,7 +133,7 @@
                          :tool tool
                          :inputs inputs
                          :bundle bundle
-                         :rubric [:h4 "About how long do these people survive after a transplant from a living donor?"]
+                         :rubric [:h4 "About how long do people survive after a transplant from a living donor?"]
                          :bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
 
          :ldgraft

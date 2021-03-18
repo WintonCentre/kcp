@@ -151,16 +151,16 @@
        (map #(master-f-map organ %))))
 
 #_(defn selected-level-maps
-  "Given the master-fmaps, and the current inputs, return a list of selected level-maps.
+    "Given the master-fmaps, and the current inputs, return a list of selected level-maps.
    numeric levels "
-  [master-fmaps inputs]
-  (->> master-fmaps
-       (remove nil?)
-       (map (fn [[factor fmap]]
-              (if (keyword? (:type fmap))
-                (get-in fmap [:levels (factor inputs)])
-                :numeric)))
-       (remove nil?)))
+    [master-fmaps inputs]
+    (->> master-fmaps
+         (remove nil?)
+         (map (fn [[factor fmap]]
+                (if (keyword? (:type fmap))
+                  (get-in fmap [:levels (factor inputs)])
+                  :numeric)))
+         (remove nil?)))
 
 (defn is-categorical?
   [[_ {:keys [fmaps]} _] factor]
@@ -169,8 +169,8 @@
 
 (defn is-spline?
   [[_ #_{:keys [organ centre tool] :as path-params}
-    {:keys [fmaps baseline-cifs baseline-vars :as bundle]}
-    inputs :as env] factor]
+    {:keys [fmaps]}
+    _ :as env] factor]
   (let [master-level (get-in fmaps [factor :level])
         splined (and (string? master-level)
                      (pos? (index-of master-level "spline")))]
@@ -178,15 +178,15 @@
     splined))
 
 (defn is-numeric?
-  [[{:keys [organ centre tool] :as path-params}
-    {:keys [fmaps baseline-cifs baseline-vars :as bundle]}
-    inputs :as env] factor]
+  [[_
+    {:keys [fmaps]}
+    _ :as env] factor]
   (let [type (get-in fmaps [factor :type])]
     (map? (edn/read-string type))))
 
 (defn is-cross-over?
   "Cross over factors contain a '*' in their names"
-  [env factor]
+  [factor]
   (pos? (index-of (name factor) "*")))
 
 (defn split-cross-over
@@ -208,9 +208,9 @@
     level
     (when-let [level (get-in inputs [organ factor])]
       level
-      #_(do (js/console.log (pr-str organ factor nil))
-          nil))))
+      )))
 
+;; We no longer have any cross-over factors
 (defn lookup-cross-over-factor-level
   "When we have a cross-over factor, we need to lookup each of its simple factor components, and
    join them together into a simple level. We then find in the level map inside the fmaps (the fmaps) for 
@@ -249,9 +249,9 @@
     ; 
     ;     
     ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
-    ;     But we no longer have cross overs 
+    ;     But we no longer have any cross overs 
     ; 
-    #_#_(is-cross-over? env factor)
+    (is-cross-over? factor)
     (try 
       (let [level-key (lookup-cross-over-factor-level env factor)
                beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
@@ -304,26 +304,17 @@
           x (if-let [x* (lookup-numeric-input env factor)] x* x0)
           x-x0 (- x x0)
           beta-x-x0 (* beta x-x0)]
+      ;(tap> [::is-numeric? [env factor]])
       [factor beta x0 beta-x-x0])
 
     :else
     [:unclassified factor]))
 
-(defn selected-beta-xs
-   "returns a seq of all xs and betas (keyed by input factor?)"
-   [[{:keys [organ centre tool] :as path-params}
-     {:keys [fmaps baseline-cifs baseline-vars :as bundle]}
-     fmaps :as env]
-    beta-outcome-key]
-   (->> fmaps
-        (map (fn [[factor master-fmap]]
-               (selected-beta-x env factor master-fmap beta-outcome-key)))))
-
  (defn sum-beta-xs
    "returns sum of all xs and betas (keyed by input factor?)"
-   [[{:keys [organ centre tool] :as path-params}
+   [[_ 
      {:keys [fmaps baseline-cifs baseline-vars :as bundle]}
-     inputs :as env]
+     _  :as env]
     beta-outcome-key]
    (->> fmaps
         (map (fn [[factor master-fmap]]
@@ -333,8 +324,6 @@
 
 
  (comment
-
-
    (def bundle (bun/get-bundle :lung :new :waiting))
 
   ;inputs
@@ -344,7 +333,7 @@
 
    (def env [path-params bundle inputs])
 
-   (lookup-cross-over-factor-level env :d-gp*centre)
+   #_(lookup-cross-over-factor-level env :d-gp*centre)
 
    (def master-fmaps (:fmaps bundle))
    (def master-fmap (get-in bundle [:fmaps :d-gp*centre]))
@@ -355,7 +344,7 @@
    
    (:centre (first env))
 
-   (is-cross-over? env :d-gp*centre)
+   (is-cross-over? :d-gp*centre)
    (split-cross-over :d-gp*centre)
    (lookup-simple-factor-level env :age)
    (lookup-simple-factor-level env :centre)
@@ -375,13 +364,13 @@
 
   ; So we need to call this instead...
    
-   (lookup-cross-over-factor-level env :d-gp*centre)
+   #_(lookup-cross-over-factor-level env :d-gp*centre)
 
    (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
    (selected-beta-x env :dd-pred master-fmap :beta-transplant)
    (selected-beta-x env :ethnicity master-fmap :beta-transplant)
 
-   (selected-beta-xs env :beta-transplant)
+   ;(selected-beta-xs env :beta-transplant)
    (sum-beta-xs env :beta-transplant)
   ;=>
    #_([:d-gp*centre :pf*birm -0.10624]

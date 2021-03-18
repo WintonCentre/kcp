@@ -17,7 +17,7 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            ))
+            [shadow.debug :as dbg]))
 
 (defn short-outcomes
   "Shorter outcome names. Possibly used in barchart. Replace wth something else as needed."
@@ -269,7 +269,7 @@
 
 (defn bar-chart-graphic
   "Draw a stacked bar chart.
-   x is a Liner scale defined in svg.scales.Linear containing
+   x is a Linear scale defined in svg.scales.Linear containing
     :in - an input range of numbers to plot on the x-axis.
     :out - an equivalent x coordinate in he SVG window.
    X is a function mapping between the two
@@ -279,10 +279,10 @@
   [x y X Y fs-by-year sample-days outcomes]
   (let [outcomes ["transplant" "waiting" "death"]
         rems (remainders fs-by-year)
-        fs-with-rems (insert-at fs-by-year rems 1) 
+        fs-with-rems (insert-at fs-by-year rems 1)
         fs-with-rem-by-year (fs-cum-fs fs-with-rems)
         pairwise #(partition-all 2 1 %)]
-
+    (dbg/locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -325,66 +325,16 @@
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-             (map (fn [j {:keys [cifs cum-cifs]}]
-                ;draw single bar and label
-                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
-                          w 100
-                          x-mid (+ x0 (/ w 2) -10)
-                          staggers (label-staggers 0.1 cifs)
-                          ]
-
-                      (into [:g {:key j}]
-                            (conj
-                             (map (fn [i cif cum-cif outcome]
-                                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
-                                          w 100
-                                          x-mid (+ x0 (/ w 2) -10)
-                                          y0 (if (> (count outcomes) 1)
-                                               (- (Y cum-cif) (Y cif)) (Y cif))
-                                          h (if (> (count outcomes) 1)
-                                              (- (Y cum-cif) (Y (- cum-cif cif)))
-                                              (- (Y 0) (Y cif)))
-                                          y-mid (+ y0 (/ h 2))]
-                                      (when true ;(> cif 0.005)
-                                        [:g
-                                         {:transform (str "translate("
-                                                          (if (staggers i)
-                                                            (if (odd? i) 40 -60)
-                                                            (if (< cif 1) -20 -30))
-                                                          " 10)")}
-                                         [:rect {:x (- x-mid 5)
-                                                 :width (if (>= cif 1)
-                                                          90
-                                                          (if (< cif 0.10) 50 70))
-                                                 :y (- y-mid 30)
-                                                 :height 40
-                                                 :rx 10
-                                                 :style {:border "0px"}
-                                                 :class-name ((keyword outcome) styles)}]
-                                         [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
-                                          (str (model/to-percent cif) "%")]])))
-                                  (range)
-                                  cifs
-                                  cum-cifs
-                                  outcomes)
-                             [:<>
-                              (if (= j 1)
-                                [:text {:x (- x-mid 58) :y 660 :font-size 30}  "At Listing"]
-                                [:text {:x (- x-mid 32) :y 660 :font-size 30}  (str "Year " (dec j))])]))))
-                  (range 1 (inc (count sample-days)))
-                  fs-with-rem-by-year))
-
-
-     #_(into [:g {:key 3 :style {:opacity 0.3}}]
            (map (fn [j {:keys [cifs cum-cifs]}]
                 ;draw single bar and label
                   (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
                         w 100
-                        x-mid (+ x0 (/ w 2) -10)]
+                        x-mid (+ x0 (/ w 2) -10)
+                        staggers (label-staggers 0.1 cifs)]
+
                     (into [:g {:key j}]
                           (conj
                            (map (fn [i cif cum-cif outcome]
-
                                   (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
                                         w 100
                                         x-mid (+ x0 (/ w 2) -10)
@@ -394,12 +344,11 @@
                                             (- (Y cum-cif) (Y (- cum-cif cif)))
                                             (- (Y 0) (Y cif)))
                                         y-mid (+ y0 (/ h 2))]
-
-                                    (when (> cif 0.005)
+                                    (when true ;(> cif 0.005)
                                       [:g
                                        {:transform (str "translate("
-                                                        (if (and (> i 1) (< cif 0.07))
-                                                          (if (odd? i) 20 -60)
+                                                        (if (staggers i)
+                                                          (if (odd? i) 40 -60)
                                                           (if (< cif 1) -20 -30))
                                                         " 10)")}
                                        [:rect {:x (- x-mid 5)
@@ -419,10 +368,60 @@
                                 outcomes)
                            [:<>
                             (if (= j 1)
-                              [:text {:x (- x-mid 58) :y 650 :font-size 30}  "At Listing"]
-                              [:text {:x (- x-mid 32) :y 650 :font-size 30}  (str "Year " (dec j))])]))))
+                              [:text {:x (- x-mid 58) :y 660 :font-size 30}  "At Listing"]
+                              [:text {:x (- x-mid 32) :y 660 :font-size 30}  (str "Year " (dec j))])]))))
                 (range 1 (inc (count sample-days)))
-                fs-with-rem-by-year))]))
+                fs-with-rem-by-year))
+
+
+     #_(into [:g {:key 3 :style {:opacity 0.3}}]
+             (map (fn [j {:keys [cifs cum-cifs]}]
+                ;draw single bar and label
+                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                          w 100
+                          x-mid (+ x0 (/ w 2) -10)]
+                      (into [:g {:key j}]
+                            (conj
+                             (map (fn [i cif cum-cif outcome]
+
+                                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                          w 100
+                                          x-mid (+ x0 (/ w 2) -10)
+                                          y0 (if (> (count outcomes) 1)
+                                               (- (Y cum-cif) (Y cif)) (Y cif))
+                                          h (if (> (count outcomes) 1)
+                                              (- (Y cum-cif) (Y (- cum-cif cif)))
+                                              (- (Y 0) (Y cif)))
+                                          y-mid (+ y0 (/ h 2))]
+
+                                      (when (> cif 0.005)
+                                        [:g
+                                         {:transform (str "translate("
+                                                          (if (and (> i 1) (< cif 0.07))
+                                                            (if (odd? i) 20 -60)
+                                                            (if (< cif 1) -20 -30))
+                                                          " 10)")}
+                                         [:rect {:x (- x-mid 5)
+                                                 :width (if (>= cif 1)
+                                                          90
+                                                          (if (< cif 0.10) 50 70))
+                                                 :y (- y-mid 30)
+                                                 :height 40
+                                                 :rx 10
+                                                 :style {:border "0px"}
+                                                 :class-name ((keyword outcome) styles)}]
+                                         [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
+                                          (str (model/to-percent cif) "%")]])))
+                                  (range)
+                                  cifs
+                                  cum-cifs
+                                  outcomes)
+                             [:<>
+                              (if (= j 1)
+                                [:text {:x (- x-mid 58) :y 650 :font-size 30}  "At Listing"]
+                                [:text {:x (- x-mid 32) :y 650 :font-size 30}  (str "Year " (dec j))])]))))
+                  (range 1 (inc (count sample-days)))
+                  fs-with-rem-by-year))]))
 
 
 (defn vis-data-map

@@ -8,7 +8,8 @@
             [transplants.spline :refer [spline]]
             [transplants.subs :as subs]
             [transplants.bundles :as bun]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [shadow.debug :refer [locals ?->]]))
 
 (comment
 
@@ -204,11 +205,11 @@
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
   [[{:keys [organ] :as path-params} _ inputs] factor]
+  (locals)
   (if-let [level (factor path-params)]
     level
     (when-let [level (get-in inputs [organ factor])]
-      level
-      )))
+      level)))
 
 ;; We no longer have any cross-over factors
 (defn lookup-cross-over-factor-level

@@ -1,6 +1,7 @@
 (ns transplants.model
   "Functions which assist in the model calculations."
-  (:require [transplants.utils :as utils]))
+  (:require [transplants.utils :as utils]
+            [shadow.debug :refer [locals ?-> ?->>]]))
 
 (defn to-precision
   "js number to sig figs"
@@ -143,6 +144,7 @@
   [S0 day]
   (let [rv (->> S0
                 (filter #(<= (first %) day))
+                (?->>)
                 (last))]
     (if (and rv (pos? (first rv)))
       rv

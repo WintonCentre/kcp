@@ -17,7 +17,7 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            [shadow.debug :as dbg]))
+            [shadow.debug :refer [locals ?->]]))
 
 (defn short-outcomes
   "Shorter outcome names. Possibly used in barchart. Replace wth something else as needed."
@@ -65,7 +65,6 @@
         ;; in the outcomes vector (currently first). 
         ;;
         cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)
-
 
         F (if cox?
             (model/cox-adjusted s0 sum-betas)
@@ -282,7 +281,6 @@
         fs-with-rems (insert-at fs-by-year rems 1)
         fs-with-rem-by-year (fs-cum-fs fs-with-rems)
         pairwise #(partition-all 2 1 %)]
-    (dbg/locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)

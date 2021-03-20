@@ -60,14 +60,15 @@
         #_#_sum-betas (map #(fac/sum-beta-xs bundle %) beta-keys)
         cox? (model/use-cox-adjusted? tool)
         s0 (:all-S0 bundle)
-        [_ all-s0-for-day] (model/S0-for-day s0 day)
+        all-s0-for-day (model/S0-for-day s0 day)
 
         F (if cox?
             (model/cox-adjusted s0 sum-betas)
             (model/cox all-s0-for-day sum-betas))]
     (locals)
+    #_[:div "not yet"]
     [:<>
-     #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
+     [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]
      [ui/tabs {:variant "pills" :default-active-key selected-vis
                :active-key selected-vis
@@ -351,6 +352,8 @@
 
       [ui/tab {:variant "secondary"
                :event-key "test" :title "[Test]"}
+       [:div "not-yet"]
+       #_
        [vis/test-rig {:organ organ
                       :centre centre
                       :tool tool

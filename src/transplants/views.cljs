@@ -11,7 +11,8 @@
    [transplants.ui :as ui]
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
-   [transplants.results :as results]))
+   [transplants.results :as results]
+   [shadow.debug :refer [locals ?->]]))
 
 (comment
   (rf/dispatch [::events/initialize-db]))

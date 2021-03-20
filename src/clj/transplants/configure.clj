@@ -17,7 +17,7 @@
    [clojure.stacktrace :as stack]
    [clojure.core.memoize :as memo]
    [clojure.set :as st]
-   [transplants.utils :as utils]
+   [transplants.config-utils :as utils]
    [transplants.transforms :as xf]
    [transplants.shared :refer [underscore]])
   (:gen-class))

@@ -14,7 +14,7 @@
 (defn path-names
   "Given reitit path-params, return the organ/centre/tool path keys"
   [path-params]
-  ((juxt :organ :centre :tool) path-params))
+  ((juxt :organ :centre :tool :tab) path-params))
 
 (defn path-keys
   "Given reitit path-params, return the organ/centre/tool path keys"

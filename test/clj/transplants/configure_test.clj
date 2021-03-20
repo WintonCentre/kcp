@@ -1,6 +1,6 @@
 (ns transplants.configure-test
   (:require  [transplants.configure :as c]
-             [transplants.utils :as utils]
+             [transplants.config-utils :as utils]
              [clojure.test :as t :refer [deftest is testing]]
              [clojure.pprint :refer [pprint]]
              [clojure.string :refer [starts-with?]]

@@ -195,7 +195,7 @@
  (fn ;;-traced
   [{:keys [_ db]} [_ data-path response]]
   (let [path-params (get-in db [:current-route :path-params])
-        [organ centre tool] (utils/path-keys path-params)
+        [organ centre tool tab] (utils/path-keys path-params)
         raw (edn/read-string response)
 
         bundle-name (name tool)
@@ -231,14 +231,14 @@
         beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
         ;outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
 
-        ;; Use the following if calculating ALL data points
+        ;; Use SO+ if calculating with ALL data points
         S0+ (map (fn [bc] [(:days bc)
                            ((apply juxt outcome-keys) bc)]) baseline-cifs)
         #_#_S0+ (map (fn [bc] [(:days bc)
                            (map (comp - js/Math.log)
                                 ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
-        ;; Otherwise, filter for an optimised calculation
+        ;; Otherwise, use SO for a reduced for an optimised calculation
         S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
                             %2) (model/sample-from S0+))]
 

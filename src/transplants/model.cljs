@@ -144,7 +144,7 @@
   [S0 day]
   (let [rv (->> S0
                 (filter #(<= (first %) day))
-                (?->>)
+                ;(?->>)
                 (last))]
     (if (and rv (pos? (first rv)))
       rv

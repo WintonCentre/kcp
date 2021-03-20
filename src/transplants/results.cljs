@@ -52,19 +52,37 @@
         env [{:organ organ :centre centre :tool tool}
              bundle
              {organ inputs}]
-        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0]} bundle
+        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]} bundle
         {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
         selected-vis @(rf/subscribe [::subs/selected-vis])
-        factors (keys fmaps)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        #_#_sum-betas (map #(fac/sum-beta-xs bundle %) beta-keys)
-        cox? (model/use-cox-adjusted? tool)
-        s0 (:all-S0 bundle)
-        all-s0-for-day (model/S0-for-day s0 day)
 
-        F (if cox?
-            (model/cox-adjusted s0 sum-betas)
-            (model/cox all-s0-for-day sum-betas))]
+        ;; use all of S0 till it gets to be too slow. May need to query tool and vis here.
+        ;; Switching s0 is enough
+        s0 all-S0
+        s0-for-day (model/S0-for-day s0 day)
+
+        cox? (model/use-cox-adjusted? tool)
+        F (if (= selected-vis "test")
+            (model/cox s0-for-day sum-betas)
+            (model/cox-adjusted s0 sum-betas))
+
+        venv {:organ organ
+              :centre centre
+              :tool tool
+              :selected-vis selected-vis
+              :bundle bundle
+              :sum-betas sum-betas
+              :from-year from-year
+              :to-year to-year
+              :day day
+              :s0 s0
+              :s0-for-day s0-for-day
+              :cox? cox?
+              :F F
+              :outcomes outcomes
+              :outcome-keys outcome-keys
+              :timed-outcome-keys timed-outcome-keys}]
     (locals)
     #_[:div "not yet"]
     [:<>
@@ -88,19 +106,28 @@
                           :bar-info [{:key "transplant"
                                       :stack-id "a"
                                       :bar-label :none
-                                      :label "Transplanted" :fill transplant-fill :ciff nth :hide false}
+                                      :label "Transplanted" 
+                                      :fill transplant-fill 
+                                      :ciff nth 
+                                      :hide false}
                                      {:key "waiting"
                                       :stack-id "a"
                                       :bar-label {:fill "#fff" :at :centre}
                                       :title "How long do people stay on the list?"
-                                      :label "Still waiting" :fill waiting-fill :ciff (fn [cifs i]
-                                                                                        (- 200
-                                                                                           (+ (nth cifs 0)
-                                                                                              (- 100 (nth cifs 2))))) :hide false}
+                                      :label "Still waiting"
+                                      :fill waiting-fill
+                                      :ciff (fn [cifs i]
+                                              (- 200
+                                                 (+ (nth cifs 0)
+                                                    (- 100 (nth cifs 2))))) 
+                                      :hide false}
                                      {:key "death"
                                       :stack-id "a"
                                       :bar-label :none
-                                      :label "Died" :fill death-fill :ciff (fn [cifs i] (- 100 (nth cifs 2))) :hide false}]
+                                      :label "Died or Removed" 
+                                      :fill death-fill 
+                                      :ciff (fn [cifs i] (- 100 (nth cifs 2))) 
+                                      :hide false}]
                           :y-range [0 200]}]]
          :post-transplant
          [vis/bar-chart {:organ organ

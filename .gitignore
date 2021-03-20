@@ -50,3 +50,4 @@ prod.cljs.edn
 report.html
 .lsp
 .Rproj.user
+.Rhistory

@@ -16,7 +16,6 @@ Alternatively run the same code with:
 ./bb-scripts/config.clj
 ```
 
-
 ## Reconfiguration
 
 Mostly, you will only need to run the configuration tool if there are revisions to the models, but if there are structural changes you may need to adjust or verify the configuration code too to ensure the resulting EDN text files are what you need.
@@ -48,3 +47,5 @@ Inside `config.edn` is a single map with keys for the major sections. These are:
     :sheets
         For each organ
             The columns where data is to be found in each sheet
+
+****

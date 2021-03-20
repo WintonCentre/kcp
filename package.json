@@ -10,7 +10,7 @@
         "build-verbose": "shadow-cljs release --verbose app",
         "report": "shadow-cljs run shadow.cljs.build-report app report.html",
         "debug-build": "shadow-cljs release app --debug",
-        "serve": "serve --single public --listen 5000",
+        "serve": "serve --single resources/public --listen 5000",
         "dev-build": "shadow-cljs compile app",
         "repl": "shadow-cljs cljs-repl app",
         "browser-repl": "shadow-cljs browser-repl",
@@ -18,12 +18,11 @@
         "test": "shadow-cljs watch test",
         "test-browser": "shadow-cljs watch test-browser",
         "test-once": "shadow-cljs compile test",
-        "clean": "rimraf public/js",
-        "nuke": "rimraf public/js .shadow-cljs node_modules yarn.lock package-lock.json out report.html",
+        "clean": "rimraf resources/public/js",
+        "nuke": "rimraf resources/public/js .shadow-cljs node_modules yarn.lock package-lock.json out report.html",
         "shadow-cljs-server": "shadow-cljs server"
     },
     "dependencies": {
-        "ajv": "^6.9.2",
         "react": "17.0.1",
         "react-bootstrap": "1.5.1",
         "react-dom": "17.0.1"

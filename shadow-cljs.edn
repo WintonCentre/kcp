@@ -1,7 +1,8 @@
-{:source-paths ["src/cljc" "src/cljs" "test/cljs"]
+{:source-paths ["src" "test"]
 
  :dependencies
- [[reagent               "1.0.0"]
+ [[com.cognitect/transit-js "0.8.867"]
+  [reagent               "1.0.0"]
   [re-frame              "1.2.0"]
   [metosin/reitit        "0.4.2"]
   [cljs-ajax             "0.8.1"]

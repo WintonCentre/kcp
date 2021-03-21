@@ -9,7 +9,7 @@
             [transplants.subs :as subs]
             [transplants.bundles :as bun]
             [re-frame.core :as rf]
-            [shadow.debug :refer [locals ?-> ?->>]]))
+            [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (comment
 
@@ -208,7 +208,7 @@
    If the factor is not found or it does not yet have a level, returns nil."
   [env factor]
   ;(locals)
-  (if-let [level (factor (:path-params env))] ;; in-case factor is :centre
+  (if-let [level (factor (select-keys env [:centre]))] ;; in-case factor is :centre
     level
     (when-let [level (factor (:inputs env))]
       level)))

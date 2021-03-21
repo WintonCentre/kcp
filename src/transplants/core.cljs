@@ -8,6 +8,7 @@
    [transplants.paths :as paths]
    [transplants.ui :as ui]
    [error-boundary.error-boundary :refer [err-boundary]]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 (enable-console-print!)
@@ -20,9 +21,12 @@
     (enable-console-print!)
     #_(println "dev mode")))
 
-(defn ^:after-load mount-root
-  "Mount components and start the reitit router"
+(defn ^:dev/after-load mount-root
+  "Mount components and start the reitit router. The :dev/after-load meta-data causes
+   shadow-cljs to call mount-root after a hot-reload and clear the subsciption cache so
+   everything gets updated nicely."
   []
+  (?-> "mount-root" ::mount-root)
   (rf/clear-subscription-cache!)
   (routes/init-routes!) ;; Reset routes on figwheel reload
   (rd/render [err-boundary

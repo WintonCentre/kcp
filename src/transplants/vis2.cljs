@@ -44,12 +44,8 @@
   0)
 
 (defn test-rig
-  [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
-  (let [env {:organ organ :centre centre :tool tool
-             :path-params {:organ organ :centre centre :tool tool}
-             :bundle bundle
-             :inputs inputs}
-        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0]} bundle
+  [{:keys [organ centre tool day inputs bundle rubric bar-info fmaps] :as env}]
+  (let [{:keys [baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0]} bundle
 
         factors (keys fmaps)
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
@@ -76,7 +72,6 @@
     ;(tap> [::all-F (map #(model/cox % sum-betas) all-s0-for-day)])
 
     [:> bs/Row {:style {:margin-top 20}}
-     [:p (count s0)]
      (when factors
        [:> bs/Col
         [ui/test-day-selector 10]

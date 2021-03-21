@@ -47,19 +47,25 @@
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
-        inputs (get @(rf/subscribe [::subs/inputs]) organ)
-        bundle (bun/get-bundle organ centre tool)
-        env {:organ organ 
-             :centre centre 
+        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
+         :as bundle} (bun/get-bundle organ centre tool)
+        env {:organ organ
+             :centre centre
              :tool tool
+             :day day
              :bundle bundle
-             :inputs inputs
-             :path-params {:organ organ
-                           :centre centre
-                           :tool tool}}
-        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]} bundle
-        {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
-        selected-vis @(rf/subscribe [::subs/selected-vis])
+             :fmaps fmaps
+             :S0 S0
+             :all-S0 all-S0
+             :outcomes outcomes
+             :outcome-keys outcome-keys
+             :timed-outcome-keys timed-outcome-keys
+             :beta-keys beta-keys
+             :cohort-dates @(rf/subscribe [::subs/cohort-dates])
+             :inputs (get @(rf/subscribe [::subs/inputs]) organ)
+             :selected-vis @(rf/subscribe [::subs/selected-vis])}
+        
+        ;selected-vis @(rf/subscribe [::subs/selected-vis])
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
 
         ;; use all of S0 till it gets to be too slow. May need to query tool and vis here.
@@ -68,118 +74,84 @@
         s0-for-day (model/S0-for-day s0 day)
 
         cox? (model/use-cox-adjusted? tool)
-        F (if (= selected-vis "test")
+        F (if (= (:selected-vis env) "test")
             (model/cox s0-for-day sum-betas)
             (model/cox-adjusted s0 sum-betas))
 
-        venv {:organ organ
-              :centre centre
-              :tool tool
-              :selected-vis selected-vis
-              :inputs inputs
-              :fmaps fmaps
-              :bundle bundle
-              :sum-betas sum-betas
-              :from-year from-year
-              :to-year to-year
-              :day day
-              :s0 s0
-              :s0-for-day s0-for-day
-              :cox? cox?
-              :F F
-              :outcomes outcomes
-              :outcome-keys outcome-keys
-              :timed-outcome-keys timed-outcome-keys}]
+        env (conj env
+                  ;[:selected-vis selected-vis]
+                  [:sum-betas sum-betas]
+                  [:s0 s0]
+                  [:s0-for-day s0-for-day]
+                  [:cox? cox?]
+                  [:F F] ;; is this needed ?
+                  )]
     (locals)
     #_[:div "not yet"]
     [:<>
      [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]
-     [ui/tabs {:variant "pills" :default-active-key selected-vis
-               :active-key selected-vis
+        on patients who joined the waiting list between " (:from-year env) " and " (:to-year env) "."]
+     [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
+               :active-key (:selected-vis env)
                :on-select #(rf/dispatch [::events/selected-vis %])}
       [ui/tab {:event-key "bars" :title "Bar Chart"}
        (condp = tool
          :waiting
          [:<>
-          [vis/bar-chart {:organ organ
-                          :centre centre
-                          :tool tool
-                          :inputs inputs
-                          :bundle bundle
-                          :rubric [:<>
-                                   [:h4 "Proportions of people waiting, transplanted, died or removed"]
-                                   [:p "As time goes by, people on the waiting list either receive a transplant or leave the list due to death or some other reason."]]
-                          :bar-info [{:key "transplant"
-                                      :stack-id "a"
-                                      :bar-label :none
-                                      :label "Transplanted" 
-                                      :fill transplant-fill 
-                                      :ciff nth 
-                                      :hide false}
-                                     {:key "waiting"
-                                      :stack-id "a"
-                                      :bar-label {:fill "#fff" :at :centre}
-                                      :title "How long do people stay on the list?"
-                                      :label "Still waiting"
-                                      :fill waiting-fill
-                                      :ciff (fn [cifs i]
-                                              (- 200
-                                                 (+ (nth cifs 0)
-                                                    (- 100 (nth cifs 2))))) 
-                                      :hide false}
-                                     {:key "death"
-                                      :stack-id "a"
-                                      :bar-label :none
-                                      :label "Died or Removed" 
-                                      :fill death-fill 
-                                      :ciff (fn [cifs i] (- 100 (nth cifs 2))) 
-                                      :hide false}]
-                          :y-range [0 200]}]]
+          [vis/bar-chart (conj env
+                              [:rubric [:<>
+                                        [:h4 "Proportions of people waiting, transplanted, died or removed"]
+                                        [:p "As time goes by, people on the waiting list either receive a transplant or leave the list due to death or some other reason."]]]
+                              [:bar-info [{:key "transplant"
+                                           :stack-id "a"
+                                           :bar-label :none
+                                           :label "Transplanted"
+                                           :fill transplant-fill
+                                           :ciff nth
+                                           :hide false}
+                                          {:key "waiting"
+                                           :stack-id "a"
+                                           :bar-label {:fill "#fff" :at :centre}
+                                           :title "How long do people stay on the list?"
+                                           :label "Still waiting"
+                                           :fill waiting-fill
+                                           :ciff (fn [cifs i]
+                                                   (- 200
+                                                      (+ (nth cifs 0)
+                                                         (- 100 (nth cifs 2)))))
+                                           :hide false}
+                                          {:key "death"
+                                           :stack-id "a"
+                                           :bar-label :none
+                                           :label "Died or Removed"
+                                           :fill death-fill
+                                           :ciff (fn [cifs i] (- 100 (nth cifs 2)))
+                                           :hide false}]]
+                              [:y-range [0 200]])]]
          :post-transplant
-         [vis/bar-chart {:organ organ
-                         :centre centre
-                         :tool tool
-                         :inputs inputs
-                         :bundle bundle
-                         :rubric [:h4 "About how long do people survive after a transplant?"]
-                         :bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
+         [vis/bar-chart (conj env
+                              [:rubric [:h4 "About how long do people survive after a transplant?"]]
+                              [:bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]]
+                             )]
 
          :survival
-         [vis/bar-chart {:organ organ
-                         :centre centre
-                         :tool tool
-                         :inputs inputs
-                         :bundle bundle
-                         :rubric [:h4 "About how long do people survive after a transplant?"]
-                         :bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
+         [vis/bar-chart (conj env
+                              [:rubric [:h4 "About how long do people survive after a transplant?"]]
+                              [:bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]])]
 
          :graft
-         [vis/bar-chart {:organ organ
-                         :centre centre
-                         :tool tool
-                         :inputs inputs
-                         :bundle bundle
-                         :rubric [:h4 "About how long does the graft survive?"]
-                         :bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}]
+         [vis/bar-chart (conj env
+                              [:rubric [:h4 "About how long does the graft survive?"]]
+                              [:bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]])]
          :ldsurvival
-         [vis/bar-chart {:organ organ
-                         :centre centre
-                         :tool tool
-                         :inputs inputs
-                         :bundle bundle
-                         :rubric [:h4 "About how long do people survive after a transplant from a living donor?"]
-                         :bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]}]
+         [vis/bar-chart (conj env
+                              [:rubric [:h4 "About how long do people survive after a transplant from a living donor?"]]
+                              [:bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]])]
 
          :ldgraft
-         [vis/bar-chart {:organ organ
-                         :centre centre
-                         :tool tool
-                         :inputs inputs
-                         :bundle bundle
-                         :rubric [:h4 "About how long does the graft from a living donor survive?"]
-                         :bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]}])]
-
+         [vis/bar-chart (conj env
+                              [:rubric [:h4 "About how long does the graft from a living donor survive?"]]
+                              [:bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]])])]
 
       [ui/tab {:event-key "area" :title "Area Chart"}
        #_(condp = tool
@@ -386,13 +358,7 @@
 
       [ui/tab {:variant "secondary"
                :event-key "test" :title "[Test]"}
-       [:div "not-yet"]
-       #_
-       [vis/test-rig {:organ organ
-                      :centre centre
-                      :tool tool
-                      :day day
-                      :inputs inputs
-                      :bundle bundle
-                      :rubric [[:h4 "Test Rig"]]
-                      :bar-info nil}]]]]))
+       #_[:div "not-yet"]
+       [vis/test-rig (conj env
+                           [:rubric [[:h4 "Test Rig"]]]
+                           [:bar-info nil])]]]]))

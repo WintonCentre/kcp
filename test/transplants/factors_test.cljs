@@ -26,9 +26,9 @@
   (fac/lookup-cross-over-factor-level env :dgp*centre)
   (:centre (first env))
 
-  (fac/lookup-simple-factor-level env :age)
-  (fac/lookup-simple-factor-level env :centre)
-  (fac/lookup-simple-factor-level env :d-gp)
+  (fac/lookup-simple-factor-level bundle :age)
+  (fac/lookup-simple-factor-level bundle :centre)
+  (fac/lookup-simple-factor-level bundle :d-gp)
 
   (fac/is-spline? env :bmi)
   (fac/is-spline? env :age)
@@ -36,11 +36,11 @@
 
   (fac/is-categorical? env :bmi)
   (fac/is-numeric? env :bmi)
-  (fac/lookup-simple-factor-level env :bmi)
-  (fac/lookup-simple-factor-level env :dd-pred)
+  (fac/lookup-simple-factor-level bundle :bmi)
+  (fac/lookup-simple-factor-level bundle :dd-pred)
 
   ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
-  (fac/lookup-simple-factor-level env :d-gp*centre)
+  (fac/lookup-simple-factor-level bundle :d-gp*centre)
 
   ; So we need to call this instead...
 

@@ -544,7 +544,7 @@
   [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
   (let [env [{:organ organ :centre centre :tool tool}
              bundle
-             {organ inputs}]
+             inputs]
         {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]} bundle
 
         factors (keys fmaps)

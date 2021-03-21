@@ -33,7 +33,7 @@
   (def inputs @(rf/subscribe [::subs/inputs]))
   (tap> [::inputs inputs])
   (def env [oct-names oct-bundle inputs])
-  (def  sum-betas (map #(fac/sum-beta-xs oct-bundle %) beta-outcome-keys))
+  (def  sum-betas (map #(fac/sum-beta-xs env %) beta-outcome-keys))
   0)
 
 (def waiting-fill "#0088EE" #_"#7C91D8")
@@ -51,7 +51,7 @@
         bundle (bun/get-bundle organ centre tool)
         env [{:organ organ :centre centre :tool tool}
              bundle
-             {organ inputs}]
+             inputs]
         {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]} bundle
         {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
         selected-vis @(rf/subscribe [::subs/selected-vis])
@@ -71,6 +71,8 @@
               :centre centre
               :tool tool
               :selected-vis selected-vis
+              :inputs inputs
+              :fmaps fmaps
               :bundle bundle
               :sum-betas sum-betas
               :from-year from-year

@@ -163,16 +163,20 @@
                   :numeric)))
          (remove nil?)))
 
+(defn master-level-key
+  "get the master level key for a bundle factor"
+  [bundle factor]
+  (get-in bundle [:fmaps factor :level])
+  )
+
 (defn is-categorical?
-  [[_ {:keys [fmaps]} _] factor]
-  (let [level-key (get-in fmaps [factor :level])]
+  [[_ bundle _] factor]
+  (let [level-key (master-level-key bundle factor)]
     (and (keyword? level-key) (not= level-key :x))))
 
 (defn is-spline?
-  [[_ #_{:keys [organ centre tool] :as path-params}
-    {:keys [fmaps]}
-    _ :as env] factor]
-  (let [master-level (get-in fmaps [factor :level])
+  [[_ bundle _] factor]
+  (let [master-level (master-level-key bundle factor)
         splined (and (string? master-level)
                      (pos? (index-of master-level "spline")))]
     ;(println ::master-level master-level :splined splined)
@@ -181,7 +185,7 @@
 (defn is-numeric?
   [[_
     {:keys [fmaps]}
-    _ :as env] factor]
+    _] factor]
   (let [type (get-in fmaps [factor :type])]
     (map? (edn/read-string type))))
 
@@ -204,10 +208,11 @@
    (e.g. :centre which is determined by path-params). 
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
-  [[{:keys [organ] :as path-params} _ inputs] factor]
-  (if-let [level (factor path-params)]
+  [[path-params _ inputs] factor]
+  ;(locals)
+  (if-let [level (factor path-params)] ;; in-case factor is :centre
     level
-    (when-let [level (get-in inputs [organ factor])]
+    (when-let [level (factor inputs)]
       level)))
 
 ;; We no longer have any cross-over factors
@@ -234,8 +239,8 @@
   (beta-outcome-key master-fmap))
 
 (defn lookup-numeric-input
-  [[{:keys [organ] :as path-params} _ inputs] factor]
-  (let [x (get-in inputs [organ factor])]
+  [[_ _ inputs :as env] factor]
+  (let [x (factor inputs)]
     (if (string? x) (edn/read-string x) x)))
 
 (defn selected-beta-x
@@ -281,7 +286,8 @@
     ;    (e.g. from :beta-transplant)
     ; (get-in master-f-map [])
     (is-spline? env factor)
-    (let [[_ {:keys [baseline-vars]} _] env
+    (let [[_ bundle _] env
+          baseline-vars (:baseline-vars bundle)
           levels (:levels master-fmap)
           knots (->> (get-in levels [[:spline :x :beta1 :beta2 :beta3] :type])
                      (filter (fn [[k v]] (starts-with? (name k) "knot")))
@@ -298,7 +304,8 @@
       [factor [:spline knots betas] (spline knots betas x0 x)])
 
     (is-numeric? env factor)
-    (let [[_ {:keys [baseline-vars]} _] env
+    (let [[_ bundle _] env
+          baseline-vars (:baseline-vars bundle)
           x0 (factor baseline-vars)
           beta (lookup-numeric-beta master-fmap beta-outcome-key)
           x (if-let [x* (lookup-numeric-input env factor)] x* x0)

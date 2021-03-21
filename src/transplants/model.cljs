@@ -165,8 +165,7 @@
   (cox 0.9 [0.9 0.7])
   ;; => (0.22828892339131668 0.1911728338852633)
   ;;   
-  (map #(- 1 (js/Math.pow 0.9 (js/Math.exp %))) [0.9 0.7])
-  )
+  (map #(- 1 (js/Math.pow 0.9 (js/Math.exp %))) [0.9 0.7]))
 
 ;; todo: remove this
 (defn cif

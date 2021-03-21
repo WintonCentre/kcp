@@ -42,6 +42,9 @@
 (def survival-fill "#927AAA")
 (def graft-fill "#0099DD")
 
+(comment 
+  (def sum-betas '(0 0)))
+
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
@@ -64,7 +67,7 @@
              :cohort-dates @(rf/subscribe [::subs/cohort-dates])
              :inputs (get @(rf/subscribe [::subs/inputs]) organ)
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
-        
+
         ;selected-vis @(rf/subscribe [::subs/selected-vis])
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
 
@@ -74,10 +77,10 @@
         s0-for-day (model/S0-for-day s0 day)
 
         cox? (model/use-cox-adjusted? tool)
-        F (if (= (:selected-vis env) "test")
+        F (if false #_(= (:selected-vis env) "test")
             (model/cox s0-for-day sum-betas)
             (model/cox-adjusted s0 sum-betas))
-
+        
         env (conj env
                   ;[:selected-vis selected-vis]
                   [:sum-betas sum-betas]
@@ -86,6 +89,7 @@
                   [:cox? cox?]
                   [:F F] ;; is this needed ?
                   )]
+
     (locals)
     #_[:div "not yet"]
     [:<>
@@ -131,7 +135,11 @@
          :post-transplant
          [vis/bar-chart (conj env
                               [:rubric [:h4 "About how long do people survive after a transplant?"]]
-                              [:bar-info [{:key "post-transplant" :label "Survival post-transplant" :fill survival-fill :ciff nth :hide false}]]
+                              [:bar-info [{:key "post-transplant" 
+                                           :label "Survival post-transplant" 
+                                           :fill survival-fill 
+                                           :ciff nth 
+                                           :hide false}]]
                              )]
 
          :survival

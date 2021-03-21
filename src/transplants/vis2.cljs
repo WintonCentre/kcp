@@ -44,33 +44,12 @@
   0)
 
 (defn test-rig
-  [{:keys [organ centre tool day inputs bundle rubric bar-info fmaps] :as env}]
-  (let [{:keys [baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0]} bundle
-
-        factors (keys fmaps)
-        sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        cox? (model/use-cox-adjusted? tool)
-
-        ;; baseline-cifs-for-day is a seq of cif-0s - one for each outcome on the selected day
-        s0 (:all-S0 bundle)
-        baseline-cifs-for-day (map (bun/cif-0 bundle day) outcome-keys)
-        [_ all-s0-for-day] (model/S0-for-day s0 day)
-
-
-        ;;
-        ;; The following code assumes we have the "all-reasons" outcome in a well known slot
-        ;; in the outcomes vector (currently first). 
-        ;;
-        cifs  (map (partial model/cif tool) baseline-cifs-for-day sum-betas)
-
-        F (if cox?
-            (model/cox-adjusted s0 sum-betas)
-            (model/cox all-s0-for-day sum-betas))]
-
-    ;(tap> [::all-s0-for-day all-s0-for-day])
-    ;(tap> [::sum-betas  sum-betas])
-    ;(tap> [::all-F (map #(model/cox % sum-betas) all-s0-for-day)])
-
+  [{:keys [organ centre tool day inputs bundle 
+           outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
+           rubric bar-info] :as env}]
+  (let [factors (keys fmaps)]
+    (?-> env ::test-rig)
+    #_[:div "Not yet"]
     [:> bs/Row {:style {:margin-top 20}}
      (when factors
        [:> bs/Col
@@ -272,7 +251,7 @@
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
   [x y X Y fs-by-year sample-days outcomes]
-  (let [outcomes ["transplant" "waiting" "death"]
+  (let [;outcomes ["transplant" "waiting" "death"]
         rems (remainders fs-by-year)
         fs-with-rems (insert-at fs-by-year rems 1)
         fs-with-rem-by-year (fs-cum-fs fs-with-rems)
@@ -368,161 +347,7 @@
                 fs-with-rem-by-year))
 
 
-     #_(into [:g {:key 3 :style {:opacity 0.3}}]
-             (map (fn [j {:keys [cifs cum-cifs]}]
-                ;draw single bar and label
-                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
-                          w 100
-                          x-mid (+ x0 (/ w 2) -10)]
-                      (into [:g {:key j}]
-                            (conj
-                             (map (fn [i cif cum-cif outcome]
-
-                                    (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
-                                          w 100
-                                          x-mid (+ x0 (/ w 2) -10)
-                                          y0 (if (> (count outcomes) 1)
-                                               (- (Y cum-cif) (Y cif)) (Y cif))
-                                          h (if (> (count outcomes) 1)
-                                              (- (Y cum-cif) (Y (- cum-cif cif)))
-                                              (- (Y 0) (Y cif)))
-                                          y-mid (+ y0 (/ h 2))]
-
-                                      (when (> cif 0.005)
-                                        [:g
-                                         {:transform (str "translate("
-                                                          (if (and (> i 1) (< cif 0.07))
-                                                            (if (odd? i) 20 -60)
-                                                            (if (< cif 1) -20 -30))
-                                                          " 10)")}
-                                         [:rect {:x (- x-mid 5)
-                                                 :width (if (>= cif 1)
-                                                          90
-                                                          (if (< cif 0.10) 50 70))
-                                                 :y (- y-mid 30)
-                                                 :height 40
-                                                 :rx 10
-                                                 :style {:border "0px"}
-                                                 :class-name ((keyword outcome) styles)}]
-                                         [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
-                                          (str (model/to-percent cif) "%")]])))
-                                  (range)
-                                  cifs
-                                  cum-cifs
-                                  outcomes)
-                             [:<>
-                              (if (= j 1)
-                                [:text {:x (- x-mid 58) :y 650 :font-size 30}  "At Listing"]
-                                [:text {:x (- x-mid 32) :y 650 :font-size 30}  (str "Year " (dec j))])]))))
-                  (range 1 (inc (count sample-days)))
-                  fs-with-rem-by-year))]))
-
-
-(defn vis-data-map
-  "Collect into one map all configuration and inputs that are necessary to calculate a data series for the given organ, centre,
-   and tool."
-  [organ centre tool inputs bundle]
-  (let [env [{:organ organ :centre centre :tool tool}
-             bundle
-             {organ inputs}]
-        baseline-cifs (:baseline-cifs bundle)
-
-        ;todo: The following slavishly follows the input. We may need to calculate an outcome too (e.g. waiting = 100 - (transplants + removal))
-        outcomes (fac/get-outcomes* (first baseline-cifs))
-        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
-        outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
-        sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        sample-days (map
-                     utils/year->day
-                     (range (inc (utils/day->year (:days (last baseline-cifs))))))]
-
-    ;(println ::outcomes (conj outcomes "waiting"))
-    ;(println ::outcome-keys (conj outcome-keys :cif-waiting))
-
-    {:baseline-cifs baseline-cifs
-
-     :outcome-keys (if (= tool :waiting)
-                     [:cif-transplant :cif-waiting :cif-death]   ;; FIXME: DO NOT HARD CODE 
-                     outcome-keys)
-     :outcomes (if (= tool :waiting)
-                 ["transplant" "waiting" "death"] ;; FIXME: DO NOT HARD CODE 
-                 outcomes)
-     :sum-betas [(nth sum-betas 0) 0 (nth sum-betas 1)]
-     :sample-days sample-days}))
-
-
-
-
-(defn data-series
-  "Creates a plot series from tool and data context"
-  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  (let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)]
-    (mapv
-     (fn [day year]
-
-       (let [cifs (as-> (vec (apply model/scaled-cifs
-                                    (map (partial model/cif tool)
-                                         (map (bun/cif-0 bundle day)
-                                              outcome-keys)
-                                         sum-betas))) x
-
-                    ; for simple survival - leave as is, else invert
-                    (update x 0 (if (> (count outcomes) 1)
-                                  #(- 1 %)
-                                  identity))
-                    (map #(* % 100) x))]
-
-         (into {"days" day
-                "year" (if (zero? year)
-                         "Day 1"
-                         (str "Year " year))}
-               (mapv
-                (fn [bi i]
-                  [(:label bi) ((:ciff bi) cifs i)])
-                bar-info (range)))))
-     sample-days
-     (range (count sample-days)))))
-
-#_(defn simple-bar-label
-    "Custom y-axis labels"
-    [payload]
-    (pp/pprint (js->clj payload))
-    (let [{x "x" y "y" width "width" value "value"} (js->clj payload)]
-      (r/as-element
-       [:g
-        (if (and (> width 50) (> value 15))
-          [:text {:x (+ x (/ width 2))
-                  :y (+ y 25)
-                  :text-anchor "middle"
-                  :font-size (if (> width 30) "1.3em" "0.8em")
-                  :font-weight "bold"
-                  :fill "white"}
-           (str (Math/round value) "%")]
-          [:text {:x (+ x (/ width 2))
-                  :y (- y 5)
-                  :text-anchor "middle"
-                  :font-size (if (> width 50) "1.3em" "1em")
-                  :font-weight "bold"
-              ;:font-size "0.7em"
-                  :fill "grey"}
-           (str (Math/round value) "%")])])))
-
-#_(defn label-stack-top
-    "Custom y-axis labels"
-    [payload]
-  ;(pprint (js->clj payload))
-    (let [{x "x" y "y" width "width" value "value" index "index"} (js->clj payload)]
-      (r/as-element
-       [:g
-        (when (> value 99)
-          [:text {:x (+ x (/ width 2))
-                  :y (+ y 25)
-                  :text-anchor "middle"
-                  :font-size (if (> width 30) "1.3em" "0.8em")
-                  :font-weight "bold"
-                  :fill "white"}
-           (str (Math/round value) "%")])])))
-
+     ]))
 
 (def relabel
   {"waiting" "Waiting"
@@ -537,25 +362,17 @@
 
 (defn bar-chart
   "Draw the bar chart"
-  [{:keys [organ centre tool day inputs bundle rubric bar-info]}]
-  (let [env {:organ organ :centre centre :tool tool
-             :path-params {:organ organ :centre centre :tool tool}
-             :bundle bundle
-             :inputs inputs}
-        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]} bundle
-
-        factors (keys fmaps)
-        sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        cox? (model/use-cox-adjusted? tool)
-        s0 all-S0
-        F (model/cox-adjusted s0 sum-betas)
-        ;;;;;
-        {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
+  [#_{:keys [organ centre tool day inputs bundle rubric bar-info]}
+   {:keys [organ centre tool day inputs cohort-dates bundle
+                outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
+                rubric bar-info] :as env}]
+  (let [factors (keys fmaps)
+        {:keys [from-year to-year]} cohort-dates
         sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         F-for-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        outcomes ["transplant" "waiting" "death"]]
+        outcomes ["death" "waiting" "transplant"]]
     [:> bs/Row
      [:> bs/Col
       (case tool

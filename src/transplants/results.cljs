@@ -49,9 +49,14 @@
   (let [day @(rf/subscribe [::subs/test-day])
         inputs (get @(rf/subscribe [::subs/inputs]) organ)
         bundle (bun/get-bundle organ centre tool)
-        env [{:organ organ :centre centre :tool tool}
-             bundle
-             inputs]
+        env {:organ organ 
+             :centre centre 
+             :tool tool
+             :bundle bundle
+             :inputs inputs
+             :path-params {:organ organ
+                           :centre centre
+                           :tool tool}}
         {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]} bundle
         {:keys [from-year to-year]} @(rf/subscribe [::subs/cohort-dates])
         selected-vis @(rf/subscribe [::subs/selected-vis])

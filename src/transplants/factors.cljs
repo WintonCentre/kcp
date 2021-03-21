@@ -9,7 +9,7 @@
             [transplants.subs :as subs]
             [transplants.bundles :as bun]
             [re-frame.core :as rf]
-            [shadow.debug :refer [locals ?->]]))
+            [shadow.debug :refer [locals ?-> ?->>]]))
 
 (comment
 
@@ -170,23 +170,21 @@
   )
 
 (defn is-categorical?
-  [[_ bundle _] factor]
-  (let [level-key (master-level-key bundle factor)]
+  [env factor]
+  (let [level-key (master-level-key (:bundle env) factor)]
     (and (keyword? level-key) (not= level-key :x))))
 
 (defn is-spline?
-  [[_ bundle _] factor]
-  (let [master-level (master-level-key bundle factor)
+  [env factor]
+  (let [master-level (master-level-key (:bundle env) factor)
         splined (and (string? master-level)
                      (pos? (index-of master-level "spline")))]
     ;(println ::master-level master-level :splined splined)
     splined))
 
 (defn is-numeric?
-  [[_
-    {:keys [fmaps]}
-    _] factor]
-  (let [type (get-in fmaps [factor :type])]
+  [env factor]
+  (let [type (get-in env [:bundle :fmaps factor :type])]
     (map? (edn/read-string type))))
 
 (defn is-cross-over?
@@ -208,11 +206,11 @@
    (e.g. :centre which is determined by path-params). 
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
-  [[path-params _ inputs] factor]
+  [env factor]
   ;(locals)
-  (if-let [level (factor path-params)] ;; in-case factor is :centre
+  (if-let [level (factor (:path-params env))] ;; in-case factor is :centre
     level
-    (when-let [level (factor inputs)]
+    (when-let [level (factor (:inputs env))]
       level)))
 
 ;; We no longer have any cross-over factors
@@ -239,12 +237,12 @@
   (beta-outcome-key master-fmap))
 
 (defn lookup-numeric-input
-  [[_ _ inputs :as env] factor]
-  (let [x (factor inputs)]
+  [env factor]
+  (let [x (factor (:inputs env))]
     (if (string? x) (edn/read-string x) x)))
 
 (defn selected-beta-x
-  [[_ bundle _ :as env] factor master-fmap beta-outcome-key]
+  [{:keys [bundle] :as env} factor master-fmap beta-outcome-key]
   (cond
 
     ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre. 
@@ -286,7 +284,7 @@
     ;    (e.g. from :beta-transplant)
     ; (get-in master-f-map [])
     (is-spline? env factor)
-    (let [[_ bundle _] env
+    (let [;[_ bundle _] env
           baseline-vars (:baseline-vars bundle)
           levels (:levels master-fmap)
           knots (->> (get-in levels [[:spline :x :beta1 :beta2 :beta3] :type])
@@ -304,7 +302,7 @@
       [factor [:spline knots betas] (spline knots betas x0 x)])
 
     (is-numeric? env factor)
-    (let [[_ bundle _] env
+    (let [;[_ bundle _] env
           baseline-vars (:baseline-vars bundle)
           x0 (factor baseline-vars)
           beta (lookup-numeric-beta master-fmap beta-outcome-key)
@@ -319,11 +317,11 @@
 
  (defn sum-beta-xs
    "returns sum of all xs and betas (keyed by input factor?)"
-   [[_ 
-     {:keys [fmaps baseline-cifs baseline-vars :as bundle]}
-     _  :as env]
+   [{:keys [bundle] :as env}
     beta-outcome-key]
-   (->> fmaps
+   (?->> ::sum-beta-xs env)
+   (->> (:fmaps bundle)
+        (?->> ::sum-beta-xs)
         (map (fn [[factor master-fmap]]
                (selected-beta-x env factor master-fmap beta-outcome-key)))
         (map last)
@@ -349,7 +347,7 @@
    (def master-fmap-level-transplant (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm :beta-transplant]))
   ;=> -0.10624
    
-   (:centre (first env))
+   (:centre (:path-params env))
 
    (is-cross-over? :d-gp*centre)
    (split-cross-over :d-gp*centre)

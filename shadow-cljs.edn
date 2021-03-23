@@ -1,8 +1,9 @@
 {:source-paths ["src" "test"]
 
  :dependencies
- [[com.cognitect/transit-js "0.8.867"]
+ [;[com.cognitect/transit-js "0.8.867"]
   [reagent               "1.0.0"]
+  [reagent-utils/reagent-utils         "0.3.3"]
   [re-frame              "1.2.0"]
   [metosin/reitit        "0.4.2"]
   [cljs-ajax             "0.8.1"]

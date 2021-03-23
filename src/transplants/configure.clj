@@ -130,6 +130,7 @@
 
 (comment
   (def organ :lung)
+  (get-col-maps organ :lung)
   (get-tools :lung)
   (keys (get-bundle :lung))
   (get-tools :kidney)

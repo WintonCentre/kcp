@@ -150,9 +150,39 @@
 (comment
   (def organ :lung)
   (c/get-bundle :lung)
+  ;; => {:centres [:centres],
+  ;;     :tools [:tools],
+  ;;     :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs],
+  ;;     :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}
+
   (c/get-col-maps :lung :tools)
-  (c/get-col-maps :kidney :tools)
+  ;; => {:description
+  ;;     ("for possible outcomes while waiting for a transplant "
+  ;;      "survival expectations after a lung transplant"
+  ;;      "a page of guidance"),
+  ;;     :table (nil nil nil),
+  ;;     :key (:waiting :post-transplant :guidance),
+  ;;     :guidance (nil nil nil),
+  ;;     :icons (nil nil nil),
+  ;;     :chart (nil nil nil),
+  ;;     :label ("Waiting times" "Survival post transplant" "Background Guidance"),
+  ;;     :area (nil nil nil),
+  ;;     :text (nil nil nil)}
+
+  
+  ;; => {:key (:waiting :survival :graft :ldsurvival :ldgraft :guidance),
+  ;;     :label
+  ;;     ("Waiting times"
+  ;;      "Patient survival"
+  ;;      "Graft survival "
+  ;;      "Living donor patient survival"
+  ;;      "Living donor graft survival"
+  ;;      "Background Guidance"),
+  ;;     :description ("for possible outcomes" "over time" "over time" "over time" "over time" "a page of guidance")}
+
   (str :foo "-bar")
+  ;; => ":foo-bar"
+
   (def organ :kidney)
   (def sheet :survival-baseline-cifs)
   (def centre "St George's")
@@ -185,8 +215,6 @@
 
 
 ;---- LUNG
-  
-
   (defn check-baseline-cif-data
     [organ sheet centre]
     (let [col-data (mapv rest (c/centre-columns organ sheet centre))]

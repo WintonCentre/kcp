@@ -1,10 +1,39 @@
-# Transplants
 
-## WARNING: 
-If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
-** TODO: Add exception handling for this condition. **
+# Development Quickstart:
+* Install clojure
+* Install babashka
+* Install npm
+* `npm run` to view scripts help in `package.json` 
 
-## MOCKUP
+To run the configuration tool, and start a shadow-cljs dashboard:
+```sh
+npm run config
+npm run watch-all
+```
+
+Open `localhost:9630` for the shadow-cljs dashboard. The `:app` will be served on `localhost:3000` and the 
+`:test-browser` on `localhost:3021`.
+
+## For VSCode app development,
+Install Calva extension in VSCode.
+`npm run stop`
+Run VSC command `Calva: Start a Project REPL and Connect (aka Jack-in)` and select `shadow-cljs`.
+Check both `:app` and `test-browser` to start both. Connect to the `:app` build. Enable notifications on 3021.
+
+To inspect values in code, it is more convenient to use `tap>` rather than `println`. 
+Results will appear in the dashboard inspectors which allow navigation of run-time data.
+
+Requiring `shadow.debug` will provide a higher level interface to `tap>`
+with useful snapshotting utilities that call `tap>`. See the comment at the end of this file for usage: [shadow.debug](https://github.com/thheller/shadow-cljs/blob/master/src/main/shadow/debug.clj)
+
+## Configuration
+
+> **WARNING:** 
+>
+> If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
+
+
+## Ilan/Maria/Leila mockup
 See https://docs.google.com/presentation/d/1uKk0HyclaTMCb-EIZiyVdJPBjzzHflArWoq8ukwbMGE/edit?usp=sharing
 
 ## Design Guidelines (Not yet implemented)
@@ -266,7 +295,7 @@ it supports tree shaking. Shadow-cljs is perhaps simpler to set up however.
 
 ### Deps/CLI builds
 
-This is documented from the perspective of using a vscode development system with the Calva
+This is documented from the perspective of using a VSCode development system with the Calva
 plugin for Clojure/script. We also use figwheel-main for hot-reload during development.
 
 I've documented the procedure at

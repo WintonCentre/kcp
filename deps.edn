@@ -10,19 +10,19 @@
         hashp/hashp {:mvn/version "0.2.0"}}
  :paths ["src" "test" "resources" "target"]
  :aliases {;; if we wish to configure bootstrap css with sass:sass 
-           :sass ["-M" "sass4clj.main" --source-paths]}
- :config {:jvm-opts ["-Xmx1g"]
-          :extra-deps {}}
+           :sass ["-M" "sass4clj.main" --source-paths]
+           :config {:jvm-opts ["-Xmx1g"]
+                    :extra-deps {}}
            ;; deps for kaocha (run with bin/kaocha)
- :kaocha {:jvm-opts ["-Xmx1g"]
-          :extra-deps {lambdaisland/kaocha {:mvn/version "1.0.732"}}}
+           :kaocha {:jvm-opts ["-Xmx1g"]
+                    :extra-deps {lambdaisland/kaocha {:mvn/version "1.0.732"}}}
            ;; use this for cognitect test runner in CI/CD container
- :test {:extra-paths ["test"]
-        :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
-        :main-opts ["-m" "cognitect.test-runner"]}
+           :test {:extra-paths ["test"]
+                  :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                          :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+                  :main-opts ["-m" "cognitect.test-runner"]}
            ;; Use tcfg for calva repl-based tests
- :tcfg {:extra-paths ["src" "test"]}
+           :tcfg {:extra-paths ["src" "test"]}}
  #_#_:uberjar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}
                :main-opts ["-m" "hf.depstar.uberjar" "configure.jar"
                            "-C" "-m" "transplants.configure"]}}

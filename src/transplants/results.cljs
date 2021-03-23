@@ -93,8 +93,9 @@
     (locals)
     #_[:div "not yet"]
     [:<>
-     [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " (:from-year env) " and " (:to-year env) "."]
+     #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
+        on patients who joined the waiting list between " 
+      (get-in env [:cohort-dates :from-year]) " and " (get-in env [:cohort-dates :to-year]) "."]
      [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                :active-key (:selected-vis env)
                :on-select #(rf/dispatch [::events/selected-vis %])}

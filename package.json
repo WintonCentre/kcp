@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "description": "A data driven survival tool",
     "scripts": {
+        "config": "bb ./bb-scripts/config.clj",
         "start": "shadow-cljs watch app",
         "stop": "shadow-cljs stop",
         "watch-all": "shadow-cljs watch app test-browser",

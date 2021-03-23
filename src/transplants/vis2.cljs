@@ -17,6 +17,7 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
+            [reagent.format :as ruf]
             [shadow.debug :refer [locals ?->]]))
 
 (defn short-outcomes
@@ -38,8 +39,10 @@
   (def day 100)
   (def inputs {})
   (def bundle
-  
- @(rf/subscribe [::subs/bundles]))
+
+    @(rf/subscribe [::subs/bundles]))
+  (ruf/format "Cost: %.2f" 10.0234)
+  ;; => "Cost: 10.02"
 
   0)
 
@@ -372,7 +375,7 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         F-for-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        outcomes ["death" "waiting" "transplant"]]
+        #_#_outcomes ["death" "waiting" "transplant"]]
     [:> bs/Row
      [:> bs/Col
       (case tool

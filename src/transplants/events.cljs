@@ -346,6 +346,8 @@
       (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
 
     {:db (-> db
+             (assoc :outcome-meta (:outcome-meta mdata))
+             (assoc :vis-meta (:vis-meta mdata))
              (assoc-in data-path mdata))})))
 
 (rf/reg-event-fx

@@ -50,6 +50,8 @@
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
+        vis-meta @(rf/subscribe [::subs/vis-meta])
+        outcome-meta @(rf/subscribe [::subs/outcome-meta])
         {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
          :as bundle} (bun/get-bundle organ centre tool)
         env {:organ organ
@@ -88,6 +90,8 @@
                   [:s0-for-day s0-for-day]
                   [:cox? cox?]
                   [:F F] ;; is this needed ?
+                  [:vis-meta vis-meta]
+                  [:outcome-meta outcome-meta]
                   )]
 
     (locals)
@@ -102,46 +106,10 @@
       [ui/tab {:event-key "bars" :title "Bar Chart"}
        (condp = tool
          :waiting
-         [:<>
-          [vis/bar-chart (conj env
-                              [:rubric [:<>
-                                        [:h4 "Proportions of people waiting, transplanted, died or removed"]
-                                        [:p "As time goes by, people on the waiting list either receive a transplant or leave the list due to death or some other reason."]]]
-                              [:bar-info [{:key "transplant"
-                                           :stack-id "a"
-                                           :bar-label :none
-                                           :label "Transplanted"
-                                           :fill transplant-fill
-                                           :ciff nth
-                                           :hide false}
-                                          {:key "waiting"
-                                           :stack-id "a"
-                                           :bar-label {:fill "#fff" :at :centre}
-                                           :title "How long do people stay on the list?"
-                                           :label "Still waiting"
-                                           :fill waiting-fill
-                                           :ciff (fn [cifs i]
-                                                   (- 200
-                                                      (+ (nth cifs 0)
-                                                         (- 100 (nth cifs 2)))))
-                                           :hide false}
-                                          {:key "death"
-                                           :stack-id "a"
-                                           :bar-label :none
-                                           :label "Died or Removed"
-                                           :fill death-fill
-                                           :ciff (fn [cifs i] (- 100 (nth cifs 2)))
-                                           :hide false}]]
-                              [:y-range [0 200]])]]
+         [vis/bar-chart env]
+         
          :post-transplant
-         [vis/bar-chart (conj env
-                              [:rubric [:h4 "About how long do people survive after a transplant?"]]
-                              [:bar-info [{:key "post-transplant" 
-                                           :label "Survival post-transplant" 
-                                           :fill survival-fill 
-                                           :ciff nth 
-                                           :hide false}]]
-                             )]
+         [vis/bar-chart env]
 
          :survival
          [vis/bar-chart (conj env

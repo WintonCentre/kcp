@@ -26,7 +26,7 @@
    shadow-cljs to call mount-root after a hot-reload and clear the subsciption cache so
    everything gets updated nicely."
   []
-  (?-> "mount-root" ::mount-root)
+  ;(?-> "mount-root" ::mount-root)
   (rf/clear-subscription-cache!)
   (routes/init-routes!) ;; Reset routes on figwheel reload
   (rd/render [err-boundary

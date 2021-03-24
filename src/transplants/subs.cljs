@@ -44,3 +44,7 @@
 
 (rf/reg-sub ::selected-vis (fn [db] (get-in db [:selected-vis])))
 
+(rf/reg-sub ::vis-meta (fn [db] (get-in db [:vis-meta])))
+
+(rf/reg-sub ::outcome-meta (fn [db] (get-in db [:outcome-meta])))
+

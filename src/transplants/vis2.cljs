@@ -43,15 +43,16 @@
     @(rf/subscribe [::subs/bundles]))
   (ruf/format "Cost: %.2f" 10.0234)
   ;; => "Cost: 10.02"
-
-  0)
+  (ruf/format "[:p  These are the outcomes we would expect for people who entered the same information as you, based on patients who joined the waiting list between %s and %s.]"
+              2020 2021)  
+  0) 
 
 (defn test-rig
   [{:keys [organ centre tool day inputs bundle 
            outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
            rubric bar-info] :as env}]
   (let [factors (keys fmaps)]
-    (?-> env ::test-rig)
+    #_(?-> env ::test-rig)
     #_[:div "Not yet"]
     [:> bs/Row {:style {:margin-top 20}}
      (when factors
@@ -381,25 +382,10 @@
       (case tool
 
         :waiting
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "What might happen after I join the waiting list for a " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
+        (get-in env [:vis-meta organ tool :bars :pre-section])
 
         :post-transplant
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might I survive after a " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
-
-        :from-listing
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might I survive from the time I join the " (name organ) " transplant list?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " from-year " and " to-year "."]]
+        (get-in env [:vis-meta organ tool :bars :pre-section])
 
         :survival
         [:<>

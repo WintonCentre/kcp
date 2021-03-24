@@ -360,7 +360,7 @@
               (let [path (paths/organ-centre-name-tool organ-name
                                                        (:name centre-info)
                                                        tool-name)]
-                (?-> [path
+                #_(?-> [path
                       [:bundles organ centre tool]] ::view-dispatch)
                 (rf/dispatch [::events/load-bundles [path
                                                      [:bundles organ centre tool]]])

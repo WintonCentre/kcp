@@ -30,149 +30,64 @@
             
               "numerics" [:model :factor]
               "bmi-calculator" [:factor :modal]}
+ 
+ :outcome-meta {:transplant {:label "Transplanted" :order 1}
+                :death {:label "Died or Left" :order 3}
+                :waiting {:label "Waiting" :order 2}}
+ 
+ :vis-meta {:lung {:outcomes {:transplant {:label "Transplanted" :order 1}
+                              :death {:label "Died or Left" :order 3}
+                              :waiting {:label "Waiting" :order 2}}
+                   
+                   :waiting {:bars {:pre-section [:<>
+                                                  [:h4 {:style {:margin-top 10}}
+                                                   "What might happen after I join the waiting list for a lung transplant?"]
+                                                  [:p "These are the outcomes we would expect for people who entered the same
+                                                       information as you, based on patients who joined the waiting list between 2004 and 2014. "]]
+                                    :post-section [:h5 "Outcomes after listing"]}}
+                   
+                   :post-transplant {:bars {:pre-section [:h4 "About how long do people survive after a transplant?"]
+                                            :post-section [:h5 "Patient Survival Post Transplant"]}}}
+            
+            :kidney {:outcomes {:transplant {:label "Transplanted" :order 1}
+                                :death {:label "Died" :order 4}
+                                :removed {:label "Removed" :order 3}
+                                :waiting {:label "Waiting" :order 2}}
+                     :waiting {:bars {:pre-section [:<>
+                                                    [:h4 {:style {:margin-top 10}}
+                                                     "What might happen after I join the waiting list for a kidney transplant?"]
+                                                    [:p "These are the outcomes we would expect for people who entered the same 
+                                                         information as you, based on patients who joined the waiting list between 2004 and 2014. "]]
+                                      :post-section [:h5 "Patient Survival Post Transplant"]}}
+
+                     :survival {:bars {:pre-section [:h4 "About how long do people survive after a transplant?"]}}}}
  }
 
-(comment
-  ;;;
-  ;; Utilities below are to assist when filling in numerics in the :type column in the spreadsheet.
-  ;; Probably need to find a better home for them.
-  ;;;
-  (def numerics
-    "format of the numerics data used by the app"
-    {{:model :waiting, :factor :bmi}
-     {:min 10
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 100
-      :factor ":bmi"
-      :dps 0
-      :knot1 nil
-      :model ":waiting"}
-     {:model :waiting, :factor :bilirubin}
-     {:min 0
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 100
-      :factor ":bilirubin"
-      :dps 0
-      :knot1 nil
-      :model ":waiting"}
-     {:model :from-listing, :factor :age}
-     {:min 16
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 70
-      :factor ":age"
-      :dps 0
-      :knot1 nil
-      :model ":from-listing"}
-     {:model :post-transplant, :factor :cholesterol}
-     {:min 1.3
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 9
-      :factor ":cholesterol"
-      :dps 1
-      :knot1 nil
-      :model ":post-transplant"}
-     {:model :post-transplant, :factor :bilirubin}
-     {:min 1
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 77
-      :factor ":bilirubin"
-      :dps 0
-      :knot1 nil
-      :model ":post-transplant"}
-     {:model :post-transplant, :factor :tlc-mismatch}
-     {:min -2.2
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 4.5
-      :factor ":tlc-mismatch"
-      :dps 1
-      :knot1 nil
-      :model ":post-transplant"}
-     {:model :waiting, :factor :age}
-     {:min 16
-      :knot3 56
-      :knot2 44
-      :knot4 63
-      :max 70
-      :factor ":age"
-      :dps 0
-      :knot1 21
-      :model ":waiting"}
-     {:model :post-transplant, :factor :age}
-     {:min 16
-      :knot3 56
-      :knot2 46
-      :knot4 63
-      :max 70
-      :factor ":age"
-      :dps 0
-      :knot1 22
-      :model ":post-transplant"}
-     {:model :waiting, :factor :fvc}
-     {:min 0
-      :knot3 2.22
-      :knot2 1.63
-      :knot4 3.55
-      :max 5
-      :factor ":fvc"
-      :dps 2
-      :knot1 0.94
-      :model ":waiting"}
-     {:model :from-listing, :factor :bmi}
-     {:min 14
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 35.7
-      :factor ":bmi"
-      :dps 1
-      :knot1 nil
-      :model ":from-listing"}
-     {:model :post-transplant, :factor :fvc}
-     {:min 0.35
-      :knot3 nil
-      :knot2 nil
-      :knot4 nil
-      :max 6.8
-      :factor ":fvc"
-      :dps 1
-      :knot1 nil
-      :model ":post-transplant"}})
+(comment         :survival
+[vis/bar-chart (conj env
+                     [:rubric [:h4 "About how long do people survive after a transplant?"]]
+                     [:bar-info [{:key "su"
+                                  :label "Survival post-transplant"
+                                  :fill survival-fill
+                                  :ciff nth
+                                  :hide false}]])]
 
-  (defn numb
-    "What should go in the type column for a :numeric input widget?"
-    [model factor]
-    (as-> {:model model :factor factor} x
-      (get numerics x)
-      (remove (comp nil? second) x)
-      (into {} x)
-      (assoc x :type :numeric)
-      (dissoc x :model)
-      (dissoc x :factor)
-      (sort-by first x)
-      (into {} x)
-      ))
-  (numb :waiting :age)
-  (numb :waiting :fvc)
-  (numb :waiting :bmi)
-  (numb :waiting :bilirubin)
-  (numb :post-transplant :age)
-  (numb :post-transplant :tlc-mismatch)
-  (numb :post-transplant :fvc)
-  (numb :post-transplant :bilirubin)
-  (numb :post-transplant :cholesterol)
-  (numb :from-listing :age)
-  (numb :from-listing :bmi)
-  )
+:survival
+[vis/bar-chart (conj env
+                     [:rubric [:h4 "About how long do people survive after a transplant?"]]
+                     [:bar-info [{:key "survival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]])]
 
+:graft
+[vis/bar-chart (conj env
+                     [:rubric [:h4 "About how long does the graft survive?"]]
+                     [:bar-info [{:key "graft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]])]
+:ldsurvival
+[vis/bar-chart (conj env
+                     [:rubric [:h4 "About how long do people survive after a transplant from a living donor?"]]
+                     [:bar-info [{:key "ldsurvival" :label "Patient survival post-transplant" :fill survival-fill :ciff nth :hide false}]])]
+
+:ldgraft
+[vis/bar-chart (conj env
+                     [:rubric [:h4 "About how long does the graft from a living donor survive?"]]
+                     [:bar-info [{:key "ldgraft" :label "Graft survival" :fill graft-fill :ciff nth :hide false}]])]
+0)

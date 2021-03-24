@@ -12,7 +12,7 @@
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
    [transplants.results :as results]
-   [shadow.debug :refer [locals ?->]]))
+   [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (comment
   (rf/dispatch [::events/initialize-db]))
@@ -22,19 +22,20 @@
   "Display a generic home page. 
    Minimally, navigation from here to an organ home page."
   []
-  (let [metadata (rf/subscribe [::subs/metadata])]
+  (let [mdata @(rf/subscribe [::subs/mdata])]
+    (locals)
     [ui/page "Trac tools"
      [ui/row
       [ui/col
        (into [:div {:style {:margin-bottom 20}}
               (map (fn [organ]
-                     [:div {:key (:text organ)
+                     [:div {:key (get-in mdata [organ :text])
                             :style {:margin-bottom 20}}
-                      [ui/button {:id (str (name (:organ organ)) "-button")
+                      [ui/button {:id (str (name organ) "-button")
                                   :variant "primary"
-                               :on-click #(rf/dispatch [::events/navigate ::organ {:organ (:organ organ)}])}
-                       (:label organ)]])
-                   (:organ-meta @metadata))])]]]))
+                                  :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
+                       (get-in mdata [organ :label])]])
+                   (keys mdata))])]]]))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
@@ -271,8 +272,6 @@
   (let [route @(rf/subscribe [::subs/current-route])
         centres @(rf/subscribe [::subs/organ-centres])
         tools @(rf/subscribe [::subs/tools])
-        ; organ (get-in route [:path-params :organ])
-        ; centre (get-in route [:path-params :centre])
         [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
         [organ centre tool] (map keyword p-names)]
     (when (and organ centre centres tools)
@@ -286,13 +285,7 @@
           [ui/col
            ;[:p  "Available trac tools"]
            [ui/background-link organ centre]
-           [ui/tools-menu tools organ-name centre-name {:vertical false}]
-           #_(->> tools
-                  (map #(conj % [:organ organ-name]))
-                  (map #(conj % [:centre centre-name]))
-                  (map #(conj % [:tool (name (:key %))]))
-                  (map ui/tool-buttons)
-                  (into [:> bs/ButtonGroup {:vertical false}]))]]
+           [ui/tools-menu tools organ-name centre-name {:vertical false}]]]
          [background-info organ]
          ]))))
 

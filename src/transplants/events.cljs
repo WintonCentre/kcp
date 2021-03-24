@@ -12,7 +12,8 @@
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [clojure.string :as string]
-   [clojure.set :as rel]))
+   [clojure.set :as rel]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 ;;; Events ;;;
 
@@ -157,13 +158,7 @@
      {:model :from-listing, :factor :bmi} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor ":bmi", :dps 1, :knot1 nil, :model ":from-listing"}
      {:model :post-transplant, :factor :fvc} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor ":fvc", :dps 1, :knot1 nil, :model ":post-transplant"}}
 
-  #_(index-by {:factor '(":age" ":sex" ":ethnicity" ":dialysis" ":diabetes" ":sensitised" ":blood-group" ":matchability" ":graft" ":centre"), :level '(":50+" ":male" ":white" ":yes" ":no" ":no" ":O" ":easy" ":first-graft" ":unused")}
-              [:factor]))
-
-#_(defn get-sheet-indexes
-    "Look up the indexing keys for a spreadsheet. These are the column keys for columns coloured in orange."
-    [db sheet-name]
-    (get-in db [:metadata :sheet-meta sheet-name]))
+  )
 
 (defn bundle-sheet
   "Concat a sheet type suffix onto the bundle name to generate a specific sheet key 
@@ -338,24 +333,19 @@
  (fn
   [{:keys [db]} [_ data-path response]]
   (let [mdata (edn/read-string response)
-        organs (map :organ (:organ-meta mdata))]
-
-     ; Todo: remove this side-effecting code!! (though it does work)
-     ; We need a load and transpose effect for multiple organs
+        organs (keys mdata)]
+(locals)
+     ; Todo: VALIDATE mdata
     (doseq [organ organs]
       (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
 
     {:db (-> db
-             (assoc :outcome-meta (:outcome-meta mdata))
-             (assoc :vis-meta (:vis-meta mdata))
-             (assoc-in data-path mdata))})))
+             (assoc :mdata mdata))})))
 
 (rf/reg-event-fx
  ::load-metadata
  (fn
   [{:keys [db]} [evt [path data-path]]]
-  (println ::meta3 path)
-  (println ::meta4 data-path)
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
                   :uri path

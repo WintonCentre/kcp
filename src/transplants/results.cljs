@@ -50,13 +50,12 @@
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
-        vis-meta @(rf/subscribe [::subs/vis-meta])
-        outcome-meta @(rf/subscribe [::subs/outcome-meta])
         {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
          :as bundle} (bun/get-bundle organ centre tool)
         env {:organ organ
              :centre centre
              :tool tool
+             :mdata @(rf/subscribe [::subs/mdata])
              :day day
              :bundle bundle
              :fmaps fmaps
@@ -84,14 +83,11 @@
             (model/cox-adjusted s0 sum-betas))
         
         env (conj env
-                  ;[:selected-vis selected-vis]
                   [:sum-betas sum-betas]
                   [:s0 s0]
                   [:s0-for-day s0-for-day]
                   [:cox? cox?]
                   [:F F] ;; is this needed ?
-                  [:vis-meta vis-meta]
-                  [:outcome-meta outcome-meta]
                   )]
 
     (locals)

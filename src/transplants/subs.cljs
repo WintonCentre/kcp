@@ -14,7 +14,7 @@
 
 (rf/reg-sub ::current-route (fn [db] (:current-route db)))
 
-(rf/reg-sub ::metadata (fn [db] (:metadata db)))
+(rf/reg-sub ::mdata (fn [db] (:mdata db)))
 
 (rf/reg-sub ::organ (fn [db] (:organ db)))
 
@@ -44,7 +44,6 @@
 
 (rf/reg-sub ::selected-vis (fn [db] (get-in db [:selected-vis])))
 
-(rf/reg-sub ::vis-meta (fn [db] (get-in db [:vis-meta])))
+(rf/reg-sub ::mdata (fn [db] (get-in db [:mdata])))
 
-(rf/reg-sub ::outcome-meta (fn [db] (get-in db [:outcome-meta])))
 

@@ -170,6 +170,7 @@
   ;; => ([0 0.30000000000000004] [1 0.5] [2 0.7])
 
 
+
   (fs-cum-fs [[0 [0.3 0.4]]
               [1 [0.2 0.3]]
               [2 [0.1 0.2]]])
@@ -255,11 +256,11 @@
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
   [x y X Y fs-by-year sample-days outcomes]
-  (let [;outcomes ["transplant" "waiting" "death"]
-        rems (remainders fs-by-year)
+  (let [rems (remainders fs-by-year)
         fs-with-rems (insert-at fs-by-year rems 1)
         fs-with-rem-by-year (fs-cum-fs fs-with-rems)
         pairwise #(partition-all 2 1 %)]
+    (locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -382,10 +383,10 @@
       (case tool
 
         :waiting
-        (get-in env [:vis-meta organ tool :bars :pre-section])
+        (get-in env [:mdata :organ :tools :pre-section])
 
         :post-transplant
-        (get-in env [:vis-meta organ tool :bars :pre-section])
+        (get-in env [:mdata :organ :tools :pre-section])
 
         :survival
         [:<>

@@ -183,7 +183,7 @@
 ;;;
 ;; Process raw tool bundles into db. 
 ;; 
-;; It will be more efficient to do this processing at configuration time
+;; It may be more efficient to do this processing at configuration time
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
@@ -233,7 +233,7 @@
                            (map (comp - js/Math.log)
                                 ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
-        ;; Otherwise, use SO for a reduced for an optimised calculation
+        ;; Otherwise, use SO for a reduced data optimised calculation
         S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
                             %2) (model/sample-from S0+))]
 
@@ -334,7 +334,7 @@
   [{:keys [db]} [_ data-path response]]
   (let [mdata (edn/read-string response)
         organs (keys mdata)]
-(locals)
+
      ; Todo: VALIDATE mdata
     (doseq [organ organs]
       (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))

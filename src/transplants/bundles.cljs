@@ -1,8 +1,11 @@
 (ns transplants.bundles
   "Bundles are collections of data indexed by the current organ, centre and tool selection.
    They gather together and provide access to some constant data necessary to render a tool.
+
+   The waiting tool bundle assembles data from sheets waiting-baseline-cifs, 
+   waiting-baseline-vars, and waiting-inputs.
    
-   They provide the constants needed by a calculation environment."
+   Bundles provide the configured data needed for the risk calculations."
   (:require [re-frame.core :as rf]
             [transplants.subs :as subs]))
 

@@ -17,13 +17,136 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            [reagent.format :as ruf]
+            ;[reagent.format :as ruf]
             [shadow.debug :refer [locals ?->]]))
+
+;;
+;; Plot data prep utilities
+;; 
+(defn residual
+  "The Fs are the probabilities of leavig the list due to the various outcomes - see David's 
+   paper at doc/David/transplant-non-simulation.pdf for detail.
+
+   In Cox results we can always calculate a residual amount to make the Fs total to 100% on each day.
+   As we may need to plot this residual and decorate it, we should calculate it and make it explicit.
+
+   Given a seq of Fs for one day, return the residual for that day"
+  [fs]
+  (- 1 (apply + fs)))
+
+(defn fs-keyed
+  "We will be plotting outcomes including residuals in some order specified in the metadata.
+   Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
+   We attach an outcome key and augment the fs with the residual."
+  [outcomes fs]
+  (conj (apply map vector [outcomes fs])
+        [:residual (residual fs)]))
+
+(defn fs-keyed-in-plot-order
+  "order by outcome is a map of outcome-key to plot order.
+   fsk are a seq of [outcome-key fs] key-values like '([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4]).
+   plot-order is like {:transplant 1 :residual 2 :death 3}
+   Result would be ([:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4])"
+  [plot-order fsk]
+  (sort-by (comp plot-order first) fsk))
+
+(defn fs-series
+  "Given a sequence of fs in plot order, return a seq 
+   containing the fs and the cumulative fs in plot order"
+  [fsk]
+  (let [fs (map second fsk)]
+    {:fs fs :cum-fs (reductions + fs)}))
+
+(defn fs-time-series
+  [{:keys [outcomes fs mdata] :as env}]
+  
+  )
+
+(comment
+  (residual [0.1])
+  ;; => 0.9
+  (residual [0.1 0.2 0.2])
+  ;; => 0.5
+
+  (def outcomes [:transplant :death])
+  (def fs [0.3 0.4])
+  (def plot-order {:transplant 1 :residual 2 :death 3})
+  (def fsk [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
+
+  (fs-keyed outcomes fs)
+  ;; => ([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4])
+
+  (fs-keyed-in-plot-order
+   plot-order
+   (fs-keyed outcomes fs))
+  ;; => ([:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4])
+
+  (fs-series fsk)
+    ;; => {:fs (0.3 0.30000000000000004 0.4), :cum-fs (0.3 0.6000000000000001 1)}
+
+  0)
+
+(defn fs-cum-map
+  "When creating a stacked chart, it's useful to sum all previous values"
+  [outcome-keys fs]
+  (map (fn [[day f]] [day (assoc (zipmap outcome-keys f) :residual (- 1 (apply + f)))]) fs))
+
+(defn insert-at
+  "Given 2 seqs of outcomes by day, insert the second into the first at position n"
+  [fs rems n]
+  (map (fn [[days f] [_ r]]
+         [days (flatten (interpose r (split-at n f)))]) fs rems))
+
+(defn fs-cum-fs
+  [fs]
+  (map (fn [[_ f-i]]
+         {:cifs f-i :cum-cifs (reductions + f-i)})
+       fs))
+
+;; unused?
+(defn residuals
+  "In Cox results we always have a residual amount to make the totals up to 100% on each day
+   As we may need to plot this and decorate it, we should calculate it and make it explicit.
+   
+   Given a seq of Fs by day [[day f]], return the complement of the sum of the outcomes by day"
+  [day-fs]
+  (map (fn [[day fs]] [day (residual fs)]) day-fs))
+
+(comment
+  
+  (residuals [[0 [0.3 0.4]]
+              [1 [0.2 0.3]]
+              [2 [0.1 0.2]]])
+  ;; => ([0 0.30000000000000004] [1 0.5] [2 0.7])
+
+  (fs-cum-fs [[0 [0.3 0.4]]
+              [1 [0.2 0.3]]
+              [2 [0.1 0.2]]])
+  ;; => ({:cifs [0.3 0.4], :cum-cifs (0.3 0.7)}
+  ;;     {:cifs [0.2 0.3], :cum-cifs (0.2 0.5)}
+  ;;     {:cifs [0.1 0.2], :cum-cifs (0.1 0.30000000000000004)})
+
+
+  (insert-at [[0 [0.3 0.4]]
+              [1 [0.2 0.3]]
+              [2 [0.1 0.2]]]
+             (residuals [[0 [0.3 0.4]]
+                         [1 [0.2 0.3]]
+                         [2 [0.1 0.2]]])
+             1)
+  ;; => ([0 (0.3 0.30000000000000004 0.4)] [1 (0.2 0.5 0.3)] [2 (0.1 0.7 0.2)])
+
+
+  0)
+
+;; delete?
 
 (defn short-outcomes
   "Shorter outcome names. Possibly used in barchart. Replace wth something else as needed."
   [outcomes]
   outcomes)
+
+;; test-rig
 
 (defn outcome-tr
   "Render an outcomes row header for the test-rig"
@@ -41,14 +164,10 @@
   (def bundle
 
     @(rf/subscribe [::subs/bundles]))
-  (ruf/format "Cost: %.2f" 10.0234)
-  ;; => "Cost: 10.02"
-  (ruf/format "[:p  These are the outcomes we would expect for people who entered the same information as you, based on patients who joined the waiting list between %s and %s.]"
-              2020 2021)  
-  0) 
+  0)
 
 (defn test-rig
-  [{:keys [organ centre tool day inputs bundle 
+  [{:keys [organ centre tool day inputs bundle
            outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
            rubric bar-info] :as env}]
   (let [factors (keys fmaps)]
@@ -66,7 +185,7 @@
            [:thead [outcome-tr 1005 outcomes]]
            (into [:tbody
 
-                    ;;  Show Baseline S0s for selected day
+                  ;;  Show Baseline S0s for selected day
                   [:tr {:key 1001}
                    [:td [:b "S" [:sub "0"]]]
                    (map-indexed
@@ -120,8 +239,6 @@
               opacity 0.7}} styles]
     {:fill fill :stroke stroke :stroke-width stroke-width :opacity opacity}))
 
-
-
 (defstyle styles
   [".inner" {:fill   "none"
              :stroke-opacity 1
@@ -140,54 +257,9 @@
   [".from-listing" (bar-style {:fill "#4444AA"})]
   [".survival" (bar-style {:fill "#664488"})]
   [".graft" (bar-style {:fill "#00AA44"})]
-
-
-
   [".annotation" {:font-size "13pt"}]
   [".arrow" {:stroke       "#000"
              :stroke-width "1.5px"}])
-
-(defn remainders
-  "Given a seq of outcomes by day [[day f]], return the complement of the sum of the outcomes by day"
-  [fs]
-  (map (fn [[days f]] [days (- 1 (apply + f))]) fs))
-
-(defn insert-at
-  "Given 2 seqs of outcomes by day, insert the second into the first at position n"
-  [fs rems n]
-  (map (fn [[days f] [_ r]]
-         [days (flatten (interpose r (split-at n f)))]) fs rems))
-
-(defn fs-cum-fs [fs]
-  (map (fn [[_ f-i]]
-         {:cifs f-i :cum-cifs (reductions + f-i)})
-       fs))
-
-(comment
-  (remainders [[0 [0.3 0.4]]
-               [1 [0.2 0.3]]
-               [2 [0.1 0.2]]])
-  ;; => ([0 0.30000000000000004] [1 0.5] [2 0.7])
-
-
-
-  (fs-cum-fs [[0 [0.3 0.4]]
-              [1 [0.2 0.3]]
-              [2 [0.1 0.2]]])
-  ;; => ({:cifs [0.3 0.4], :cum-cifs (0.3 0.7)}
-  ;;     {:cifs [0.2 0.3], :cum-cifs (0.2 0.5)}
-  ;;     {:cifs [0.1 0.2], :cum-cifs (0.1 0.30000000000000004)})
-
-  (insert-at [[0 [0.3 0.4]]
-              [1 [0.2 0.3]]
-              [2 [0.1 0.2]]]
-             (remainders [[0 [0.3 0.4]]
-                          [1 [0.2 0.3]]
-                          [2 [0.1 0.2]]])
-             1)
-  ;; => ([0 (0.3 0.30000000000000004 0.4)] [1 (0.2 0.5 0.3)] [2 (0.1 0.7 0.2)])
-
-  0)
 
 (defn pairwise-stagger
   [threshold]
@@ -235,10 +307,10 @@
 
   ((pairwise-stagger 7) [] [0 [5 3]])
   ;; => [nil]
-  
+
   ((pairwise-stagger 7) [nil] [1 [3 3]])
   ;; => [nil true true]
-    
+
   ((pairwise-stagger 7) [nil true true] [2 [3 5]])
   ;; => [nil nil true]
   ((pairwise-stagger 7) [nil true true] [3 [5 nil]])
@@ -256,7 +328,7 @@
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
   [x y X Y fs-by-year sample-days outcomes]
-  (let [rems (remainders fs-by-year)
+  (let [rems (residuals fs-by-year)
         fs-with-rems (insert-at fs-by-year rems 1)
         fs-with-rem-by-year (fs-cum-fs fs-with-rems)
         pairwise #(partition-all 2 1 %)]
@@ -349,10 +421,7 @@
                               [:text {:x (- x-mid 58) :y 660 :font-size 30}  "At Listing"]
                               [:text {:x (- x-mid 32) :y 660 :font-size 30}  (str "Year " (dec j))])]))))
                 (range 1 (inc (count sample-days)))
-                fs-with-rem-by-year))
-
-
-     ]))
+                fs-with-rem-by-year))]))
 
 (def relabel
   {"waiting" "Waiting"
@@ -367,50 +436,51 @@
 
 (defn bar-chart
   "Draw the bar chart"
-  [#_{:keys [organ centre tool day inputs bundle rubric bar-info]}
-   {:keys [organ centre tool day inputs cohort-dates bundle
-                outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
-                rubric bar-info] :as env}]
+  [{:keys [organ centre tool day inputs cohort-dates bundle
+           outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
+           rubric bar-info] :as env}]
   (let [factors (keys fmaps)
         {:keys [from-year to-year]} cohort-dates
         sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         F-for-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        #_#_outcomes ["death" "waiting" "transplant"]]
+        #_#_outcomes ["transplant" "waiting"  "death"]]
+    (?-> outcomes ::bar-chart)
     [:> bs/Row
-     [:> bs/Col
-      (case tool
+     [:> bs/Col {:style {:margin-top 10}}
+      (get-in env [:mdata organ :tools tool :pre-section])
 
-        :waiting
-        (get-in env [:mdata :organ :tools :pre-section])
+      #_(case tool
 
-        :post-transplant
-        (get-in env [:mdata :organ :tools :pre-section])
+          :waiting
+          (get-in env [:mdata :organ :tools :pre-section])
 
-        :survival
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might I survive after a " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+          :post-transplant
+          (get-in env [:mdata :organ :tools :pre-section])
+
+          :survival
+          [:<>
+           [:h4 {:style {:margin-top 80}}
+            "How long might I survive after a " (name organ) " transplant?"]
+           [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]]
 
-        :graft
-        [:<>
-         [:h4 {:style {:margin-top 80}}
-          "How long might the graft survive after the " (name organ) " transplant?"]
-         [:p "These are the outcomes we would expect for people who entered the same information as you, based
+          :graft
+          [:<>
+           [:h4 {:style {:margin-top 80}}
+            "How long might the graft survive after the " (name organ) " transplant?"]
+           [:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between " from-year " and " to-year "."]]
 
-        [:<> "Title TBD" "[" (pr-str tool) "]"])
+          [:<> "Title TBD" "[" (pr-str tool) "]"])
 
       [svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
                                          :margin {:top 0 :right 10 :bottom 10 :left 0}
                                          :padding {:top 20 :right 20 :bottom 20 :left 20}
                                          :x-domain [0 14]
                                          :x-ticks 10
-                                         :y-domain (if (> (count outcomes) 1)
-                                                     [1 0] [0 1])
+                                         :y-domain [1 0]
                                          :y-ticks 10})
                                  :styles styles)
        (fn [x y X Y] (conj (into [:<>]
@@ -433,60 +503,60 @@
   [{:keys [organ centre tool inputs bundle title rubric bar-info y-range] :as params}]
   #_[:div "Not yet"]
   #_(let [{:keys [outcome-keys outcomes sum-betas sample-days]} (vis-data-map organ centre tool inputs bundle)
-        cifs-by-year (clj->js (data-series params))]
+          cifs-by-year (clj->js (data-series params))]
 
     ;(println ::area-chart cifs-by-year)
-    [:> bs/Row
-     [:> bs/Col
-      [:div {:style {:margin-top 20}} rubric]
+      [:> bs/Row
+       [:> bs/Col
+        [:div {:style {:margin-top 20}} rubric]
 
-      (into [:> rech/AreaChart {:width 600
-                                :height 400
-                                :data cifs-by-year
-                                :margin {:top 30
-                                         :right 50
-                                         :left 50
-                                         :bottom 50}}
+        (into [:> rech/AreaChart {:width 600
+                                  :height 400
+                                  :data cifs-by-year
+                                  :margin {:top 30
+                                           :right 50
+                                           :left 50
+                                           :bottom 50}}
 
-             [:> rech/CartesianGrid {:stroke "#ccc"
-                                     :strokeDasharray "5 5"}]
+               [:> rech/CartesianGrid {:stroke "#ccc"
+                                       :strokeDasharray "5 5"}]
 
-             [:> rech/XAxis {:dataKey "year"}]
+               [:> rech/XAxis {:dataKey "year"}]
 
        ; better without?
-             [:> rech/YAxis {:dataKey "transplants"
-                             :type "number"
-                             :domain (if (vector? y-range)
-                                       (clj->js y-range)
-                                       #js [0 100])}]
+               [:> rech/YAxis {:dataKey "transplants"
+                               :type "number"
+                               :domain (if (vector? y-range)
+                                         (clj->js y-range)
+                                         #js [0 100])}]
 
 
      ; The legend height has to be zero or it will cause a jump reduction of chart height
      ; on roll over if tooltips are enabled
-             [:> rech/Legend {:width 100
-                              :iconType "square"
-                              :iconSize 20
-                              :wrapperStyle  {:width 600
-                                              :height 0
-                                              :bottom 50
-                                              :left 0
-                                              :line-height 0}}]]
-            (mapv
-             (fn [{:keys [label fill hide stroke stroke-width]}]
-               (when-not hide
-                 [:> rech/Area {:type "monotone"
-                                :dataKey label
-                                :stroke stroke
-                                :stroke-width (if stroke-width
-                                                stroke-width
-                                                "none")
-                                :stack-id "1"
-                                :fill fill
-                                #_#_:stack-id stack-id
-                                #_#_:strokeDasharray "5 5"
-                                #_#_:label (when (nil? stack-id)
-                                             simple-bar-label)}]))
-             bar-info))]]))
+               [:> rech/Legend {:width 100
+                                :iconType "square"
+                                :iconSize 20
+                                :wrapperStyle  {:width 600
+                                                :height 0
+                                                :bottom 50
+                                                :left 0
+                                                :line-height 0}}]]
+              (mapv
+               (fn [{:keys [label fill hide stroke stroke-width]}]
+                 (when-not hide
+                   [:> rech/Area {:type "monotone"
+                                  :dataKey label
+                                  :stroke stroke
+                                  :stroke-width (if stroke-width
+                                                  stroke-width
+                                                  "none")
+                                  :stack-id "1"
+                                  :fill fill
+                                  #_#_:stack-id stack-id
+                                  #_#_:strokeDasharray "5 5"
+                                  #_#_:label (when (nil? stack-id)
+                                               simple-bar-label)}]))
+               bar-info))]]))
 
 (defn icon-array
   [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]

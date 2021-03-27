@@ -50,7 +50,8 @@
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
-        {:keys [fmaps baseline-cifs baseline-vars outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
+        {:keys [fmaps baseline-cifs baseline-vars outcome-keys 
+                base-outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
          :as bundle} (bun/get-bundle organ centre tool)
         env {:organ organ
              :centre centre
@@ -63,6 +64,7 @@
              :all-S0 all-S0
              :outcomes outcomes
              :outcome-keys outcome-keys
+             :base-outcome-keys base-outcome-keys
              :timed-outcome-keys timed-outcome-keys
              :beta-keys beta-keys
              :cohort-dates @(rf/subscribe [::subs/cohort-dates])
@@ -79,9 +81,9 @@
 
         cox? (model/use-cox-adjusted? tool)
         F (if false #_(= (:selected-vis env) "test")
-            (model/cox s0-for-day sum-betas)
-            (model/cox-adjusted s0 sum-betas))
-        
+              (model/cox s0-for-day sum-betas)
+              (model/cox-adjusted s0 sum-betas))
+
         env (conj env
                   [:sum-betas sum-betas]
                   [:s0 s0]
@@ -90,12 +92,12 @@
                   [:F F] ;; is this needed ?
                   )]
 
-    (locals)
-    #_[:div "not yet"]
+    ;(locals)   
+
     [:<>
      #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between " 
-      (get-in env [:cohort-dates :from-year]) " and " (get-in env [:cohort-dates :to-year]) "."]
+        on patients who joined the waiting list between "
+        (get-in env [:cohort-dates :from-year]) " and " (get-in env [:cohort-dates :to-year]) "."]
      [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                :active-key (:selected-vis env)
                :on-select #(rf/dispatch [::events/selected-vis %])}
@@ -103,7 +105,7 @@
        (condp = tool
          :waiting
          [vis/bar-chart env]
-         
+
          :post-transplant
          [vis/bar-chart env]
 

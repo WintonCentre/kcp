@@ -10,8 +10,9 @@
   [cljs-ajax             "0.8.1"]
   [day8.re-frame/http-fx "0.2.2"]
   [winton-utils          "0.2.1"]
-  [cljs-css-modules     "0.2.1"]
-  [binaryage/devtools    "1.0.2"]]
+  [cljs-css-modules      "0.2.1"]
+  [binaryage/devtools    "1.0.2"]
+  [same/ish              "0.1.4"]]
 
  :dev-http
  {3000 "resources/public"}

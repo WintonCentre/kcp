@@ -222,16 +222,19 @@
         timed-outcome-keys (keys (first baseline-cifs))
         outcome-keys (remove #(= :days %) timed-outcome-keys)
 
+        _ (?->> ::outcome-keys outcome-keys)
+
         outcomes (fac/get-outcomes* (first baseline-cifs))
         beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+        base-outcome-keys (map keyword outcomes)
         ;outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
 
         ;; Use SO+ if calculating with ALL data points
         S0+ (map (fn [bc] [(:days bc)
                            ((apply juxt outcome-keys) bc)]) baseline-cifs)
         #_#_S0+ (map (fn [bc] [(:days bc)
-                           (map (comp - js/Math.log)
-                                ((apply juxt outcome-keys) bc))]) baseline-cifs)
+                               (map (comp - js/Math.log)
+                                    ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
         ;; Otherwise, use SO for a reduced data optimised calculation
         S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
@@ -245,6 +248,7 @@
                           :baseline-vars baseline-vars
                           :outcomes outcomes
                           :outcome-keys outcome-keys
+                          :base-outcome-keys base-outcome-keys
                           :timed-outcome-keys timed-outcome-keys
                           :beta-keys beta-keys
                           :all-S0 S0+

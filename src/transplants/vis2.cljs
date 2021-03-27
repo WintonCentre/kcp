@@ -18,13 +18,13 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             ;[reagent.format :as ruf]
-            [shadow.debug :refer [locals ?->]]))
+            [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 ;;
 ;; Plot data prep utilities
 ;; 
 (defn residual
-  "The Fs are the probabilities of leavig the list due to the various outcomes - see David's 
+  "The Fs are the probabilities of leaving the list due to the various outcomes - see David's 
    paper at doc/David/transplant-non-simulation.pdf for detail.
 
    In Cox results we can always calculate a residual amount to make the Fs total to 100% on each day.
@@ -39,8 +39,8 @@
    Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
    We attach an outcome key and augment the fs with the residual."
   [outcomes fs]
-  (conj (apply map vector [outcomes fs])
-        [:residual (residual fs)]))
+  (conj  (apply map vector [outcomes fs])
+         [:residual (residual fs)]))
 
 (defn fs-keyed-in-plot-order
   "order by outcome is a map of outcome-key to plot order.
@@ -48,7 +48,8 @@
    plot-order is like {:transplant 1 :residual 2 :death 3}
    Result would be ([:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4])"
   [plot-order fsk]
-  (sort-by (comp plot-order first) fsk))
+  #_(locals)
+  (sort-by (comp plot-order keyword first) fsk))
 
 (defn fs-series
   "Given a sequence of fs in plot order, return a seq 
@@ -58,9 +59,22 @@
     {:fs fs :cum-fs (reductions + fs)}))
 
 (defn fs-time-series
-  [{:keys [outcomes fs mdata] :as env}]
-  
-  )
+  "Take a time series of Fs with Fs in spreadsheet column order.
+   Add residuals, and reorder them into a plot data series, adding cumulative values to facilitate
+   a stacked plot."
+  [outcomes plot-order t-fs]
+  (map
+   (fn [[t fs]]
+     #_(locals)
+     [t (->> fs
+             #_(?->> :fs)
+             (fs-keyed outcomes)
+             #_(?->> :fs-keyed-outcomes)
+             (fs-keyed-in-plot-order plot-order)
+             #_(?->> :fs-keyed-in-plot-order)
+             (fs-series)
+             #_(?->> :fs-series))])
+   t-fs))
 
 (comment
   (residual [0.1])
@@ -68,10 +82,13 @@
   (residual [0.1 0.2 0.2])
   ;; => 0.5
 
-  (def outcomes [:transplant :death])
+  (def outcomes '(:transplant :death))
   (def fs [0.3 0.4])
-  (def plot-order {:transplant 1 :residual 2 :death 3})
+  (def plot-order {:death 3, :residual 2, :transplant 1})
   (def fsk [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
+  (def t-fs [[1 [0.2 0.1]]
+             [3 [0.3 0.15]]
+             [4 [0.4 0.2]]])
 
   (fs-keyed outcomes fs)
   ;; => ([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4])
@@ -82,7 +99,35 @@
   ;; => ([:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4])
 
   (fs-series fsk)
-    ;; => {:fs (0.3 0.30000000000000004 0.4), :cum-fs (0.3 0.6000000000000001 1)}
+  ;; => {:fs (0.3 0.30000000000000004 0.4), :cum-fs (0.3 0.6000000000000001 1)}
+
+  (fs-time-series outcomes plot-order t-fs)
+  ;; => ([1 {:fs (0.2 0.7 0.1), :cum-fs (0.2 0.8999999999999999 0.9999999999999999)}]
+  ;;     [3 {:fs (0.3 0.55 0.15), :cum-fs (0.3 0.8500000000000001 1)}]
+  ;;     [4 {:fs (0.4 0.3999999999999999 0.2), :cum-fs (0.4 0.7999999999999999 1)}])
+
+  
+   (fs-time-series outcomes plot-order '([0 [0 0]]
+                                        [363 (0.5438995668848567 0.09408291500442967)]
+                                        [730 (0.758194557564796 0.13366421798660877)]
+                                        [1095 (0.8103428520915271 0.14698673656753908)]))
+   ;; => ([0 {:fs (0 1 0), :cum-fs (0 1 1)}]
+   ;;     [363
+   ;;      {:fs (0.5438995668848567 0.3620175181107136 0.09408291500442967), :cum-fs (0.5438995668848567 0.9059170849955703 1)}]
+   ;;     [730
+   ;;      {:fs (0.758194557564796 0.1081412244485952 0.13366421798660877), :cum-fs (0.758194557564796 0.8663357820133912 1)}]
+   ;;     [1095
+   ;;      {:fs (0.8103428520915271 0.042670411340933745 0.14698673656753908),
+   ;;       :cum-fs (0.8103428520915271 0.8530132634324609 1)}])
+
+   ;; => ([0 {:fs (0 1 0), :cum-fs (0 1 1)}]
+   ;;     [363
+   ;;      {:fs (0.5438995668848567 0.3620175181107136 0.09408291500442967), :cum-fs (0.5438995668848567 0.9059170849955703 1)}]
+   ;;     [730
+   ;;      {:fs (0.758194557564796 0.1081412244485952 0.13366421798660877), :cum-fs (0.758194557564796 0.8663357820133912 1)}]
+   ;;     [1095
+   ;;      {:fs (0.8103428520915271 0.042670411340933745 0.14698673656753908),
+   ;;       :cum-fs (0.8103428520915271 0.8530132634324609 1)}])
 
   0)
 
@@ -251,15 +296,42 @@
   [".transplant" (bar-style {:fill "#41af6b"})]
   [".all-reasons" (bar-style {:fill "#4866cb"})]
   [".removal" (bar-style {:fill "#4b4d48"})]
-  [".waiting" (bar-style {:fill "#4866cb" #_"#007BFF"})]
+  [".residual" (bar-style {:fill "#4866cb" #_"#007BFF"})]
   [".death" (bar-style {:fill "#000000"})]
   [".post-transplant" (bar-style {:fill "#008888"})]
   [".from-listing" (bar-style {:fill "#4444AA"})]
-  [".survival" (bar-style {:fill "#664488"})]
+  [".Survived" (bar-style {:fill "#664488"})]
   [".graft" (bar-style {:fill "#00AA44"})]
   [".annotation" {:font-size "13pt"}]
   [".arrow" {:stroke       "#000"
              :stroke-width "1.5px"}])
+
+(def relabel
+  {:all-reasons "Waiting"
+   :transplant "Transplanted"
+   :removal "Removed"
+   :death "Died"
+   :survival "Survived"
+   :post-transplant "Survived"
+   :from-listing "Survived"
+   :graft "Graft intact"})
+
+(defn outcome-label
+  [tool-mdata outcome]
+  (get-in tool-mdata [:outcomes outcome :label]))
+
+(defn outcome-fill
+  [tool-mdata outcome]
+  (get-in tool-mdata [:outcomes outcome :fill]))
+
+(defn outcome-order
+  [tool-mdata outcome]
+  (get-in tool-mdata [:outcomes outcome :order]))
+
+(defn outcome-label-fill
+  [tool-mdata outcome]
+  (get-in tool-mdata [:outcomes outcome :label-fill]))
+
 
 (defn pairwise-stagger
   [threshold]
@@ -316,9 +388,128 @@
   ((pairwise-stagger 7) [nil true true] [3 [5 nil]])
   0)
 ;; => nil
+;; 
+(comment 
+  (def outcomes [:transplant :death])
+  (def plot-order {:transplant 1 :residual 2 :death 3})
+  (def fs-by-year [[0 [0 0]]
+                    [363 '(0.4089099202877863 0.08165947355246747)]
+                    [730 '(0.6407219584555999 0.13067801680310911)]
+                    [1095 '(0.7223661602654514 0.1546087624081802)]])
+  0)
 
+(defn bar-chart-graphic*
+  "Draw a stacked bar chart.
+   x is a Linear scale defined in svg.scales.Linear containing
+    :in - an input range of numbers to plot on the x-axis.
+    :out - an equivalent x coordinate in he SVG window.
+   X is a function mapping between the two
+   y and Y are similar for the Y axis
+   sample-days are indices into the cif data-series at which bars should be drawn.
+   outcomes are the cif data-series"
+  [x y X Y fs-by-year sample-days outcomes tool-mdata]
+  (let [plot-order {:transplant 3 :residual 2 :death 1}
+        plot-order* (sort-by second (into [] plot-order))
+        fs-with-rem-by-year (fs-time-series outcomes plot-order fs-by-year)
+        ;; for 3 years
+        spacing 2.5
+        offset 2
+        ;; for years
+        ;; spacing 1.8
+        ;; offset 2.5
+        years (utils/day->year  (first (last fs-with-rem-by-year)))
+        pairwise #(partition-all 2 1 %)
+        ]
+    ;(?-> [years fs-with-rem-by-year] :bar-chart-graphic*)
+    ;(locals)
+    [:g {:key 1}
+     [:rect {:key        1
+             :class-name (:inner styles)
+             :x 0
+             :y 0
+             :width      1000
+             :height     600}]
 
-(defn bar-chart-graphic
+  ; draw bars
+     (into [:g {:key 2}]
+           (map (fn [[j {:keys [fs cum-fs]}]]
+                  ;(?-> [j [fs cum-fs]] ::fs-cum-fs)
+                  (let [year (utils/day->year j)]
+                    (into [:g {:key year :transform "scale(1,1)"}]
+                          (map (fn [i cif cum-cif]
+                                 (let [x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                       w 100
+                                       x-mid (+ x0 (/ w 2) (- (X 0.2)))
+                                       y0 (- (Y cum-cif) (Y cif))
+                                       h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                       y-mid (+ y0 (/ h 2))]
+                                   (when (not (js/isNaN y0))
+                                     [:g
+                                      [:rect {:key i
+                                              :x x0
+                                              :y y0
+                                              :width w
+                                              :height h
+                                              :data-title cif
+                                              :class-name ((first (nth plot-order* i)) styles)}]
+                                      (if (= year 0)
+                                        [:text {:x (- x-mid 58) :y 570 :font-size 30}  "At Listing"]
+                                        [:text {:x (- x-mid 32) :y 570 :font-size 30}  (str "Year " year)])])))
+
+                               (range)
+                               fs
+                               cum-fs))))
+                fs-with-rem-by-year))
+
+   ; draw labels
+     (into [:g {:key 3 :style {:opacity 1}}]
+           (map (fn [j {:keys [fs cum-fs]}]
+                ;draw single bar and label
+                  (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                        w 100
+                        x-mid (+ x0 (/ w 2) -10)
+                        staggers (label-staggers 0.1 fs)]
+
+                    (into [:g {:key j}]
+                          (conj
+                           (map (fn [i cif cum-cif outcome]
+                                  (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                                        w 100
+                                        x-mid (+ x0 (/ w 2) -10)
+                                        y0 (if (> (count outcomes) 1)
+                                             (- (Y cum-cif) (Y cif)) (Y cif))
+                                        h (if (> (count outcomes) 1)
+                                            (- (Y cum-cif) (Y (- cum-cif cif)))
+                                            (- (Y 0) (Y cif)))
+                                        y-mid (+ y0 (/ h 2))]
+                                    (when true ;(> cif 0.005)
+                                      [:g
+                                       {:transform (str "translate("
+                                                        (if (staggers i)
+                                                          (if (odd? i) 40 -60)
+                                                          (if (< cif 1) -20 -30))
+                                                        " 10)")}
+                                       [:rect {:x (- x-mid 5)
+                                               :width (if (>= cif 1)
+                                                        90
+                                                        (if (< cif 0.10) 50 70))
+                                               :y (- y-mid 30)
+                                               :height 40
+                                               :rx 10
+                                               :style {:border "0px"}
+                                               :fill (outcome-fill outcome tool-mdata)
+                                               :class-name ((keyword outcome) styles)}]
+                                       [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
+                                        (str (model/to-percent cif) "%")]])))
+                                (range)
+                                fs
+                                cum-fs
+                                outcomes)
+                           ))))
+                (range 1 (inc (count sample-days)))
+                fs-with-rem-by-year))]))
+
+#_(defn bar-chart-graphic
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
     :in - an input range of numbers to plot on the x-axis.
@@ -332,7 +523,7 @@
         fs-with-rems (insert-at fs-by-year rems 1)
         fs-with-rem-by-year (fs-cum-fs fs-with-rems)
         pairwise #(partition-all 2 1 %)]
-    (locals)
+    ;(locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -423,21 +614,12 @@
                 (range 1 (inc (count sample-days)))
                 fs-with-rem-by-year))]))
 
-(def relabel
-  {"waiting" "Waiting"
-   "transplant" "Transplanted"
-   "removal" "Removed"
-   "death" "Died"
-   "survival" "Survived"
-   "post-transplant" "Survived"
-   "from-listing" "Survived"
-   "graft" "Graft intact"})
-
+      
 
 (defn bar-chart
   "Draw the bar chart"
   [{:keys [organ centre tool day inputs cohort-dates bundle
-           outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
+           outcome-keys base-outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
            rubric bar-info] :as env}]
   (let [factors (keys fmaps)
         {:keys [from-year to-year]} cohort-dates
@@ -445,12 +627,16 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         F-for-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        tool-mdata (get-in env [:mdata organ :tools tool])
+        
+
         #_#_outcomes ["transplant" "waiting"  "death"]]
-    (?-> outcomes ::bar-chart)
+    (locals)
+    ;(?-> tool-mdata ::tool-mdata)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
-      (get-in env [:mdata organ :tools tool :pre-section])
-
+      (:pre-section tool-mdata)
+     
       #_(case tool
 
           :waiting
@@ -475,9 +661,9 @@
 
           [:<> "Title TBD" "[" (pr-str tool) "]"])
 
-      [svgc/svg-container (assoc (space {:outer {:width 1060 :height 660}
-                                         :margin {:top 0 :right 10 :bottom 10 :left 0}
-                                         :padding {:top 20 :right 20 :bottom 20 :left 20}
+      [svgc/svg-container (assoc (space {:outer {:width 1060 :height 600}
+                                         :margin {:top 0 :right 10 :bottom 0 :left 0}
+                                         :padding {:top 20 :right 20 :bottom 40 :left 20}
                                          :x-domain [0 14]
                                          :x-ticks 10
                                          :y-domain [1 0]
@@ -487,14 +673,15 @@
                                  (map (fn [i outcome]
                                         [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
                                          [:rect {:x 0 :y 0 :width 200 :height 60
-                                                 :class-name ((keyword outcome) styles)}]
+                                                 :fill (outcome-fill tool-mdata outcome)}]
                                          [:text {:x 10 :y 40
-                                                 :fill "#fff" :font-size 30}
-                                          (relabel outcome)]])
-                                      (range) outcomes))
+                                                 :fill (outcome-label-fill tool-mdata outcome)
+                                                 :font-size 30}
+                                          (outcome-label tool-mdata outcome)]])
+                                      (range) base-outcome-keys))
                            [:g {:transform "translate(300 0)"}
-                            [:g {:transform "scale(0.9)"}
-                             [bar-chart-graphic x y X Y F-for-year sample-days outcomes]]]))]]]))
+                            [:g {:transform "scale(1)"}
+                             (bar-chart-graphic* x y X Y F-for-year sample-days base-outcome-keys tool-mdata)]]))]]]))
 
 
 

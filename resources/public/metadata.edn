@@ -7,13 +7,17 @@
         :label "Lung Transplants"
         :tools {:waiting {:outcomes {:transplant {:label "Transplanted"
                                                   :order 1
-                                                  :fill "#41af6b"}
+                                                  :fill "#41af6b"
+                                                  :label-fill "#fff"}
                                      :death {:label "Died or Left"
                                              :order 3
-                                             :fill "#000000"}
+                                             :fill "#000000"
+                                             :label-fill "#fff"}
                                      :residual {:label "Waiting"
                                                 :order 2
-                                                :fill "#4866cb"}}
+                                                :fill "#4866cb"
+                                                :label-fill "#fff"}}
+                          :plot-order [:transplant :residual :death]
                           :pre-section [:<>
                                         [:h4
                                          "What might happen after I join the waiting list for a lung transplant?"]
@@ -23,10 +27,12 @@
 
                 :post-transplant {:outcomes {:post-transplant {:label "Survived"
                                                                :order 1
-                                                               :fill "#008888"}
+                                                               :fill "#008888"
+                                                               :label-fill "#fff"}
                                              :residual {:label "Died"
                                                         :order 2
                                                         :fill "none"
+                                                        :label-fill "#fff"
                                                         :stroke-width 3
                                                         :stroke "#000000"}}
                                   :pre-section [:h4 "About how long do people survive after a transplant?"]

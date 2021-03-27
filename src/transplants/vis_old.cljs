@@ -378,14 +378,14 @@
               cifs-by-year))])
       
 (def relabel
-  {"all-reasons" "Waiting"
-   "transplant" "Transplanted"
-   "removal" "Removed"
-   "death" "Died"
-   "survival" "Survived"
-   "post-transplant" "Survived"
-   "from-listing" "Survived"
-   "graft" "Graft intact"})
+  {:all-reasons "Waiting"
+   :transplant "Transplanted"
+   :removal "Removed"
+   :death "Died"
+   :survival "Survived"
+   :post-transplant "Survived"
+   :from-listing "Survived"
+   :graft "Graft intact"})
 
 (defn bar-chart
   "Draw the bar chart"

@@ -349,7 +349,7 @@
         pairwise #(partition-all 2 1 %)
         ]
     ;(?-> [years fs-with-rem-by-year] :bar-chart-graphic*)
-    ;(locals)
+    (locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -427,14 +427,13 @@
                                                :height 40
                                                :rx 10
                                                :style {:border "0px"}
-                                               :fill (outcome-fill outcome tool-mdata)
-                                               :class-name ((keyword outcome) styles)}]
+                                               :fill (outcome-fill tool-mdata (first (nth plot-order* i)))
+                                               #_#_:class-name ((keyword outcome) styles)}]
                                        [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
                                         (str (model/to-percent cif) "%")]])))
                                 (range)
                                 fs
-                                cum-fs
-                                outcomes)
+                                cum-fs)
                            ))))
                 (range 1 (inc (count sample-days)))
                 fs-with-rem-by-year))]))
@@ -479,6 +478,7 @@
                                           (outcome-label tool-mdata outcome)]])
                                       (range) base-outcome-keys))
                            [:g {:transform "translate(300 0)"}
+                        
                             (bar-chart-graphic* x y X Y F-for-year sample-days base-outcome-keys tool-mdata)]))]]]))
 
 

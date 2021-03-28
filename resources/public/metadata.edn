@@ -9,14 +9,14 @@
                                                   :order 1
                                                   :fill "#41af6b"
                                                   :label-fill "#fff"}
-                                     :death {:label "Died or Left"
-                                             :order 3
-                                             :fill "#000000"
-                                             :label-fill "#fff"}
                                      :residual {:label "Waiting"
                                                 :order 2
                                                 :fill "#4866cb"
-                                                :label-fill "#fff"}}
+                                                :label-fill "#fff"}
+                                     :death {:label "Died or Left"
+                                             :order 3
+                                             :fill "#000000"
+                                             :label-fill "#fff"}}
                           :plot-order [:transplant :residual :death]
                           :pre-section [:<>
                                         [:h4
@@ -25,16 +25,17 @@
                                                        information as you, based on patients who joined the waiting list between 2004 and 2014. "]]
                           :post-section [:h5 "Outcomes after listing"]}
 
-                :post-transplant {:outcomes {:post-transplant {:label "Survived"
+                :post-transplant {:outcomes {:residual {:label "Survived"
                                                                :order 1
                                                                :fill "#008888"
                                                                :label-fill "#fff"}
-                                             :residual {:label "Died"
+                                             :post-transplant {:label "Died"
                                                         :order 2
                                                         :fill "none"
                                                         :label-fill "#fff"
                                                         :stroke-width 3
                                                         :stroke "#000000"}}
+                                  :plot-order [:post-transplant :residual]
                                   :pre-section [:h4 "About how long do people survive after a transplant?"]
                                   :post-section [:h5 "Patient Survival Post Transplant"]}}}
 

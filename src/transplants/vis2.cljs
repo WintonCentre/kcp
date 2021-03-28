@@ -33,6 +33,17 @@
   [fs]
   (- 1 (apply + fs)))
 
+(defn fs-map
+  "We will be plotting outcomes including residuals in some order specified in the metadata.
+   Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
+   We attach an outcome key and augment the fs with the residual."
+  [outcomes fs]
+  (assoc (->> [outcomes fs]
+              (apply map vector)
+              (into {}))
+         :residual (residual fs))
+)
+
 (defn fs-keyed
   "We will be plotting outcomes including residuals in some order specified in the metadata.
    Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
@@ -244,23 +255,6 @@
    :from-listing "Survived"
    :graft "Graft intact"})
 
-(defn outcome-label
-  [tool-mdata outcome]
-  (get-in tool-mdata [:outcomes outcome :label]))
-
-(defn outcome-fill
-  [tool-mdata outcome]
-  (get-in tool-mdata [:outcomes outcome :fill]))
-
-(defn outcome-order
-  [tool-mdata outcome]
-  (get-in tool-mdata [:outcomes outcome :order]))
-
-(defn outcome-label-fill
-  [tool-mdata outcome]
-  (get-in tool-mdata [:outcomes outcome :label-fill]))
-
-
 (defn pairwise-stagger
   [threshold]
   (fn
@@ -335,20 +329,20 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  [x y X Y fs-by-year sample-days outcomes tool-mdata]
-  (let [plot-order {:transplant 3 :residual 2 :death 1}
-        plot-order* (sort-by second (into [] plot-order))
-        fs-with-rem-by-year (fs-time-series outcomes plot-order fs-by-year)
+  [x y X Y time-series data-keys tool-mdata]
+  (let [
+        data-count (count data-keys)
+        ;; 
         ;; for 3 years
         spacing 2.5
         offset 2
         ;; for years
         ;; spacing 1.8
         ;; offset 2.5
-        years (utils/day->year  (first (last fs-with-rem-by-year)))
+        years (utils/day->year  (first (last time-series)))
         pairwise #(partition-all 2 1 %)
         ]
-    ;(?-> [years fs-with-rem-by-year] :bar-chart-graphic*)
+    ;(?-> [years time-series] :bar-chart-graphic*)
     (locals)
     [:g {:key 1}
      [:rect {:key        1
@@ -360,11 +354,11 @@
 
   ; draw bars
      (into [:g {:key 2}]
-           (map (fn [[j {:keys [fs cum-fs]}]]
-                  ;(?-> [j [fs cum-fs]] ::fs-cum-fs)
-                  (let [year (utils/day->year j)]
+           (map (fn [[time {:keys [fs cum-fs]}]]
+                  ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
+                  (let [year (utils/day->year time)]
                     (into [:g {:key year}]
-                          (map (fn [i cif cum-cif]
+                          (map (fn [data-key cif cum-cif]
                                  (let [x0 (- (X (+ (* spacing (inc year)))) (X offset))
                                        w 100
                                        x-mid (+ x0 (/ w 2) (- (X 0.2)))
@@ -373,23 +367,23 @@
                                        y-mid (+ y0 (/ h 2))]
                                    (when (not (js/isNaN y0))
                                      [:g
-                                      [:rect {:key i
+                                      [:rect {:key data-key
                                               :x x0
                                               :y y0
                                               :width w
                                               :height h
                                               :data-title cif
-                                              :fill (outcome-fill tool-mdata (first (nth plot-order* i)))
+                                              :fill (get-in tool-mdata [data-key :fill])
                                               :opacity 0.7
                                               #_#_:class-name ((first (nth plot-order* i)) styles)}]
                                       (if (= year 0)
                                         [:text {:x (- x-mid 58) :y 570 :font-size 30}  "At Listing"]
                                         [:text {:x (- x-mid 32) :y 570 :font-size 30}  (str "Year " year)])])))
 
-                               (range)
+                               data-keys
                                fs
                                cum-fs))))
-                fs-with-rem-by-year))
+                time-series))
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
@@ -402,13 +396,13 @@
 
                     (into [:g {:key j}]
                           (conj
-                           (map (fn [i cif cum-cif outcome]
+                           (map (fn [i cif cum-cif]
                                   (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
                                         w 100
                                         x-mid (+ x0 (/ w 2) -10)
-                                        y0 (if (> (count outcomes) 1)
+                                        y0 (if (> data-count 1)
                                              (- (Y cum-cif) (Y cif)) (Y cif))
-                                        h (if (> (count outcomes) 1)
+                                        h (if (> data-count 1)
                                             (- (Y cum-cif) (Y (- cum-cif cif)))
                                             (- (Y 0) (Y cif)))
                                         y-mid (+ y0 (/ h 2))]
@@ -427,7 +421,7 @@
                                                :height 40
                                                :rx 10
                                                :style {:border "0px"}
-                                               :fill (outcome-fill tool-mdata (first (nth plot-order* i)))
+                                               :fill (outcome-fill tool-mdata (first (nth fs-by-year-in-plot-order i)))
                                                #_#_:class-name ((keyword outcome) styles)}]
                                        [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
                                         (str (model/to-percent cif) "%")]])))
@@ -435,8 +429,7 @@
                                 fs
                                 cum-fs)
                            ))))
-                (range 1 (inc (count sample-days)))
-                fs-with-rem-by-year))]))
+                time-series))]))
 
 (defn bar-chart
   "Draw the bar chart"
@@ -448,13 +441,10 @@
         sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
-        F-for-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (get-in env [:mdata organ :tools tool])
-        
-
-        #_#_outcomes ["transplant" "waiting"  "death"]]
+        plot-order (:plot-order tool-mdate)]
     (locals)
-    ;(?-> tool-mdata ::tool-mdata)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       (:pre-section tool-mdata)
@@ -467,21 +457,28 @@
                                          :y-domain [1 0]
                                          :y-ticks 10})
                                  :styles styles)
-       (fn [x y X Y] (conj (into [:<>]
-                                 (map (fn [i outcome]
-                                        [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
-                                         [:rect {:x 0 :y 0 :width 200 :height 60
-                                                 :fill (outcome-fill tool-mdata outcome)}]
-                                         [:text {:x 10 :y 40
-                                                 :fill (outcome-label-fill tool-mdata outcome)
-                                                 :font-size 30}
-                                          (outcome-label tool-mdata outcome)]])
-                                      (range) base-outcome-keys))
-                           [:g {:transform "translate(300 0)"}
-                        
-                            (bar-chart-graphic* x y X Y F-for-year sample-days base-outcome-keys tool-mdata)]))]]]))
+       (fn [x y X Y]
+         (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+           (conj (into [:<>]
+                       (map (fn [i outcome]
+                              [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
+                               [:rect {:x 0 :y 0 :width 200 :height 60
+                                       :fill (outcome-fill tool-mdata outcome)}]
+                               [:text {:x 10 :y 40
+                                       :fill (outcome-label-fill tool-mdata outcome)
+                                       :font-size 30}
+                                (outcome-label tool-mdata outcome)]])
+                            (range) base-outcome-keys))
+                 [:g {:transform "translate(300 0)"}
+                  [x y X Y time-series data-keys tool-mdata]
+                  (bar-chart-graphic* x y X Y fs-by-year-in-plot-order all-outcomes-in-plot-order tool-mdata)])))]]]))
 
-
+(comment
+    [x y X Y fs-by-year-in-plot outcomes-in-plot-order tool-mdata]
+  (let [plot-order {:transplant 3 :residual 2 :death 1}
+        plot-order* (sort-by second (into [] plot-order))
+        fs-with-rem-by-year (fs-time-series outcomes plot-order fs-by-year)])
+  )
 
 (defn area-chart
   "Draw the bar chart"

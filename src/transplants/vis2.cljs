@@ -436,7 +436,7 @@
         svg-height 660]
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
-      (:pre-section tool-mdata)
+      ;(:pre-section tool-mdata)
 
       [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)

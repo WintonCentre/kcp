@@ -327,13 +327,16 @@
          [organ centre tool] (map keyword p-names)]
      (when (and organ centre ((keyword organ) organ-centres) tool)
        (let [centre-info (utils/get-centre-info organ-centres organ centre)
-             tool-meta (get-tool-meta tools tool)]
+             tool-meta (get-tool-meta tools tool)
+             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools :waiting])]
+         (locals)
          [ui/page (:description centre-info)
+          [ui/background-link organ centre]
+          [ui/tools-menu tools organ-name centre-name {:vertical false}]
           (if-let [tool-centre-bundle (bun/get-bundle organ centre tool)]
             [ui/row
              [ui/col {:xs 12 :md 5}
-              [ui/background-link organ centre]
-              [ui/tools-menu tools organ-name centre-name {:vertical false}]
+              ;[ui/background-link organ centre]
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
               (widg/widget {:type :reset})
@@ -344,6 +347,7 @@
                         (widg/widget (assoc w :model tool))])
                      (get tool-centre-bundle :fmaps)))]
              [ui/col
+              [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
               [results/results-panel organ centre tool]]]
             (if (= tool :guidance)
               [:<>
@@ -354,7 +358,7 @@
                                                        (:name centre-info)
                                                        tool-name)]
                 #_(?-> [path
-                      [:bundles organ centre tool]] ::view-dispatch)
+                        [:bundles organ centre tool]] ::view-dispatch)
                 (rf/dispatch [::events/load-bundles [path
                                                      [:bundles organ centre tool]]])
                 #_[:div "Loading " path])))

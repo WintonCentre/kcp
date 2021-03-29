@@ -56,17 +56,6 @@
                                   :pre-section [:h4 "About how long do people survive after a transplant?"]
                                   :post-section [:h5 "Patient Survival Post Transplant"]}}}
 
- 
-;; [".transplant" (bar-style {:fill "#41af6b"})]
-;; [".removal" (bar-style {:fill "#4b4d48"})]
-;; [".waiting" (bar-style {:fill "#4866cb" #_"#007BFF"})]
-;; [".death" (bar-style {:fill "#000000"})]
-;; [".post-transplant" (bar-style {:fill "#008888"})]
-;; [".from-listing" (bar-style {:fill "#4444AA"})]
-;; [".survival" (bar-style {:fill "#664488"})]
-;; [".graft" (bar-style {:fill "#00AA44"})]
-
-
  :kidney {:text "Kidney"
           :label "Kidney Transplants"
           :tools {:waiting {:outcomes {:transplant {:label "Transplanted"

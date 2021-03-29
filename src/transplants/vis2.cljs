@@ -77,13 +77,13 @@
    (fn [[t fs]]
      #_(locals)
      [t (->> fs
-             #_(?->> :fs)
-             (fs-keyed outcomes)
-             #_(?->> :fs-keyed-outcomes)
+             (?->> :fs)
+             (fs-map outcomes)
+             (?->> :fs-map-outcomes)
              (fs-keyed-in-plot-order plot-order)
-             #_(?->> :fs-keyed-in-plot-order)
+             (?->> :fs-keyed-in-plot-order)
              (fs-series)
-             #_(?->> :fs-series))])
+             (?->> :fs-series))])
    t-fs))
 
 (comment
@@ -320,7 +320,7 @@
                     [1095 '(0.7223661602654514 0.1546087624081802)]])
   0)
 
-(defn bar-chart-graphic*
+(defn stacked-bar-chart
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
     :in - an input range of numbers to plot on the x-axis.
@@ -329,7 +329,7 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  [x y X Y time-series data-keys tool-mdata]
+  [x y X Y time-series data-keys tool-mdata data-styles]
   (let [
         data-count (count data-keys)
         ;; 
@@ -342,7 +342,7 @@
         years (utils/day->year  (first (last time-series)))
         pairwise #(partition-all 2 1 %)
         ]
-    ;(?-> [years time-series] :bar-chart-graphic*)
+    ;(?-> [years time-series] :stacked-bar-chart)
     (locals)
     [:g {:key 1}
      [:rect {:key        1
@@ -359,7 +359,8 @@
                   (let [year (utils/day->year time)]
                     (into [:g {:key year}]
                           (map (fn [data-key cif cum-cif]
-                                 (let [x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                 (let [styles (data-styles data-key)
+                                       x0 (- (X (+ (* spacing (inc year)))) (X offset))
                                        w 100
                                        x-mid (+ x0 (/ w 2) (- (X 0.2)))
                                        y0 (- (Y cum-cif) (Y cif))
@@ -367,15 +368,13 @@
                                        y-mid (+ y0 (/ h 2))]
                                    (when (not (js/isNaN y0))
                                      [:g
-                                      [:rect {:key data-key
+                                      [:rect (merge {:key data-key
                                               :x x0
                                               :y y0
                                               :width w
                                               :height h
-                                              :data-title cif
-                                              :fill (get-in tool-mdata [data-key :fill])
-                                              :opacity 0.7
-                                              #_#_:class-name ((first (nth plot-order* i)) styles)}]
+                                              :data-title cif}
+                                              styles)]
                                       (if (= year 0)
                                         [:text {:x (- x-mid 58) :y 570 :font-size 30}  "At Listing"]
                                         [:text {:x (- x-mid 32) :y 570 :font-size 30}  (str "Year " year)])])))
@@ -387,17 +386,18 @@
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [j {:keys [fs cum-fs]}]
+           (map (fn [time {:keys [fs cum-fs]}]
                 ;draw single bar and label
-                  (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                  (let [x0 (- (X (+ (* 2.4 time) 0)) 150)
                         w 100
                         x-mid (+ x0 (/ w 2) -10)
                         staggers (label-staggers 0.1 fs)]
 
-                    (into [:g {:key j}]
+                    (into [:g {:key time}]
                           (conj
-                           (map (fn [i cif cum-cif]
-                                  (let [x0 (- (X (+ (* 2.4 j) 0)) 150)
+                           (map (fn [i data-key cif cum-cif]
+                                  (let [styles (data-styles data-key) 
+                                        x0 (- (X (+ (* 2.4 time) 0)) 150)
                                         w 100
                                         x-mid (+ x0 (/ w 2) -10)
                                         y0 (if (> data-count 1)
@@ -413,22 +413,20 @@
                                                           (if (odd? i) 40 -60)
                                                           (if (< cif 1) -20 -30))
                                                         " 10)")}
-                                       [:rect {:x (- x-mid 5)
-                                               :width (if (>= cif 1)
-                                                        90
-                                                        (if (< cif 0.10) 50 70))
-                                               :y (- y-mid 30)
-                                               :height 40
-                                               :rx 10
-                                               :style {:border "0px"}
-                                               :fill (outcome-fill tool-mdata (first (nth fs-by-year-in-plot-order i)))
-                                               #_#_:class-name ((keyword outcome) styles)}]
+                                       [:rect (merge {:x (- x-mid 5)
+                                                      :width (if (>= cif 1)
+                                                               90
+                                                               (if (< cif 0.10) 50 70))
+                                                      :y (- y-mid 30)
+                                                      :height 40
+                                                      :rx 10}
+                                                     styles)]
                                        [:text {:x x-mid :y y-mid :fill "#fff" :font-size 30}
                                         (str (model/to-percent cif) "%")]])))
                                 (range)
+                                data-keys
                                 fs
-                                cum-fs)
-                           ))))
+                                cum-fs)))))
                 time-series))]))
 
 (defn bar-chart
@@ -443,8 +441,8 @@
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (get-in env [:mdata organ :tools tool])
-        plot-order (:plot-order tool-mdate)]
-    (locals)
+        data-styles (get tool-mdata :outcomes)
+        plot-order (:plot-order tool-mdata)]
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       (:pre-section tool-mdata)
@@ -459,26 +457,22 @@
                                  :styles styles)
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+           (locals)
            (conj (into [:<>]
-                       (map (fn [i outcome]
-                              [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
-                               [:rect {:x 0 :y 0 :width 200 :height 60
-                                       :fill (outcome-fill tool-mdata outcome)}]
-                               [:text {:x 10 :y 40
-                                       :fill (outcome-label-fill tool-mdata outcome)
-                                       :font-size 30}
-                                (outcome-label tool-mdata outcome)]])
-                            (range) base-outcome-keys))
+                       (map (fn [i data-key]
+                              (let [styles (data-styles data-key)]
+                                (locals)
+                                [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
+                                 [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
+                                                styles)]
+                                 [:text {:x 10 :y 40
+                                         :fill (:label-fill styles)
+                                         :font-size 30}
+                                  (:label styles)]]))
+                            (range) 
+                            plot-order))
                  [:g {:transform "translate(300 0)"}
-                  [x y X Y time-series data-keys tool-mdata]
-                  (bar-chart-graphic* x y X Y fs-by-year-in-plot-order all-outcomes-in-plot-order tool-mdata)])))]]]))
-
-(comment
-    [x y X Y fs-by-year-in-plot outcomes-in-plot-order tool-mdata]
-  (let [plot-order {:transplant 3 :residual 2 :death 1}
-        plot-order* (sort-by second (into [] plot-order))
-        fs-with-rem-by-year (fs-time-series outcomes plot-order fs-by-year)])
-  )
+                  (stacked-bar-chart x y X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)])))]]]))
 
 (defn area-chart
   "Draw the bar chart"

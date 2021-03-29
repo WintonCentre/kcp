@@ -13,11 +13,9 @@
    todo:
    The inner rectangle size defaults to the outer
    
-   The 
-   
    "
   [{:keys [outer margin inner padding width height x y N
-           x-title y-title styles]}
+           x-title y-title styles aspect-ratio]}
    content]
 
   (let [inner (if (nil? inner) {:width  (- (:width outer) (:left margin) (:right margin))
@@ -32,10 +30,13 @@
         X (scl/i->o x)
         Y (scl/i->o y)]
 
+    ;;         
+    ;; width/padding-top determines the aspect ratio to preserve at different widths
+    ;;     
     [:div {:style {:margin      "0 auto"
                    :width       "100%"
                    :height      0
-                   :padding-top "100%"
+                   :padding-top aspect-ratio
                    :position    "relative"}}
      [:svg {:style    {:position "absolute"
                        :top      0

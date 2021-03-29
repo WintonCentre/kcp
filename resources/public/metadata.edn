@@ -9,21 +9,23 @@
                                                   :fill "#41af6b"
                                                   :opacity 0.7
                                                   :stroke-width 1
-                                                  :stroke "#fff"
+                                                  :stroke "#000"
                                                   :label-fill "#fff"}
                                      :residual {:label "Waiting"
                                                 :fill "#4866cb"
                                                 :opacity 0.7
                                                 :stroke-width 1
-                                                :stroke "#fff"
+                                                :stroke "#000"
                                                 :label-fill "#fff"}
                                      :death {:label "Died or Left"
-                                             :fill "#CCC"
-                                             :opacity 0.7
+                                             :fill "#fff"
+                                             :opacity 1
                                              :stroke-width 1
                                              :stroke "#000"
                                              :label-fill "#000"}}
                           :plot-order [:death :residual :transplant]
+                          :bar-width 100
+                          :spacing 2.5
                           :pre-section [:<>
                                         [:h4
                                          "What might happen after I join the waiting list for a lung transplant?"]
@@ -33,13 +35,19 @@
 
                 :post-transplant {:outcomes {:residual {:label "Survived"
                                                         :fill "#008888"
+                                                        :stroke-width 1
+                                                        :stroke "#000"
+                                                        :opacity 0.7
                                                         :label-fill "#fff"}
                                              :post-transplant {:label "Died"
-                                                               :fill "none"
-                                                               :label-fill "#fff"
+                                                               :fill "#fff"
+                                                               :opacity 0.7
+                                                               :label-fill "#000"
                                                                :stroke-width 1
                                                                :stroke "#000000"}}
                                   :plot-order [:post-transplant :residual]
+                                  :bar-width 80
+                                  :spacing 1.75
                                   :pre-section [:h4 "About how long do people survive after a transplant?"]
                                   :post-section [:h5 "Patient Survival Post Transplant"]}}}
 

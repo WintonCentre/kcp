@@ -359,8 +359,8 @@
                                               :data-title cif}
                                               styles)]
                                       (if (= year 0)
-                                        [:text {:x (- x-mid 58) :y 570 :font-size 30}  "At Listing"]
-                                        [:text {:x (- x-mid 32) :y 570 :font-size 30}  (str "Year " year)])])))
+                                        [:text {:x (- x-mid 50) :y 605 :font-size 30}  "At Listing"]
+                                        [:text {:x (- x-mid 32) :y 605 :font-size 30}  (str "Year " year)])])))
 
                                data-keys
                                fs
@@ -433,15 +433,15 @@
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         svg-width 1060
-        svg-height 600]
+        svg-height 660]
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       (:pre-section tool-mdata)
 
       [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin {:top 0 :right 10 :bottom 0 :left 0}
-                                         :padding {:top 20 :right 20 :bottom 40 :left 20}
+                                         :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
+                                         :padding (:svg-padding tool-mdata)#_{:top 40 :right 20 :bottom 60 :left 20}
                                          :x-domain [0 14]
                                          :x-ticks 10
                                          :y-domain [1 0]

@@ -24,8 +24,11 @@
                                              :stroke "#000"
                                              :label-fill "#000"}}
                           :plot-order [:death :residual :transplant]
+                          :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
+                          :svg-padding {:top 40 :right 20 :bottom 60 :left 20}
                           :bar-width 100
                           :spacing 2.5
+
                           :pre-section [:<>
                                         [:h4
                                          "What might happen after I join the waiting list for a lung transplant?"]

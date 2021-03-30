@@ -125,6 +125,13 @@
   
   0)
 
+
+(defn aspect-ratio
+  "Calculate an aspect ratio as a padding CSS %. 
+   See https://www.w3schools.com/howto/howto_css_aspect_ratio.asp"
+  [width height]
+  (str (js/Math.floor (* 100 (/ height width))) "%"))
+
 ;; test-rig
 
 (defn outcome-tr
@@ -414,10 +421,6 @@
                                 fs
                                 cum-fs)))))
                 time-series))]))
-
-(defn aspect-ratio
-  [width height]
-  (str (js/Math.floor (* 100 (/ height width))) "%"))
 
 (defn bar-chart
   "Draw the bar chart"

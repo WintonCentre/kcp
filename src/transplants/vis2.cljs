@@ -318,8 +318,9 @@
   (let [data-count (count data-keys)
         ;; 
         ;; for 3 years
-        bar-width (:bar-width tool-mdata)
-        spacing (:spacing tool-mdata)
+        bar-width (get-in tool-mdata [:bars :width])
+        spacing (get-in tool-mdata [:bars :spacing])
+        bins (get-in tool-mdata [:bars :bins])
         offset 2
         ;; for years
         ;; spacing 1.8
@@ -327,7 +328,7 @@
         years (utils/day->year  (first (last time-series)))
         pairwise #(partition-all 2 1 %)]
     ;(?-> [years time-series] :stacked-bar-chart)
-    (locals)
+    ;(locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -338,7 +339,7 @@
 
   ; draw bars
      (into [:g {:key 2}]
-           (map (fn [[time {:keys [fs cum-fs]}]]
+           (map (fn [bin [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
                   (let [year (utils/day->year time)]
                     (into [:g {:key (str "bar-chart-" year)}]
@@ -348,23 +349,23 @@
                                        x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                        y0 (- (Y cum-cif) (Y cif))
                                        h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                       y-mid (+ y0 (/ h 2))]
+                                       y-mid (+ y0 (/ h 2))
+                                       bin-label (bin :label)
+                                       label-offset (- (* 6 (count bin-label)) 10)]
                                    (when (not (js/isNaN y0))
                                      [:g
                                       [:rect (merge {:key data-key
-                                              :x x0
-                                              :y y0
-                                              :width bar-width
-                                              :height h
-                                              :data-title cif}
-                                              styles)]
-                                      (if (= year 0)
-                                        [:text {:x (- x-mid 50) :y 605 :font-size 30}  "At Listing"]
-                                        [:text {:x (- x-mid 32) :y 605 :font-size 30}  (str "Year " year)])])))
-
+                                                     :x x0
+                                                     :y y0
+                                                     :width bar-width
+                                                     :height h
+                                                     :data-title cif}
+                                                    (dissoc styles :label-fill))]
+                                      [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
                                data-keys
                                fs
                                cum-fs))))
+                bins
                 time-series))
 
    ; draw labels
@@ -377,7 +378,7 @@
                         w 100
                         x-mid (+ x0 (/ w 2) -10)
                         staggers (label-staggers 0.1 fs)]
-                    (locals)
+                    ;(locals)
                     (into [:g {:key time}]
                           (conj
                            (map (fn [i data-key cif cum-cif]
@@ -405,7 +406,7 @@
                                                       :y (- y-mid 30)
                                                       :height 40
                                                       :rx 10}
-                                                     styles)]
+                                                     (dissoc styles :label-fill))]
                                        [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                         (str (model/to-percent cif) "%")]])))
                                 (range)
@@ -449,14 +450,14 @@
                                  :styles styles)
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-           (locals)
+           ;(locals)
            (conj (into [:<>]
                        (map (fn [i data-key]
                               (let [styles (data-styles data-key)]
-                                (locals)
+                                ;(locals)
                                 [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
                                  [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
-                                                styles)]
+                                                (dissoc styles :label-fill))]
                                  [:text {:x 10 :y 40
                                          :fill (:label-fill styles)
                                          :font-size 30}

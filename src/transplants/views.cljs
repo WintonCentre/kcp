@@ -328,32 +328,36 @@
      (when (and organ centre ((keyword organ) organ-centres) tool)
        (let [centre-info (utils/get-centre-info organ-centres organ centre)
              tool-meta (get-tool-meta tools tool)
-             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools :waiting])]
+             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])]
          (locals)
          [ui/page (:description centre-info)
           [ui/background-link organ centre]
           [ui/tools-menu tools organ-name centre-name {:vertical false}]
           (if-let [tool-centre-bundle (bun/get-bundle organ centre tool)]
-            [ui/row
+            [ui/row 
              [ui/col {:xs 12 :md 5}
               ;[ui/background-link organ centre]
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
-              (widg/widget {:type :reset})
-              (into [:<>]
-                    (map
-                     (fn [[k w]] ^{:key (:factor w)}
-                       [:div {:style {:margin-bottom 15}}
-                        (widg/widget (assoc w :model tool))])
-                     (get tool-centre-bundle :fmaps)))]
-             [ui/col
+              [:div {:style {:height 800
+                             :padding "0 15 15 15"
+                             ;:border "1px solid #fff"
+                             ;:background-color "#f4f4ff"
+                             :overflow-y "scroll"}}
+ 
+               (widg/widget {:type :reset})
+               (into [:<>]
+                     (map
+                      (fn [[k w]] ^{:key (:factor w)}
+                        [:div {:style {:margin-bottom 15}}
+                         (widg/widget (assoc w :model tool))])
+                      (get tool-centre-bundle :fmaps)))]]
+             [ui/col {:xs 12 :md {:span 6 :offset 1}}
               [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
-              [results/results-panel organ centre tool]]]
+              [:section 
+               [results/results-panel organ centre tool]]]]
             (if (= tool :guidance)
-              [:<>
-
-               [ui/tools-menu tools organ-name centre-name {:vertical false}]
-               [background-info organ]]
+              [background-info organ]
               (let [path (paths/organ-centre-name-tool organ-name
                                                        (:name centre-info)
                                                        tool-name)]

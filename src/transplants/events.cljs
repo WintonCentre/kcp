@@ -222,7 +222,7 @@
         timed-outcome-keys (keys (first baseline-cifs))
         outcome-keys (remove #(= :days %) timed-outcome-keys)
 
-        _ (?->> ::outcome-keys outcome-keys)
+        ;_ (?->> ::outcome-keys outcome-keys)
 
         outcomes (fac/get-outcomes* (first baseline-cifs))
         beta-keys (fac/prefix-outcomes-keys "beta" outcomes)

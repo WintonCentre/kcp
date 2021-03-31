@@ -535,82 +535,118 @@
                                cum-fs))))
                 bins
                 time-series))
-     
-     (let [bar-positions
-                (into []
-                      (map (fn [bin [time {:keys [fs cum-fs]}]]
+
+     (let [bar-positions (into []
+                               (map (fn [bin [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                             (let [year (utils/day->year time)]
-                               (into []
-                                     (map (fn [data-key cif cum-cif]
-                                            (let [styles (data-styles data-key)
-                                                  x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                                  x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                                  y0 (- (Y cum-cif) (Y cif))
-                                                  h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                                  y-mid (+ y0 (/ h 2))]
-                                              {:key data-key
-                                               :x x-mid
-                                               :y0 y0
-                                               :y1 (Y cum-cif)
-                                               :width bar-width
-                                               :height h
-                                               :data-title cif}))
-                                          data-keys
-                                          fs
-                                          cum-fs))))
-                           bins
-                           time-series))] 
-                           (tap> [::bar-positions bar-positions] ))
-                       
+                                      (let [year (utils/day->year time)]
+                                        (into []
+                                              (map (fn [data-key cif cum-cif]
+                                                     (let [styles (data-styles data-key)
+                                                           x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                                           x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                                           y0 (- (Y cum-cif) (Y cif))
+                                                           h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                                           y-mid (+ y0 (/ h 2))]
+                                                       {:key data-key
+                                                        :time time
+                                                        :x x-mid
+                                                        :y0 y0
+                                                        :y1 (Y cum-cif)
+                                                        :width bar-width
+                                                        :height h
+                                                        :data-title cif}))
+                                                   data-keys
+                                                   fs
+                                                   cum-fs))))
+                                    bins
+                                    time-series))
+           polygon-data (into {} (for [dk data-keys]
+                                   [dk  (let [tops (for [bp-dks bar-positions
+                                                         bp-dk bp-dks
+                                                         :when (= dk (:key bp-dk))]
+                                                     (select-keys bp-dk [:x :y0 :y1]))]
+                                          (concat (map (juxt :x :y0) tops)
+                                                  (map (juxt :x :y1) (reverse tops))))]))]
+       (?> [::bar-posits bar-positions])
+
+       (for [dk data-keys]
+           [:polygon {:points (for [[x y] (dk polygon-data)]
+                                (str x "," y " "))
+                      :fill (:fill (data-styles dk))}]))
+       
+       #_(?> [::grouped-bar-posits polygon-data])
+       
+       #_(?> [::grouped-bar-posits (for [dk data-keys
+                                       bp-dks bar-positions
+                                       bp-dk bp-dks
+                                       :when (= dk (:key bp-dk))]
+                                   bp-dk)])
+       
+       
+       
+       
+
+     #_[{:key :death
+       :seq0 [[t y0]]
+       :seq1 [[t y1]]}
+      {:key :waiting}
+      {:key :transplant}]
+            
+     
+
+     #_[:polygon  {:points  "100,100 150,25 150,75 200,0"
+                 :stroke "none"
+                 :fill "black"}]
+
 
    ; draw labels
-     (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [[time {:keys [fs cum-fs]}]]
+     #_(into [:g {:key 3 :style {:opacity 1}}]
+             (map (fn [[time {:keys [fs cum-fs]}]]
 
                 ;draw single bar and label
-                  (let [year (utils/day->year time)
+                    (let [year (utils/day->year time)
                         ;x0 (- (X (+ (* spacing (inc year)))) 150)
-                        w 100
+                          w 100
                         ;x-mid (+ x0 (/ w 2) -100)
-                        x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
-                        x-mid (+ x0 (/ bar-width 2) -0)
-                        staggers (label-staggers 0.1 fs)]
+                          x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
+                          x-mid (+ x0 (/ bar-width 2) -0)
+                          staggers (label-staggers 0.1 fs)]
                     ;(locals)
-                    (into [:g {:key time}]
-                          (conj
-                           (map (fn [i data-key cif cum-cif]
-                                  (let [styles (data-styles data-key)
+                      (into [:g {:key time}]
+                            (conj
+                             (map (fn [i data-key cif cum-cif]
+                                    (let [styles (data-styles data-key)
 
-                                        y0 (if (> data-count 1)
-                                             (- (Y cum-cif) (Y cif)) (Y cif))
-                                        h (if (> data-count 1)
-                                            (- (Y cum-cif) (Y (- cum-cif cif)))
-                                            (- (Y 0) (Y cif)))
-                                        y-mid (+ y0 (/ h 2))]
-                                    (when true ;(> cif 0.005)
-                                      [:g
-                                       {:transform (str "translate("
-                                                        (if (staggers i)
-                                                          (if (odd? i) 40 -60)
-                                                          (if (< cif 1) -20 -30))
-                                                        " 10)")}
-                                       [:rect (merge {:x (- x-mid 5)
-                                                      :width (cond
-                                                               (>= cif 1) 90
-                                                               (< cif 0.10) 70
-                                                               :else 70)
-                                                      :y (- y-mid 30)
-                                                      :height 40
-                                                      :rx 10}
-                                                     (dissoc styles :label-fill))]
-                                       [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
-                                        (str (model/to-percent cif) "%")]])))
-                                (range)
-                                data-keys
-                                fs
-                                cum-fs)))))
-                time-series))]))
+                                          y0 (if (> data-count 1)
+                                               (- (Y cum-cif) (Y cif)) (Y cif))
+                                          h (if (> data-count 1)
+                                              (- (Y cum-cif) (Y (- cum-cif cif)))
+                                              (- (Y 0) (Y cif)))
+                                          y-mid (+ y0 (/ h 2))]
+                                      (when true ;(> cif 0.005)
+                                        [:g
+                                         {:transform (str "translate("
+                                                          (if (staggers i)
+                                                            (if (odd? i) 40 -60)
+                                                            (if (< cif 1) -20 -30))
+                                                          " 10)")}
+                                         [:rect (merge {:x (- x-mid 5)
+                                                        :width (cond
+                                                                 (>= cif 1) 90
+                                                                 (< cif 0.10) 70
+                                                                 :else 70)
+                                                        :y (- y-mid 30)
+                                                        :height 40
+                                                        :rx 10}
+                                                       (dissoc styles :label-fill))]
+                                         [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
+                                          (str (model/to-percent cif) "%")]])))
+                                  (range)
+                                  data-keys
+                                  fs
+                                  cum-fs)))))
+                  time-series))]))
 
 (defn area-chart
   "Draw the area chart"

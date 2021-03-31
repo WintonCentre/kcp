@@ -26,6 +26,7 @@
                           :plot-order [:death :residual :transplant]
                           :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
                           :svg-padding {:top 40 :right 20 :bottom 60 :left 20}
+                          
                           :bars {:width 100
                                  :spacing 2.5
                                  :bins [{:interval [0 365.25] :label "At Listing"}

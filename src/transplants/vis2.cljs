@@ -522,7 +522,7 @@
                                        label-offset (- (* 6 (count bin-label)) 10)]
                                    (when (not (js/isNaN y0))
                                      [:g
-                                      [:rect (merge {:key data-key
+                                      #_[:rect (merge {:key data-key
                                                      :x x0
                                                      :y y0
                                                      :width bar-width
@@ -550,17 +550,19 @@
                                                            y-mid (+ y0 (/ h 2))]
                                                        {:key data-key
                                                         :time time
-                                                        :x x-mid
+                                                        :x (+ x-mid 15)
                                                         :y0 y0
                                                         :y1 (Y cum-cif)
                                                         :width bar-width
                                                         :height h
+                                                        :styles (dissoc styles :label-fill)
                                                         :data-title cif}))
                                                    data-keys
                                                    fs
                                                    cum-fs))))
                                     bins
                                     time-series))
+           
            polygon-data (into {} (for [dk data-keys]
                                    [dk  (let [tops (for [bp-dks bar-positions
                                                          bp-dk bp-dks
@@ -568,40 +570,15 @@
                                                      (select-keys bp-dk [:x :y0 :y1]))]
                                           (concat (map (juxt :x :y0) tops)
                                                   (map (juxt :x :y1) (reverse tops))))]))]
-       (?> [::bar-posits bar-positions])
+       (?->> ::bar-posits bar-positions)
 
        (for [dk data-keys]
            [:polygon {:points (for [[x y] (dk polygon-data)]
                                 (str x "," y " "))
-                      :fill (:fill (data-styles dk))}]))
+                      :style (dissoc  (data-styles dk) :label-fill)}]))
        
-       #_(?> [::grouped-bar-posits polygon-data])
-       
-       #_(?> [::grouped-bar-posits (for [dk data-keys
-                                       bp-dks bar-positions
-                                       bp-dk bp-dks
-                                       :when (= dk (:key bp-dk))]
-                                   bp-dk)])
-       
-       
-       
-       
-
-     #_[{:key :death
-       :seq0 [[t y0]]
-       :seq1 [[t y1]]}
-      {:key :waiting}
-      {:key :transplant}]
-            
-     
-
-     #_[:polygon  {:points  "100,100 150,25 150,75 200,0"
-                 :stroke "none"
-                 :fill "black"}]
-
-
    ; draw labels
-     #_(into [:g {:key 3 :style {:opacity 1}}]
+     (into [:g {:key 3 :style {:opacity 1}}]
              (map (fn [[time {:keys [fs cum-fs]}]]
 
                 ;draw single bar and label
@@ -695,7 +672,7 @@
                               (range)
                               plot-order))
                    [:g {:transform "translate(280 0)"}
-                    [:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
+                    #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
                             :style {:fill "#EEF8" :border "3px solid #CCC"}}]
                     (stacked-area-chart x y X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)])))]
         [:section {:style {:margin-top 10}}

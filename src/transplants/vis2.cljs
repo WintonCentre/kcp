@@ -403,7 +403,7 @@
                                       [:g
                                        {:transform (str "translate("
                                                         (if (staggers i)
-                                                          (if (odd? i) 40 -60)
+                                                          (if (odd? i) 18 -54)
                                                           (if (< cif 1) -20 -30))
                                                         " 10)")}
                                        [:rect (merge {:x (- x-mid 5)
@@ -523,12 +523,12 @@
                                    (when (not (js/isNaN y0))
                                      [:g
                                       #_[:rect (merge {:key data-key
-                                                     :x x0
-                                                     :y y0
-                                                     :width bar-width
-                                                     :height h
-                                                     :data-title cif}
-                                                    (dissoc styles :label-fill))]
+                                                       :x x0
+                                                       :y y0
+                                                       :width bar-width
+                                                       :height h
+                                                       :data-title cif}
+                                                      (dissoc styles :label-fill))]
                                       [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
                                data-keys
                                fs
@@ -562,7 +562,7 @@
                                                    cum-fs))))
                                     bins
                                     time-series))
-           
+
            polygon-data (into {} (for [dk data-keys]
                                    [dk  (let [tops (for [bp-dks bar-positions
                                                          bp-dk bp-dks
@@ -571,59 +571,79 @@
                                           (concat (map (juxt :x :y0) tops)
                                                   (map (juxt :x :y1) (reverse tops))))]))]
        (?->> ::bar-posits bar-positions)
+       ;;
+       ;; Plot areas
+       ;;
+       [:g
+        (into [:g]
+              (for [dk data-keys]
+                [:polygon {:key dk
+                           :points (for [[x y] (dk polygon-data)]
+                                     (str x "," y " "))
+                           :style (dissoc  (data-styles dk) :label-fill)}]))
 
-       (for [dk data-keys]
-           [:polygon {:points (for [[x y] (dk polygon-data)]
-                                (str x "," y " "))
-                      :style (dissoc  (data-styles dk) :label-fill)}]))
-       
+       ;;
+       ;; Plot label lines
+       ;;
+        (into [:g]
+              (map
+               (fn [bp]
+                 (let [x (:x (first bp))]
+                   (?->> ::bp bp)
+                   (?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
+                                  :style {:stroke "#000" :stroke-width 3}})
+
+                   [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
+                           :style {:stroke "#fff" :stroke-width 3}}])))
+              bar-positions)])
+
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-             (map (fn [[time {:keys [fs cum-fs]}]]
+           (map (fn [[time {:keys [fs cum-fs]}]]
 
                 ;draw single bar and label
-                    (let [year (utils/day->year time)
+                  (let [year (utils/day->year time)
                         ;x0 (- (X (+ (* spacing (inc year)))) 150)
-                          w 100
+                        w 100
                         ;x-mid (+ x0 (/ w 2) -100)
-                          x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
-                          x-mid (+ x0 (/ bar-width 2) -0)
-                          staggers (label-staggers 0.1 fs)]
+                        x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
+                        x-mid (+ x0 (/ bar-width 2) -0)
+                        staggers (label-staggers 0.1 fs)]
                     ;(locals)
-                      (into [:g {:key time}]
-                            (conj
-                             (map (fn [i data-key cif cum-cif]
-                                    (let [styles (data-styles data-key)
+                    (into [:g {:key time}]
+                          (conj
+                           (map (fn [i data-key cif cum-cif]
+                                  (let [styles (data-styles data-key)
 
-                                          y0 (if (> data-count 1)
-                                               (- (Y cum-cif) (Y cif)) (Y cif))
-                                          h (if (> data-count 1)
-                                              (- (Y cum-cif) (Y (- cum-cif cif)))
-                                              (- (Y 0) (Y cif)))
-                                          y-mid (+ y0 (/ h 2))]
-                                      (when true ;(> cif 0.005)
-                                        [:g
-                                         {:transform (str "translate("
-                                                          (if (staggers i)
-                                                            (if (odd? i) 40 -60)
-                                                            (if (< cif 1) -20 -30))
-                                                          " 10)")}
-                                         [:rect (merge {:x (- x-mid 5)
-                                                        :width (cond
-                                                                 (>= cif 1) 90
-                                                                 (< cif 0.10) 70
-                                                                 :else 70)
-                                                        :y (- y-mid 30)
-                                                        :height 40
-                                                        :rx 10}
-                                                       (dissoc styles :label-fill))]
-                                         [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
-                                          (str (model/to-percent cif) "%")]])))
-                                  (range)
-                                  data-keys
-                                  fs
-                                  cum-fs)))))
-                  time-series))]))
+                                        y0 (if (> data-count 1)
+                                             (- (Y cum-cif) (Y cif)) (Y cif))
+                                        h (if (> data-count 1)
+                                            (- (Y cum-cif) (Y (- cum-cif cif)))
+                                            (- (Y 0) (Y cif)))
+                                        y-mid (+ y0 (/ h 2))]
+                                    (when true ;(> cif 0.005)
+                                      [:g
+                                       {:transform (str "translate("
+                                                        (if (staggers i)
+                                                          (if (odd? i) 18 -54)
+                                                          (if (< cif 1) -20 -30))
+                                                        " 10)")}
+                                       [:rect (merge {:x (- x-mid 5)
+                                                      :width (cond
+                                                               (>= cif 1) 90
+                                                               (< cif 0.10) 70
+                                                               :else 70)
+                                                      :y (- y-mid 30)
+                                                      :height 40
+                                                      :rx 10}
+                                                     (dissoc styles :label-fill))]
+                                       [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
+                                        (str (model/to-percent cif) "%")]])))
+                                (range)
+                                data-keys
+                                fs
+                                cum-fs)))))
+                time-series))]))
 
 (defn area-chart
   "Draw the area chart"

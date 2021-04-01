@@ -90,8 +90,14 @@
   ;; => 5
   )
 
-;; => 
+(defn quarter->day
+  [q]
+  (js/Math.round (* q quarter)))
 
+(comment
+  (quarter->day 1)
+  ;; => 91
+  )
 
 (defn day->year
   "Convert a day count to the nearest whole year"

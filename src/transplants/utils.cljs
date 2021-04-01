@@ -90,6 +90,11 @@
   ;; => 5
   )
 
+
+(defn week->day
+  [w]
+  (js/Math.round (* w week)))
+
 (defn quarter->day
   [q]
   (js/Math.round (* q quarter)))

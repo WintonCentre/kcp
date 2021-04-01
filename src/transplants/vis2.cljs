@@ -304,8 +304,6 @@
 ;; => nil
 ;; 
 (comment 
-  (def outcomes [:transplant :death])
-  (def plot-order {:transplant 1 :residual 2 :death 3})
   (def fs-by-year [[0 [0 0]]
                     [363 '(0.4089099202877863 0.08165947355246747)]
                     [730 '(0.6407219584555999 0.13067801680310911)]
@@ -482,7 +480,7 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  [x y X Y time-series data-keys tool-mdata data-styles]
+  [x y X Y year-series quarter-series data-keys tool-mdata data-styles]
   (let [data-count (count data-keys)
         ;; 
         ;; for 3 years
@@ -490,12 +488,13 @@
         spacing (get-in tool-mdata [:bars :spacing])
         bins (get-in tool-mdata [:bars :bins])
         offset 1.69
+        q-offset 1.2
         ;; for years
         ;; spacing 1.8
         ;; offset 2.5
-        years (utils/day->year  (first (last time-series)))
+        years (utils/day->year  (first (last year-series)))
         pairwise #(partition-all 2 1 %)]
-    ;(?-> [years time-series] :stacked-bar-chart)
+    ;(?-> [years year-series] :stacked-bar-chart)
     ;(locals)
     [:g {:key 1}
      [:rect {:key        1
@@ -505,7 +504,7 @@
              :width      1000
              :height     600}]
 
-  ; draw bars
+  ; draw labels at yearly intervals
      (into [:g {:key 2}]
            (map (fn [bin [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
@@ -521,23 +520,15 @@
                                        bin-label (bin :label)
                                        label-offset (- (* 6 (count bin-label)) 10)]
                                    (when (not (js/isNaN y0))
-                                     [:g
-                                      #_[:rect (merge {:key data-key
-                                                       :x x0
-                                                       :y y0
-                                                       :width bar-width
-                                                       :height h
-                                                       :data-title cif}
-                                                      (dissoc styles :label-fill))]
-                                      [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
+                                     [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label])))
                                data-keys
                                fs
                                cum-fs))))
                 bins
-                time-series))
+                year-series))
 
      (let [bar-positions (into []
-                               (map (fn [bin [time {:keys [fs cum-fs]}]]
+                               (map (fn [[time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
                                       (let [year (utils/day->year time)]
                                         (into []
@@ -553,34 +544,73 @@
                                                         :x (+ x-mid 15)
                                                         :y0 y0
                                                         :y1 (Y cum-cif)
-                                                        :width bar-width
-                                                        :height h
                                                         :styles (dissoc styles :label-fill)
-                                                        :data-title cif}))
+                                                        }))
                                                    data-keys
                                                    fs
                                                    cum-fs))))
-                                    bins
-                                    time-series))
+                                    ;bins
+                                    year-series))
 
+           quarter-positions (into []
+                                   (map (fn [[time {:keys [fs cum-fs]}]]
+                                  ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
+                                          (let [quarter (utils/day->quarter time)]
+                                            (into []
+                                                  (map (fn [data-key cif cum-cif]
+                                                         (let [styles (data-styles data-key)
+                                                               x0 (- (X (+ (* spacing (inc (/ quarter 4))))) (X q-offset))
+                                                               ;x-mid (+ x0 (/ bar-width 2 4) (- (X 0.2)))
+                                                               x-mid x0
+                                                               y0 (- (Y cum-cif) (Y cif))
+                                                               h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                                               y-mid (+ y0 (/ h 2))]
+                                                           {:key data-key
+                                                            :time time
+                                                            :x (+ x-mid 15)
+                                                            :y0 y0
+                                                            :y1 (Y cum-cif)
+                                                            :styles (dissoc styles :label-fill)}))
+                                                       data-keys
+                                                       fs
+                                                       cum-fs))))
+                                        quarter-series))
+           
            polygon-data (into {} (for [dk data-keys]
                                    [dk  (let [tops (for [bp-dks bar-positions
                                                          bp-dk bp-dks
                                                          :when (= dk (:key bp-dk))]
                                                      (select-keys bp-dk [:x :y0 :y1]))]
                                           (concat (map (juxt :x :y0) tops)
+                                                  (map (juxt :x :y1) (reverse tops))))]))
+           
+           q-polygon-data (into {} (for [dk data-keys]
+                                   [dk  (let [tops (for [bp-dks quarter-positions
+                                                         bp-dk bp-dks
+                                                         :when (= dk (:key bp-dk))]
+                                                     (select-keys bp-dk [:x :y0 :y1]))]
+                                          (concat (map (juxt :x :y0) tops)
                                                   (map (juxt :x :y1) (reverse tops))))]))]
        (?->> ::bar-posits bar-positions)
+       (?->> ::quart-posits quarter-positions)
        ;;
        ;; Plot areas
        ;;
        [:g
-        (into [:g]
+        (into [:g {:opacity 0.3}]
               (for [dk data-keys]
                 [:polygon {:key dk
                            :points (for [[x y] (dk polygon-data)]
                                      (str x "," y " "))
                            :style (dissoc  (data-styles dk) :label-fill)}]))
+        
+        (into [:g {:opacity 0.5}]
+              (for [dk data-keys]
+                [:polygon {:key dk
+                           :points (for [[x y] (dk q-polygon-data)]
+                                     (str x "," y " "))
+                           :style (dissoc  (data-styles dk) :label-fill)}]))
+
 
        ;;
        ;; Plot label lines
@@ -589,8 +619,8 @@
               (map
                (fn [bp]
                  (let [x (:x (first bp))]
-                   (?->> ::bp bp)
-                   (?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
+                   #_(?->> ::bp bp)
+                   #_(?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
                                   :style {:stroke "#000" :stroke-width 3}})
 
                    [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
@@ -643,7 +673,7 @@
                                 data-keys
                                 fs
                                 cum-fs)))))
-                time-series))]))
+                year-series))]))
 
 (defn area-chart
   "Draw the area chart"
@@ -653,10 +683,14 @@
   [:text "Hi"]
     (let [factors (keys fmaps)
           {:keys [from-year to-year]} cohort-dates
-          sample-days (map
+          year-days (map
                        utils/year->day
                        (range (inc (utils/day->year (first (last s0))))))
-          fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+          fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
+          quarter-days (map
+                       utils/quarter->day
+                       (range (inc (utils/day->quarter (first (last s0))))))
+          fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
           tool-mdata (get-in env [:mdata organ :tools tool])
           data-styles (get tool-mdata :outcomes)
           plot-order (:plot-order tool-mdata)
@@ -676,7 +710,8 @@
                                    :styles styles)
 
          (fn [x y X Y]
-           (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+           (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
+                 fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
              (locals)
              (conj (into [:<>]
                          (map (fn [i data-key]
@@ -694,7 +729,7 @@
                    [:g {:transform "translate(280 0)"}
                     #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
                             :style {:fill "#EEF8" :border "3px solid #CCC"}}]
-                    (stacked-area-chart x y X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)])))]
+                    (stacked-area-chart x y X Y fs-by-year-in-plot-order fs-by-quarter-in-plot-order plot-order tool-mdata data-styles)])))]
         [:section {:style {:margin-top 10}}
          (:post-section tool-mdata)]]]))
   

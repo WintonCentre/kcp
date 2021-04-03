@@ -344,9 +344,9 @@
 
   ; draw bars
      (into [:g {:key 2}]
-           (map (fn [bin [time {:keys [fs cum-fs]}]]
+           (map (fn [bin year [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                  (let [year (utils/day->year time)]
+                  (let [_ (utils/day->year time)]
                     (into [:g {:key (str "bar-chart-" year)}]
                           (map (fn [data-key cif cum-cif]
                                  (let [styles (data-styles data-key)
@@ -371,15 +371,15 @@
                                fs
                                cum-fs))))
                 bins
+                (range)
                 time-series))
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [[time {:keys [fs cum-fs]}]]
+           (map (fn [year [time {:keys [fs cum-fs]}]]
                   
                 ;draw single bar and label
-                  (let [year (utils/day->year time)
-                        ;x0 (- (X (+ (* spacing (inc year)))) 150)
+                  (let [;x0 (- (X (+ (* spacing (inc year)))) 150)
                         w 100
                         ;x-mid (+ x0 (/ w 2) -100)
                         x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
@@ -419,6 +419,7 @@
                                 data-keys
                                 fs
                                 cum-fs)))))
+                (range)
                 time-series))]))
 
 (defn bar-chart
@@ -487,8 +488,8 @@
         bar-width (get-in tool-mdata [:bars :width])
         spacing (get-in tool-mdata [:bars :spacing])
         bins (get-in tool-mdata [:bars :bins])
-        offset 1.69
-        q-offset 1.2
+        offset 1.85
+        q-offset 1.86
         ;; for years
         ;; spacing 1.8
         ;; offset 2.5
@@ -555,13 +556,13 @@
            quarter-positions (into []
                                    (map (fn [[time {:keys [fs cum-fs]}]]
                                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                                          (let [quarter (utils/day->quarter time)]
+                                          (let [quarter (utils/day->week time)]
                                             (into []
                                                   (map (fn [data-key cif cum-cif]
                                                          (let [styles (data-styles data-key)
-                                                               x0 (- (X (+ (* spacing (inc (/ quarter 4))))) (X q-offset))
+                                                               x0 (- (X (+ (* spacing (inc (/ quarter 52))))) (X q-offset))
                                                                ;x-mid (+ x0 (/ bar-width 2 4) (- (X 0.2)))
-                                                               x-mid x0
+                                                               x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                                y0 (- (Y cum-cif) (Y cif))
                                                                h (- (Y cum-cif) (Y (- cum-cif cif)))
                                                                y-mid (+ y0 (/ h 2))]
@@ -576,7 +577,7 @@
                                                        cum-fs))))
                                         quarter-series))
            
-           polygon-data (into {} (for [dk data-keys]
+           #_#_polygon-data (into {} (for [dk data-keys]
                                    [dk  (let [tops (for [bp-dks bar-positions
                                                          bp-dk bp-dks
                                                          :when (= dk (:key bp-dk))]
@@ -597,14 +598,14 @@
        ;; Plot areas
        ;;
        [:g
-        (into [:g {:opacity 0.3}]
+        #_(into [:g {:opacity 0.3}]
               (for [dk data-keys]
                 [:polygon {:key dk
                            :points (for [[x y] (dk polygon-data)]
                                      (str x "," y " "))
                            :style (dissoc  (data-styles dk) :label-fill)}]))
         
-        (into [:g {:opacity 0.5}]
+        (into [:g {:opacity 0.7}]
               (for [dk data-keys]
                 [:polygon {:key dk
                            :points (for [[x y] (dk q-polygon-data)]
@@ -688,8 +689,8 @@
                        (range (inc (utils/day->year (first (last s0))))))
           fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
           quarter-days (map
-                       utils/quarter->day
-                       (range (inc (utils/day->quarter (first (last s0))))))
+                       utils/week->day
+                       (range (inc (utils/day->week (first (last s0))))))
           fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
           tool-mdata (get-in env [:mdata organ :tools tool])
           data-styles (get tool-mdata :outcomes)
@@ -808,3 +809,8 @@
                                 :y-domain [0 100] :x-title "People", :x-ticks 10
                                 :x-domain [0 5] :y-title "Years", :y-ticks 10
                                 :data     []})])
+
+#_(def birmingham-spt
+  {:post-transplant-baseline-cifs '({:centre "Birmingham", :days 0.0, :cif-post-transplant 1.0} {:centre "Birmingham", :days 1.0, :cif-post-transplant 0.9898863904} {:centre "Birmingham", :days 9.0, :cif-post-transplant 0.9796494218} {:centre "Birmingham", :days 10.0, :cif-post-transplant 0.9744918025} {:centre "Birmingham", :days 13.0, :cif-post-transplant 0.9693293843} {:centre "Birmingham", :days 16.0, :cif-post-transplant 0.9590261757} {:centre "Birmingham", :days 18.0, :cif-post-transplant 0.9537584156} {:centre "Birmingham", :days 21.0, :cif-post-transplant 0.943205776} {:centre "Birmingham", :days 25.0, :cif-post-transplant 0.9378337986} {:centre "Birmingham", :days 26.0, :cif-post-transplant 0.9323821275} {:centre "Birmingham", :days 42.0, :cif-post-transplant 0.9269325998} {:centre "Birmingham", :days 56.0, :cif-post-transplant 0.921438911} {:centre "Birmingham", :days 57.0, :cif-post-transplant 0.9158813919} {:centre "Birmingham", :days 69.0, :cif-post-transplant 0.9103227249} {:centre "Birmingham", :days 70.0, :cif-post-transplant 0.8990891748} {:centre "Birmingham", :days 80.0, :cif-post-transplant 0.8933773167} {:centre "Birmingham", :days 96.0, :cif-post-transplant 0.8875658815} {:centre "Birmingham", :days 100.0, :cif-post-transplant 0.8816079002} {:centre "Birmingham", :days 105.0, :cif-post-transplant 0.8756395177} {:centre "Birmingham", :days 114.0, :cif-post-transplant 0.8696635944} {:centre "Birmingham", :days 121.0, :cif-post-transplant 0.8635844742} {:centre "Birmingham", :days 122.0, :cif-post-transplant 0.8574594312} {:centre "Birmingham", :days 138.0, :cif-post-transplant 0.8513031069} {:centre "Birmingham", :days 157.0, :cif-post-transplant 0.8451091332} {:centre "Birmingham", :days 173.0, :cif-post-transplant 0.832579504} {:centre "Birmingham", :days 177.0, :cif-post-transplant 0.8261886319} {:centre "Birmingham", :days 193.0, :cif-post-transplant 0.8197799027} {:centre "Birmingham", :days 237.0, :cif-post-transplant 0.8133487712} {:centre "Birmingham", :days 276.0, :cif-post-transplant 0.8068768783} {:centre "Birmingham", :days 289.0, :cif-post-transplant 0.8003792412} {:centre "Birmingham", :days 292.0, :cif-post-transplant 0.7938250107} {:centre "Birmingham", :days 297.0, :cif-post-transplant 0.7872454983} {:centre "Birmingham", :days 303.0, :cif-post-transplant 0.7806264469} {:centre "Birmingham", :days 310.0, :cif-post-transplant 0.7739436679} {:centre "Birmingham", :days 328.0, :cif-post-transplant 0.7672300568} {:centre "Birmingham", :days 403.0, :cif-post-transplant 0.7598923619} {:centre "Birmingham", :days 439.0, :cif-post-transplant 0.7524912372} {:centre "Birmingham", :days 517.0, :cif-post-transplant 0.7377456852} {:centre "Birmingham", :days 553.0, :cif-post-transplant 0.7302516221} {:centre "Birmingham", :days 558.0, :cif-post-transplant 0.7226664049} {:centre "Birmingham", :days 723.0, :cif-post-transplant 0.7143029084} {:centre "Birmingham", :days 732.0, :cif-post-transplant 0.7056707844} {:centre "Birmingham", :days 827.0, :cif-post-transplant 0.6961730808} {:centre "Birmingham", :days 1258.0, :cif-post-transplant 0.6855816049} {:centre "Birmingham", :days 1572.0, :cif-post-transplant 0.6709450792} {:centre "Birmingham", :days 1582.0, :cif-post-transplant 0.6560978985} {:centre "Birmingham", :days 1826.0, :cif-post-transplant 0.6560978985}), :post-transplant-baseline-vars '({:factor :donor-cmv, :level :negative} {:factor :donor-smokes, :level :no} {:factor :dd-pred, :level :pred-0} {:factor :type, :level :t2} {:factor :d-gp, :level :copd} {:factor :age, :level "52"} {:factor :tlc-mismatch, :level "-0.066"} {:factor :fvc, :level 2.05} {:factor :bilirubin, :level 9.0} {:factor :cholesterol, :level 4.9} {:factor :centre, :level :unused} {:level nil} {:factor nil, :level nil}), :post-transplant-inputs {:info-box? '("?" nil nil "?how much" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :level-name '("Negative" "Positive" nil "No" "Yes" nil "0 mg" "Less than 15mg" "15mg or more" nil "Single lung" "Bilateral lung" nil "Cystic Fibrosis" "Other" "PulmonaryFibrosis" "Chronic Obstructive Pulmonary Disease" nil "unit" nil nil nil nil "unit" nil "unit" nil "unit" nil "unit" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :type '(:v-radio nil nil :radio nil nil :v-radio nil nil nil :v-radio nil nil :v-radio nil nil nil nil "{:dps 0, :knot1 22, :knot2 46, :knot3 56, :knot4 63, :max 70, :min 16, :type :numeric}" :param :param :param nil "{:dps 1, :max 4.5, :min -2.2, :type :numeric}" nil "{:dps 0, :max 77, :min 1, :type :numeric}" nil "{:dps 0, :max 77, :min 1, :type :numeric}" nil "{:dps 1, :max 9, :min 1.3, :type :numeric}" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :sub-text '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil "years" nil nil nil nil nil nil "litres" nil "umol/l" nil "mmol/l" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), "Things to consider" '(nil nil nil "Donor has history of smoking?" "Donor has smoked?" nil nil nil nil nil nil nil nil nil nil nil nil nil "note that knots are post-t specific" nil nil nil nil nil nil nil nil nil nil nil nil nil "not present in UI" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :level '(:negative :positive nil :no :yes nil :pred-0 :pred-1-14 :pred-15+ nil :t1 :t2 nil :cf :other :pf :copd nil "[:spline :x :beta1 :beta2 :beta3]" :beta1 :beta2 :beta3 nil :x nil :x nil :x nil :x nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :beta-post-transplant '(0.0 0.28404 nil 0.0 0.23224 nil 0.0 0.28171 0.48797 nil 0.06395 0.0 nil -0.65693 0.17297 -0.01486 0.0 nil nil -0.05521 0.00151 -0.00282 nil 0.09785 nil -0.01966 nil 0.00132 nil -0.03578 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :factor '(:donor-cmv :donor-cmv nil :donor-smokes :donor-smokes nil :dd-pred :dd-pred :dd-pred nil :type :type nil :d-gp :d-gp :d-gp :d-gp nil :age :age :age :age nil :tlc-mismatch nil :fvc nil :bilirubin nil :cholesterol nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :order '(2.3 2.3 nil 2.1 2.1 nil 1.4 1.4 1.4 nil 1.6 1.6 nil 1.7 1.7 1.7 1.7 nil 1.2 nil nil nil nil 2.2 nil 1.5 nil 1.1 nil 2.4 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :factor-name '("Donor CMV" nil nil "Donor history of smoking" nil nil "Recipient daily dose of prednisolone at registration" nil nil nil "Transplant type" nil nil "Disease Group" nil nil nil nil "Recipient age at transplant" nil nil nil nil "Donor:recipient calculated TLC mismatch" nil "Recipient FVC at registration" nil "Recipient bilirubin at registration" nil "Recipient cholesterol at registration" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)}})
+
+#_(pp/pprint birmingham-spt)

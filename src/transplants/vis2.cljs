@@ -839,10 +839,10 @@
                       j (range 10)]
                   
                   [:g {:key (str "i-" j "-" i)
-                       :transform (str "translate(" (+ 300 (* j 25)) " " (+ 20 (* i 25)) ")") 
+                       :transform (str "translate(" (+ 300 (* j 22)) " " (+ 20 (* i 22)) ")") 
                        }
                    [h-and-s
-                    {:scale 2.6
+                    {:scale 2
                      :fill (if (neg? (if randomise-icons
                                        (order (- 100 (+ 10 (* i 10) (- j))))
                                        (- percent (- 101 (+ 10 (* i 10) (- j))))))

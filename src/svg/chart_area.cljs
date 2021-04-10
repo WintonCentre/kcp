@@ -35,7 +35,7 @@
         [Y0 y1] (out y)
         x-mid (- (/ (- X1 X0) 2) (* 4 (count x-title)))]
 
-    [:g {:key "x-title" :transform (str "translate(" x-mid "," (* 0.7 (:bottom padding)) ")")}
+    [:g {:key "x-title" :transform (str "translate(" x-mid " " (* 0.7 (:bottom padding)) ")")}
      [:text {:key        "note"
              :class-name (:annotation styles)
              :x          X0
@@ -49,7 +49,7 @@
         y-mid (/ (- Y1 Y0) 2)
         ydelta (* 4 (count y-title))]
     [:g {:key       "y-title"
-         :transform (str "translate(" (- X0 (* 0.7 (:left padding))) "," (+ ydelta y-mid) ") " " rotate(-90, " X0 "," Y0 ") ")}
+         :transform (str "translate(" (- X0 (* 0.7 (:left padding))) " " (+ ydelta y-mid) ") " " rotate(-90 " X0 " " Y0 ") ")}
      [:text {:key        "note"
              :class-name (:annotation styles)
              :x          X0
@@ -100,7 +100,7 @@
                ;; define the coordinate system
                ;;
                [:g {:key       2
-                    :transform (str "translate(" (:left padding) "," (:top padding) ")")}
+                    :transform (str "translate(" (:left padding) " " (:top padding) ")")}
                 [:rect {:key        1
                         :class-name (:inner styles)
                         :width      width

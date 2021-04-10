@@ -769,7 +769,8 @@
                          (map (fn [i data-key]
                                 (let [styles (data-styles data-key)]
                                 ;(locals)
-                                  [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
+                                  [:g {:key (str data-key)
+                                       :transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
                                    [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
                                                   (dissoc styles :label-fill))]
                                    [:text {:x 10 :y 40
@@ -790,7 +791,8 @@
     :or {fill "red" scale "0.2"}}]
   [:g {:key key
        :transform (str "scale(" scale ")") :style {:fill fill}}
-   [:path {:d "M87.9 80c-.8 0-2 .4-2.7.9-6.1 4.6-13.3 7.1-21.2 7.1-7.5 0-14.5-2.5-20.5-7.1-.7-.5-1.8-.9-2.7-.9h-8.8c-17.7 0-32 14.3-32 32v14.5c0 .8.7 1.5 1.5 1.5h125c.8 0 1.5-.7 1.5-1.5v-14.5c0-17.7-14.3-32-32-32h-8.1z"}]
+   [:path {:d "M4 0c-1.1 0-2 1.12-2 2.5s.9 2.5 2 2.5 2-1.12 2-2.5-.9-2.5-2-2.5zm-2.09 5c-1.06.05-1.91.92-1.91 2v1h8v-1c0-1.08-.84-1.95-1.91-2-.54.61-1.28 1-2.09 1-.81 0-1.55-.39-2.09-1z"}]
+   #_#_[:path {:d "M87.9 80c-.8 0-2 .4-2.7.9-6.1 4.6-13.3 7.1-21.2 7.1-7.5 0-14.5-2.5-20.5-7.1-.7-.5-1.8-.9-2.7-.9h-8.8c-17.7 0-32 14.3-32 32v14.5c0 .8.7 1.5 1.5 1.5h125c.8 0 1.5-.7 1.5-1.5v-14.5c0-17.7-14.3-32-32-32h-8.1z"}]
    [:path {:d "M96 35c0 22.1-10.1 45-32 45-20.1 0-32-22.9-32-45s14.3-35 32-35 32 12.9 32 35z"}]])
 
 (defn stacked-icon-array
@@ -802,15 +804,16 @@
         svg-height 300]
     [ui/col {:sm 12
              :style {:padding 0
-                     :background-color "#CCC"}}
-     (for [i (range (inc (count base-outcome-keys)))]
+                     #_#_:background-color "#CCC"}}
+     (for [i (range (count year-series))]
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
-         [ui/row {:style {:padding "0px 0px"}}
+         [ui/row {:style {:padding "0px 0px"}
+                  :key (str "year-" i)}
           [ui/col {:key 1}
            [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                               :aspect-ratio (aspect-ratio svg-width svg-height)
                                               :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                             ;:padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                             :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
                                               :x-domain [0 300]
                                               :x-ticks 10
                                               :y-domain [0 300]
@@ -819,31 +822,32 @@
 
             (fn [x y X Y]
               (locals)
-              #(constantly
-                [:g
-                 (map (fn [i data-key]
-                        (let [styles (data-styles data-key)]
-                                ;(locals)
-                          [:g {:transform (str "translate(20 " (+ 30 (* 80 i)) ")")}
-                           [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
-                                          (dissoc styles :label-fill))]
-                           [:text {:x 10 :y 40
-                                   :fill (:label-fill styles)
-                                   :font-size 30}
-                            (:label styles)]]))
-                      (range)
-                      plot-order)
-                 (for [i (range 10)
-                       j (range 10)]
-                   [:g {:transform (str "translate(" (+ 300 (* j 25)) "," (+ 20 (* i 25)) ")") j :y}
-                    [h-and-s
-                     {:key (str "i-" j "-" i)
-                      :scale 0.15
-                      :fill (if (neg? (if randomise-icons
-                                        (order (- 100 (+ 10 (* i 10) (- j))))
-                                        (- percent (- 101 (+ 10 (* i 10) (- j))))))
-                              "#fff"
-                              "#488")}]])]))]]]))]))
+              [:g
+                (map (fn [i data-key]
+                       (let [styles (data-styles data-key)]
+                         [:g {:transform (str "translate(20 " (+ 30 (* 80 i)) ")")
+                              :key (str data-key "-" i)}
+                          [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
+                                         (dissoc styles :label-fill))]
+                          [:text {:x 10 :y 40
+                                  :fill (:label-fill styles)
+                                  :font-size 30}
+                           (:label styles)]]))
+                     (range)
+                     plot-order)
+                (for [i (range 10)
+                      j (range 10)]
+                  
+                  [:g {:key (str "i-" j "-" i)
+                       :transform (str "translate(" (+ 300 (* j 25)) " " (+ 20 (* i 25)) ")") 
+                       }
+                   [h-and-s
+                    {:scale 2.6
+                     :fill (if (neg? (if randomise-icons
+                                       (order (- 100 (+ 10 (* i 10) (- j))))
+                                       (- percent (- 101 (+ 10 (* i 10) (- j))))))
+                             "#fff"
+                             "#488")}]])])]]]))]))
 
 
 (defn icon-array
@@ -860,7 +864,7 @@
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-    [:> bs/Row
+    [:> bs/Row {:style {:max-width 600}}
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
       

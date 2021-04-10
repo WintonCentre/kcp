@@ -216,8 +216,6 @@
                        (map (fn [i]
                               [ui/open-icon
                                {:key (str "icon-col-" i)
-                              ;:border "1px solid red"
-                              ;:border-radius 15
                                 :color (if (neg? (if randomise-icons
                                                    (order (- 100 (+ 10 (* j 10) (- i))))
                                                    (- percent (- 101 (+ 10 (* j 10) (- i)))))) 

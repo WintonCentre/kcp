@@ -310,6 +310,16 @@
                     [1095 '(0.7223661602654514 0.1546087624081802)]])
   0)
 
+(defn arrows
+  [{:keys [year time-series x0 spacing Y]}]
+  (when (< (inc year) (count time-series))
+    [:foreignObject
+     {:width 200
+      :height 200
+      :x (+ x0 (* 52 spacing))
+      :y (Y 0.5)}
+     [ui/open-icon {:color "#fff" :transform "scale(2.5)"} "arrow-right"]]))
+
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
@@ -366,6 +376,11 @@
                                                      :height h
                                                      :data-title cif}
                                                     (dissoc styles :label-fill))]
+                                      (arrows {:year year
+                                               :time-series time-series
+                                               :x0 x0
+                                               :spacing spacing
+                                               :Y Y})
                                       [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
                                data-keys
                                fs
@@ -505,28 +520,35 @@
              :width      1000
              :height     600}]
 
-  ; draw labels at yearly intervals
-     (into [:g {:key 2}]
-           (map (fn [bin [time {:keys [fs cum-fs]}]]
+     ; draw labels at yearly intervals
+     #_(into [:g {:key 2}]
+             (map (fn [bin [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                  (let [year (utils/day->year time)]
-                    (into [:g {:key (str "bar-chart-" year)}]
-                          (map (fn [data-key cif cum-cif]
-                                 (let [styles (data-styles data-key)
-                                       x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                       x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                       y0 (- (Y cum-cif) (Y cif))
-                                       h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                       y-mid (+ y0 (/ h 2))
-                                       bin-label (bin :label)
-                                       label-offset (- (* 6 (count bin-label)) 10)]
-                                   (when (not (js/isNaN y0))
-                                     [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label])))
-                               data-keys
-                               fs
-                               cum-fs))))
-                bins
-                year-series))
+                    (let [year (utils/day->year time)]
+                      (into [:g {:key (str "bar-chart-" year)}]
+                            (map (fn [data-key cif cum-cif]
+                                   (let [styles (data-styles data-key)
+                                         x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                         x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                         y0 (- (Y cum-cif) (Y cif))
+                                         h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                         y-mid (+ y0 (/ h 2))
+                                         bin-label (bin :label)
+                                         label-offset (- (* 6 (count bin-label)) 10)]
+
+                                     (when (not (js/isNaN y0))
+                                       [:g
+                                        [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]
+                                        (arrows {:year year
+                                                 :time-series year-series
+                                                 :x0 x0
+                                                 :spacing spacing
+                                                 :Y Y})])))
+                                 data-keys
+                                 fs
+                                 cum-fs))))
+                  bins
+                  year-series))
 
      (let [bar-positions (into []
                                (map (fn [[time {:keys [fs cum-fs]}]]
@@ -545,8 +567,7 @@
                                                         :x (+ x-mid 15)
                                                         :y0 y0
                                                         :y1 (Y cum-cif)
-                                                        :styles (dissoc styles :label-fill)
-                                                        }))
+                                                        :styles (dissoc styles :label-fill)}))
                                                    data-keys
                                                    fs
                                                    cum-fs))))
@@ -576,22 +597,22 @@
                                                        fs
                                                        cum-fs))))
                                         quarter-series))
-           
+
            #_#_polygon-data (into {} (for [dk data-keys]
-                                   [dk  (let [tops (for [bp-dks bar-positions
-                                                         bp-dk bp-dks
-                                                         :when (= dk (:key bp-dk))]
-                                                     (select-keys bp-dk [:x :y0 :y1]))]
-                                          (concat (map (juxt :x :y0) tops)
-                                                  (map (juxt :x :y1) (reverse tops))))]))
-           
+                                       [dk  (let [tops (for [bp-dks bar-positions
+                                                             bp-dk bp-dks
+                                                             :when (= dk (:key bp-dk))]
+                                                         (select-keys bp-dk [:x :y0 :y1]))]
+                                              (concat (map (juxt :x :y0) tops)
+                                                      (map (juxt :x :y1) (reverse tops))))]))
+
            q-polygon-data (into {} (for [dk data-keys]
-                                   [dk  (let [tops (for [bp-dks quarter-positions
-                                                         bp-dk bp-dks
-                                                         :when (= dk (:key bp-dk))]
-                                                     (select-keys bp-dk [:x :y0 :y1]))]
-                                          (concat (map (juxt :x :y0) tops)
-                                                  (map (juxt :x :y1) (reverse tops))))]))]
+                                     [dk  (let [tops (for [bp-dks quarter-positions
+                                                           bp-dk bp-dks
+                                                           :when (= dk (:key bp-dk))]
+                                                       (select-keys bp-dk [:x :y0 :y1]))]
+                                            (concat (map (juxt :x :y0) tops)
+                                                    (map (juxt :x :y1) (reverse tops))))]))]
        (?->> ::bar-posits bar-positions)
        (?->> ::quart-posits quarter-positions)
        ;;
@@ -599,18 +620,48 @@
        ;;
        [:g
         #_(into [:g {:opacity 0.3}]
-              (for [dk data-keys]
-                [:polygon {:key dk
-                           :points (for [[x y] (dk polygon-data)]
-                                     (str x "," y " "))
-                           :style (dissoc  (data-styles dk) :label-fill)}]))
-        
+                (for [dk data-keys]
+                  [:polygon {:key dk
+                             :points (for [[x y] (dk polygon-data)]
+                                       (str x "," y " "))
+                             :style (dissoc  (data-styles dk) :label-fill)}]))
+
         (into [:g {:opacity 0.7}]
               (for [dk data-keys]
                 [:polygon {:key dk
                            :points (for [[x y] (dk q-polygon-data)]
                                      (str x "," y " "))
                            :style (dissoc  (data-styles dk) :label-fill)}]))
+
+        ; draw labels at yearly intervals
+        (into [:g {:key 2}]
+              (map (fn [bin [time {:keys [fs cum-fs]}]]
+                  ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
+                     (let [year (utils/day->year time)]
+                       (into [:g {:key (str "bar-chart-" year)}]
+                             (map (fn [data-key cif cum-cif]
+                                    (let [styles (data-styles data-key)
+                                          x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                          x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                          y0 (- (Y cum-cif) (Y cif))
+                                          h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                          y-mid (+ y0 (/ h 2))
+                                          bin-label (bin :label)
+                                          label-offset (- (* 6 (count bin-label)) 10)]
+
+                                      (when (not (js/isNaN y0))
+                                        [:g
+                                         [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]
+                                         (arrows {:year year
+                                                  :time-series year-series
+                                                  :x0 x0
+                                                  :spacing spacing
+                                                  :Y Y})])))
+                                  data-keys
+                                  fs
+                                  cum-fs))))
+                   bins
+                   year-series))
 
 
        ;;
@@ -622,7 +673,7 @@
                  (let [x (:x (first bp))]
                    #_(?->> ::bp bp)
                    #_(?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
-                                  :style {:stroke "#000" :stroke-width 3}})
+                                    :style {:stroke "#000" :stroke-width 3}})
 
                    [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
                            :style {:stroke "#fff" :stroke-width 3}}])))
@@ -734,69 +785,86 @@
         [:section {:style {:margin-top 10}}
          (:post-section tool-mdata)]]]))
   
+(defn h-and-s
+  [{:keys [key fill scale]
+    :or {fill "red" scale "0.2"}}]
+  [:g {:key key
+       :transform (str "scale(" scale ")") :style {:fill fill}}
+   [:path {:d "M87.9 80c-.8 0-2 .4-2.7.9-6.1 4.6-13.3 7.1-21.2 7.1-7.5 0-14.5-2.5-20.5-7.1-.7-.5-1.8-.9-2.7-.9h-8.8c-17.7 0-32 14.3-32 32v14.5c0 .8.7 1.5 1.5 1.5h125c.8 0 1.5-.7 1.5-1.5v-14.5c0-17.7-14.3-32-32-32h-8.1z"}]
+   [:path {:d "M96 35c0 22.1-10.1 45-32 45-20.1 0-32-22.9-32-45s14.3-35 32-35 32 12.9 32 35z"}]])
+
+(defn stacked-icon-array
+  [year-series data-keys tool-mdata data-styles base-outcome-keys]
+  (let [plot-order (:plot-order tool-mdata)
+        randomise-icons false
+        percent 50
+        svg-width 600
+        svg-height 300]
+    [ui/col {:sm 12
+             :style {:padding 0
+                     :background-color "#CCC"}}
+     (for [i (range (inc (count base-outcome-keys)))]
+       (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
+         [ui/row {:style {:padding "0px 0px"}}
+          [ui/col {:key 1}
+           [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
+                                              :aspect-ratio (aspect-ratio svg-width svg-height)
+                                              :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
+                                             ;:padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                              :x-domain [0 300]
+                                              :x-ticks 10
+                                              :y-domain [0 300]
+                                              :y-ticks 10})
+                                      :styles styles)
+
+            (fn [x y X Y]
+              (locals)
+              #(constantly
+                [:g
+                 (map (fn [i data-key]
+                        (let [styles (data-styles data-key)]
+                                ;(locals)
+                          [:g {:transform (str "translate(20 " (+ 30 (* 80 i)) ")")}
+                           [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
+                                          (dissoc styles :label-fill))]
+                           [:text {:x 10 :y 40
+                                   :fill (:label-fill styles)
+                                   :font-size 30}
+                            (:label styles)]]))
+                      (range)
+                      plot-order)
+                 (for [i (range 10)
+                       j (range 10)]
+                   [:g {:transform (str "translate(" (+ 300 (* j 25)) "," (+ 20 (* i 25)) ")") j :y}
+                    [h-and-s
+                     {:key (str "i-" j "-" i)
+                      :scale 0.15
+                      :fill (if (neg? (if randomise-icons
+                                        (order (- 100 (+ 10 (* i 10) (- j))))
+                                        (- percent (- 101 (+ 10 (* i 10) (- j))))))
+                              "#fff"
+                              "#488")}]])]))]]]))]))
+
 
 (defn icon-array
-  [{:keys [organ centre tool inputs bundle title rubric bar-info] :as params}]
-  [:div "Not yet"]
-  #_(let [{:keys [outcome-keys
-                  outcomes
-                  sum-betas
-                  sample-days]} (vis-data-map organ centre tool inputs bundle)
-          cifs-by-year (clj->js (mapv
-                                 (fn [day year]
-
-                                   (let [cifs (as-> (vec (apply model/scaled-cifs
-                                                                (map (partial model/cif tool)
-                                                                     (map (bun/cif-0 bundle day)
-                                                                          outcome-keys)
-                                                                     sum-betas))) x
-                                                (update x 0 (if (> (count outcomes) 1)
-                                                              #(- 1 %)
-                                                              identity))
-                                                (map #(* % 100) x))]
-                                     (into {"days" day
-                                            "year" (if (zero? year)
-                                                     "Day 1"
-                                                     (str "Year " year))}
-                                           (mapv
-                                            (fn [bi i]
-                                            ;(println (:ciff bi))
-                                              [(:label bi) ((:ciff bi) cifs i) #_(nth cifs i)])
-                                            bar-info (range)))))
-                                 sample-days
-                                 (range (count sample-days))))]
-
-      [:<>
-       [:h4 "not yet"]
-       (let [percent 20
-             fill "red"
-             no-fill "#bbb"
-             caption "Placeholder: Add a year selector with text"]
-         [ui/row {:style {:margin-bottom 5
-                          :margin-top 20}}
-          [ui/col {:md 7}
-           caption]
-          [ui/col {:md 5}
-           (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
-             (into
-              [:<>
-               (map
-                (fn [j]
-                  [ui/row {:key (str "icon-row-" j)}
-                   [ui/col {:style {:line-height "17px"}}
-                    (into [:<>
-                           (map (fn [i]
-                                  [ui/open-icon
-                                   {:key (str "icon-col-" i)
-                                    :font-size "10px"
-
-                                    :color (if (neg? (if false #_randomise-icons
-                                                         (order (- 100 (+ 10 (* j 10) (- i))))
-                                                         (- percent (- 101 (+ 10 (* j 10) (- i))))))
-                                             no-fill
-                                             fill)
-                                    :padding "4px 4px"} "person"]) (range 10))])]])
-                (range 10))]))]])]))
+  [{:keys [organ centre tool day inputs cohort-dates bundle
+           outcome-keys base-outcome-keys timed-outcome-keys beta-keys outcomes S0 fmaps all-S0 S0 s0 s0-for-day cox? sum-betas F
+           rubric bar-info] :as env}]
+  (let [factors (keys fmaps)
+        {:keys [from-year to-year]} cohort-dates
+        sample-days (map
+                     utils/year->day
+                     (range (inc (utils/day->year (first (last s0))))))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        tool-mdata (get-in env [:mdata organ :tools tool])
+        data-styles (get tool-mdata :outcomes)
+        plot-order (:plot-order tool-mdata)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+    [:> bs/Row
+     [:> bs/Col {:style {:margin-top 10}}
+      ;(:pre-section tool-mdata)
+      
+      (stacked-icon-array fs-by-year-in-plot-order plot-order tool-mdata data-styles base-outcome-keys)]]))
 ;;;
 ;; 
 ;;;

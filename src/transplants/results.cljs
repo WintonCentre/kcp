@@ -108,7 +108,7 @@
        [vis/area-chart env]]
 
       [ui/tab {:event-key "icons" :title "Icon Array"}
-       
+       [vis/icon-array env]
        #_(condp = tool
            :waiting
            [:<>

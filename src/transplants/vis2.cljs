@@ -85,7 +85,7 @@
                                       [0 0]
                                       (zipmap (range) err-pc-fs))]
                    (update int-pc-fs (first adjust) (if (pos? sum-err-pc-fs) dec inc))))]
-    (locals)
+    ;(locals)
     {:fs ordered-fs
      :cum-fs (reductions + ordered-fs)
      :int-fs int-fs
@@ -807,6 +807,42 @@
    [:path {:d (str "M4 0c-1.1 0-2 1.12-2 2.5s.9 2.5 2 2.5 2-1.12 2-2.5-.9-2.5-2-2.5z"
                    "m-2.09 5c-1.06.05-1.91.92-1.91 2v1h8v-1c0-1.08-.84-1.95-1.91-2-.54.61-1.28 1-2.09 1-.81 0-1.55-.39-2.09-1z")}]])
 
+(defn ordinal->outcome
+  "Deternine the outcome from the icon position"
+  [ordinal cum-int-fs]
+  (reduce
+   (fn [i cum]
+     (if (>= ordinal cum) (inc i) i))
+   0
+   cum-int-fs)
+  )
+
+(comment
+  (ordinal-mdata)
+  (ordinal->outcome 0 [10 20 30 40 50])
+  ;; => 0
+  (ordinal->outcome 9 [10 20 30 40 50])
+  ;; => 0
+
+  (ordinal->outcome 10 [10 20 30 40 50])
+  ;; => 0
+
+  (ordinal->outcome 11 [10 20 30 40 50])
+
+  (ordinal->outcome 50 [10 20 30 40 50])
+  ;; => 4
+
+  (ordinal->outcome 51 [10 20 30 40 50])
+  ;; => 5
+)
+
+(defn ordinal-mdata
+  "Determines an icon style based on the icon ordinal position in the array"
+  [ordinal cum-int-fs tool-mdata]
+  (let [index (ordinal->outcome ordinal cum-int-fs)
+        outcome-key ((:plot-order tool-mdata) index)]
+    (get-in tool-mdata [:outcomes outcome-key])))
+;
 (defn stacked-icon-array
   [year-series data-keys tool-mdata data-styles base-outcome-keys]
   (let [plot-order (:plot-order tool-mdata)
@@ -818,7 +854,8 @@
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
-     (for [yr (range (count year-series))]
+     (for [yr (range (count year-series))
+           :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series yr)]]
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
          [ui/row {:style {:padding "0px 0px"}
                   :key (str "year-" yr)}
@@ -839,9 +876,9 @@
               [:g
                 (map (fn [i data-key]
                        (let [styles (data-styles data-key)]
-                         [:g {:transform (str "translate(20 " (+ 30 (* 80 i)) ")")
+                         [:g {:transform (str "translate(0 " (+ 10 (* 60 i)) "),scale(0.7)")
                               :key (str data-key "-" i)}
-                          [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
+                          [:rect (merge  {:x 0 :y 0 :width 250 :height 60}
                                          (dissoc styles :label-fill))]
                           [:text {:x 10 :y 40
                                   :fill (:label-fill styles)
@@ -849,20 +886,20 @@
                            (:label styles)]]))
                      (range)
                      plot-order)
+               
                 (for [i (range 10)
                       j (range 10)
                       :let [ordinal (+ j (* 10 i))]]
-                  
+                  #_(?-> {:ordinal ordinal
+                          :cum-int-fs cum-int-fs
+                          :tool-mdata tool-mdata} ::icon-fill)
                   [:g {:key (str "i-" j "-" i)
-                       :transform (str "translate(" (+ 300 (* j 22)) " " (+ 20 (* i 22)) ")") 
-                       }
+                       :transform (str "translate(" (+ 300 (* j 22)) " " (+ 0 (* i 22)) ")")}
                    [h-and-s
                     {:scale 2
-                     :fill (if (pos? (if randomise-icons
-                                       (order ordinal)
-                                       (- percent ordinal)))
-                             "#fff"
-                             "#488")}]])])]]]))]))
+                     :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])
+                
+                ])]]]))]))
 
 
 (defn icon-array

@@ -878,21 +878,18 @@
                        (let [styles (data-styles data-key)]
                          [:g {:transform (str "translate(0 " (+ 10 (* 60 i)) "),scale(0.7)")
                               :key (str data-key "-" i)}
-                          [:rect (merge  {:x 0 :y 0 :width 250 :height 60}
+                          [:rect (merge  {:x 0 :y 0 :width 300 :height 60}
                                          (dissoc styles :label-fill))]
                           [:text {:x 10 :y 40
                                   :fill (:label-fill styles)
                                   :font-size 30}
-                           (:label styles)]]))
+                           (str (:label styles) ": " (int-fs i) "%")]]))
                      (range)
                      plot-order)
                
                 (for [i (range 10)
                       j (range 10)
                       :let [ordinal (+ j (* 10 i))]]
-                  #_(?-> {:ordinal ordinal
-                          :cum-int-fs cum-int-fs
-                          :tool-mdata tool-mdata} ::icon-fill)
                   [:g {:key (str "i-" j "-" i)
                        :transform (str "translate(" (+ 300 (* j 22)) " " (+ 0 (* i 22)) ")")}
                    [h-and-s

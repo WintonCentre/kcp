@@ -849,54 +849,53 @@
         randomise-icons false
         percent 49.01
         svg-width 600
-        svg-height 300]
+        svg-height 300
+        order (shuffle (range 100))]
     (locals)
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
      (for [yr (range (count year-series))
            :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series yr)]]
-       (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
-         [ui/row {:style {:padding "0px 0px"}
-                  :key (str "year-" yr)}
-          [ui/col {:key 1}
-           [:h5 {:style {:margin-top 20}}(:label (nth (get-in tool-mdata [:bars :bins]) yr))]
-           [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
-                                              :aspect-ratio (aspect-ratio svg-width svg-height)
-                                              :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                             :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
-                                              :x-domain [0 300]
-                                              :x-ticks 10
-                                              :y-domain [0 300]
-                                              :y-ticks 10})
-                                      :styles styles)
+       
+       [ui/row {:style {:padding "0px 0px"}
+                :key (str "year-" yr)}
+        [ui/col {:key 1}
+         [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:bars :bins]) yr))]
+         [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
+                                            :aspect-ratio (aspect-ratio svg-width svg-height)
+                                            :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
+                                            :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                            :x-domain [0 300]
+                                            :x-ticks 10
+                                            :y-domain [0 300]
+                                            :y-ticks 10})
+                                    :styles styles)
 
-            (fn [x y X Y]
-              (locals)
-              [:g
-                (map (fn [i data-key]
-                       (let [styles (data-styles data-key)]
-                         [:g {:transform (str "translate(0 " (+ 10 (* 60 i)) "),scale(0.7)")
-                              :key (str data-key "-" i)}
-                          [:rect (merge  {:x 0 :y 0 :width 300 :height 60}
-                                         (dissoc styles :label-fill))]
-                          [:text {:x 10 :y 40
-                                  :fill (:label-fill styles)
-                                  :font-size 30}
-                           (str (:label styles) ": " (int-fs i) "%")]]))
-                     (range)
-                     plot-order)
-               
-                (for [i (range 10)
-                      j (range 10)
-                      :let [ordinal (+ j (* 10 i))]]
-                  [:g {:key (str "i-" j "-" i)
-                       :transform (str "translate(" (+ 300 (* j 22)) " " (+ 0 (* i 22)) ")")}
-                   [h-and-s
-                    {:scale 2
-                     :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])
-                
-                ])]]]))]))
+          (fn [x y X Y]
+            (locals)
+            [:g
+             (map (fn [i data-key]
+                    (let [styles (data-styles data-key)]
+                      [:g {:transform (str "translate(0 " (+ 10 (* 60 i)) "),scale(0.7)")
+                           :key (str data-key "-" i)}
+                       [:rect (merge  {:x 0 :y 0 :width 300 :height 60}
+                                      (dissoc styles :label-fill))]
+                       [:text {:x 10 :y 40
+                               :fill (:label-fill styles)
+                               :font-size 30}
+                        (str (:label styles) ": " (int-fs i) "%")]]))
+                  (range)
+                  plot-order)
+
+             (for [i (range 10)
+                   j (range 10)
+                   :let [ordinal (order (+ j (* 10 i)))]]
+               [:g {:key (str "i-" j "-" i)
+                    :transform (str "translate(" (+ 300 (* j 22)) " " (+ 0 (* i 22)) ")")}
+                [h-and-s
+                 {:scale 2
+                  :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
 
 
 (defn icon-array

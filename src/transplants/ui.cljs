@@ -339,3 +339,12 @@ in the routes table."
                        :max (constantly (* 365 5))
                        :dps -1
                        :on-change #(rf/dispatch [::events/test-day %])})]])
+
+(defn randomise-query-panel
+  [randomise-icons label]
+  [:> bs/Form
+   [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])}
+    [:> bs/Form.Check {:inline true
+                       :type "checkbox"
+                       :checked randomise-icons}]
+    [:> bs/Form.Label label]]])

@@ -405,35 +405,34 @@
      (into [:g {:key 2}]
            (map (fn [bin year [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                  (let [_ (utils/day->year time)]
-                    (into [:g {:key (str "bar-chart-" year)}]
-                          (map (fn [data-key cif cum-cif]
-                                 (let [styles (data-styles data-key)
-                                       x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                       x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                       y0 (- (Y cum-cif) (Y cif))
-                                       h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                       y-mid (+ y0 (/ h 2))
-                                       bin-label (bin :label)
-                                       label-offset (- (* 6 (count bin-label)) 10)]
-                                   (when (not (js/isNaN y0))
-                                     [:g
-                                      [:rect (merge {:key data-key
-                                                     :x x0
-                                                     :y y0
-                                                     :width bar-width
-                                                     :height h
-                                                     :data-title cif}
-                                                    (dissoc styles :label-fill))]
-                                      (arrows {:year year
-                                               :time-series time-series
-                                               :x0 x0
-                                               :spacing spacing
-                                               :Y Y})
-                                      [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
-                               data-keys
-                               fs
-                               cum-fs))))
+                  (into [:g {:key (str "bar-chart-" year)}]
+                        (map (fn [data-key cif cum-cif]
+                               (let [styles (data-styles data-key)
+                                     x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                     x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                     y0 (- (Y cum-cif) (Y cif))
+                                     h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                     y-mid (+ y0 (/ h 2))
+                                     bin-label (bin :label)
+                                     label-offset (- (* 6 (count bin-label)) 10)]
+                                 (when (not (js/isNaN y0))
+                                   [:g
+                                    [:rect (merge {:key data-key
+                                                   :x x0
+                                                   :y y0
+                                                   :width bar-width
+                                                   :height h
+                                                   :data-title cif}
+                                                  (dissoc styles :label-fill))]
+                                    (arrows {:year year
+                                             :time-series time-series
+                                             :x0 x0
+                                             :spacing spacing
+                                             :Y Y})
+                                    [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
+                             data-keys
+                             fs
+                             cum-fs)))
                 bins
                 (range)
                 time-series))
@@ -561,7 +560,7 @@
         years (utils/day->year  (first (last year-series)))
         pairwise #(partition-all 2 1 %)]
     ;(?-> [years year-series] :stacked-bar-chart)
-    ;(locals)
+    (locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -571,27 +570,26 @@
              :height     600}]
 
      (let [bar-positions (into []
-                               (map (fn [[time {:keys [fs cum-fs]}]]
+                               (map (fn [year [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                                      (let [year (utils/day->year time)]
-                                        (into []
-                                              (map (fn [data-key cif cum-cif]
-                                                     (let [styles (data-styles data-key)
-                                                           x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                                           x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                                           y0 (- (Y cum-cif) (Y cif))
-                                                           h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                                           y-mid (+ y0 (/ h 2))]
-                                                       {:key data-key
-                                                        :time time
-                                                        :x (+ x-mid 15)
-                                                        :y0 y0
-                                                        :y1 (Y cum-cif)
-                                                        :styles (dissoc styles :label-fill)}))
-                                                   data-keys
-                                                   fs
-                                                   cum-fs))))
-                                    ;bins
+                                      (into []
+                                            (map (fn [data-key cif cum-cif]
+                                                   (let [styles (data-styles data-key)
+                                                         x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                                         x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                                         y0 (- (Y cum-cif) (Y cif))
+                                                         h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                                         y-mid (+ y0 (/ h 2))]
+                                                     {:key data-key
+                                                      :time time
+                                                      :x (+ x-mid 15)
+                                                      :y0 y0
+                                                      :y1 (Y cum-cif)
+                                                      :styles (dissoc styles :label-fill)}))
+                                                 data-keys
+                                                 fs
+                                                 cum-fs)))
+                                    (range)
                                     year-series))
            
            ;;todo: these are no longer quarter year intervals. Rename
@@ -647,32 +645,32 @@
 
         ; draw labels at yearly intervals
         (into [:g {:key 2}]
-              (map (fn [bin [time {:keys [fs cum-fs]}]]
+              (map (fn [bin year [time {:keys [fs cum-fs]}]]
                   ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                     (let [year (utils/day->year time)]
-                       (into [:g {:key (str "bar-chart-" year)}]
-                             (map (fn [data-key cif cum-cif]
-                                    (let [styles (data-styles data-key)
-                                          x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                          x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                          y0 (- (Y cum-cif) (Y cif))
-                                          h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                          y-mid (+ y0 (/ h 2))
-                                          bin-label (bin :label)
-                                          label-offset (- (* 6 (count bin-label)) 10)]
+                     (into [:g {:key (str "bar-chart-" year)}]
+                           (map (fn [data-key cif cum-cif]
+                                  (let [styles (data-styles data-key)
+                                        x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                        x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                        y0 (- (Y cum-cif) (Y cif))
+                                        h (- (Y cum-cif) (Y (- cum-cif cif)))
+                                        y-mid (+ y0 (/ h 2))
+                                        bin-label (bin :label)
+                                        label-offset (- (* 6 (count bin-label)) 10)]
 
-                                      (when (not (js/isNaN y0))
-                                        [:g
-                                         [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]
-                                         (arrows {:year year
-                                                  :time-series year-series
-                                                  :x0 x0
-                                                  :spacing spacing
-                                                  :Y Y})])))
-                                  data-keys
-                                  fs
-                                  cum-fs))))
+                                    (when (not (js/isNaN y0))
+                                      [:g
+                                       [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]
+                                       (arrows {:year year
+                                                :time-series year-series
+                                                :x0 x0
+                                                :spacing spacing
+                                                :Y Y})])))
+                                data-keys
+                                fs
+                                cum-fs)))
                    bins
+                   (range)
                    year-series))
 
 
@@ -693,10 +691,10 @@
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [[time {:keys [fs cum-fs int-fs]}]]
+           (map (fn [year [time {:keys [fs cum-fs int-fs]}]]
 
                 ;draw single bar and label
-                  (let [year (utils/day->year time)
+                  (let [;year (utils/day->year time)
                         ;x0 (- (X (+ (* spacing (inc year)))) 150)
                         w 100
                         ;x-mid (+ x0 (/ w 2) -100)
@@ -738,6 +736,7 @@
                                 fs
                                 cum-fs
                                 int-fs)))))
+                (range)
                 year-series))]))
 
 (defn area-chart
@@ -846,11 +845,10 @@
 (defn stacked-icon-array
   [year-series data-keys tool-mdata data-styles base-outcome-keys]
   (let [plot-order (:plot-order tool-mdata)
-        randomise-icons false
-        percent 49.01
+        randomise-icons @(rf/subscribe [::subs/randomise-icons])
         svg-width 600
         svg-height 300
-        order (shuffle (range 100))]
+        icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
     (locals)
     [ui/col {:sm 12
              :style {:padding 0
@@ -862,6 +860,7 @@
                 :key (str "year-" yr)}
         [ui/col {:key 1}
          [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:bars :bins]) yr))]
+         [ui/randomise-query-panel randomise-icons "Randomise order?"]
          [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                             :aspect-ratio (aspect-ratio svg-width svg-height)
                                             :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
@@ -890,7 +889,7 @@
 
              (for [i (range 10)
                    j (range 10)
-                   :let [ordinal (order (+ j (* 10 i)))]]
+                   :let [ordinal (icon-order (+ j (* 10 i)))]]
                [:g {:key (str "i-" j "-" i)
                     :transform (str "translate(" (+ 300 (* j 22)) " " (+ 0 (* i 22)) ")")}
                 [h-and-s

@@ -195,15 +195,8 @@
          [:> bs/Button {:style {:width 55 :height 50}
                         :disabled (= 100 percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]]]
-       [:> bs/Form
-        [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
-                           #_#_:controlId "randomise-icons"}
-         [:> bs/Form.Check {:inline true
-                            :type "checkbox"
-                            :checked randomise-icons
-                            }]
-         [:> bs/Form.Label "Randomised? "]
-         ]]]
+       (ui/randomise-query-panel randomise-icons "Randomised? ")
+       ]
       [ui/col {:sm 9}
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
          (into

@@ -268,7 +268,7 @@
               opacity 0.7}} styles]
     {:fill fill :stroke stroke :stroke-width stroke-width :opacity opacity}))
 
-#(defstyle styles
+(defstyle styles
   [".inner" {:fill   "none"
              :stroke-opacity 1
              :stroke-width 0

@@ -343,8 +343,12 @@ in the routes table."
 (defn randomise-query-panel
   [randomise-icons label]
   [:> bs/Form
-   [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])}
+   [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
+                      :style {:margin "0px 1.6% 0px 0px"
+                              :padding "10px 0px 0px 20px"
+                              :background-color "#CCC"}}
     [:> bs/Form.Check {:inline true
                        :type "checkbox"
-                       :checked randomise-icons}]
+                       :on-change #(rf/dispatch [::events/randomise-icons])
+                       :checked @(rf/subscribe [::subs/randomise-icons])}]
     [:> bs/Form.Label label]]])

@@ -2,25 +2,25 @@
   (:require [cljs.test :refer [deftest testing is]]
             #_[clojure.data :as data]
             [transplants.vis2 :as vis]
-            [same :refer [ish? zeroish?]]
+            [same :refer [ish?]]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop :include-macros true]
             [shadow.debug :refer [?-> ?->> locals]]))
 
-(def outcomes [:transplant :death])
-(def fs [0.3 0.4])
-(def plot-order {:transplant 1 :residual 2 :death 3})
-(def data-keys [:death :residual :transplant])
-(def fsk [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
+(def outcomes "fixture" [:transplant :death])
+(def fs "fixture" [0.3 0.4])
+(def plot-order "fixture" {:transplant 1 :residual 2 :death 3})
+(def data-keys "fixture" [:death :residual :transplant])
+(def fsk "fixture" [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
 
 ;;
 ;; The fs are presented in spreadsheet column order which is often different from plot order. 
 ;; They are also missing the residuals.
 ;; 
-(def t-fs [[1 [0.2 0.1]]
-           [3 [0.3 0.15]]
-           [4 [0.4 0.2]]])
+(def t-fs "fixture" [[1 [0.2 0.1]]
+                     [3 [0.3 0.15]]
+                     [4 [0.4 0.2]]])
 
 (deftest data-prep-utils
   (testing "data preparation utilities"
@@ -38,8 +38,8 @@
                (vis/fs-mapped outcomes fs))
               '(0.4 0.30000000000000004 0.3)))
 
-    (is (ish? (vis/fs-series '(0.4 0.30000000000000004 0.3))
-              {:fs '(0.4 0.30000000000000004 0.3), :cum-fs '(0.4 0.7000000000000001 1)}))
+    #_(is (ish? (vis/fs-series '(0.4 0.30000000000000004 0.3))
+                {:fs '(0.4 0.30000000000000004 0.3), :cum-fs '(0.4 0.7000000000000001 1)}))
 
     (is (ish? (vis/fs-time-series [:transplant :death]
                                   [:death, :residual, :transplant]
@@ -53,6 +53,10 @@
                   :cum-fs (0.2 0.5999999999999999 0.9999999999999999)
                   :int-fs [20 40 40]
                   :cum-int-fs (20 60 100)}])))))
+(comment
+  ; for local test run
+  (data-prep-utils)
+  )
 
 ;;
 ;; Generate some ordered Fs for testing.
@@ -66,24 +70,20 @@
             (gen/not-empty (gen/vector (gen/choose 1 10000) length length)))
   )
 
-(defn close-to?
-  [i n]
-  (< (js/Math.abs (- i n) 1e-6)))
-
 (def int-fs-series-sums-to-100
   (prop/for-all [v (generate-fs {:length 7})]
                 (let [ifs (vis/int-fs-series v)
-                      sum (apply + (map :int-fs ifs))]
-                  (close-to? sum 100))))
+                      sum (apply + (:int-fs ifs))]
+                  (= sum 100))))
 
 (deftest int-fs-sum-is-ok
   (testing "int-fs-series sums to 100"
-    (is (:pass? (tc/quick-check 100 int-fs-series-sums-to-100))))) 
+    (is (:pass? (tc/quick-check 100 int-fs-series-sums-to-100)))))
 
 (comment
   (gen/sample (generate-fs {:length 3}) 100)
-  (gen/sample (generate-ifs {:length 3}) 100)
-  (map #(apply + %) (gen/sample (generate-ifs {:length 3}) 100))
+  ;(gen/sample (generate-ifs {:length 3}) 100)
+  ;(map #(apply + %) (gen/sample (generate-ifs {:length 3}) 100))
 
   (->> (gen/sample (generate-fs {:length 3}) 100)
        (map vis/int-fs-series)

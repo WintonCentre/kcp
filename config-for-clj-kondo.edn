@@ -1,8 +1,4 @@
-(require '[clojure.test.check.properties :as prop])
-
-(prop/for-all [paths (gen/not-empty (gen/vector gen/string-alphanumeric))]
-              (= (map #(.getName %) (utils/parse-paths (string/join "," paths))) paths))
-
+^:replace {:linters {}}
 {:lint-as {reagent.core/with-let clojure.core/let
            day8.re-frame.tracing/fn-traced clojure.core/fn
            cljs-css-modules.macro/defstyle clojure.core/def}

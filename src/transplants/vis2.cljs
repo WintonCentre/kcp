@@ -837,7 +837,7 @@
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
     [:> bs/Row {:style {:max-width 600}}
-     [:> bs/Col {:style {:margin-top 10
-                         :height "calc(100vh - 30ex)"
+     [:> bs/Col {:style {:margin "10px 0px"
+                         :height "calc(100vh - 35ex)"
                          :overflow-y "scroll"}}
       (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)]]))

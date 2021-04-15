@@ -328,10 +328,10 @@
              [ui/col {:xs 12 :md 5}
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
-              [:div {:style {:height 800
-                             :padding "0px 30px 15px 15px"
+              [:div {:style {:padding "0px 30px 15px 15px"
                              ;:border "1px solid #fff"
                              ;:background-color "#f4f4ff"
+                             :height "calc(100vh - 25ex)"
                              :overflow-y "scroll"}}
  
                (widg/widget {:type :reset})

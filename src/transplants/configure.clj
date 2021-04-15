@@ -22,7 +22,7 @@
    [transplants.shared :refer [underscore]])
   (:gen-class))
 
-(def slash java.io.File/separator)
+(def slash "OS independent file path separator" java.io.File/separator)
 
 ;--- EDN configuation
 
@@ -82,9 +82,12 @@
        (remove nil?)
        (map #(keyword (subs % 1)))))
 
-(def column-keys (map (comp keyword str char) (range (int \A) (+ (int \A) 26))))
+(def column-keys
+  "A seq of :A to :Z keywords"
+  (map (comp keyword str char) (range (int \A) (+ (int \A) 26))))
 
 (defn get-column-selection
+  "A map of column keys to column headers"
   [organ sheet]
   (zipmap column-keys (get-column-keys organ sheet)))
 
@@ -112,14 +115,12 @@
 (defn get-col-maps
   "gets a map of columns"
   [organ sheet-key & [exclude-nil-rows]]
-  (let [workbook (memo-workbook organ)
-        columns (get-column-selection organ sheet-key)]
-    (->> (get-row-maps organ sheet-key)
-         (map (apply juxt (vals (get-column-selection organ sheet-key))))
-         ((fn [r] (if exclude-nil-rows (remove #(every? nil? %) r) r)))
-         (utils/transpose)
-         (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
-         (into {}))))
+  (->> (get-row-maps organ sheet-key)
+       (map (apply juxt (vals (get-column-selection organ sheet-key))))
+       ((fn [r] (if exclude-nil-rows (remove #(every? nil? %) r) r)))
+       (utils/transpose)
+       (map (fn [v] [(utils/maybe-key (first v)) (map utils/maybe-key (rest v))]))
+       (into {})))
 
 (defn get-tools
   "get a list of tools attached to sheets. Used by configuration tests"
@@ -129,14 +130,14 @@
    (into #{} (keys (get-bundle organ)))))
 
 (comment
-  (def organ :lung)
+  (def organ "test fixture" :lung)
   (get-col-maps organ :lung)
   (get-tools :lung)
   (keys (get-bundle :lung))
   (get-tools :kidney)
   (st/intersection #{:tools :post-transplant :centres :waiting} #{:post-transplant :guidance :waiting}))
 
-(defn select-columns
+(defn- select-columns
   "Return selected columns of a spreadsheet"
   [organ sheet-key & columns]
   (->> (get-row-maps organ sheet-key)
@@ -146,8 +147,7 @@
 (defn centre-row-maps
   "Return row-maps, filtered by centre. If centre is nil, return all"
   [organ sheet-key centre]
-  (let [cset (into #{} centre)
-        row-maps (->> (get-row-maps organ sheet-key)
+  (let [row-maps (->> (get-row-maps organ sheet-key)
                       (map (fn [ms]
                              (into {} (map
                                        (fn [[k v]] [k (xf/unstring-key v)])
@@ -177,7 +177,8 @@
     (first (filter matches? types))))
 
 
-(defn -bundle-path
+(defn- -bundle-path
+  "Builds a resource path -- see comment below source"
   [suffix organ centre tool-key]
   (let [suf (name suffix)
         ; In case the server barfs at serving .edn, make them .txt instead
@@ -194,7 +195,10 @@
   [organ centre tool-key]
   (-bundle-path "edn" organ centre tool-key))
 
-
+(comment
+  (bundle-path :lung "Birmingham" :waiting)
+  ;; => "resources/public/lung/edn/Birmingham/waiting.txt"
+  )
 
 (defn headed-vectors-to-map
   "Given a sequence of vectors where the first element of each is a header, convert this to a map keyed by those headers"
@@ -273,7 +277,7 @@
 (defn -main
   "Main entry point. This function reads config.edn and the spreadsheets and writes out edn files.
 When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
-  [& args]
+  []
   (try
     (export-all-edn-bundles)
     (catch Exception e
@@ -413,12 +417,6 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 
   (get-row-maps :kidney :waiting-baseline-cifs)
   (get-column-keys :kidney :waiting-inputs)
-
-  (def cfg  (memo-config :kidney))
-
-  (def wb (get-workbook :kidney))
-  (def organ :kidney)
-  (def sheet-key :waiting-baseline-cifs)
 
   (get-config :kidney)
   (memo-config :kidney)

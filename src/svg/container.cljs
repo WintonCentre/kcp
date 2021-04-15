@@ -14,8 +14,7 @@
    The inner rectangle size defaults to the outer
    
    "
-  [{:keys [outer margin inner padding width height x y N
-           x-title y-title styles aspect-ratio]}
+  [{:keys [outer margin inner padding width height x y styles aspect-ratio]}
    content]
 
   (let [inner (if (nil? inner) {:width  (- (:width outer) (:left margin) (:right margin))
@@ -24,9 +23,7 @@
         width (if (nil? width) (- (:width inner) (:left padding) (:right padding)) width)
         height (if (nil? height) (- (:height inner) (:top padding) (:bottom padding)) height)
         x (if (nil? x) (scl/->Identity [0 width] 10) x)
-        x-ticks (scl/ticks x)
         y (if (nil? y) (scl/->Identity [0 height] 10) y)
-        y-ticks (scl/ticks y)
         X (scl/i->o x)
         Y (scl/i->o y)]
 

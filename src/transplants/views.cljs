@@ -274,8 +274,7 @@
                   (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
           [ui/col
-           ;[:p  "Available trac tools"]
-           [ui/background-link organ centre]
+           (when (not= tool :guidance) [ui/background-link organ centre])
            [ui/tools-menu tools organ-name centre-name {:vertical false}]]]
          [background-info organ]
          ]))))
@@ -322,12 +321,11 @@
              tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])]
          (locals)
          [ui/page (:description centre-info)
-          [ui/background-link organ centre]
+          (when (not= tool :guidance) [ui/background-link organ centre])
           [ui/tools-menu tools organ-name centre-name {:vertical false}]
           (if-let [tool-centre-bundle (bun/get-bundle organ centre tool)]
             [ui/row 
              [ui/col {:xs 12 :md 5}
-              ;[ui/background-link organ centre]
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
               [:div {:style {:height 800

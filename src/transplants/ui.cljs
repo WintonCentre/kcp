@@ -1,27 +1,25 @@
 (ns transplants.ui
   "This should become the high level ui interface and should have all ns references factored out into 
 the low level ui."
-  (:require [clojure.string :refer [ends-with? capitalize]]
+  (:require [clojure.string :refer [capitalize]]
             [reagent.core :as rc]
-            [reitit.core :as r]
             [reitit.frontend.easy :as rfe]
             ["react-bootstrap" :as bs]
             [re-frame.core :as rf]
             [transplants.events :as events]
             [transplants.subs :as subs]
-            [transplants.numeric-input :as ni]))
+            [transplants.numeric-input :as ni]
+            [shadow.debug :refer [?-> ?->> locals]]))
 
 (enable-console-print!)
 
 
-(def container (rc/adapt-react-class bs/Container))
-(def col (rc/adapt-react-class bs/Col))
-(def col-sm (rc/adapt-react-class bs/Col))
-(def row (rc/adapt-react-class bs/Row))
-(def button (rc/adapt-react-class bs/Button))
-(def card-header (rc/adapt-react-class bs/Card.Header))
-(def tabs (rc/adapt-react-class bs/Tabs))
-(def tab (rc/adapt-react-class bs/Tab))
+(def container "a react/bootstrap component adapter" (rc/adapt-react-class bs/Container))
+(def col "a react/bootstrap component adapter" (rc/adapt-react-class bs/Col))
+(def row "a react/bootstrap component adapter" (rc/adapt-react-class bs/Row))
+(def button "a react/bootstrap component adapter" (rc/adapt-react-class bs/Button))
+(def tabs "a react/bootstrap component adapter" (rc/adapt-react-class bs/Tabs))
+(def tab "a react/bootstrap component adapter" (rc/adapt-react-class bs/Tab))
 
 
 (def themes
@@ -43,14 +41,14 @@ in the routes table."
   ([k params query]
    (rfe/href k params query)))
 
-(defn get-client-rect
+#_(defn get-client-rect
   "return the bounding rectangle of a node"
   [node]
   (let [r (.getBoundingClientRect node)]
     {:left (.-left r), :top (.-top r) :right (.-right r) :bottom (.-bottom r) :width (.-width r) :height (.-height r)}))
 
 
-(defn link-text
+#_(defn link-text
   "The route :data :link-text gives an indication of link text for this route, which must be adjusted
    according to its path-params"
   [route]
@@ -117,7 +115,7 @@ in the routes table."
 ;;;;;
 
 
-(defn active-key
+#_(defn active-key
   "Return the active href key given the current-route"
   [route]
   (let [ak  (cond
@@ -128,11 +126,8 @@ in the routes table."
 
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
-  [{:keys [home-url logo router current-route theme]
-    :or {theme (:lung themes)}}]
-  (let [navbar-routes (remove (comp #(ends-with? % "centre") name) (r/route-names router))
-        route @(rf/subscribe [::subs/current-route])
-        tools @(rf/subscribe [::subs/tools])
+  [{:keys [home-url logo]}]
+  (let [route @(rf/subscribe [::subs/current-route])
         organ (get-in route [:path-params :organ])]
     [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
                    :style {:border-bottom "1px solid black" :opacity "1"}}
@@ -180,7 +175,10 @@ in the routes table."
                                          :centre "card"})
   )
 
-(defn footer []
+(defn footer
+  "Site footer. 
+   todo: Needs to be made configurable."
+  []
   [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"
                  :display "flex" :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "20px"}} "Footer"]])
@@ -203,6 +201,7 @@ in the routes table."
      ]))
 
 (defn card-page
+  "Render an array of cards"
   [title & children]
   [container {:key 1 :style {:min-height "calc(100vh - 144px"}}  
    [row
@@ -214,8 +213,8 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key label description organ centre tool] :as tool-button-params}]
-  ;(println ::tool tool)
+  [{:keys [key label organ centre tool]}]
+
   (let [active (= (name tool)  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active "primary" "outline-primary")
@@ -230,7 +229,9 @@ in the routes table."
      label]))
 
 (defn tools-menu
+  "Render a group of tool selection buttons"
   [tools organ-name centre-name orientation]
+  (?-> tools ::tools-menu)
   (->> tools
        (map #(conj % [:organ organ-name]))
        (map #(conj % [:centre centre-name]))
@@ -239,8 +240,17 @@ in the routes table."
        (into [:> bs/ButtonGroup orientation])))
 
 (defn background-link
+  "Tool menu prefix rubric."
   [organ centre]
-  [:p "For more information that will be helpful to patients, follow the link to background guidance."])
+  [:p "For more information that will be helpful to patients, follow the link to "
+   [:a {:style {:color "#0062CC"
+                :text-decoration-line "underline"
+                :cursor "pointer"}
+        :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                 {:organ organ
+                                  :centre centre
+                                  :tool :guidance}])} "background guidance"]
+   "."])
 
 (defn nav-card
   "Render a desktop compatible card containing of hospital-local links to tools"

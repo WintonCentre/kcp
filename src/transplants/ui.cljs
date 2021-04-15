@@ -254,7 +254,7 @@ in the routes table."
 
 (defn nav-card
   "Render a desktop compatible card containing of hospital-local links to tools"
-  [{:keys [img-src organ centre hospital link width tools]}]
+  [{:keys [#_img-src organ centre hospital link width tools]}]
   ;(println ::tools tools)
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    #_[:<> 
@@ -270,16 +270,11 @@ in the routes table."
                              :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
     [tools-menu tools organ centre {:vertical true}]
-    #_(->> tools
-         (map #(conj % [:organ organ]))
-         (map #(conj % [:centre centre]))
-         (map #(conj % [:tool (:key %)]))
-         (map tool-buttons)
-         (into [:> bs/ButtonGroup {:vertical true}]))]])
+    ]])
 
 (defn phone-card
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
-  [{:keys [img-src organ centre hospital link width tools]}]
+  [{:keys [hospital link]}]
   
   ;(println ::phone "PHONE!!!")
   
@@ -306,23 +301,18 @@ in the routes table."
   800)
 
 (defn centre-card
+  "A single card describingg a centre"
   [mobile params]
   (if mobile
     [phone-card params]
     [nav-card params]))
+
 (defn centre-card-deck
   "A card deck where the cards are simple list items in mobile view, but true cards in desktop view."
   [mobile]
   (if mobile
     [:> bs/ListGroup]
     [:> bs/CardDeck]))
-
-
-(defn titled-panel
-  [title & children]
-  [:<>
-   [:h2 title]
-   (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))])
 
 (defn open-icon
   "wrapper for access open-icon access"
@@ -337,11 +327,11 @@ in the routes table."
 ; radio buttons allow fast selection between options
 (defn test-day-selector
   "Used to select a test day to display"
-  [period]
+  [label]
   [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 20}}
    [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
     [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
-     "Results for test day:"]]
+     label]]
    [:> bs/Col
     (ni/numeric-input {:key :test/day-input ; creates id="test-day-input" on input element
                        :value-f (fn [] @(rf/subscribe [::subs/test-day]))
@@ -351,11 +341,13 @@ in the routes table."
                        :on-change #(rf/dispatch [::events/test-day %])})]])
 
 (defn randomise-query-panel
-  [randomise-icons label]
+  "A simple checkbox asking whether an icon array should be randomised or ordered."
+  [label]
   [:> bs/Form
    [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
                       :style {:margin "0px 1.6% 0px 0px"
                               :padding "10px 0px 0px 20px"
+                              :color "#000"
                               :background-color "#CCC"}}
     [:> bs/Form.Check {:inline true
                        :type "checkbox"

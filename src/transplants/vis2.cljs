@@ -204,7 +204,8 @@
     [:> bs/Row {:style {:margin-top 20}}
      (when factors
        [:> bs/Col
-        [ui/test-day-selector 10]
+        ;; todo: add text configuration
+        [ui/test-day-selector "Results for test day:"]
         [:> bs/Row
          [:> bs/Col
           [:> bs/Table {:striped true
@@ -818,7 +819,7 @@
                 :key (str "year-" yr)}
         [ui/col {:key 1}
          [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:bars :bins]) yr))]
-         [ui/randomise-query-panel randomise-icons "Randomise order?"]
+         [ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                             :aspect-ratio (aspect-ratio svg-width svg-height)
                                             :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}

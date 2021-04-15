@@ -55,7 +55,7 @@
      [:> bs/Row
       (when factors
         [:> bs/Col
-         [ui/test-day-selector 10]
+         [ui/test-day-selector]
          [:> bs/Row
           [:> bs/Col
            [:> bs/Table {:striped true

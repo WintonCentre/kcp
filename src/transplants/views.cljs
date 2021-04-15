@@ -195,7 +195,7 @@
          [:> bs/Button {:style {:width 55 :height 50}
                         :disabled (= 100 percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]]]
-       (ui/randomise-query-panel randomise-icons "Randomised? ")
+       (ui/randomise-query-panel "Randomised? ")
        ]
       [ui/col {:sm 9}
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]

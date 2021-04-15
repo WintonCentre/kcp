@@ -354,3 +354,32 @@ in the routes table."
                        :on-change #(rf/dispatch [::events/randomise-icons])
                        :checked @(rf/subscribe [::subs/randomise-icons])}]
     [:> bs/Form.Label label]]])
+
+(defn svg-outcome-legend
+  "Take a seq of outcome keys in plot order and render a styled legend.
+   The 3-arity version allows an option map where a value and a custom position can be
+   specified - both are functions of the integer plot-order of the series."
+  ([plot-order data-styles]
+   (svg-outcome-legend plot-order data-styles
+                       {:string-value-f (constantly "")
+                        :position-f #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
+  
+  ([plot-order data-styles {:keys [width height string-value-f position-f]
+                            :or {width 275 height 60}}]
+   (map (fn [i data-key]
+          (let [styles (data-styles data-key)]
+            [:g {:transform (position-f i)
+                 :key (str data-key "-" i)}
+             [:rect (merge  {:x 0 :y 0 :width width :height height}
+                            (dissoc styles :label-fill))]
+             [:text {:x 10 :y 40
+                     :fill (:label-fill styles)
+                     :font-size 30}
+              (str (:label styles) (string-value-f i))]]))
+        (range)
+        plot-order)))
+
+(comment
+  (svg-outcome-legend plot-order data-styles)
+  (svg-outcome-legend plot-order data-styles int-fs #(str "translate(0 " (+ -35 (* 50 %)) "),scale(0.7)"))
+  )

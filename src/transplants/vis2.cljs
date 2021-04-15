@@ -496,21 +496,10 @@
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
            ;(locals)
-           (conj (into [:<>]
-                       (map (fn [i data-key]
-                              (let [styles (data-styles data-key)]
-                                ;(locals)
-                                [:g {:transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
-                                 [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
-                                                (dissoc styles :label-fill))]
-                                 [:text {:x 10 :y 40
-                                         :fill (:label-fill styles)
-                                         :font-size 30}
-                                  (:label styles)]]))
-                            (range)
-                            plot-order))
-                 [:g {:transform "translate(280 0)"}
-                  (stacked-bar-chart X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)])))]
+           [:g
+            (ui/svg-outcome-legend plot-order data-styles)
+            [:g {:transform "translate(280 0)"}
+             (stacked-bar-chart X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)]]))]
       [:section {:style {:margin-top 10}} 
        (:post-section tool-mdata)]]]))
 
@@ -728,29 +717,17 @@
                                            :y-domain [1 0]
                                            :y-ticks 10})
                                    :styles styles)
-
+         
          (fn [x y X Y]
            (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
                  fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
              (locals)
-             (conj (into [:<>]
-                         (map (fn [i data-key]
-                                (let [styles (data-styles data-key)]
-                                ;(locals)
-                                  [:g {:key (str data-key)
-                                       :transform (str "translate(0 " (+ 30 (* 80 i)) ")")}
-                                   [:rect (merge  {:x 0 :y 0 :width 200 :height 60}
-                                                  (dissoc styles :label-fill))]
-                                   [:text {:x 10 :y 40
-                                           :fill (:label-fill styles)
-                                           :font-size 30}
-                                    (:label styles)]]))
-                              (range)
-                              plot-order))
-                   [:g {:transform "translate(280 0)"}
-                    #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
-                            :style {:fill "#EEF8" :border "3px solid #CCC"}}]
-                    (stacked-area-chart X Y fs-by-year-in-plot-order fs-by-quarter-in-plot-order plot-order tool-mdata data-styles)])))]
+             [:g
+              (ui/svg-outcome-legend plot-order data-styles)
+              [:g {:transform "translate(280 0)"}
+               #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
+                         :style {:fill "#EEF8" :border "3px solid #CCC"}}]
+               (stacked-area-chart X Y fs-by-year-in-plot-order fs-by-quarter-in-plot-order plot-order tool-mdata data-styles)]]))]
         [:section {:style {:margin-top 10}}
          (:post-section tool-mdata)]]]))
   
@@ -802,6 +779,7 @@
 
 ;
 (defn stacked-icon-array
+  "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
   [year-series tool-mdata data-styles]
   (let [plot-order (:plot-order tool-mdata)
         randomise-icons @(rf/subscribe [::subs/randomise-icons])
@@ -822,8 +800,8 @@
          [ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                             :aspect-ratio (aspect-ratio svg-width svg-height)
-                                            :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                            :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                            :margin (:svg-margin tool-mdata) 
+                                            :padding (:svg-padding tool-mdata)
                                             :x-domain [0 300]
                                             :x-ticks 10
                                             :y-domain [0 300]
@@ -833,19 +811,10 @@
           (fn [x y X Y]
             (locals)
             [:g
-             (map (fn [i data-key]
-                    (let [styles (data-styles data-key)]
-                      [:g {:transform (str "translate(0 " (+ -35 (* 50 i)) "),scale(0.7)")
-                           :key (str data-key "-" i)}
-                       [:rect (merge  {:x 0 :y 0 :width 300 :height 60}
-                                      (dissoc styles :label-fill))]
-                       [:text {:x 10 :y 40
-                               :fill (:label-fill styles)
-                               :font-size 30}
-                        (str (:label styles) ": " (int-fs i) "%")]]))
-                  (range)
-                  plot-order)
-
+             (ui/svg-outcome-legend plot-order data-styles 
+                                    {:width 300
+                                     :string-value-f (fn [i] (str ": " (int-fs i) "%")) 
+                                     :position-f #(str "translate(0 " (+ -35 (* 60 %)) "),scale(0.7)")})
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]
@@ -868,22 +837,7 @@
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
     [:> bs/Row {:style {:max-width 600}}
-     [:> bs/Col {:style {:margin-top 10}}
+     [:> bs/Col {:style {:margin-top 10
+                         :height "calc(100vh - 30ex)"
+                         :overflow-y "scroll"}}
       (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)]]))
-;;;
-;; 
-;;;
-#_(defn svg-starter
-    "Layout starter for svg plot"
-    []
-    [convention/margins (space {:outer    {:width 650, :height 550}
-                                :margin   {:top 200, :right 30, :bottom 30, :left 0}
-                                :padding  {:top 0, :right 120, :bottom 50, :left 120}
-                                :y-domain [0 100] :x-title "People", :x-ticks 10
-                                :x-domain [0 5] :y-title "Years", :y-ticks 10
-                                :data     []})])
-
-#_(def birmingham-spt
-  {:post-transplant-baseline-cifs '({:centre "Birmingham", :days 0.0, :cif-post-transplant 1.0} {:centre "Birmingham", :days 1.0, :cif-post-transplant 0.9898863904} {:centre "Birmingham", :days 9.0, :cif-post-transplant 0.9796494218} {:centre "Birmingham", :days 10.0, :cif-post-transplant 0.9744918025} {:centre "Birmingham", :days 13.0, :cif-post-transplant 0.9693293843} {:centre "Birmingham", :days 16.0, :cif-post-transplant 0.9590261757} {:centre "Birmingham", :days 18.0, :cif-post-transplant 0.9537584156} {:centre "Birmingham", :days 21.0, :cif-post-transplant 0.943205776} {:centre "Birmingham", :days 25.0, :cif-post-transplant 0.9378337986} {:centre "Birmingham", :days 26.0, :cif-post-transplant 0.9323821275} {:centre "Birmingham", :days 42.0, :cif-post-transplant 0.9269325998} {:centre "Birmingham", :days 56.0, :cif-post-transplant 0.921438911} {:centre "Birmingham", :days 57.0, :cif-post-transplant 0.9158813919} {:centre "Birmingham", :days 69.0, :cif-post-transplant 0.9103227249} {:centre "Birmingham", :days 70.0, :cif-post-transplant 0.8990891748} {:centre "Birmingham", :days 80.0, :cif-post-transplant 0.8933773167} {:centre "Birmingham", :days 96.0, :cif-post-transplant 0.8875658815} {:centre "Birmingham", :days 100.0, :cif-post-transplant 0.8816079002} {:centre "Birmingham", :days 105.0, :cif-post-transplant 0.8756395177} {:centre "Birmingham", :days 114.0, :cif-post-transplant 0.8696635944} {:centre "Birmingham", :days 121.0, :cif-post-transplant 0.8635844742} {:centre "Birmingham", :days 122.0, :cif-post-transplant 0.8574594312} {:centre "Birmingham", :days 138.0, :cif-post-transplant 0.8513031069} {:centre "Birmingham", :days 157.0, :cif-post-transplant 0.8451091332} {:centre "Birmingham", :days 173.0, :cif-post-transplant 0.832579504} {:centre "Birmingham", :days 177.0, :cif-post-transplant 0.8261886319} {:centre "Birmingham", :days 193.0, :cif-post-transplant 0.8197799027} {:centre "Birmingham", :days 237.0, :cif-post-transplant 0.8133487712} {:centre "Birmingham", :days 276.0, :cif-post-transplant 0.8068768783} {:centre "Birmingham", :days 289.0, :cif-post-transplant 0.8003792412} {:centre "Birmingham", :days 292.0, :cif-post-transplant 0.7938250107} {:centre "Birmingham", :days 297.0, :cif-post-transplant 0.7872454983} {:centre "Birmingham", :days 303.0, :cif-post-transplant 0.7806264469} {:centre "Birmingham", :days 310.0, :cif-post-transplant 0.7739436679} {:centre "Birmingham", :days 328.0, :cif-post-transplant 0.7672300568} {:centre "Birmingham", :days 403.0, :cif-post-transplant 0.7598923619} {:centre "Birmingham", :days 439.0, :cif-post-transplant 0.7524912372} {:centre "Birmingham", :days 517.0, :cif-post-transplant 0.7377456852} {:centre "Birmingham", :days 553.0, :cif-post-transplant 0.7302516221} {:centre "Birmingham", :days 558.0, :cif-post-transplant 0.7226664049} {:centre "Birmingham", :days 723.0, :cif-post-transplant 0.7143029084} {:centre "Birmingham", :days 732.0, :cif-post-transplant 0.7056707844} {:centre "Birmingham", :days 827.0, :cif-post-transplant 0.6961730808} {:centre "Birmingham", :days 1258.0, :cif-post-transplant 0.6855816049} {:centre "Birmingham", :days 1572.0, :cif-post-transplant 0.6709450792} {:centre "Birmingham", :days 1582.0, :cif-post-transplant 0.6560978985} {:centre "Birmingham", :days 1826.0, :cif-post-transplant 0.6560978985}), :post-transplant-baseline-vars '({:factor :donor-cmv, :level :negative} {:factor :donor-smokes, :level :no} {:factor :dd-pred, :level :pred-0} {:factor :type, :level :t2} {:factor :d-gp, :level :copd} {:factor :age, :level "52"} {:factor :tlc-mismatch, :level "-0.066"} {:factor :fvc, :level 2.05} {:factor :bilirubin, :level 9.0} {:factor :cholesterol, :level 4.9} {:factor :centre, :level :unused} {:level nil} {:factor nil, :level nil}), :post-transplant-inputs {:info-box? '("?" nil nil "?how much" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :level-name '("Negative" "Positive" nil "No" "Yes" nil "0 mg" "Less than 15mg" "15mg or more" nil "Single lung" "Bilateral lung" nil "Cystic Fibrosis" "Other" "PulmonaryFibrosis" "Chronic Obstructive Pulmonary Disease" nil "unit" nil nil nil nil "unit" nil "unit" nil "unit" nil "unit" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :type '(:v-radio nil nil :radio nil nil :v-radio nil nil nil :v-radio nil nil :v-radio nil nil nil nil "{:dps 0, :knot1 22, :knot2 46, :knot3 56, :knot4 63, :max 70, :min 16, :type :numeric}" :param :param :param nil "{:dps 1, :max 4.5, :min -2.2, :type :numeric}" nil "{:dps 0, :max 77, :min 1, :type :numeric}" nil "{:dps 0, :max 77, :min 1, :type :numeric}" nil "{:dps 1, :max 9, :min 1.3, :type :numeric}" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :sub-text '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil "years" nil nil nil nil nil nil "litres" nil "umol/l" nil "mmol/l" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), "Things to consider" '(nil nil nil "Donor has history of smoking?" "Donor has smoked?" nil nil nil nil nil nil nil nil nil nil nil nil nil "note that knots are post-t specific" nil nil nil nil nil nil nil nil nil nil nil nil nil "not present in UI" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :level '(:negative :positive nil :no :yes nil :pred-0 :pred-1-14 :pred-15+ nil :t1 :t2 nil :cf :other :pf :copd nil "[:spline :x :beta1 :beta2 :beta3]" :beta1 :beta2 :beta3 nil :x nil :x nil :x nil :x nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :beta-post-transplant '(0.0 0.28404 nil 0.0 0.23224 nil 0.0 0.28171 0.48797 nil 0.06395 0.0 nil -0.65693 0.17297 -0.01486 0.0 nil nil -0.05521 0.00151 -0.00282 nil 0.09785 nil -0.01966 nil 0.00132 nil -0.03578 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :factor '(:donor-cmv :donor-cmv nil :donor-smokes :donor-smokes nil :dd-pred :dd-pred :dd-pred nil :type :type nil :d-gp :d-gp :d-gp :d-gp nil :age :age :age :age nil :tlc-mismatch nil :fvc nil :bilirubin nil :cholesterol nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :order '(2.3 2.3 nil 2.1 2.1 nil 1.4 1.4 1.4 nil 1.6 1.6 nil 1.7 1.7 1.7 1.7 nil 1.2 nil nil nil nil 2.2 nil 1.5 nil 1.1 nil 2.4 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :factor-name '("Donor CMV" nil nil "Donor history of smoking" nil nil "Recipient daily dose of prednisolone at registration" nil nil nil "Transplant type" nil nil "Disease Group" nil nil nil nil "Recipient age at transplant" nil nil nil nil "Donor:recipient calculated TLC mismatch" nil "Recipient FVC at registration" nil "Recipient bilirubin at registration" nil "Recipient cholesterol at registration" nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)}})
-
-#_(pp/pprint birmingham-spt)

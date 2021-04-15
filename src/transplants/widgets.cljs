@@ -62,12 +62,14 @@
 
 (def mb 5)
 (def mt 0)
+(def label-width "label column grid-size" 5)
+(def widget-width "Widget column grid-size" 7)
 
 (defmethod widget :reset
   [w]
   [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
-   [:> bs/Col]
-   [:> bs/Col
+   [:> bs/Col {:xs label-width}]
+   [:> bs/Col {:xs widget-width}
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
 (defn radio
@@ -78,10 +80,11 @@
                       (fn [] default)
                       value)]
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
-     [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+     [:> bs/Col {:xs label-width
+                 :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]]
-     [:> bs/Col
+     [:> bs/Col {:xs widget-width}
       (bsio/radio-button-group {:id (key->id factor-key)
                                 :vertical vertical
                                 :value-f value-f
@@ -107,10 +110,11 @@
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
     
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
-     [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+     [:> bs/Col {:xs label-width
+                 :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
-     [:> bs/Col
+     [:> bs/Col {:xs widget-width}
       (bsio/dropdown {:id (key->id factor-key)
                       :value-f value-f
                       :on-change #(rf/dispatch [factor-key
@@ -123,10 +127,12 @@
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
         numerics (edn/read-string (:type w))]
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
-     [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
+     [:> bs/Col {:xs label-width
+                 :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
-     [:> bs/Col
+     [:> bs/Col {:xs widget-width
+                 :style {:display "flex"}}
       (if (and (map? numerics)
                (every? identity (map numerics [:min :max :dps])))
         [num/numeric-input {:key factor-key

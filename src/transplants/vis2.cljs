@@ -11,6 +11,7 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
+            [cljstache.core :as mus]
             [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 ;;
@@ -41,8 +42,7 @@
               (into {})
               ;;(?->> ::into)
               )
-         :residual (residual fs))
-)
+         :residual (residual fs)))
 
 (defn fs-in-order
   "order by outcome is a map of outcome-key to plot order.
@@ -52,14 +52,14 @@
   [plot-order fsm]
   #_(locals)
   (map
-   (fn [data-key] 
+   (fn [data-key]
      (fsm data-key))
    plot-order))
 
 #_(defn fs-series
-  "convert an ordered fs to a map containing the original ordered-fs and its partial sums"
-  [ordered-fs]
-  {:fs ordered-fs :cum-fs (reductions + ordered-fs)})
+    "convert an ordered fs to a map containing the original ordered-fs and its partial sums"
+    [ordered-fs]
+    {:fs ordered-fs :cum-fs (reductions + ordered-fs)})
 
 (defn int-fs-series
   "convert an ordered fs to a map containing the original ordered-fs and its partial sums.
@@ -132,10 +132,10 @@
   ;; => {:fs (0.4 0.30000000000000004 0.3), :cum-fs (0.4 0.7000000000000001 1)}
 
   (fs-time-series [:transplant :death]
-                   [:death, :residual, :transplant]
-                   [[1 [0.2 0.1]]
-                    [3 [0.3 0.15]]
-                    [4 [0.4 0.2]]])
+                  [:death, :residual, :transplant]
+                  [[1 [0.2 0.1]]
+                   [3 [0.3 0.15]]
+                   [4 [0.4 0.2]]])
   ;; => ([1 {:fs (0.1 0.7 0.2), :cum-fs (0.1 0.7999999999999999 1)}] 
   ;;     [3 {:fs (0.15 0.55 0.3), :cum-fs (0.15 0.7000000000000001 1)}] 
   ;;     [4 {:fs (0.2 0.3999999999999999 0.4), :cum-fs (0.2 0.5999999999999999 0.9999999999999999)}])
@@ -146,7 +146,7 @@
   ;;     :int-fs [34 33 33],
   ;;     :cum-int-fs (34 67 100)}
 
-    (int-fs-series (repeat 7 (/ 1 7)))
+  (int-fs-series (repeat 7 (/ 1 7)))
     ;; => {:fs
     ;;     (0.14285714285714285
     ;;      0.14285714285714285
@@ -168,12 +168,57 @@
 
   0)
 
-
+;; visualisation commons
 (defn aspect-ratio
   "Calculate an aspect ratio as a padding CSS %. 
    See https://www.w3schools.com/howto/howto_css_aspect_ratio.asp"
   [width height]
   (str (js/Math.floor (* 100 (/ height width))) "%"))
+
+(defn svg-outcome-legend
+  "Take a seq of outcome keys in plot order and render a styled legend.
+   The 3-arity version allows an option map where a value and a custom position can be
+   specified - both are functions of the integer plot-order of the series."
+  ([plot-order data-styles]
+   (svg-outcome-legend plot-order data-styles
+                       {:string-value-f (constantly "")
+                        :position-f #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
+
+  ([plot-order data-styles {:keys [width height string-value-f position-f]
+                            :or {width 275 height 60}}]
+   (into [:<>]
+         (map (fn [i data-key]
+                (let [styles (data-styles data-key)]
+                  [:g {:transform (position-f i)
+                       :key (str data-key "-" i)}
+                   [:rect (merge  {:x 0 :y 0 :width width :height height}
+                                  (dissoc styles :label-fill))]
+                   [:text {:x 10 :y 40
+                           :fill (:label-fill styles)
+                           :font-size 30}
+                    (str (:label styles) (string-value-f i))]]))
+              (range)
+              plot-order))))
+
+(comment
+  (def plot-order "fixture" [:arthur :brian :charlie])
+  (def data-styles "fixture" {:width 200 :height 50 :string-value-f (constantly "Hello") :position-f (constantly [10 20])})
+  (svg-outcome-legend plot-order data-styles)
+;; => [:<>
+;;     [:g
+;;      {:transform "translate(0 30)", :key ":arthur-0"}
+;;      [:rect {:x 0, :y 0, :width 275, :height 60}]
+;;      [:text {:x 10, :y 40, :fill nil, :font-size 30} ""]]
+;;     [:g
+;;      {:transform "translate(0 110)", :key ":brian-1"}
+;;      [:rect {:x 0, :y 0, :width 275, :height 60}]
+;;      [:text {:x 10, :y 40, :fill nil, :font-size 30} ""]]
+;;     [:g
+;;      {:transform "translate(0 190)", :key ":charlie-2"}
+;;      [:rect {:x 0, :y 0, :width 275, :height 60}]
+;;      [:text {:x 10, :y 40, :fill nil, :font-size 30} ""]]]
+
+  (svg-outcome-legend plot-order data-styles #(str "translate(0 " (+ -35 (* 50 %)) "),scale(0.7)")))
 
 ;; test-rig
 
@@ -185,15 +230,15 @@
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
 
 #_(comment
-  (def organ :lung)
-  (def centre :new)
-  (def tool :waiting)
-  (def day 100)
-  (def inputs {})
-  (def bundle
+    (def organ :lung)
+    (def centre :new)
+    (def tool :waiting)
+    (def day 100)
+    (def inputs {})
+    (def bundle
 
-    @(rf/subscribe [::subs/bundles]))
-  0)
+      @(rf/subscribe [::subs/bundles]))
+    0)
 
 (defn test-rig
   "expose calcluation in test"
@@ -349,17 +394,56 @@
 ;; => nil
 ;; 
 
+(defn get-mustache
+  "Lookup x in a form that may be a mustached template or a simple vector or a combination of both. 
+   If the form is a string, return it
+   If the form is a vector, then return the xth element.
+   If the form is a map then it should have a :template and :data. Optionally also an :indexed value.
+   If get on the indexed value x returns non-nil, then return that value. This allows special values to be returned by index
+   even when other values require a template.
+   If the mdata map has no indexed field or x yields nil, then the :data value is assumed to be a mustached field name
+   in the :template. Render the template with that fied replaced by x"
+  [mdata x]
+  (cond
+    (string? mdata)
+    mdata
+
+    (vector? mdata)
+    (mdata x)
+
+    (map? mdata)
+    (let [{:keys [indexed template data]} mdata]
+      (cond
+        (and indexed (get indexed x))
+        (get indexed x)
+
+        (and template data)
+        (mus/render template {data x})
+
+        :else (locals)))
+    :else mdata))
+
+(defn right-arrow
+  "Render a right-arrow"
+  [{:keys [x y fill scale stroke stroke-width]}]
+  [:path {:fill fill
+          :stroke stroke
+          :stroke-width stroke-width
+          :d "M5 0v2h-5v1h5v2l3-2.53-3-2.47z"
+          :transform (str "translate(" x " " y ")scale(" scale ")")}])
+
 (defn arrows
   "render an svg component that draws a row of spaced white arrows.
    todo: Replace foreighObject as this will not print arrows in white."
-  [{:keys [year time-series x0 spacing Y]}]
-  (when (< (inc year) (count time-series))
-    [:foreignObject
-     {:width 200
-      :height 200
-      :x (+ x0 (* 52 spacing))
-      :y (Y 0.5)}
-     [ui/open-icon {:color "#fff" :transform "scale(2.5)"} "arrow-right"]]))
+  [{:keys [index count x-offset y-offset spacing]}]
+  (locals)
+  (when (< index count)
+    (right-arrow {:x (+ x-offset (* index spacing))
+                  :y y-offset
+                  :fill "#fff"
+                  :scale "3.5,6"
+                  :stroke "#fff"
+                  :stroke-width 2})))
 
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
@@ -372,14 +456,10 @@
    outcomes are the cif data-series"
   [X Y time-series data-keys tool-mdata data-styles]
   (let [data-count (count data-keys)
-        ;; 
-        ;; for 3 years
         bar-width (get-in tool-mdata [:bars :width])
         spacing (get-in tool-mdata [:bars :spacing])
-        bins (get-in tool-mdata [:bars :bins])
+        bin-labels (get-in tool-mdata [:bars :labels])
         offset 1.69]
-    ;(?-> [years time-series] :stacked-bar-chart)
-    (locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -390,48 +470,55 @@
 
   ; draw bars
      (into [:g {:key 2}]
-           (map (fn [bin year [_ {:keys [fs cum-fs]}]]
-                  (into [:g {:key (str "bar-chart-" year)}]
-                        (map (fn [data-key cif cum-cif]
-                               (let [styles (data-styles data-key)
-                                     x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                     x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                     y0 (- (Y cum-cif) (Y cif))
-                                     h (- (Y cum-cif) (Y (- cum-cif cif)))
-                                     bin-label (bin :label)
-                                     label-offset (- (* 6 (count bin-label)) 10)]
-                                 (when (not (js/isNaN y0))
-                                   [:g
-                                    [:rect (merge {:key data-key
-                                                   :x x0
-                                                   :y y0
-                                                   :width bar-width
-                                                   :height h
-                                                   :data-title cif}
-                                                  (dissoc styles :label-fill))]
-                                    (arrows {:year year
-                                             :time-series time-series
-                                             :x0 x0
-                                             :spacing spacing
-                                             :Y Y})
-                                    [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]])))
-                             data-keys
-                             fs
-                             cum-fs)))
-                bins
+           (map (fn [bar-index bin-label-lines]
+                  (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
+                        [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label-lines))]
+                    (locals)
+                    [:g (into [:<> {:key (str "bar-" bar-index)}]
+                              (map (fn [data-key cif cum-cif]
+                                     (let [styles (data-styles data-key)
+                                           y0 (- (Y cum-cif) (Y cif))
+                                           h (- (Y cum-cif) (Y (- cum-cif cif)))]
+                                       (when (not (js/isNaN y0))
+                                         [:g
+                                          [:rect (merge {:key data-key
+                                                         :x x0
+                                                         :y y0
+                                                         :width bar-width
+                                                         :height h
+                                                         :data-title cif}
+                                                        (dissoc styles :label-fill))]])))
+                                   data-keys
+                                   fs
+                                   cum-fs))
+                     (into [:g]
+                           (map
+                            (fn [row line]
+                              (?-> [row line] ::label-line)
+                              [:text {:x (+ x0 (:x-offset bin-label-lines))
+                                      :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size 25}
+                               line])
+                            (range) (:line bin-label-lines)))
+                     (arrows {:index bar-index
+                              :count (count bin-labels)
+                              :x-offset (X 0.5)
+                              :y-offset (Y 0.5)
+                              :spacing (X spacing)})]))
                 (range)
-                time-series))
+                bin-labels))
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [year [time {:keys [fs cum-fs int-fs]}]]
-                  
+           (map (fn [bar-index bin-label-lines]
+
                 ;draw single bar and label
-                  (let [x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
+                  (let [[_ {:keys [fs cum-fs int-fs]}] 
+                        (nth time-series (:time-index bin-label-lines))
+                        x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
                         staggers (label-staggers 0.1 fs)]
-                    ;(locals)
-                    (into [:g {:key time}]
+                    (locals)
+                    (into [:g {:key bar-index}]
                           (conj
                            (map (fn [i data-key cif cum-cif int-fs]
                                   (let [styles (data-styles data-key)
@@ -452,7 +539,7 @@
                                        [:rect (merge {:x (- x-mid 5)
                                                       :width (cond
                                                                (>= cif 1) 90
-                                                               (< cif 0.10) 70 
+                                                               (< cif 0.10) 70
                                                                :else 70)
                                                       :y (- y-mid 30)
                                                       :height 40
@@ -466,7 +553,7 @@
                                 cum-fs
                                 int-fs)))))
                 (range)
-                time-series))]))
+                bin-labels))]))
 
 (defn bar-chart
   "Draw the bar chart"
@@ -479,7 +566,7 @@
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         svg-width 1060
-        svg-height 660]
+        svg-height 700]
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
@@ -493,14 +580,15 @@
                                          :y-domain [1 0]
                                          :y-ticks 10})
                                  :styles styles)
+
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
            ;(locals)
            [:g
-            (ui/svg-outcome-legend plot-order data-styles)
+            (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
              (stacked-bar-chart X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)]]))]
-      [:section {:style {:margin-top 10}} 
+      [:section {:style {:margin-top 10}}
        (:post-section tool-mdata)]]]))
 
 (defn stacked-area-chart
@@ -518,11 +606,9 @@
         ;; for 3 years
         bar-width (get-in tool-mdata [:bars :width])
         spacing (get-in tool-mdata [:bars :spacing])
-        bins (get-in tool-mdata [:bars :bins])
+        bins (get-in tool-mdata [:area :bins])
         offset 1.85
         q-offset 1.86]
-    ;(?-> [years year-series] :stacked-bar-chart)
-    (locals)
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -551,7 +637,7 @@
                                                  cum-fs)))
                                     (range)
                                     year-series))
-           
+
            ;;todo: these are no longer quarter year intervals. Rename
            quarter-positions (into []
                                    (map (fn [[time {:keys [fs cum-fs]}]]
@@ -581,8 +667,6 @@
                                                        (select-keys bp-dk [:x :y0 :y1]))]
                                             (concat (map (juxt :x :y0) tops)
                                                     (map (juxt :x :y1) (reverse tops))))]))]
-       (?->> ::bar-posits bar-positions)
-       (?->> ::quart-posits quarter-positions)
        ;;
        ;; Plot areas
        ;;
@@ -616,11 +700,11 @@
                                     (when (not (js/isNaN y0))
                                       [:g
                                        [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]
-                                       (arrows {:year year
-                                                :time-series year-series
-                                                :x0 x0
-                                                :spacing spacing
-                                                :Y Y})])))
+                                       #_(arrows {:year year
+                                                  :time-series year-series
+                                                  :x0 x0
+                                                  :spacing spacing
+                                                  :Y Y})])))
                                 fs
                                 cum-fs)))
                    bins
@@ -691,46 +775,45 @@
 
 (defn area-chart
   "Draw the area chart"
-    [{:keys [organ tool base-outcome-keys s0 F] :as env}]
-    (let [year-days (map
-                     utils/year->day
-                     (range (inc (utils/day->year (first (last s0))))))
-          fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-          quarter-days (map
-                        utils/week->day
-                        (range (inc (utils/day->week (first (last s0))))))
-          fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
-          tool-mdata (get-in env [:mdata organ :tools tool])
-          data-styles (get tool-mdata :outcomes)
-          plot-order (:plot-order tool-mdata)
-          svg-width 1060
-          svg-height 660]
+  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+  (let [year-days (map
+                   utils/year->day
+                   (range (inc (utils/day->year (first (last s0))))))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
+        quarter-days (map
+                      utils/week->day
+                      (range (inc (utils/day->week (first (last s0))))))
+        fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
+        tool-mdata (get-in env [:mdata organ :tools tool])
+        data-styles (get tool-mdata :outcomes)
+        plot-order (:plot-order tool-mdata)
+        svg-width 1060
+        svg-height 660]
       ;(locals)
-      [:> bs/Row
-       [:> bs/Col {:style {:margin-top 10}}
-        [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
-                                           :aspect-ratio (aspect-ratio svg-width svg-height)
-                                           :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                           :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
-                                           :x-domain [0 14]
-                                           :x-ticks 10
-                                           :y-domain [1 0]
-                                           :y-ticks 10})
-                                   :styles styles)
-         
-         (fn [x y X Y]
-           (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
-                 fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
-             (locals)
-             [:g
-              (ui/svg-outcome-legend plot-order data-styles)
-              [:g {:transform "translate(280 0)"}
-               #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
-                         :style {:fill "#EEF8" :border "3px solid #CCC"}}]
-               (stacked-area-chart X Y fs-by-year-in-plot-order fs-by-quarter-in-plot-order plot-order tool-mdata data-styles)]]))]
-        [:section {:style {:margin-top 10}}
-         (:post-section tool-mdata)]]]))
-  
+    [:> bs/Row
+     [:> bs/Col {:style {:margin-top 10}}
+      [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
+                                         :aspect-ratio (aspect-ratio svg-width svg-height)
+                                         :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
+                                         :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                         :x-domain [0 14]
+                                         :x-ticks 10
+                                         :y-domain [1 0]
+                                         :y-ticks 10})
+                                 :styles styles)
+
+       (fn [x y X Y]
+         (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
+               fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
+           [:g
+            (svg-outcome-legend plot-order data-styles)
+            [:g {:transform "translate(280 0)"}
+             #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
+                       :style {:fill "#EEF8" :border "3px solid #CCC"}}]
+             (stacked-area-chart X Y fs-by-year-in-plot-order fs-by-quarter-in-plot-order plot-order tool-mdata data-styles)]]))]
+      [:section {:style {:margin-top 10}}
+       (:post-section tool-mdata)]]]))
+
 (defn h-and-s
   "render a head and shoulders icon"
   [{:keys [key fill scale]
@@ -747,8 +830,7 @@
    (fn [i cum]
      (if (>= ordinal cum) (inc i) i))
    0
-   cum-int-fs)
-  )
+   cum-int-fs))
 
 (defn ordinal-mdata
   "Determines an icon style based on the icon ordinal position in the array"
@@ -774,7 +856,7 @@
 
   (ordinal->outcome 51 [10 20 30 40 50])
   ;; => 5
-)
+  )
 
 
 ;
@@ -792,15 +874,15 @@
                      #_#_:background-color "#CCC"}}
      (for [yr (range (count year-series))
            :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series yr)]]
-       
+
        [ui/row {:style {:padding "0px 0px"}
                 :key (str "year-" yr)}
         [ui/col {:key 1}
-         [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:bars :bins]) yr))]
+         [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:icons :bins]) yr))]
          [ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
                                             :aspect-ratio (aspect-ratio svg-width svg-height)
-                                            :margin (:svg-margin tool-mdata) 
+                                            :margin (:svg-margin tool-mdata)
                                             :padding (:svg-padding tool-mdata)
                                             :x-domain [0 300]
                                             :x-ticks 10
@@ -809,12 +891,11 @@
                                     :styles styles)
 
           (fn [x y X Y]
-            (locals)
             [:g
-             (ui/svg-outcome-legend plot-order data-styles 
-                                    {:width 300
-                                     :string-value-f (fn [i] (str ": " (int-fs i) "%")) 
-                                     :position-f #(str "translate(0 " (+ -35 (* 60 %)) "),scale(0.7)")})
+             (svg-outcome-legend plot-order data-styles
+                                 {:width 300
+                                  :string-value-f (fn [i] (str ": " (int-fs i) "%"))
+                                  :position-f #(str "translate(0 " (+ -35 (* 60 %)) "),scale(0.7)")})
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]

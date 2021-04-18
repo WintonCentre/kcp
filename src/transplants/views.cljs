@@ -314,26 +314,25 @@
          tools @(rf/subscribe [::subs/tools])
          organ-centres @(rf/subscribe [::subs/organ-centres])
          [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
-         [organ centre tool] (map keyword p-names)]
+         [organ centre tool] (map keyword p-names)
+         ]
      (when (and organ centre ((keyword organ) organ-centres) tool)
        (let [centre-info (utils/get-centre-info organ-centres organ centre)
              tool-meta (get-tool-meta tools tool)
-             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])]
+             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
+             tcb (bun/get-bundle organ centre tool)]
          (locals)
          [ui/page (:description centre-info)
           (when (not= tool :guidance) [ui/background-link organ centre])
           [ui/tools-menu tools organ-name centre-name {:vertical false}]
-          (if-let [tool-centre-bundle (bun/get-bundle organ centre tool)]
-            [ui/row 
+          (if-let [tool-centre-bundle tcb]
+            [ui/row
              [ui/col {:xs 12 :md 5}
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
               [:div {:style {:padding "0px 30px 15px 15px"
-                             ;:border "1px solid #fff"
-                             ;:background-color "#f4f4ff"
                              :height "calc(100vh - 25ex)"
                              :overflow-y "scroll"}}
- 
                (widg/widget {:type :reset})
                (into [:<>]
                      (map

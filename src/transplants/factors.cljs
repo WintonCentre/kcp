@@ -319,9 +319,7 @@
    "returns sum of all xs and betas (keyed by input factor?)"
    [{:keys [bundle] :as env}
     beta-outcome-key]
-   ;(?->> ::sum-beta-xs env)
    (->> (:fmaps bundle)
-        ;(?->> ::sum-beta-xs)
         (map (fn [[factor master-fmap]]
                (selected-beta-x env factor master-fmap beta-outcome-key)))
         (map last)

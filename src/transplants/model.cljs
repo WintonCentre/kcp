@@ -146,7 +146,6 @@
   [S0 day]
   (let [rv (->> S0
                 (filter #(<= (first %) day))
-                ;(?->>)
                 (last))]
     (if (and rv (pos? (first rv)))
       rv
@@ -165,7 +164,6 @@
       (if-let [d (first ds)]
         (if (seq ss)
           (let [[accept reject] (split-with #(<= (first %) d) ss)]
-            ;(?->> :accept-reject-d-s {:accept accept :reject reject :d d :sp (first (first ss)) :result result})
             (recur (rest ds) reject (conj result (if (seq accept)
                                                    (last accept)
                                                    (last result)))))

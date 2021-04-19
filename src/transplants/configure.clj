@@ -274,7 +274,7 @@
   )
 
 ;-------- MAIN -----------
-(defn -main
+(defn main
   "Main entry point. This function reads config.edn and the spreadsheets and writes out edn files.
 When processing a new version of the xlsx spreadsheets, run `lein check` first to validate them."
   [& args]
@@ -288,7 +288,7 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 ;----------------------------------------------
 ;
 (comment
-  (-main)
+  (main)
   ) ; Run this
   
 (comment

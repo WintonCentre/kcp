@@ -459,6 +459,7 @@
         bar-width (get-in tool-mdata [:bars :width])
         spacing (get-in tool-mdata [:bars :spacing])
         bin-labels (get-in tool-mdata [:bars :labels])
+        font-size (get-in tool-mdata [:bars :font-size])
         offset 1.69]
     [:g {:key 1}
      [:rect {:key        1
@@ -496,7 +497,7 @@
                             (fn [row line]
                               (?-> [row line] ::label-line)
                               [:text {:x (+ x0 (:x-offset bin-label-lines))
-                                      :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size 25}
+                                      :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size font-size}
                                line])
                             (range) (:line bin-label-lines)))
                      (arrows {:index bar-index
@@ -604,9 +605,10 @@
   (let [data-count (count data-keys)
         ;; 
         ;; for 3 years
-        bar-width (get-in tool-mdata [:bars :width])
-        spacing (get-in tool-mdata [:bars :spacing])
+        bar-width (get-in tool-mdata [:area :width])
+        spacing (get-in tool-mdata [:area :spacing])
         bins (get-in tool-mdata [:area :bins])
+        font-size (get-in tool-mdata [:area :font-size])
         offset 1.85
         q-offset 1.86]
     [:g {:key 1}
@@ -699,7 +701,7 @@
 
                                     (when (not (js/isNaN y0))
                                       [:g
-                                       [:text {:x (- x-mid label-offset) :y 605 :font-size 30} bin-label]
+                                       [:text {:x (- x-mid label-offset) :y 605 :font-size font-size} bin-label]
                                        #_(arrows {:year year
                                                   :time-series year-series
                                                   :x0 x0

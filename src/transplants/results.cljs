@@ -96,7 +96,7 @@
                   )]
 
     (locals)
-    (let [missing (< (count (:inputs env)) (count (:fmaps env)))]
+    (let [missing false #_(< (count (:inputs env)) (count (:fmaps env)))]
       [:div {:style {:background-color "#fff"
                      :border (str "3px solid " (if missing "rgb(255,136,136)" "#CCC"))
                      :border-radius 5

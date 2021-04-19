@@ -23,17 +23,39 @@
                                              :stroke-width 1
                                              :stroke "#000"
                                              :label-fill "#000"}}
-                          :plot-order [:death :residual :transplant]
+                          :plot-order [:transplant :residual :death]
                           :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                          :svg-padding {:top 40 :right 20 :bottom 60 :left 20}
+                          :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
 
-                          :bars {:width 100
+                          :bars {:width 150
+                                 :spacing 3
+                                 :font-size 25
+                                 :labels [{:time-index 1
+                                           :x-offset 10
+                                           :y-offset 610
+                                           :line ["By the end"
+                                                  "of year 1"]}
+                                          {:time-index 2
+                                           :x-offset 10
+                                           :y-offset 610
+                                           :line ["By the end"
+                                                  "of year 2"]}
+                                          {:time-index 3
+                                           :x-offset 10
+                                           :y-offset 610
+                                           :line ["By the end"
+                                                  "of year 3"]}]}
+
+                          :area {:width 150
                                  :spacing 2.5
-                                 :label {:indexed ["At Listing"]
-                                         :template "Year {{year}}"
-                                         :data :year}}
-
-                          :icons {:bins [{:label "At Listing"}
+                                 :font-size 25
+                                 :bins [{:label "At Listing"}
+                                        {:label "After 1 yr"}
+                                        {:label "After 2 yrs"}
+                                        {:label "After 3 yrs"}]}
+                          
+                          :icons {:font-size 25
+                                  :bins [{:label "At Listing"}
                                          {:label "Year 1"}
                                          {:label "Year 2"}
                                          {:label "Year 3"}
@@ -58,11 +80,12 @@
                                                                :label-fill "#000"
                                                                :stroke-width 1
                                                                :stroke "#000000"}}
-                                  :plot-order [:post-transplant :residual]
+                                  :plot-order [:residual :post-transplant]
                                   :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
                                   :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
                                   :bars {:width 150
                                          :spacing 3
+                                         :font-size 25
                                          :labels [{:time-index 1
                                                    :x-offset 10
                                                    :y-offset 610
@@ -79,14 +102,17 @@
                                                    :line ["By the end"
                                                           "of year 5"]}]}
 
-                                  :area {:bins [{:label "At Listing"}
-                                                {:label "1 yr"}
-                                                {:label "2 yrs"}
-                                                {:label "3 yrs"}
-                                                {:label "4 yrs"}
-                                                {:label "5 yrs"}]}
+                                  :area {:spacing 1.95
+                                         :font-size 25
+                                         :bins [{:label "At Listing"}
+                                                {:label "After 1 yr"}
+                                                {:label "After 2 yrs"}
+                                                {:label "After 3 yrs"}
+                                                {:label "After 4 yrs"}
+                                                {:label "After 5 yrs"}]}
 
-                                  :icons {:bins [{:label "At Listing"}
+                                  :icons {:font-size 25
+                                          :bins [{:label "At Listing"}
                                                  {:label "After 1 year"}
                                                  {:label "After 2 years"}
                                                  {:label "After 3 years"}

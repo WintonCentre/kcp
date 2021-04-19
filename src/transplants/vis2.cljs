@@ -437,7 +437,7 @@
    todo: Replace foreighObject as this will not print arrows in white."
   [{:keys [index count x-offset y-offset spacing]}]
   (locals)
-  (when (< index count)
+  (when (< 0 index count)
     (right-arrow {:x (+ x-offset (* index spacing))
                   :y y-offset
                   :fill "#fff"
@@ -502,8 +502,8 @@
                             (range) (:line bin-label-lines)))
                      (arrows {:index bar-index
                               :count (count bin-labels)
-                              :x-offset (X 0.5)
-                              :y-offset (Y 0.5)
+                              :x-offset (X 0.6)
+                              :y-offset (Y 1.03)
                               :spacing (X spacing)})]))
                 (range)
                 bin-labels))

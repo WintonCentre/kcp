@@ -98,7 +98,7 @@
     (let [inputs (:inputs env)
           required-inputs (keys fmaps)
           fulfilled-inputs (select-keys inputs required-inputs)
-          missing false #_(< (count fulfilled-inputs) (count required-inputs))]
+          missing (< (count fulfilled-inputs) (count required-inputs))]
       [:div {:style {:background-color "#fff"
                      :border (str "3px solid " (if missing "rgb(255,136,136)" "#CCC"))
                      :border-radius 5

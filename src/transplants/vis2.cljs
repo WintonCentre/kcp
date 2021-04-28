@@ -351,7 +351,7 @@
 (defn label-staggers
   "Take a sequence of values (the fs) to be plotted in a stacked bar chart. We want to label the bars with its
    f-value which indicates the height of its bar. Bar heights can be smaller than the height of readable text, 
-   and as it's possible for 2 adjacent bars to be next to each other, their labels can overlap unless we staagger
+   and as it's possible for 2 adjacent bars to be next to each other, their labels can overlap unless we stagger
    them left to right. 
 
    This function returns a vector indicating which of the f labels should be staggered. 
@@ -363,6 +363,10 @@
           (zipmap (range) (partition-all 2 1 fs))))
 
 (comment
+  (label-staggers 4 [7 23 0 3])
+
+
+
   (label-staggers 7 [5 3 3 5])
   ;; => [nil true true nil]
 
@@ -430,7 +434,8 @@
           :stroke stroke
           :stroke-width stroke-width
           :d "M5 0v2h-5v1h5v2l3-2.53-3-2.47z"
-          :transform (str "translate(" x " " y ")scale(" scale ")")}])
+          :transform (when (and x y scale)
+                       (str "translate(" x " " y ")scale(" scale ")"))}])
 
 (defn arrows
   "render an svg component that draws a row of spaced white arrows.
@@ -474,7 +479,7 @@
            (map (fn [bar-index bin-label-lines]
                   (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
                         [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label-lines))]
-                    ;(locals)
+                    (locals)
                     [:g (into [:<> {:key (str "bar-" bar-index)}]
                               (map (fn [data-key cif cum-cif]
                                      (let [styles (data-styles data-key)
@@ -503,7 +508,7 @@
                      (arrows {:index bar-index
                               :count (count bin-labels)
                               :x-offset (X 0.6)
-                              :y-offset (Y 1.03)
+                              :y-offset (Y 1.07)
                               :spacing (X spacing)})]))
                 (range)
                 bin-labels))
@@ -517,8 +522,8 @@
                         (nth time-series (:time-index bin-label-lines))
                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
-                        staggers (label-staggers 0.1 fs)]
-                    ;(locals)
+                        staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
+                    (locals)
                     (into [:g {:key bar-index}]
                           (conj
                            (map (fn [i data-key cif cum-cif int-fs]
@@ -584,7 +589,7 @@
 
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-           ;(locals)
+           (locals)
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
@@ -608,6 +613,7 @@
         bar-width (get-in tool-mdata [:area :width])
         spacing (get-in tool-mdata [:area :spacing])
         bins (get-in tool-mdata [:area :bins])
+        bin-labels (get-in tool-mdata [:bars :labels])
         font-size (get-in tool-mdata [:area :font-size])
         offset 1.85
         q-offset 1.86]
@@ -736,7 +742,7 @@
                 ;draw single bar and label
                   (let [x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
-                        staggers (label-staggers 0.1 fs)]
+                        staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
                     ;(locals)
                     (into [:g {:key time}]
                           (conj
@@ -838,7 +844,10 @@
   "Determines an icon style based on the icon ordinal position in the array"
   [ordinal cum-int-fs tool-mdata]
   (let [index (ordinal->outcome ordinal cum-int-fs)
-        outcome-key ((:plot-order tool-mdata) index)]
+        plot-order (:plot-order tool-mdata)
+        outcome-key (if plot-order
+                      (plot-order index)
+                      nil)]
     (get-in tool-mdata [:outcomes outcome-key])))
 
 (comment
@@ -870,16 +879,18 @@
         svg-width 575
         svg-height 250
         icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
-    ;(locals)
+    (locals)
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
      (for [yr (range (count year-series))
            :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series yr)]]
-
+       #_[:p "HELLO " yr
+        (pr-str (get-in tool-mdata [:icons :bins]))]
        [ui/row {:style {:padding "0px 0px"}
                 :key (str "year-" yr)}
         [ui/col {:key 1}
+         
          [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:icons :bins]) yr))]
          [ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}

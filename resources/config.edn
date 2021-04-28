@@ -25,8 +25,9 @@
                              :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                              :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]
                              :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]
-                             :ldgraft [:ldgraft-baseline-cifs :ldgraft-baseline-vars :ldgraft-inputs]
-                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]}
+                             ;:ldgraft [:ldgraft-baseline-cifs :ldgraft-baseline-vars :ldgraft-inputs]
+                             ;:ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]
+                             }
                     :lung {:centres [:centres]
                            :tools [:tools]
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]

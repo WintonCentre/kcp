@@ -436,7 +436,7 @@
   "render an svg component that draws a row of spaced white arrows.
    todo: Replace foreighObject as this will not print arrows in white."
   [{:keys [index count x-offset y-offset spacing]}]
-  (locals)
+  ;(locals)
   (when (< 0 index count)
     (right-arrow {:x (+ x-offset (* index spacing))
                   :y y-offset
@@ -474,7 +474,7 @@
            (map (fn [bar-index bin-label-lines]
                   (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
                         [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label-lines))]
-                    (locals)
+                    ;(locals)
                     [:g (into [:<> {:key (str "bar-" bar-index)}]
                               (map (fn [data-key cif cum-cif]
                                      (let [styles (data-styles data-key)
@@ -495,7 +495,7 @@
                      (into [:g]
                            (map
                             (fn [row line]
-                              (?-> [row line] ::label-line)
+                              ;(?-> [row line] ::label-line)
                               [:text {:x (+ x0 (:x-offset bin-label-lines))
                                       :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size font-size}
                                line])
@@ -518,7 +518,7 @@
                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
                         staggers (label-staggers 0.1 fs)]
-                    (locals)
+                    ;(locals)
                     (into [:g {:key bar-index}]
                           (conj
                            (map (fn [i data-key cif cum-cif int-fs]

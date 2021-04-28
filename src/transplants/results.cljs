@@ -73,7 +73,6 @@
              :inputs (get @(rf/subscribe [::subs/inputs]) organ)
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
 
-
         ;selected-vis @(rf/subscribe [::subs/selected-vis])
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
 
@@ -96,7 +95,10 @@
                   )]
 
     (locals)
-    (let [missing false #_(< (count (:inputs env)) (count (:fmaps env)))]
+    (let [inputs (:inputs env)
+          required-inputs (keys fmaps)
+          fulfilled-inputs (select-keys inputs required-inputs)
+          missing (< (count fulfilled-inputs) (count required-inputs))]
       [:div {:style {:background-color "#fff"
                      :border (str "3px solid " (if missing "rgb(255,136,136)" "#CCC"))
                      :border-radius 5

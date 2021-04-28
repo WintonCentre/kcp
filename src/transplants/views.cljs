@@ -65,6 +65,10 @@
            (into (ui/centre-card-deck mobile)
                  (map centre-card centres)))))]))
 
+;;
+;; Move background info to config
+;;
+
 (def background-infos
   {:visits "Visits to hospital after transplant"
    :donors "Donor Decisions"

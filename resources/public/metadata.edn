@@ -264,5 +264,5 @@
                                                  :order 1
                                                  :fill "#008888"}}
                             :pre-section [:h4 "About how does the graft survive after a living donor transplant?"]
-                            :post-section [:h5 "Graft Survival Post Transplant (Living Donor)"]}}}}
+                            :post-section [:h5 "Graft Survival Post Transplant (Living Donor)"]}}}
 

@@ -243,6 +243,7 @@
 (defn test-rig
   "expose calcluation in test"
   [{:keys [day beta-keys outcomes fmaps s0 sum-betas F] :as env}]
+  (?-> F ::test-rig)
   (let [factors (keys fmaps)]
     #_(?-> env ::test-rig)
     #_[:div "Not yet"]

@@ -450,6 +450,47 @@
                   :stroke "#fff"
                   :stroke-width 2})))
 
+(defn draw-bars
+  [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles font-size X Y]}]
+  (locals)
+  (into [:g {:key 2}]
+        (map (fn [bar-index bin-label-lines]
+               (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
+                     [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label-lines))]
+                 (locals)
+                 [:g (into [:<> {:key (str "bar-" bar-index)}]
+                           (map (fn [data-key cif cum-cif]
+                                  (let [styles (data-styles data-key)
+                                        y0 (- (Y cum-cif) (Y cif))
+                                        h (- (Y cum-cif) (Y (- cum-cif cif)))]
+                                    (when (not (js/isNaN y0))
+                                      [:g
+                                       [:rect (merge {:key data-key
+                                                      :x x0
+                                                      :y y0
+                                                      :width bar-width
+                                                      :height h
+                                                      :data-title cif}
+                                                     (dissoc styles :label-fill))]])))
+                                data-keys
+                                fs
+                                cum-fs))
+                  (into [:g]
+                        (map
+                         (fn [row line]
+                              ;(?-> [row line] ::label-line)
+                           [:text {:x (+ x0 (:x-offset bin-label-lines))
+                                   :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size font-size}
+                            line])
+                         (range) (:line bin-label-lines)))
+                  (arrows {:index bar-index
+                           :count (count bin-labels)
+                           :x-offset (X 0.6)
+                           :y-offset (Y 1.07)
+                           :spacing (X spacing)})]))
+             (range)
+             bin-labels)))
+
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
@@ -460,6 +501,7 @@
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
   [X Y time-series data-keys tool-mdata data-styles]
+  #_[{:keys [X Y time-series data-keys tool-mdata data-styles] :as params}]
   (let [data-count (count data-keys)
         bar-width (get-in tool-mdata [:bars :width])
         spacing (get-in tool-mdata [:bars :spacing])
@@ -475,6 +517,12 @@
              :height     600}]
 
   ; draw bars
+     #_(draw-bars (assoc params 
+                       :bin-labels bin-labels 
+                       :spacing spacing 
+                       :offset offset 
+                       :bar-width bar-width 
+                       :font-size font-size))
      (into [:g {:key 2}]
            (map (fn [bar-index bin-label-lines]
                   (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
@@ -593,7 +641,13 @@
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
-             (stacked-bar-chart X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)]]))]
+             (stacked-bar-chart X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)
+             #_(stacked-bar-chart {:X X
+                                 :Y Y 
+                                 :time-series fs-by-year-in-plot-order 
+                                 :plot-order plot-order 
+                                 :tool-mdata tool-mdata 
+                                 :data-styles data-styles})]]))]
       [:section {:style {:margin-top 10}}
        (:post-section tool-mdata)]]]))
 

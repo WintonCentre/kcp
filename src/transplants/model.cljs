@@ -112,9 +112,9 @@
   (let [exp-sum-beta-xs (map js/Math.exp sum-beta-xs)]
     (loop [SD survival-data
            s 1
-           f [0 0]
+           f (map (constantly 0) sum-beta-xs)
            sumall 1
-           result [[0 [0 0]]]]
+           result [[0 f]]]
       (let [[days S] (first SD)
             SD+ (rest SD)]
         (if (seq SD+)

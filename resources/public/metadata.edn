@@ -26,6 +26,7 @@
                           :plot-order [:transplant :residual :death]
                           :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
                           :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
+
                           :bars {:width 150
                                  :spacing 3
                                  :font-size 25
@@ -48,7 +49,27 @@
                           :area {:width 150
                                  :spacing 2.5
                                  :font-size 25
-                                 :bins [{:label "At Listing"}
+                                 :labels [{:time-index 0
+                                           :x-offset 50
+                                           :y-offset 580
+                                           :line ["When"
+                                                  "listed"]}
+                                          {:time-index 1
+                                           :x-offset 50
+                                           :y-offset 580
+                                           :line ["End of"
+                                                  "year 1"]}
+                                          {:time-index 2
+                                           :x-offset 50
+                                           :y-offset 580
+                                           :line ["End of"
+                                                  "year 2"]}
+                                          {:time-index 3
+                                           :x-offset 50
+                                           :y-offset 580
+                                           :line ["End of"
+                                                  "year 3"]}]
+                                 #_#_:bins [{:label "At Listing"}
                                         {:label "After 1 yr"}
                                         {:label "After 2 yrs"}
                                         {:label "After 3 yrs"}]}
@@ -87,6 +108,7 @@
                                   :bars {:width 150
                                          :spacing 3
                                          :font-size 25
+                                   
                                          :labels [{:time-index 1
                                                    :x-offset 10
                                                    :y-offset 610
@@ -103,13 +125,44 @@
                                                    :line ["By the end"
                                                           "of year 5"]}]}
 
-                                  :area {:spacing 1.95
+                                  :area {:spacing 1.9
                                          :font-size 25
-                                         :bins [{:label "At Listing"}
+                                         :labels [{:time-index 0
+                                                   :x-offset -40
+                                                   :y-offset 580
+                                                   :line ["When"
+                                                          "listed"]}
+                                                  {:time-index 1
+                                                   :x-offset -40
+                                                   :y-offset 580
+                                                   :line ["End of"
+                                                          "year 1"]}
+                                                  {:time-index 2
+                                                   :x-offset -40
+                                                   :y-offset 580
+                                                   :line ["End of"
+                                                          "year 2"]}
+                                                  {:time-index 3
+                                                   :x-offset -40
+                                                   :y-offset 580
+                                                   :line ["End of"
+                                                          "year 3"]}
+                                                  {:time-index 4
+                                                   :x-offset -40
+                                                   :y-offset 580
+                                                   :line ["End of"
+                                                          "year 4"]}
+                                                  {:time-index 5
+                                                   :x-offset -40
+                                                   :y-offset 580
+                                                   :line ["End of"
+                                                          "year 5"]}]
+                                         
+                                         #_#_:bins [{:label "At Listing"}
                                                 {:label "After 1 yr"}
-                                                {:label "After 2 yrs"}
+                                                ;{:label "After 2 yrs"}
                                                 {:label "After 3 yrs"}
-                                                {:label "After 4 yrs"}
+                                                ;{:label "After 4 yrs"}
                                                 {:label "After 5 yrs"}]}
 
                                   :icons {:font-size 25

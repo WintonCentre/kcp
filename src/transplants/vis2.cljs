@@ -438,9 +438,8 @@
           :transform (when (and x y scale)
                        (str "translate(" x " " y ")scale(" scale ")"))}])
 
-(defn arrows
-  "render an svg component that draws a row of spaced white arrows.
-   todo: Replace foreighObject as this will not print arrows in white."
+(defn arrow
+  "render an svg component that draws a white right arrow."
   [{:keys [index count x-offset y-offset spacing]}]
   ;(locals)
   (when (< 0 index count)
@@ -451,14 +450,36 @@
                   :stroke "#fff"
                   :stroke-width 2})))
 
+(defn multiline-bin-label
+  "render a multiline bin label"
+  [bin-label x0 font-size]
+  (:into [:g]
+         (map-indexed
+          (fn [row line]
+            [:text {:key line
+                    :x (+ x0 (:x-offset bin-label))
+                    :y (+ (:y-offset bin-label) (* 30 row)) :font-size font-size}
+             line])
+          (:line bin-label))))
+
+(defn draw-bin-labels
+  [{:keys [bin-labels spacing offset font-size X Y]}]
+  (locals)
+  (into [:g {:key 1}]
+        (map-indexed (fn [bar-index bin-label]
+               (let [x0 (- (X (+ (* spacing #_(:time-index bin-label) (inc bar-index)))) (X offset))]
+                 (multiline-bin-label bin-label x0 font-size)
+                 ))
+             bin-labels)))
+
 (defn draw-bars
   [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles font-size X Y]}]
   (locals)
   (into [:g {:key 2}]
-        (map (fn [bar-index bin-label-lines]
-               (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
-                     [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label-lines))]
-                 (locals)
+        (map-indexed (fn [bar-index bin-label]
+               (let [;bar-index (:time-index bin-label)
+                     x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
+                     [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label))]
                  [:g (into [:<> {:key (str "bar-" bar-index)}]
                            (map (fn [data-key cif cum-cif]
                                   (let [styles (data-styles data-key)
@@ -475,20 +496,54 @@
                                                      (dissoc styles :label-fill))]])))
                                 data-keys
                                 fs
-                                cum-fs))
-                  (into [:g]
-                        (map
-                         (fn [row line]
-                              ;(?-> [row line] ::label-line)
-                           [:text {:x (+ x0 (:x-offset bin-label-lines))
-                                   :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size font-size}
-                            line])
-                         (range) (:line bin-label-lines)))
-                  (arrows {:index bar-index
-                           :count (count bin-labels)
-                           :x-offset (X 0.6)
-                           :y-offset (Y 1.07)
-                           :spacing (X spacing)})]))
+                                cum-fs))]))
+             bin-labels)))
+
+(defn draw-percents
+  [{:keys [bin-labels spacing offset time-series data-count bar-width data-keys data-styles X Y]}]
+  (into [:g {:key 3 :style {:opacity 1}}]
+        (map (fn [bar-index bin-label]
+
+                ;draw single bar and label
+               (let [[_ {:keys [fs cum-fs int-fs]}]
+                     (nth time-series (:time-index bin-label))
+                     x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
+                     x-mid (+ x0 (/ bar-width 2) -0)
+                     staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
+                 (into [:g {:key bar-index}]
+                       (conj
+                        (map (fn [i data-key cif cum-cif int-fs]
+                               (let [styles (data-styles data-key)
+
+                                     y0 (if (> data-count 1)
+                                          (- (Y cum-cif) (Y cif)) (Y cif))
+                                     h (if (> data-count 1)
+                                         (- (Y cum-cif) (Y (- cum-cif cif)))
+                                         (- (Y 0) (Y cif)))
+                                     y-mid (+ y0 (/ h 2))]
+                                 (when true ;(> cif 0.005)
+                                   [:g
+                                    {:transform (str "translate("
+                                                     (if (staggers i)
+                                                       (if (odd? i) 18 -54)
+                                                       (if (< cif 1) -20 -30))
+                                                     " 10)")}
+                                    [:rect (merge {:x (- x-mid 5)
+                                                   :width (cond
+                                                            (>= cif 1) 90
+                                                            (< cif 0.10) 70
+                                                            :else 70)
+                                                   :y (- y-mid 30)
+                                                   :height 40
+                                                   :rx 10}
+                                                  (dissoc styles :label-fill))]
+                                    [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
+                                     (str int-fs "%")]])))
+                             (range)
+                             data-keys
+                             fs
+                             cum-fs
+                             int-fs)))))
              (range)
              bin-labels)))
 
@@ -501,14 +556,17 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  [X Y time-series data-keys tool-mdata data-styles]
-  #_[{:keys [X Y time-series data-keys tool-mdata data-styles] :as params}]
-  (let [data-count (count data-keys)
-        bar-width (get-in tool-mdata [:bars :width])
-        spacing (get-in tool-mdata [:bars :spacing])
-        bin-labels (get-in tool-mdata [:bars :labels])
-        font-size (get-in tool-mdata [:bars :font-size])
-        offset 1.69]
+  #_[X Y time-series data-keys tool-mdata data-styles]
+  [{:keys [data-keys tool-mdata] :as params}]
+  ;(locals)
+  (let [params (assoc params
+                      :bin-labels (get-in tool-mdata [:bars :labels])
+                      :spacing (get-in tool-mdata [:bars :spacing])
+                      :offset 1.69
+                      :data-count (count data-keys)
+                      :bar-width (get-in tool-mdata [:bars :width])
+                      :font-size (get-in tool-mdata [:bars :font-size]))
+        ]
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -517,98 +575,12 @@
              :width      1000
              :height     600}]
 
-  ; draw bars
-     #_(draw-bars (assoc params 
-                       :bin-labels bin-labels 
-                       :spacing spacing 
-                       :offset offset 
-                       :bar-width bar-width 
-                       :font-size font-size))
-     (into [:g {:key 2}]
-           (map (fn [bar-index bin-label-lines]
-                  (let [x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
-                        [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label-lines))]
-                    (locals)
-                    [:g (into [:<> {:key (str "bar-" bar-index)}]
-                              (map (fn [data-key cif cum-cif]
-                                     (let [styles (data-styles data-key)
-                                           y0 (- (Y cum-cif) (Y cif))
-                                           h (- (Y cum-cif) (Y (- cum-cif cif)))]
-                                       (when (not (js/isNaN y0))
-                                         [:g
-                                          [:rect (merge {:key data-key
-                                                         :x x0
-                                                         :y y0
-                                                         :width bar-width
-                                                         :height h
-                                                         :data-title cif}
-                                                        (dissoc styles :label-fill))]])))
-                                   data-keys
-                                   fs
-                                   cum-fs))
-                     (into [:g]
-                           (map
-                            (fn [row line]
-                              ;(?-> [row line] ::label-line)
-                              [:text {:x (+ x0 (:x-offset bin-label-lines))
-                                      :y (+ (:y-offset bin-label-lines) (* 30 row)) :font-size font-size}
-                               line])
-                            (range) (:line bin-label-lines)))
-                     (arrows {:index bar-index
-                              :count (count bin-labels)
-                              :x-offset (X 0.6)
-                              :y-offset (Y 1.07)
-                              :spacing (X spacing)})]))
-                (range)
-                bin-labels))
-
-   ; draw labels
-     (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [bar-index bin-label-lines]
-
-                ;draw single bar and label
-                  (let [[_ {:keys [fs cum-fs int-fs]}] 
-                        (nth time-series (:time-index bin-label-lines))
-                        x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
-                        x-mid (+ x0 (/ bar-width 2) -0)
-                        staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
-                    (locals)
-                    (into [:g {:key bar-index}]
-                          (conj
-                           (map (fn [i data-key cif cum-cif int-fs]
-                                  (let [styles (data-styles data-key)
-
-                                        y0 (if (> data-count 1)
-                                             (- (Y cum-cif) (Y cif)) (Y cif))
-                                        h (if (> data-count 1)
-                                            (- (Y cum-cif) (Y (- cum-cif cif)))
-                                            (- (Y 0) (Y cif)))
-                                        y-mid (+ y0 (/ h 2))]
-                                    (when true ;(> cif 0.005)
-                                      [:g
-                                       {:transform (str "translate("
-                                                        (if (staggers i)
-                                                          (if (odd? i) 18 -54)
-                                                          (if (< cif 1) -20 -30))
-                                                        " 10)")}
-                                       [:rect (merge {:x (- x-mid 5)
-                                                      :width (cond
-                                                               (>= cif 1) 90
-                                                               (< cif 0.10) 70
-                                                               :else 70)
-                                                      :y (- y-mid 30)
-                                                      :height 40
-                                                      :rx 10}
-                                                     (dissoc styles :label-fill))]
-                                       [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
-                                        (str int-fs "%")]])))
-                                (range)
-                                data-keys
-                                fs
-                                cum-fs
-                                int-fs)))))
-                (range)
-                bin-labels))]))
+     [:g {:key "bin-labels"}
+      [draw-bin-labels params]]
+     [:g {:key "bars"}
+      [draw-bars params]]
+     [:g {:key "percents"}
+      [draw-percents params]]]))
 
 (defn bar-chart
   "Draw the bar chart"
@@ -642,13 +614,13 @@
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
-             (stacked-bar-chart X Y fs-by-year-in-plot-order plot-order tool-mdata data-styles)
-             #_(stacked-bar-chart {:X X
-                                 :Y Y 
-                                 :time-series fs-by-year-in-plot-order 
-                                 :plot-order plot-order 
-                                 :tool-mdata tool-mdata 
-                                 :data-styles data-styles})]]))]
+             [stacked-bar-chart (assoc env
+                                       :X X
+                                       :Y Y
+                                       :data-keys plot-order
+                                       :time-series fs-by-year-in-plot-order
+                                       :tool-mdata tool-mdata
+                                       :data-styles data-styles)]]]))]
       [:section {:style {:margin-top 10}}
        (:post-section tool-mdata)]]]))
 
@@ -661,32 +633,36 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  [X Y year-series quarter-series data-keys tool-mdata data-styles]
+  [{:keys [X Y year-series quarter-series data-keys tool-mdata data-styles] :as params}]
+  (let [params (assoc params
+                      :bins (get-in tool-mdata [:area :bins])
+                      :bin-labels (get-in tool-mdata [:area :labels])
+                      :spacing (get-in tool-mdata [:area :spacing])
+                      :offset 1.85
+                      :q-offset 1.86
+                      :data-count (count data-keys)
+                      :bar-width (get-in tool-mdata [:area :width])
+                      :font-size (get-in tool-mdata [:bars :font-size]))])
+
+
   (let [data-count (count data-keys)
         ;; 
         ;; for 3 years
         bar-width (get-in tool-mdata [:area :width])
         spacing (get-in tool-mdata [:area :spacing])
         bins (get-in tool-mdata [:area :bins])
-        bin-labels (get-in tool-mdata [:bars :labels])
+        bin-labels (get-in tool-mdata [:area :labels])
         font-size (get-in tool-mdata [:area :font-size])
         offset 1.85
-        q-offset 1.86]
-    [:g {:key 1}
-     [:rect {:key        1
-             :class-name (:inner styles)
-             :x 0
-             :y 0
-             :width      1000
-             :height     600}]
-
-     (let [bar-positions (into []
-                               (map (fn [year [time {:keys [fs cum-fs]}]]
-                  ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
+        q-offset 1.86
+        bar-positions (into []
+                             (map (fn [bin-label]
+                                    (let [bar-index (:time-index bin-label)
+                                          [time {:keys [fs cum-fs]}] (nth year-series bar-index)]
                                       (into []
                                             (map (fn [data-key cif cum-cif]
                                                    (let [styles (data-styles data-key)
-                                                         x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
                                                          x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                          y0 (- (Y cum-cif) (Y cif))]
                                                      {:key data-key
@@ -697,98 +673,112 @@
                                                       :styles (dissoc styles :label-fill)}))
                                                  data-keys
                                                  fs
-                                                 cum-fs)))
-                                    (range)
-                                    year-series))
+                                                 cum-fs))))
+                                  bin-labels))
 
            ;;todo: these are no longer quarter year intervals. Rename
-           quarter-positions (into []
-                                   (map (fn [[time {:keys [fs cum-fs]}]]
-                                  ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                                          (let [quarter (utils/day->week time)]
-                                            (into []
-                                                  (map (fn [data-key cif cum-cif]
-                                                         (let [styles (data-styles data-key)
-                                                               x0 (- (X (+ (* spacing (inc (/ quarter 52))))) (X q-offset))
-                                                               x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                                               y0 (- (Y cum-cif) (Y cif))]
-                                                           {:key data-key
-                                                            :time time
-                                                            :x (+ x-mid 15)
-                                                            :y0 y0
-                                                            :y1 (Y cum-cif)
-                                                            :styles (dissoc styles :label-fill)}))
-                                                       data-keys
-                                                       fs
-                                                       cum-fs))))
-                                        quarter-series))
+        quarter-positions (into []
+                                (map (fn [[time {:keys [fs cum-fs]}]]
+                                       (let [quarter (utils/day->week time)]
+                                         (into []
+                                               (map (fn [data-key cif cum-cif]
+                                                      (let [styles (data-styles data-key)
+                                                            x0 (- (X (+ (* spacing (inc (/ quarter 52))))) (X q-offset))
+                                                            x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                                            y0 (- (Y cum-cif) (Y cif))]
+                                                        {:key data-key
+                                                         :time time
+                                                         :x (+ x-mid 15)
+                                                         :y0 y0
+                                                         :y1 (Y cum-cif)
+                                                         :styles (dissoc styles :label-fill)}))
+                                                    data-keys
+                                                    fs
+                                                    cum-fs))))
+                                     quarter-series))
 
-           q-polygon-data (into {} (for [dk data-keys]
-                                     [dk  (let [tops (for [bp-dks quarter-positions
-                                                           bp-dk bp-dks
-                                                           :when (= dk (:key bp-dk))]
-                                                       (select-keys bp-dk [:x :y0 :y1]))]
-                                            (concat (map (juxt :x :y0) tops)
-                                                    (map (juxt :x :y1) (reverse tops))))]))]
-       ;;
-       ;; Plot areas
-       ;;
-       [:g
-        #_(into [:g {:opacity 0.3}]
-                (for [dk data-keys]
-                  [:polygon {:key dk
-                             :points (for [[x y] (dk polygon-data)]
-                                       (str x "," y " "))
-                             :style (dissoc  (data-styles dk) :label-fill)}]))
-
-        (into [:g {:opacity 0.7}]
-              (for [dk data-keys]
-                [:polygon {:key dk
-                           :points (for [[x y] (dk q-polygon-data)]
-                                     (str x "," y " "))
-                           :style (dissoc  (data-styles dk) :label-fill)}]))
+        q-polygon-data (into {} (for [dk data-keys]
+                                  [dk  (let [tops (for [bp-dks quarter-positions
+                                                        bp-dk bp-dks
+                                                        :when (= dk (:key bp-dk))]
+                                                    (select-keys bp-dk [:x :y0 :y1]))]
+                                         (concat (map (juxt :x :y0) tops)
+                                                 (map (juxt :x :y1) (reverse tops))))]))]
+    [:g {:key 1}
+     [:rect {:key        1
+             :class-name (:inner styles)
+             :x 0
+             :y 0
+             :width      1000
+             :height     600}]
+     ;;
+     ;; Plot areas
+     ;;
+     [:g
+      (into [:g {:opacity 0.7}]
+            (for [dk data-keys]
+              [:polygon {:key dk
+                         :points (for [[x y] (dk q-polygon-data)]
+                                   (str x "," y " "))
+                         :style (dissoc  (data-styles dk) :label-fill)}]))
 
         ; draw labels at yearly intervals
-        (into [:g {:key 2}]
-              (map (fn [bin year [_ {:keys [fs cum-fs]}]]
-                  ;(?-> [time [fs cum-fs]] ::fs-cum-fs)
-                     (into [:g {:key (str "bar-chart-" year)}]
-                           (map (fn [cif cum-cif]
-                                  (let [x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                        x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                        y0 (- (Y cum-cif) (Y cif))
-                                        bin-label (bin :label)
-                                        label-offset (- (* 6 (count bin-label)) 10)]
+      (into [:g {:key 2}]
+            (map (fn [bin-label]
+                   (let [bar-index (:time-index bin-label)
+                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
+                         [time {:keys [fs cum-fs]}] (nth year-series bar-index)]
+                     [:g
+                      (multiline-bin-label bin-label x0 font-size)
+                      (into [:g {:key (str "area-chart-" bar-index)}]
+                            (map (fn [cif cum-cif]
+                                   (let [x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                         y0 (- (Y cum-cif) (Y cif))]
 
-                                    (when (not (js/isNaN y0))
-                                      [:g
-                                       [:text {:x (- x-mid label-offset) :y 605 :font-size font-size} bin-label]
-                                       #_(arrows {:year year
-                                                  :time-series year-series
-                                                  :x0 x0
-                                                  :spacing spacing
-                                                  :Y Y})])))
-                                fs
-                                cum-fs)))
-                   bins
-                   (range)
-                   year-series))
+                                     #_(when (not (js/isNaN y0))
+                                         (multiline-bin-label bin-label x0 font-size))))
+                                 fs
+                                 cum-fs))]))
+                 bin-labels))
+      #_(into [:g {:key 2}]
+            (map (fn [bin year [_ {:keys [fs cum-fs]}]]
+                   (into [:g {:key (str "bar-chart-" year)}]
+                         (map (fn [cif cum-cif]
+                                (let [x0 (- (X (+ (* spacing (inc year)))) (X offset))
+                                      x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                      y0 (- (Y cum-cif) (Y cif))
+                                      bin-label (bin :label)
+                                      label-offset (- (* 6 (count bin-label)) 10)]
+
+                                  (when (not (js/isNaN y0))
+                                    [:g
+                                     [:text {:x (- x-mid label-offset) :y 605 :font-size font-size} bin-label]
+                                     #_(arrow {:year year
+                                               :time-series year-series
+                                               :x0 x0
+                                               :spacing spacing
+                                               :Y Y})])))
+                              fs
+                              cum-fs)))
+                 bins
+                 (range)
+                 year-series))
 
 
        ;;
        ;; Plot label lines
        ;;
-        (into [:g]
-              (map
-               (fn [bp]
-                 (let [x (:x (first bp))]
-                   #_(?->> ::bp bp)
-                   #_(?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
-                                    :style {:stroke "#000" :stroke-width 3}})
+      (into [:g]
+            (map
+             (fn [bp]
+               (let [x (:x (first bp))]
+                 #_(?->> ::bp bp)
+                 #_(?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
+                                  :style {:stroke "#000" :stroke-width 3}})
 
-                   [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
-                           :style {:stroke "#fff" :stroke-width 3}}])))
-              bar-positions)])
+                 [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
+                         :style {:stroke "#fff" :stroke-width 3}}])))
+            bar-positions)]
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
@@ -873,7 +863,13 @@
             [:g {:transform "translate(280 0)"}
              #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
                        :style {:fill "#EEF8" :border "3px solid #CCC"}}]
-             (stacked-area-chart X Y fs-by-year-in-plot-order fs-by-quarter-in-plot-order plot-order tool-mdata data-styles)]]))]
+             (stacked-area-chart {:X X
+                                  :Y Y
+                                  :year-series fs-by-year-in-plot-order
+                                  :quarter-series fs-by-quarter-in-plot-order
+                                  :data-keys plot-order
+                                  :tool-mdata tool-mdata
+                                  :data-styles data-styles})]]))]
       [:section {:style {:margin-top 10}}
        (:post-section tool-mdata)]]]))
 

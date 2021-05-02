@@ -13,7 +13,7 @@
      {:display-name "ErrBoundary"
       :component-did-catch (fn [err info]
                              (reset! err-state [err info]))
-      :get-derived-state-from-error (fn [err] [:p "Hi"])
+      :get-derived-state-from-error (fn [err] [:p "The error is " (pr-str err)])
       :reagent-render (fn [& children]
                         (if (nil? @err-state)
                           (into [:<>] children)

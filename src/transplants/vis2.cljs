@@ -185,7 +185,7 @@
                         :position-f #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
 
   ([plot-order data-styles {:keys [width height string-value-f position-f]
-                            :or {width 275 height 60}}]
+                            :or {width 255 height 60}}]
    (into [:<>]
          (map (fn [i data-key]
                 (let [styles (data-styles data-key)]
@@ -458,7 +458,7 @@
           (fn [row line]
             [:text {:key line
                     :x (+ x0 (:x-offset bin-label))
-                    :y (+ (:y-offset bin-label) (* 30 row)) :font-size font-size}
+                    :y (+ (:y-offset bin-label) (* 35 row)) :font-size font-size}
              line])
           (:line bin-label))))
 
@@ -598,10 +598,11 @@
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
 
-      [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
+      [svgc/svg-container (assoc (space {:outer {:width (get-in tool-mdata [:bars :svg-width])
+                                                 :height (get-in tool-mdata [:bars :svg-height])}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                         :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                         :margin (get-in tool-mdata [:bars :svg-margin]) 
+                                         :padding (get-in tool-mdata [:bars :svg-padding])
                                          :x-domain [0 14]
                                          :x-ticks 10
                                          :y-domain [1 0]
@@ -727,10 +728,10 @@
             (map (fn [bin-label]
                    (let [bar-index (:time-index bin-label)
                          x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
-                         [time {:keys [fs cum-fs]}] (nth year-series bar-index)]
+                         #_#_[time {:keys [fs cum-fs]}] (nth year-series bar-index)]
                      [:g
                       (multiline-bin-label bin-label x0 font-size)
-                      (into [:g {:key (str "area-chart-" bar-index)}]
+                      #_(into [:g {:key (str "area-chart-" bar-index)}]
                             (map (fn [cif cum-cif]
                                    (let [x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                          y0 (- (Y cum-cif) (Y cif))]
@@ -845,10 +846,11 @@
       ;(locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
-      [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
+      [svgc/svg-container (assoc (space {:outer {:width (get-in tool-mdata [:area :svg-width]) 
+                                                 :height (get-in tool-mdata [:area :svg-height])}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (:svg-margin tool-mdata) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                         :padding (:svg-padding tool-mdata) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                         :margin (get-in tool-mdata [:bars :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
+                                         :padding (get-in tool-mdata [:bars :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
                                          :x-domain [0 14]
                                          :x-ticks 10
                                          :y-domain [1 0]
@@ -870,7 +872,7 @@
                                   :data-keys plot-order
                                   :tool-mdata tool-mdata
                                   :data-styles data-styles})]]))]
-      [:section {:style {:margin-top 10}}
+      [:section {:style {:margin-top 25}}
        (:post-section tool-mdata)]]]))
 
 (defn h-and-s
@@ -944,10 +946,11 @@
          
          [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:icons :bins]) yr))]
          [ui/randomise-query-panel "Randomise order?"]
-         [svgc/svg-container (assoc (space {:outer {:width svg-width :height svg-height}
+         [svgc/svg-container (assoc (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
+                                             :height (get-in tool-mdata [:icons :svg-height])}
                                             :aspect-ratio (aspect-ratio svg-width svg-height)
-                                            :margin (:svg-margin tool-mdata)
-                                            :padding (:svg-padding tool-mdata)
+                                            :margin (get-in tool-mdata [:icons :svg-margin])
+                                            :padding (get-in tool-mdata [:icons :svg-padding])
                                             :x-domain [0 300]
                                             :x-ticks 10
                                             :y-domain [0 300]

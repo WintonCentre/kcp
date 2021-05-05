@@ -2,7 +2,8 @@
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
 where we can work on defining a common interface. 
 "
-  (:require ["react-bootstrap" :as bs]))
+  (:require ["react-bootstrap" :as bs]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (comment
 
@@ -53,9 +54,14 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    value-f is a function which, when called returns the current value of the widget.
    event-f is an event handler which is called when the selected level changes
    Each button is configured with a map wih the (buttons-f) containing its :level-name, :level, and :disabled status."
-  [{:keys [id value-f on-change buttons-f vertical]}]
+  [{:keys [id value-f on-change buttons-f vertical optional]}]
   [:<>
-   (let [value (value-f)]
+   (let [value (value-f)
+         buttons (buttons-f)
+         highlight? (fn [lev] (and (= value :unknown)
+                                   (= lev (:sub-text (first (filter #(= (:level %) :unknown) buttons))))))]
+     (?-> value ::value)
+     (?-> buttons ::buttons)
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
              :id id
@@ -64,21 +70,27 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :name id
              :value value
              :on-change on-change
-             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#CCCCCC"))
+             :style  {:border (str "3px solid "
+                                   (if (or (nil? value)
+                                           (= :unknown value)) 
+                                     (if optional "teal" "#ff8888") "#CCCCCC"))
                       :border-radius 5
                       :padding 1
                       #_#_:display "grid"}}]
-           (map (fn [{:keys [level-name level disabled]}]
+           (map (fn [{:keys [level-name level sub-text disabled] :as levels}]
                   [:> bs/ToggleButton {;:tabindex "-1"
                                        :type "checkbox"
                                        :key level :disabled false
                                        :value level
                                        :style {:border-radius 0
                                                :margin 0
+                                               :color (when (highlight? level) "teal")
+                                               :font-weight (when (highlight? level) "bold")
+                                               :background-color (if (highlight? level) "#fec" nil)
                                                #_#_:padding 5}
                                        :variant "outline-secondary"}
                    level-name])
-                (buttons-f))))])
+                buttons)))])
 
 (defn dropdown
   [{:keys [id value-f on-change buttons-f]}]

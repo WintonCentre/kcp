@@ -98,33 +98,58 @@
     (let [inputs (:inputs env)
           required-inputs (keys fmaps)
           fulfilled-inputs (select-keys inputs required-inputs)
-          missing false #_(< (count fulfilled-inputs) (count required-inputs))]
+          missing #_false (< (count fulfilled-inputs) (count required-inputs))
+          unknowns (some #(= (get inputs %) :unknown) required-inputs)
+          overlay (if missing :missing (if unknowns :unknowns nil))]
       [:div {:style {:background-color "#fff"
-                     :border (str "3px solid " (if missing "rgb(255,136,136)" "#CCC"))
+                     :border (str "3px solid " (condp = overlay 
+                                                 :missing "rgb(255,136,136)" 
+                                                 :unknowns "teal"
+                                                 nil "#CCC"))
                      :border-radius 5
                      :margin-top 30
                      :padding "20px 5px 5px 15px"
                      :position "relative"}}
-       (when missing
-        [:<>
-         [:div {:style {:z-index 1000
-                        :color "rgb(255,136,136)"
-                        :border "3px solid rgb(255,136,136)"
-                        :border-radius 5
-                        :background-color "#fec"
-                        :padding "2px 5px"
-                        :position "absolute"
-                        :top "-20px"
-                        :right "20px"}}
-          "Warning: some inputs are missing"]
-         [:div {:style {:z-index 500
-                        :background-color "#0008"
-                        :padding 0
-                        :position "absolute"
-                        :top 0
-                        :right 0
-                        :bottom 0
-                        :left 0}}]])
+       (condp = overlay
+         :missing [:<>
+                   [:div {:style {:z-index 1000
+                                  :color "rgb(255,136,136)"
+                                  :border "3px solid rgb(255,136,136)"
+                                  :border-radius 5
+                                  :background-color "#fec"
+                                  :padding "2px 5px"
+                                  :position "absolute"
+                                  :top "-20px"
+                                  :right "20px"}}
+                    "Warning: some inputs are missing"]
+                   [:div {:style {:z-index 500
+                                  :background-color "#0008"
+                                  :padding 0
+                                  :position "absolute"
+                                  :top 0
+                                  :right 0
+                                  :bottom 0
+                                  :left 0}}]]
+         :unknowns [:<>
+                   [:div {:style {:z-index 1000
+                                  :color "teal"
+                                  :border "3px solid teal"
+                                  :border-radius 5
+                                  :background-color "#fec"
+                                  :padding "2px 5px"
+                                  :position "absolute"
+                                  :top "-20px"
+                                  :right "20px"}}
+                    "Average values were used for some inputs"]
+                   [:div {:style {:z-index 500
+                                  :background-color "#fec2"
+                                  :padding 0
+                                  :position "absolute"
+                                  :top 0
+                                  :right 0
+                                  :bottom 0
+                                  :left 0}}]]
+         nil nil)
        #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between "
           (get-in env [:cohort-dates :from-year]) " and " (get-in env [:cohort-dates :to-year]) "."]

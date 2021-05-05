@@ -1,10 +1,12 @@
 (ns transplants.widgets
   (:require [re-frame.core :as rf]
+            [reagent.core :as reagent]
             [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (defn key->id
@@ -22,7 +24,6 @@
    This allows us to add parameters to the widget inside the type column in the spreadsheet."
   ;:type
   (fn [m]
-    ;(println "widget-map " m)
     (if (keyword? (:type m))
       (:type m)
       (try
@@ -54,6 +55,7 @@
               {:level :female
                :level-name "Female"}]
      :default :male
+     :optional :no
      :type :radio}))
 
 ; factors with a nil type field have no widget
@@ -72,35 +74,50 @@
    [:> bs/Col {:xs widget-width}
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
-(defn radio
-  [{:keys [factor-name factor-key levels default type vertical] :as w}]
-  (let [value-f (fn [] @(rf/subscribe [factor-key]))
+(defn highlighted-average-button
+  [{:keys [factor-name factor-key levels default type vertical optional] :as w} 
+]
 
-        #_#_value-f (if (and default (nil? value))
-                      (fn [] default)
-                      value)]
+  (when-let [unknown-subtext (get-in w [:levels :unknown :sub-text])]
+    (when-let [average-level-name (get-in w [:levels unknown-subtext :level-name])]
+      (let [widget-id (key->id factor-key)]
+        (?-> widget-id ::widget-id)))))
+
+(defn radio
+  [{:keys [factor-name factor-key levels default type vertical optional] :as w}]
+  (let [value-f (fn [] @(rf/subscribe [factor-key]))
+        optional? (= optional :yes)]
+    (when optional? (?-> levels ::button-levels))
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:xs label-width
                  :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]]
+
      [:> bs/Col {:xs widget-width}
+
       (bsio/radio-button-group {:id (key->id factor-key)
                                 :vertical vertical
                                 :value-f value-f
+                                :optional optional?
                                 :on-change #(rf/dispatch [factor-key
                                                           (keyword %)])
-                                :buttons-f (fn [] (vals levels))})]]))
+                                :buttons-f (fn [] (vals levels))})
+      #_(when (= (value-f) :unknown)
+        (when optional?
+          (highlighted-average-button w)))]]))
+
+
 
 ; radio buttons allow fast selection between options
 (defmethod widget :radio
   [w]
-  (radio (assoc w :vertical false)))
+  [radio (assoc w :vertical false)])
 
 ; radio buttons allow fast selection between options
 (defmethod widget :v-radio
   [w]
-  (radio (assoc w :vertical true)))
+  [radio (assoc w :vertical true)])
 
 
 ; dropdowns are similar to radio buttons but are useful when a radio-button-group

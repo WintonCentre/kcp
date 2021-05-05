@@ -22,7 +22,7 @@
  {:app {:target     :browser
         :output-dir "resources/public/js"
         :asset-path "/js"
-        :compiler-options {:optimizations  :simple
+        :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
         :modules {:app {:init-fn transplants.core/init}}}
 

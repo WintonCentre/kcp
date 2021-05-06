@@ -741,30 +741,6 @@
                                  fs
                                  cum-fs))]))
                  bin-labels))
-      #_(into [:g {:key 2}]
-            (map (fn [bin year [_ {:keys [fs cum-fs]}]]
-                   (into [:g {:key (str "bar-chart-" year)}]
-                         (map (fn [cif cum-cif]
-                                (let [x0 (- (X (+ (* spacing (inc year)))) (X offset))
-                                      x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                      y0 (- (Y cum-cif) (Y cif))
-                                      bin-label (bin :label)
-                                      label-offset (- (* 6 (count bin-label)) 10)]
-
-                                  (when (not (js/isNaN y0))
-                                    [:g
-                                     [:text {:x (- x-mid label-offset) :y 605 :font-size font-size} bin-label]
-                                     #_(arrow {:year year
-                                               :time-series year-series
-                                               :x0 x0
-                                               :spacing spacing
-                                               :Y Y})])))
-                              fs
-                              cum-fs)))
-                 bins
-                 (range)
-                 year-series))
-
 
        ;;
        ;; Plot label lines
@@ -783,11 +759,12 @@
 
    ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
-           (map (fn [year [time {:keys [fs cum-fs int-fs]}]]
-
+           (map (fn [bin-label]
                 ;draw single bar and label
-                  (let [x0 (- (X (+ (* spacing (inc year)))) (X offset) 10)
+                  (let [bar-index (:time-index bin-label)
+                        x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
+                        [time {:keys [fs cum-fs int-fs]}] (nth year-series bar-index)
                         staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
                     ;(locals)
                     (into [:g {:key time}]
@@ -824,8 +801,7 @@
                                 fs
                                 cum-fs
                                 int-fs)))))
-                (range)
-                year-series))]))
+                bin-labels))]))
 
 (defn area-chart
   "Draw the area chart"
@@ -930,18 +906,20 @@
   (let [svg-width (get-in tool-mdata [:icons :svg-width])
         svg-height (get-in tool-mdata [:icons :svg-height])
         plot-order (:plot-order tool-mdata)
+        labels (get-in tool-mdata [:icons :labels])
         randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
     (locals)
+    [:div "Hi"]
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
-     (for [label (get-in tool-mdata [:icons :labels])
-           time-index (:time-index label);(range (count year-series))
-           :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
-       #_[:p "HELLO " yr
-        (pr-str (get-in tool-mdata [:icons :bins]))]
-       [ui/row {:style {:padding "0px 0px"}
+     (for [[i label] [(range ) ]
+           #_#_time-index (:time-index label) ;(range (count year-series))
+           #_#_:let [[days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
+       [:p {:key i} label #_(pr-str i #_time-index "::" label)]
+       #_[:p (pr-str [days {:keys [int-fs cum-int-fs]}])]
+       #_[ui/row {:style {:padding "0px 0px"}
                 :key (str "year-" time-index)}
         [ui/col {:key 1}
          
@@ -979,8 +957,8 @@
 (defn icon-array
   "render an icon array results view"
   [{:keys [organ tool base-outcome-keys s0 F] :as env}]
-  (locals)
-  #_(let [sample-days (map
+
+  (let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
@@ -992,4 +970,5 @@
      [:> bs/Col {:style {:margin "10px 0px"
                          :height "calc(100vh - 35ex)"
                          :overflow-y "scroll"}}
+      #_"Hello"
       (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)]]))

@@ -120,52 +120,37 @@
                                                    :y-offset 610
                                                    :line ["By the end"
                                                           "of year 1"]}
-                                                  {:time-index 2
-                                                   :x-offset -10
-                                                   :y-offset 610
-                                                   :line ["By the end"
-                                                          "of year 2"]}
                                                   {:time-index 3
                                                    :x-offset -10
                                                    :y-offset 610
                                                    :line ["By the end"
-                                                          "of year 3"]}]}
+                                                          "of year 3"]}
+                                                  {:time-index 5
+                                                   :x-offset -10
+                                                   :y-offset 610
+                                                   :line ["By the end"
+                                                          "of year 5"]}]}
 
                                   :area {:svg-width 1060
-                                         :svg-height 700
+                                         :svg-height 680
                                          :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
                                          :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
                                          :width 0
                                          :spacing 1.9
                                          :font-size 30
-                                         :labels [{:time-index 0
-                                                   :x-offset -40
-                                                   :y-offset 610
-                                                   :line ["When"
-                                                          "listed"]}
-                                                  {:time-index 1
+                                         :labels [{:time-index 1
                                                    :x-offset -50
-                                                   :y-offset 610
+                                                   :y-offset 580
                                                    :line ["End of"
                                                           "year 1"]}
-                                                  {:time-index 2
-                                                   :x-offset -50
-                                                   :y-offset 610
-                                                   :line ["End of"
-                                                          "year 2"]}
                                                   {:time-index 3
                                                    :x-offset -50
-                                                   :y-offset 610
+                                                   :y-offset 580
                                                    :line ["End of"
                                                           "year 3"]}
-                                                  {:time-index 4
-                                                   :x-offset -50
-                                                   :y-offset 610
-                                                   :line ["End of"
-                                                          "year 4"]}
                                                   {:time-index 5
                                                    :x-offset -50
-                                                   :y-offset 610
+                                                   :y-offset 580
                                                    :line ["End of"
                                                           "year 5"]}]}
 

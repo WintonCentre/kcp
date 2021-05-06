@@ -1,0 +1,884 @@
+﻿rec_unit,time,surv
+Belfast,0,1
+Belfast,0,0.95491726
+Belfast,5,0.950632313
+Belfast,6,0.94635089
+Belfast,8,0.942075079
+Belfast,328,0.937338914
+Belfast,394,0.932188341
+Belfast,433,0.926901442
+Belfast,531,0.921587316
+Belfast,561,0.916251993
+Belfast,684,0.910812989
+Belfast,734,0.904841994
+Belfast,801,0.898315871
+Belfast,858,0.891737044
+Belfast,978,0.885037511
+Belfast,1287,0.876826575
+Belfast,1378,0.868490914
+Belfast,1826,0.868490914
+Newcastle,0,1
+Newcastle,0,0.979726585
+Newcastle,1,0.977156431
+Newcastle,34,0.97455858
+Newcastle,46,0.971943527
+Newcastle,52,0.96933132
+Newcastle,53,0.966720338
+Newcastle,61,0.964111627
+Newcastle,72,0.961497589
+Newcastle,89,0.958866166
+Newcastle,111,0.956230964
+Newcastle,131,0.953582344
+Newcastle,156,0.950905499
+Newcastle,270,0.948216007
+Newcastle,272,0.945521717
+Newcastle,284,0.942829919
+Newcastle,294,0.940139498
+Newcastle,301,0.937444473
+Newcastle,347,0.934719725
+Newcastle,357,0.931973266
+Newcastle,366,0.929212506
+Newcastle,440,0.926340814
+Newcastle,521,0.923439598
+Newcastle,574,0.920526776
+Newcastle,580,0.917605733
+Newcastle,653,0.914670633
+Newcastle,736,0.908008609
+Newcastle,747,0.904589547
+Newcastle,814,0.901062485
+Newcastle,939,0.897529649
+Newcastle,1040,0.893887935
+Newcastle,1081,0.889936929
+Newcastle,1103,0.885958034
+Newcastle,1253,0.881633449
+Newcastle,1262,0.87730809
+Newcastle,1275,0.872988152
+Newcastle,1294,0.868655185
+Newcastle,1453,0.863897497
+Newcastle,1524,0.858654924
+Newcastle,1545,0.853411762
+Newcastle,1595,0.848096199
+Newcastle,1613,0.842796623
+Newcastle,1676,0.837462633
+Newcastle,1710,0.832098891
+Newcastle,1780,0.826497707
+Newcastle,1826,0.826497707
+Leeds,0,1
+Leeds,0,0.975901794
+Leeds,1,0.972857642
+Leeds,2,0.971335984
+Leeds,7,0.969812368
+Leeds,13,0.968285716
+Leeds,27,0.966758985
+Leeds,31,0.965232597
+Leeds,47,0.963707095
+Leeds,53,0.962181795
+Leeds,54,0.960657092
+Leeds,69,0.959128508
+Leeds,90,0.957596731
+Leeds,92,0.956063636
+Leeds,111,0.954512965
+Leeds,148,0.9529624
+Leeds,217,0.951400452
+Leeds,251,0.949833955
+Leeds,255,0.948267516
+Leeds,283,0.946697828
+Leeds,284,0.945128349
+Leeds,294,0.943558023
+Leeds,299,0.941980239
+Leeds,305,0.940404036
+Leeds,310,0.938824513
+Leeds,316,0.937243998
+Leeds,318,0.935663507
+Leeds,319,0.934082041
+Leeds,364,0.932410612
+Leeds,370,0.930707456
+Leeds,419,0.928993918
+Leeds,453,0.927282348
+Leeds,469,0.925565695
+Leeds,495,0.9238499
+Leeds,507,0.922128984
+Leeds,512,0.920405663
+Leeds,536,0.918682583
+Leeds,545,0.916958799
+Leeds,548,0.915235688
+Leeds,554,0.913513558
+Leeds,565,0.911789959
+Leeds,598,0.910060171
+Leeds,657,0.908307894
+Leeds,666,0.906552103
+Leeds,699,0.904710931
+Leeds,727,0.902779892
+Leeds,793,0.900746215
+Leeds,807,0.898712223
+Leeds,821,0.896674703
+Leeds,870,0.894637459
+Leeds,935,0.892583552
+Leeds,983,0.890516963
+Leeds,1042,0.88842067
+Leeds,1081,0.886194645
+Leeds,1125,0.883849259
+Leeds,1148,0.881468572
+Leeds,1232,0.879053559
+Leeds,1236,0.876631854
+Leeds,1256,0.874203211
+Leeds,1292,0.871754979
+Leeds,1466,0.868726798
+Leeds,1549,0.865563912
+Leeds,1672,0.859195713
+Leeds,1721,0.855964675
+Leeds,1752,0.852706748
+Leeds,1793,0.849320882
+Leeds,1810,0.845754836
+Leeds,1826,0.845754836
+Leicester,0,1
+Leicester,0,0.975059722
+Leicester,21,0.97220306
+Leicester,22,0.969344879
+Leicester,29,0.966483619
+Leicester,52,0.963614068
+Leicester,94,0.960731731
+Leicester,99,0.957840065
+Leicester,115,0.954949386
+Leicester,148,0.952049437
+Leicester,186,0.949140796
+Leicester,224,0.946229396
+Leicester,232,0.943319747
+Leicester,345,0.940392887
+Leicester,365,0.937468892
+Leicester,398,0.934504691
+Leicester,401,0.931530285
+Leicester,406,0.928557701
+Leicester,474,0.925576814
+Leicester,555,0.922580161
+Leicester,630,0.919550876
+Leicester,650,0.916457611
+Leicester,855,0.912890526
+Leicester,856,0.909324591
+Leicester,876,0.905752591
+Leicester,881,0.902175042
+Leicester,1057,0.898068011
+Leicester,1103,0.89355526
+Leicester,1144,0.888998822
+Leicester,1154,0.884433808
+Leicester,1156,0.879865241
+Leicester,1167,0.875304648
+Leicester,1205,0.870735872
+Leicester,1296,0.866147581
+Leicester,1433,0.860582624
+Leicester,1468,0.85467809
+Leicester,1538,0.848734544
+Leicester,1826,0.848734544
+Nottingham,0,1
+Nottingham,0,0.983229119
+Nottingham,6,0.980801967
+Nottingham,41,0.978372226
+Nottingham,69,0.975937123
+Nottingham,96,0.973419522
+Nottingham,105,0.970869915
+Nottingham,107,0.968319097
+Nottingham,124,0.965761088
+Nottingham,160,0.963175771
+Nottingham,189,0.960578061
+Nottingham,225,0.957969181
+Nottingham,256,0.955349957
+Nottingham,284,0.952730134
+Nottingham,368,0.949962944
+Nottingham,412,0.947062891
+Nottingham,479,0.944125163
+Nottingham,554,0.941176235
+Nottingham,578,0.938225437
+Nottingham,589,0.935274381
+Nottingham,704,0.932283314
+Nottingham,755,0.928847204
+Nottingham,763,0.925400784
+Nottingham,817,0.921931128
+Nottingham,833,0.918451429
+Nottingham,1258,0.914289035
+Nottingham,1280,0.91011354
+Nottingham,1299,0.905928745
+Nottingham,1440,0.901445933
+Nottingham,1457,0.896701913
+Nottingham,1479,0.891683053
+Nottingham,1497,0.886618778
+Nottingham,1789,0.881316259
+Nottingham,1826,0.881316259
+Sheffield,0,1
+Sheffield,0,0.980190602
+Sheffield,1,0.968225447
+Sheffield,2,0.964218037
+Sheffield,12,0.960203362
+Sheffield,69,0.956159597
+Sheffield,86,0.952106442
+Sheffield,100,0.94802418
+Sheffield,143,0.943921697
+Sheffield,157,0.939818759
+Sheffield,205,0.935723584
+Sheffield,206,0.931634516
+Sheffield,217,0.927536949
+Sheffield,233,0.923446484
+Sheffield,280,0.919285836
+Sheffield,353,0.915071715
+Sheffield,722,0.909951599
+Sheffield,740,0.904681232
+Sheffield,906,0.898962095
+Sheffield,1015,0.893248779
+Sheffield,1018,0.887539157
+Sheffield,1077,0.881405554
+Sheffield,1083,0.875134471
+Sheffield,1455,0.866658217
+Sheffield,1475,0.857877121
+Sheffield,1504,0.848202223
+Sheffield,1806,0.83686944
+Sheffield,1826,0.83686944
+Cambridge,0,1
+Cambridge,0,0.970056291
+Cambridge,5,0.968350962
+Cambridge,25,0.966634459
+Cambridge,77,0.964901865
+Cambridge,95,0.963151457
+Cambridge,98,0.961392389
+Cambridge,137,0.959628439
+Cambridge,265,0.957837811
+Cambridge,294,0.956043422
+Cambridge,316,0.954233808
+Cambridge,411,0.952277094
+Cambridge,438,0.950300084
+Cambridge,467,0.948318067
+Cambridge,508,0.946333199
+Cambridge,519,0.944346987
+Cambridge,528,0.942360299
+Cambridge,599,0.940365901
+Cambridge,634,0.938359283
+Cambridge,638,0.93635213
+Cambridge,693,0.934254196
+Cambridge,833,0.931913949
+Cambridge,856,0.929573032
+Cambridge,884,0.92723266
+Cambridge,942,0.924880584
+Cambridge,984,0.922524743
+Cambridge,1084,0.919949648
+Cambridge,1109,0.917253833
+Cambridge,1201,0.914498063
+Cambridge,1271,0.911697105
+Cambridge,1383,0.908832817
+Cambridge,1516,0.905618947
+Cambridge,1708,0.902253054
+Cambridge,1765,0.898652179
+Cambridge,1826,0.898652179
+"London, The Royal Free",0,1
+"London, The Royal Free",0,0.98383346
+"London, The Royal Free",1,0.979170171
+"London, The Royal Free",9,0.976826427
+"London, The Royal Free",13,0.974462235
+"London, The Royal Free",14,0.972098164
+"London, The Royal Free",20,0.969732773
+"London, The Royal Free",31,0.967370141
+"London, The Royal Free",42,0.965000348
+"London, The Royal Free",51,0.962633313
+"London, The Royal Free",93,0.96020885
+"London, The Royal Free",107,0.957736033
+"London, The Royal Free",121,0.95526318
+"London, The Royal Free",129,0.952777455
+"London, The Royal Free",138,0.950291844
+"London, The Royal Free",142,0.947800851
+"London, The Royal Free",146,0.94530952
+"London, The Royal Free",202,0.942790916
+"London, The Royal Free",258,0.940262956
+"London, The Royal Free",284,0.937723926
+"London, The Royal Free",311,0.935179282
+"London, The Royal Free",372,0.932549671
+"London, The Royal Free",448,0.926986558
+"London, The Royal Free",455,0.924187957
+"London, The Royal Free",552,0.921372032
+"London, The Royal Free",600,0.918556314
+"London, The Royal Free",711,0.915670767
+"London, The Royal Free",801,0.912403449
+"London, The Royal Free",898,0.90913568
+"London, The Royal Free",983,0.905827995
+"London, The Royal Free",991,0.9025164
+"London, The Royal Free",1023,0.89917825
+"London, The Royal Free",1042,0.895828337
+"London, The Royal Free",1062,0.892436011
+"London, The Royal Free",1172,0.888446977
+"London, The Royal Free",1289,0.884425523
+"London, The Royal Free",1303,0.880390133
+"London, The Royal Free",1413,0.876097145
+"London, The Royal Free",1434,0.87171543
+"London, The Royal Free",1477,0.866865534
+"London, The Royal Free",1488,0.861795259
+"London, The Royal Free",1519,0.856406999
+"London, The Royal Free",1643,0.85093439
+"London, The Royal Free",1757,0.845353595
+"London, The Royal Free",1758,0.839747301
+"London, The Royal Free",1826,0.839747301
+"London, The Royal London",0,1
+"London, The Royal London",0,0.952312696
+"London, The Royal London",1,0.947628549
+"London, The Royal London",2,0.94528442
+"London, The Royal London",12,0.942937097
+"London, The Royal London",17,0.940575596
+"London, The Royal London",24,0.938213454
+"London, The Royal London",27,0.935847926
+"London, The Royal London",45,0.933480057
+"London, The Royal London",54,0.931112521
+"London, The Royal London",81,0.928727477
+"London, The Royal London",162,0.926257591
+"London, The Royal London",172,0.923791425
+"London, The Royal London",179,0.921321362
+"London, The Royal London",185,0.918849603
+"London, The Royal London",214,0.916359886
+"London, The Royal London",224,0.913860989
+"London, The Royal London",234,0.911356418
+"London, The Royal London",244,0.908835952
+"London, The Royal London",252,0.906312415
+"London, The Royal London",271,0.903792386
+"London, The Royal London",272,0.901271227
+"London, The Royal London",284,0.898745368
+"London, The Royal London",324,0.896198015
+"London, The Royal London",325,0.893638634
+"London, The Royal London",333,0.891072442
+"London, The Royal London",423,0.88838607
+"London, The Royal London",460,0.88567615
+"London, The Royal London",502,0.882949965
+"London, The Royal London",546,0.88020151
+"London, The Royal London",704,0.877214004
+"London, The Royal London",767,0.873992994
+"London, The Royal London",769,0.870772466
+"London, The Royal London",931,0.8675086
+"London, The Royal London",937,0.864241162
+"London, The Royal London",941,0.860974439
+"London, The Royal London",958,0.857665605
+"London, The Royal London",969,0.854360774
+"London, The Royal London",1016,0.850965272
+"London, The Royal London",1077,0.847366404
+"London, The Royal London",1085,0.843665272
+"London, The Royal London",1123,0.83976295
+"London, The Royal London",1172,0.835792044
+"London, The Royal London",1254,0.831799254
+"London, The Royal London",1287,0.827787939
+"London, The Royal London",1421,0.823348805
+"London, The Royal London",1507,0.818119231
+"London, The Royal London",1617,0.812910006
+"London, The Royal London",1707,0.807546008
+"London, The Royal London",1812,0.801671451
+"London, The Royal London",1826,0.801671451
+"London, Guy's",0,1
+"London, Guy's",0,0.963270039
+"London, Guy's",3,0.961461785
+"London, Guy's",7,0.959652934
+"London, Guy's",12,0.957843114
+"London, Guy's",30,0.956034309
+"London, Guy's",76,0.954204506
+"London, Guy's",84,0.952371445
+"London, Guy's",106,0.950449057
+"London, Guy's",127,0.948514936
+"London, Guy's",134,0.946577997
+"London, Guy's",149,0.94462426
+"London, Guy's",189,0.942665208
+"London, Guy's",199,0.940705339
+"London, Guy's",212,0.938742296
+"London, Guy's",225,0.936776927
+"London, Guy's",241,0.934811051
+"London, Guy's",263,0.932846707
+"London, Guy's",272,0.930873708
+"London, Guy's",514,0.928628765
+"London, Guy's",541,0.926379625
+"London, Guy's",557,0.924121189
+"London, Guy's",622,0.921859727
+"London, Guy's",658,0.919555209
+"London, Guy's",664,0.917214745
+"London, Guy's",667,0.914874605
+"London, Guy's",677,0.912524746
+"London, Guy's",768,0.909758227
+"London, Guy's",794,0.90690688
+"London, Guy's",795,0.904056718
+"London, Guy's",810,0.901185358
+"London, Guy's",826,0.898312733
+"London, Guy's",903,0.895407555
+"London, Guy's",941,0.892503983
+"London, Guy's",966,0.889592321
+"London, Guy's",988,0.886680604
+"London, Guy's",1000,0.883729562
+"London, Guy's",1040,0.880679953
+"London, Guy's",1127,0.876819078
+"London, Guy's",1157,0.872771617
+"London, Guy's",1225,0.868675249
+"London, Guy's",1340,0.864515053
+"London, Guy's",1366,0.860330412
+"London, Guy's",1449,0.855502183
+"London, Guy's",1478,0.850337661
+"London, Guy's",1662,0.8446264
+"London, Guy's",1682,0.838923336
+"London, Guy's",1826,0.838923336
+"London, St George’s",0,1
+"London, St George’s",0,0.97517032
+"London, St George’s",2,0.970547081
+"London, St George’s",3,0.968231695
+"London, St George’s",5,0.965915196
+"London, St George’s",8,0.963597564
+"London, St George’s",12,0.961277745
+"London, St George’s",38,0.958953323
+"London, St George’s",50,0.956598038
+"London, St George’s",53,0.954231332
+"London, St George’s",59,0.951867016
+"London, St George’s",100,0.949270582
+"London, St George’s",132,0.946635649
+"London, St George’s",247,0.943986919
+"London, St George’s",689,0.94080793
+"London, St George’s",848,0.936983954
+"London, St George’s",920,0.933104556
+"London, St George’s",1029,0.929034251
+"London, St George’s",1077,0.924754115
+"London, St George’s",1168,0.919732723
+"London, St George’s",1456,0.913744129
+"London, St George’s",1725,0.906594141
+"London, St George’s",1762,0.899108502
+"London, St George’s",1826,0.899108502
+Portsmouth,0,1
+Portsmouth,0,0.983119858
+Portsmouth,2,0.980281804
+Portsmouth,112,0.97702849
+Portsmouth,129,0.973728144
+Portsmouth,199,0.970392414
+Portsmouth,203,0.967056102
+Portsmouth,268,0.963703792
+Portsmouth,290,0.960355763
+Portsmouth,306,0.957013822
+Portsmouth,418,0.953268166
+Portsmouth,428,0.94952927
+Portsmouth,470,0.945747104
+Portsmouth,570,0.941929769
+Portsmouth,640,0.938092557
+Portsmouth,880,0.93348969
+Portsmouth,886,0.928884264
+Portsmouth,936,0.924223878
+Portsmouth,1010,0.919548113
+Portsmouth,1094,0.914434093
+Portsmouth,1209,0.907923477
+Portsmouth,1331,0.901212896
+Portsmouth,1385,0.894458935
+Portsmouth,1604,0.885177984
+Portsmouth,1668,0.875665836
+Portsmouth,1687,0.866079347
+Portsmouth,1760,0.85624618
+Portsmouth,1826,0.85624618
+Oxford,0,1
+Oxford,0,0.988936282
+Oxford,3,0.985230662
+Oxford,9,0.983375035
+Oxford,52,0.98151696
+Oxford,68,0.979653743
+Oxford,76,0.97593412
+Oxford,85,0.974065921
+Oxford,133,0.972151121
+Oxford,136,0.970235466
+Oxford,141,0.968308571
+Oxford,159,0.966382981
+Oxford,176,0.964459239
+Oxford,180,0.962532301
+Oxford,299,0.960582868
+Oxford,328,0.958619244
+Oxford,401,0.95643924
+Oxford,485,0.954213974
+Oxford,559,0.951963401
+Oxford,617,0.949694433
+Oxford,619,0.94742516
+Oxford,628,0.945150326
+Oxford,637,0.942850096
+Oxford,681,0.940370266
+Oxford,722,0.937685021
+Oxford,758,0.93484853
+Oxford,885,0.931928229
+Oxford,1051,0.928810815
+Oxford,1089,0.925439082
+Oxford,1183,0.921723681
+Oxford,1337,0.917929861
+Oxford,1367,0.913977427
+Oxford,1503,0.909104247
+Oxford,1647,0.904120132
+Oxford,1826,0.904120132
+Bristol,0,1
+Bristol,0,0.990397192
+Bristol,1,0.985573243
+Bristol,20,0.98309562
+Bristol,27,0.980594947
+Bristol,31,0.97808277
+Bristol,33,0.975572033
+Bristol,61,0.972913531
+Bristol,65,0.970242425
+Bristol,229,0.96738478
+Bristol,234,0.964521166
+Bristol,250,0.961651404
+Bristol,289,0.958775411
+Bristol,318,0.95587799
+Bristol,323,0.952975757
+Bristol,571,0.949871317
+Bristol,748,0.946332295
+Bristol,762,0.942709492
+Bristol,793,0.938944566
+Bristol,1112,0.9343984
+Bristol,1333,0.929198984
+Bristol,1454,0.923309813
+Bristol,1615,0.91623479
+Bristol,1826,0.91623479
+Plymouth,0,1
+Plymouth,0,0.964035603
+Plymouth,151,0.958843959
+Plymouth,155,0.953650304
+Plymouth,158,0.948437047
+Plymouth,170,0.943238066
+Plymouth,172,0.938031157
+Plymouth,224,0.932760662
+Plymouth,270,0.927465692
+Plymouth,307,0.922174999
+Plymouth,356,0.916751627
+Plymouth,388,0.911208268
+Plymouth,421,0.905475193
+Plymouth,441,0.899739488
+Plymouth,460,0.894001275
+Plymouth,522,0.888237283
+Plymouth,576,0.882481231
+Plymouth,718,0.87627275
+Plymouth,766,0.869814957
+Plymouth,774,0.863365374
+Plymouth,960,0.856830592
+Plymouth,1124,0.848514116
+Plymouth,1255,0.839829376
+Plymouth,1336,0.831133569
+Plymouth,1440,0.821643442
+Plymouth,1448,0.811598534
+Plymouth,1474,0.800837764
+Plymouth,1574,0.789145969
+Plymouth,1696,0.777347041
+Plymouth,1826,0.777347041
+Birmingham,0,1
+Birmingham,0,0.952234808
+Birmingham,1,0.948747996
+Birmingham,2,0.947000099
+Birmingham,5,0.945252491
+Birmingham,7,0.943505491
+Birmingham,8,0.941750215
+Birmingham,9,0.939991494
+Birmingham,37,0.938232989
+Birmingham,40,0.936475627
+Birmingham,72,0.934707403
+Birmingham,78,0.932937746
+Birmingham,85,0.931168748
+Birmingham,111,0.929395966
+Birmingham,113,0.927623412
+Birmingham,120,0.925850389
+Birmingham,122,0.924076762
+Birmingham,134,0.922302794
+Birmingham,161,0.920527267
+Birmingham,189,0.918742094
+Birmingham,190,0.916957574
+Birmingham,224,0.915164352
+Birmingham,244,0.913365738
+Birmingham,309,0.91156577
+Birmingham,315,0.90976488
+Birmingham,324,0.907947753
+Birmingham,337,0.906117143
+Birmingham,345,0.904284197
+Birmingham,359,0.902440547
+Birmingham,373,0.900580488
+Birmingham,477,0.89869681
+Birmingham,546,0.896807842
+Birmingham,563,0.894914957
+Birmingham,676,0.892963412
+Birmingham,710,0.890899114
+Birmingham,724,0.888765319
+Birmingham,726,0.886628285
+Birmingham,777,0.884250564
+Birmingham,827,0.881844384
+Birmingham,860,0.879433914
+Birmingham,984,0.877025863
+Birmingham,1044,0.874571847
+Birmingham,1077,0.871967153
+Birmingham,1084,0.869334872
+Birmingham,1117,0.86650136
+Birmingham,1175,0.863568508
+Birmingham,1224,0.860594768
+Birmingham,1338,0.857557411
+Birmingham,1414,0.854315101
+Birmingham,1443,0.850781993
+Birmingham,1452,0.847152748
+Birmingham,1474,0.843376387
+Birmingham,1718,0.839369631
+Birmingham,1735,0.835367642
+Birmingham,1741,0.831355909
+Birmingham,1826,0.831355909
+Coventry,0,1
+Coventry,0,0.971752312
+Coventry,1,0.966018273
+Coventry,71,0.960013401
+Coventry,142,0.953838751
+Coventry,249,0.947670843
+Coventry,266,0.941460946
+Coventry,313,0.935156218
+Coventry,563,0.928066
+Coventry,701,0.920523065
+Coventry,777,0.912113782
+Coventry,1143,0.901934888
+Coventry,1777,0.886246
+Coventry,1826,0.886246
+Liverpool,0,1
+Liverpool,0,0.984818495
+Liverpool,2,0.982264339
+Liverpool,4,0.979710765
+Liverpool,5,0.977155676
+Liverpool,10,0.9746014
+Liverpool,15,0.972045443
+Liverpool,26,0.969490109
+Liverpool,37,0.966934476
+Liverpool,41,0.964379587
+Liverpool,44,0.961824363
+Liverpool,46,0.95926557
+Liverpool,73,0.956705782
+Liverpool,103,0.954135701
+Liverpool,138,0.951520914
+Liverpool,156,0.948906275
+Liverpool,211,0.946239011
+Liverpool,221,0.943568908
+Liverpool,241,0.940881982
+Liverpool,335,0.938174381
+Liverpool,360,0.935432388
+Liverpool,478,0.932539478
+Liverpool,599,0.929589295
+Liverpool,612,0.926635671
+Liverpool,760,0.923232743
+Liverpool,865,0.919769933
+Liverpool,873,0.912849175
+Liverpool,1141,0.908551911
+Liverpool,1182,0.904247031
+Liverpool,1222,0.899932046
+Liverpool,1278,0.895590117
+Liverpool,1312,0.891254098
+Liverpool,1370,0.886753684
+Liverpool,1374,0.882248075
+Liverpool,1450,0.87724509
+Liverpool,1657,0.871826002
+Liverpool,1723,0.866074945
+Liverpool,1826,0.866074945
+Manchester,0,1
+Manchester,0,0.977362661
+Manchester,1,0.975043549
+Manchester,4,0.973883504
+Manchester,5,0.97272366
+Manchester,8,0.971564086
+Manchester,39,0.970396806
+Manchester,51,0.969228698
+Manchester,63,0.968052441
+Manchester,90,0.966859087
+Manchester,110,0.965653539
+Manchester,127,0.964445123
+Manchester,151,0.963233497
+Manchester,156,0.962021372
+Manchester,175,0.960803555
+Manchester,302,0.959572579
+Manchester,304,0.958338128
+Manchester,371,0.957049546
+Manchester,380,0.955750393
+Manchester,382,0.954448595
+Manchester,423,0.953143672
+Manchester,466,0.95182925
+Manchester,480,0.950508902
+Manchester,508,0.949186232
+Manchester,549,0.947862556
+Manchester,574,0.946535299
+Manchester,596,0.945204913
+Manchester,646,0.943832841
+Manchester,653,0.942448059
+Manchester,658,0.941056882
+Manchester,678,0.939632697
+Manchester,742,0.938022432
+Manchester,807,0.936366772
+Manchester,837,0.934708536
+Manchester,860,0.933047781
+Manchester,872,0.931387755
+Manchester,887,0.929729727
+Manchester,902,0.928069409
+Manchester,972,0.926374967
+Manchester,1035,0.924556341
+Manchester,1036,0.922731434
+Manchester,1047,0.920863014
+Manchester,1181,0.918720193
+Manchester,1257,0.916562665
+Manchester,1342,0.914366931
+Manchester,1344,0.912162827
+Manchester,1421,0.909663744
+Manchester,1523,0.90690617
+Manchester,1565,0.904113409
+Manchester,1591,0.901312405
+Manchester,1599,0.898503445
+Manchester,1674,0.895667189
+Manchester,1680,0.889975644
+Manchester,1826,0.889975644
+Glasgow,0,1
+Glasgow,0,0.987834413
+Glasgow,1,0.982587257
+Glasgow,2,0.980830072
+Glasgow,4,0.979072725
+Glasgow,5,0.975556838
+Glasgow,9,0.973790765
+Glasgow,10,0.972022259
+Glasgow,13,0.970254877
+Glasgow,19,0.968485708
+Glasgow,39,0.966689658
+Glasgow,41,0.964893952
+Glasgow,50,0.963093899
+Glasgow,67,0.961290608
+Glasgow,100,0.959478653
+Glasgow,167,0.957659807
+Glasgow,197,0.955840551
+Glasgow,202,0.954020356
+Glasgow,215,0.952192989
+Glasgow,225,0.950365792
+Glasgow,320,0.948518369
+Glasgow,325,0.946669225
+Glasgow,337,0.944819307
+Glasgow,364,0.942960982
+Glasgow,366,0.941062365
+Glasgow,380,0.93913014
+Glasgow,395,0.937152677
+Glasgow,424,0.935162465
+Glasgow,431,0.933167156
+Glasgow,438,0.931168968
+Glasgow,453,0.929165754
+Glasgow,506,0.927160587
+Glasgow,567,0.925138524
+Glasgow,581,0.923115821
+Glasgow,597,0.92108685
+Glasgow,640,0.919059193
+Glasgow,698,0.917009273
+Glasgow,714,0.914935137
+Glasgow,724,0.912839748
+Glasgow,733,0.910680355
+Glasgow,798,0.908307656
+Glasgow,823,0.905931709
+Glasgow,867,0.903539885
+Glasgow,989,0.901075322
+Glasgow,1148,0.898011035
+Glasgow,1235,0.894926097
+Glasgow,1257,0.891841755
+Glasgow,1279,0.888757062
+Glasgow,1319,0.885658578
+Glasgow,1378,0.882559556
+Glasgow,1380,0.879462241
+Glasgow,1440,0.876319425
+Glasgow,1456,0.873171761
+Glasgow,1516,0.869349147
+Glasgow,1520,0.865532458
+Glasgow,1757,0.861669536
+Glasgow,1796,0.857606042
+Glasgow,1826,0.857606042
+Edinburgh,0,1
+Edinburgh,0,0.985621413
+Edinburgh,12,0.982702323
+Edinburgh,70,0.979779807
+Edinburgh,91,0.976792033
+Edinburgh,147,0.973745494
+Edinburgh,183,0.970687989
+Edinburgh,191,0.967626261
+Edinburgh,236,0.964550967
+Edinburgh,249,0.961463534
+Edinburgh,310,0.958339267
+Edinburgh,345,0.955102447
+Edinburgh,482,0.951382135
+Edinburgh,485,0.947663473
+Edinburgh,530,0.943911756
+Edinburgh,541,0.94014227
+Edinburgh,585,0.936377356
+Edinburgh,809,0.931650652
+Edinburgh,1016,0.926780516
+Edinburgh,1151,0.921025962
+Edinburgh,1341,0.915121874
+Edinburgh,1412,0.90912943
+Edinburgh,1484,0.902041549
+Edinburgh,1661,0.894515242
+Edinburgh,1738,0.886822698
+Edinburgh,1806,0.877793264
+Edinburgh,1826,0.877793264
+"London, WLRTC",0,1
+"London, WLRTC",0,0.9778131
+"London, WLRTC",1,0.97457653
+"London, WLRTC",13,0.972948472
+"London, WLRTC",93,0.971304954
+"London, WLRTC",128,0.969657369
+"London, WLRTC",161,0.96800801
+"London, WLRTC",171,0.966356192
+"London, WLRTC",172,0.96470487
+"London, WLRTC",188,0.963043072
+"London, WLRTC",191,0.961379167
+"London, WLRTC",265,0.959707944
+"London, WLRTC",271,0.958035244
+"London, WLRTC",278,0.954691141
+"London, WLRTC",285,0.953018691
+"London, WLRTC",322,0.951309007
+"London, WLRTC",324,0.949593129
+"London, WLRTC",389,0.947824652
+"London, WLRTC",424,0.94605001
+"London, WLRTC",438,0.944262917
+"London, WLRTC",469,0.942465039
+"London, WLRTC",479,0.940661019
+"London, WLRTC",578,0.938845203
+"London, WLRTC",581,0.937025907
+"London, WLRTC",602,0.935198944
+"London, WLRTC",662,0.933346245
+"London, WLRTC",679,0.931452834
+"London, WLRTC",680,0.9295469
+"London, WLRTC",789,0.927310302
+"London, WLRTC",817,0.925076193
+"London, WLRTC",869,0.922828159
+"London, WLRTC",902,0.920573552
+"London, WLRTC",919,0.918299
+"London, WLRTC",1033,0.915957692
+"London, WLRTC",1034,0.913615784
+"London, WLRTC",1110,0.910727234
+"London, WLRTC",1141,0.907819564
+"London, WLRTC",1149,0.904901594
+"London, WLRTC",1214,0.901949786
+"London, WLRTC",1244,0.898983553
+"London, WLRTC",1264,0.896015167
+"London, WLRTC",1379,0.893016892
+"London, WLRTC",1567,0.8891172
+"London, WLRTC",1577,0.885193693
+"London, WLRTC",1588,0.881267142
+"London, WLRTC",1666,0.877316779
+"London, WLRTC",1826,0.877316779
+Cardiff,0,1
+Cardiff,0,0.981739508
+Cardiff,1,0.976453653
+Cardiff,9,0.971150199
+Cardiff,12,0.968491236
+Cardiff,30,0.965813831
+Cardiff,31,0.963137934
+Cardiff,66,0.960449661
+Cardiff,126,0.957713868
+Cardiff,344,0.954913128
+Cardiff,376,0.952037762
+Cardiff,514,0.949112466
+Cardiff,540,0.946192441
+Cardiff,581,0.940351232
+Cardiff,604,0.937396954
+Cardiff,912,0.934034177
+Cardiff,923,0.930672785
+Cardiff,1030,0.927203578
+Cardiff,1112,0.923449972
+Cardiff,1138,0.919669769
+Cardiff,1185,0.915867623
+Cardiff,1232,0.912035025
+Cardiff,1256,0.90817568
+Cardiff,1282,0.904281184
+Cardiff,1296,0.900373833
+Cardiff,1310,0.896418704
+Cardiff,1370,0.8924433
+Cardiff,1497,0.887894612
+Cardiff,1511,0.883347198
+Cardiff,1712,0.878568263
+Cardiff,1734,0.873773788
+Cardiff,1748,0.868928182
+Cardiff,1763,0.863991007
+Cardiff,1771,0.858906861
+Cardiff,1808,0.853627387
+Cardiff,1826,0.853627387

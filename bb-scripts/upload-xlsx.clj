@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env bb --nrepl-server 1667
 ;
 ; To attach nrepl in Calva for babashka debug:
 ; 1) In a terminal run `bb --nrepl-server 1667`
@@ -25,10 +25,11 @@
                      slash "Winton Centre" 
                      slash "TRANSPLANT"
                      slash "configuration"))
-(def kidney (str "data" slash "kidney-models-master.xlsx"))
-(def lung (str "data" slash "lung-models-master.xlsx"))
+(def kidney (str "resources" slash "kidney-models-master.xlsx"))
+(def lung (str "resources" slash "lung-models-master.xlsx"))
 
 (comment
+  (sh "pwd")
   (sh "ls" lung)
   (sh "ls" kidney)
   (sh "ls" transplant))

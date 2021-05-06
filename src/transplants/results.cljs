@@ -145,6 +145,7 @@
                                   :background-color "#fec2"
                                   :padding 0
                                   :position "absolute"
+                                  :pointer-events "none" ; to allow click through
                                   :top 0
                                   :right 0
                                   :bottom 0

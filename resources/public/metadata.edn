@@ -164,20 +164,15 @@
                                                     :x-offset -10
                                                     :y-offset 610
                                                     :line "By the end of year 1"}
-                                                   {:time-index 2
-                                                    :x-offset -10
-                                                    :y-offset 610
-                                                    :line "By the end of year 2"}
                                                    {:time-index 3
                                                     :x-offset -10
                                                     :y-offset 610
-                                                    :line ["By the end of year 3"]}]
-                                          :bins [{:label "At Listing"}
-                                                 {:label "After 1 year"}
-                                                 {:label "After 2 years"}
-                                                 {:label "After 3 years"}
-                                                 {:label "After 4 years"}
-                                                 {:label "After 5 years"}]}
+                                                    :line "By the end of year 3"}
+                                                   {:time-index 5
+                                                    :x-offset -10
+                                                    :y-offset 610
+                                                    :line ["By the end of year 5"]}]
+}
 
                                   :text {:pre "Imagine 100 people who entered the same information as you 
                                                join the waiting list"

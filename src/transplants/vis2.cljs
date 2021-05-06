@@ -910,22 +910,21 @@
         randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
     (locals)
-    [:div "Hi"]
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
-     (for [[i label] [(range ) ]
-           #_#_time-index (:time-index label) ;(range (count year-series))
-           #_#_:let [[days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
-       [:p {:key i} label #_(pr-str i #_time-index "::" label)]
-       #_[:p (pr-str [days {:keys [int-fs cum-int-fs]}])]
-       #_[ui/row {:style {:padding "0px 0px"}
+     (for [i (range (count labels))
+           :let [label (nth labels i)
+                 time-index (:time-index label)
+                 [days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
+       [ui/row {:style {:padding "0px 0px"}
                 :key (str "year-" time-index)}
         [ui/col {:key 1}
+
+         [:h5 {:style {:margin-top 20}}
+            (let [line (:line label)]
+              (if (sequential? line) (map str line) line))]
          
-         [:h5 {:style {:margin-top 20}} (get-in
-                                         label
-                                         [:line 1])]
          [ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (assoc (space {:outer {:width svg-width
                                                     :height svg-height}

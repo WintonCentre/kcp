@@ -23,6 +23,7 @@
    [_ _]
    (merge init-db/default-db
           {:current-route nil
+           :randomise-icons false
            :inputs {}
            :selected-vis "bars"
            :window-width (.-innerWidth js/window)
@@ -86,6 +87,7 @@
  ::randomise-icons
  (fn ;-traced 
    [db [_ _]]
+   (?-> (:randomise-icons db) ::randomise-icons)
    (update db :randomise-icons not)))
 
 (rf/reg-event-db

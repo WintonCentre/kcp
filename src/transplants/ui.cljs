@@ -344,14 +344,14 @@ in the routes table."
   "A simple checkbox asking whether an icon array should be randomised or ordered."
   [label]
   [:> bs/Form
-   [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
-                      :style {:margin "0px 1.6% 0px 0px"
+   [:> bs/Form.Group {:style {:margin "0px 1.6% 0px 0px"
                               :padding "10px 0px 0px 20px"
                               :color "#000"
                               :background-color "#CCC"}}
     [:> bs/Form.Check {:inline true
                        :type "checkbox"
-                       :on-change #(rf/dispatch [::events/randomise-icons])
+                       :on-change identity
                        :checked @(rf/subscribe [::subs/randomise-icons])}]
-    [:> bs/Form.Label label]]])
+    [:> bs/Form.Label {:on-click #(rf/dispatch [::events/randomise-icons])}
+     label]]])
 

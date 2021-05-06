@@ -927,27 +927,30 @@
 (defn stacked-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
   [year-series tool-mdata data-styles]
-  (let [plot-order (:plot-order tool-mdata)
+  (let [svg-width (get-in tool-mdata [:icons :svg-width])
+        svg-height (get-in tool-mdata [:icons :svg-height])
+        plot-order (:plot-order tool-mdata)
         randomise-icons @(rf/subscribe [::subs/randomise-icons])
-        svg-width 575
-        svg-height 250
         icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
     (locals)
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
-     (for [yr (range (count year-series))
-           :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series yr)]]
+     (for [label (get-in tool-mdata [:icons :labels])
+           time-index (:time-index label);(range (count year-series))
+           :let [[_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
        #_[:p "HELLO " yr
         (pr-str (get-in tool-mdata [:icons :bins]))]
        [ui/row {:style {:padding "0px 0px"}
-                :key (str "year-" yr)}
+                :key (str "year-" time-index)}
         [ui/col {:key 1}
          
-         [:h5 {:style {:margin-top 20}} (:label (nth (get-in tool-mdata [:icons :bins]) yr))]
+         [:h5 {:style {:margin-top 20}} (get-in
+                                         label
+                                         [:line 1])]
          [ui/randomise-query-panel "Randomise order?"]
-         [svgc/svg-container (assoc (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                             :height (get-in tool-mdata [:icons :svg-height])}
+         [svgc/svg-container (assoc (space {:outer {:width svg-width
+                                                    :height svg-height}
                                             :aspect-ratio (aspect-ratio svg-width svg-height)
                                             :margin (get-in tool-mdata [:icons :svg-margin])
                                             :padding (get-in tool-mdata [:icons :svg-padding])
@@ -976,7 +979,8 @@
 (defn icon-array
   "render an icon array results view"
   [{:keys [organ tool base-outcome-keys s0 F] :as env}]
-  (let [sample-days (map
+  (locals)
+  #_(let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)

@@ -470,7 +470,7 @@
                                              :stroke-width 1
                                              :stroke "#000"
                                              :label-fill "#000000"}}
-                       :plot-order [:survival :residual]
+                       :plot-order [:ldsurvival :residual]
                        :bars {:width 150
                               :spacing 3.2
                               :font-size 30
@@ -547,7 +547,7 @@
                                        :stroke-width 1
                                        :stroke "#000"
                                        :label-fill "#000000"}}
-                    :plot-order [:graft :residual]
+                    :plot-order [:ldgraft :residual]
                     :bars {:width 150
                            :spacing 3.2
                            :font-size 30

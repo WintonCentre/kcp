@@ -464,7 +464,7 @@
                                              :stroke-width 1
                                              :stroke "#000"
                                              :label-fill "#fff"}
-                                  :survival {:label "Died"
+                                  :ldsurvival {:label "Died"
                                              :fill "#ffffff"
                                              :opacity 0.7
                                              :stroke-width 1
@@ -533,8 +533,8 @@
                                          :x-offset -10
                                          :y-offset 610
                                          :line ["By the end of year 5"]}]}
-                       :pre-section [:h4 "About how long do people survive after a transplant?"]
-                       :post-section [:h5 "Patient Survival Post Transplant"]}
+                       :pre-section [:h4 "About how long do people survive after a living donor transplant?"]
+                       :post-section [:h5 "Patient survival after a living donor transplant"]}
           :ldgraft {:outcomes {:residual {:label "LD Graft survived"
                                           :fill "#0044AA"
                                           :opacity 0.7
@@ -610,7 +610,7 @@
                                       :x-offset -10
                                       :y-offset 610
                                       :line ["By the end of year 5"]}]}
-                    :pre-section [:h4 "About how long does the graft survive after a transplant from a living donor?"]
-                    :post-section [:h5 "Living Donor Graft Survival Post Transplant"]}
+                    :pre-section [:h4 "About how long does the graft survive after a living donor transplant?"]
+                    :post-section [:h5 "Graft survival after a living donor transplant"]}
                     }}
 

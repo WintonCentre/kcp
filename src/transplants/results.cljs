@@ -82,9 +82,11 @@
         s0-for-day (model/S0-for-day s0 day)
 
         cox? (model/use-cox-adjusted? tool)
-        F (if false #_(= (:selected-vis env) "test")
+        F (model/cox-adjusted s0 sum-betas)
+        #_(if cox? ;false #_(= (:selected-vis env) "test")
               (model/cox s0-for-day sum-betas)
-              (model/cox-adjusted s0 sum-betas))
+              (model/cox-adjusted s0 sum-betas)
+              )
 
         env (conj env
                   [:sum-betas sum-betas]
@@ -108,6 +110,7 @@
                                                  nil "#CCC"))
                      :border-radius 5
                      :margin-top 30
+                     :margin-bottom 20
                      :padding "20px 5px 5px 15px"
                      :position "relative"}}
        (condp = overlay

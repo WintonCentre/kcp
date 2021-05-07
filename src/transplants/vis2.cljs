@@ -509,7 +509,7 @@
                      (nth time-series (:time-index bin-label))
                      x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                      x-mid (+ x0 (/ bar-width 2) -0)
-                     staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
+                     staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs))]
                  (into [:g {:key bar-index}]
                        (conj
                         (map (fn [i data-key cif cum-cif int-fs]
@@ -558,7 +558,7 @@
    outcomes are the cif data-series"
   #_[X Y time-series data-keys tool-mdata data-styles]
   [{:keys [data-keys tool-mdata] :as params}]
-  ;(locals)
+  (locals)
   (let [params (assoc params
                       :bin-labels (get-in tool-mdata [:bars :labels])
                       :spacing (get-in tool-mdata [:bars :spacing])
@@ -589,11 +589,12 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        tool-mdata (get-in env [:mdata organ :tools tool])
+        tool-mdata (get-in env [:mdata organ :tools tool]) ;; returnng nil for path [:mdata :kidney :tools :survival]
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         svg-width 1060
         svg-height 700]
+    (locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
@@ -765,7 +766,7 @@
                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
                         [time {:keys [fs cum-fs int-fs]}] (nth year-series bar-index)
-                        staggers (label-staggers 0.1 (map #(if (nil? %) 0 %) fs))]
+                        staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs))]
                     ;(locals)
                     (into [:g {:key time}]
                           (conj
@@ -940,7 +941,7 @@
           (fn [x y X Y]
             [:g
              (svg-outcome-legend plot-order data-styles
-                                 {:width 300
+                                 {:width 320
                                   :string-value-f (fn [i] (str ": " (int-fs i) "%"))
                                   :position-f #(str "translate(0 " (+ -35 (* 60 %)) "),scale(0.7)")})
              (for [i (range 10)

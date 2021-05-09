@@ -231,13 +231,22 @@ in the routes table."
 (defn tools-menu
   "Render a group of tool selection buttons"
   [tools organ-name centre-name orientation]
-
-  (->> tools
-       (map #(conj % [:organ organ-name]))
-       (map #(conj % [:centre centre-name]))
-       (map #(conj % [:tool (:key %)]))
-       (map tool-buttons)
-       (into [:> bs/ButtonGroup orientation])))
+  [:> bs/ButtonToolbar
+   ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
+   ;; Even better would be to configure the break points as what makes sense will be ver application
+   ;; specific.
+   (->> (take 3 tools)
+        (map #(conj % [:organ organ-name]))
+        (map #(conj % [:centre centre-name]))
+        (map #(conj % [:tool (:key %)]))
+        (map tool-buttons)
+        (into [:> bs/ButtonGroup orientation]))
+   (->> (drop 3 tools)
+        (map #(conj % [:organ organ-name]))
+        (map #(conj % [:centre centre-name]))
+        (map #(conj % [:tool (:key %)]))
+        (map tool-buttons)
+        (into [:> bs/ButtonGroup orientation]))])
 
 (defn background-link
   "Tool menu prefix rubric."

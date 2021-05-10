@@ -10,9 +10,6 @@
             [transplants.utils :as utils]
             [shadow.debug :refer [locals ?> ?->]]))
 
-#_(defn survival [outcome baseline-cifs sum-x-betas oct-bundle day]
-  (let [s-outcome-day (js/Math.pow (bun/cif-0 oct-bundle day) (js/Math.exp sum-x-betas))]))
-
 (comment
   (def day 100)
   (def route @(rf/subscribe [::subs/current-route]))
@@ -82,9 +79,11 @@
         s0-for-day (model/S0-for-day s0 day)
 
         cox? (model/use-cox-adjusted? tool)
-        F (if false #_(= (:selected-vis env) "test")
+        F (model/cox-adjusted s0 sum-betas)
+        #_(if cox? ;false #_(= (:selected-vis env) "test")
               (model/cox s0-for-day sum-betas)
-              (model/cox-adjusted s0 sum-betas))
+              (model/cox-adjusted s0 sum-betas)
+              )
 
         env (conj env
                   [:sum-betas sum-betas]
@@ -108,6 +107,7 @@
                                                  nil "#CCC"))
                      :border-radius 5
                      :margin-top 30
+                     :margin-bottom 20
                      :padding "20px 5px 5px 15px"
                      :position "relative"}}
        (condp = overlay
@@ -145,6 +145,7 @@
                                   :background-color "#fec2"
                                   :padding 0
                                   :position "absolute"
+                                  :pointer-events "none" ; to allow click through
                                   :top 0
                                   :right 0
                                   :bottom 0

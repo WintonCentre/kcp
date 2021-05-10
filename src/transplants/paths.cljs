@@ -19,7 +19,7 @@
   [organ]
   (str (prefix organ) "centres.txt"))
 
-(defn organ-centre-name-tool
+#_(defn organ-centre-name-tool
   [organ centre-name tool]
   ;(println ::tool tool)
   (if (= (name tool) "guidance")
@@ -27,6 +27,27 @@
     (str (prefix organ)
          (underscore centre-name) slash
          (underscore tool) ".txt")))
+
+(defn organ-centre-name-tool
+  "return a pathname for tool data, else nil"
+  [organ centre-name tool]
+  (println ::tool tool)
+  (let [tool-name (underscore (name tool))
+        path
+        (cond
+      ;; todo: NHSBT dependent
+          (= tool-name "guidance") nil
+
+      ;; todo: NHSBT dependent
+          (#{"ldsurvival" "ldgraft"} tool-name) (str (prefix organ)
+                                                     "UK" slash
+                                                     tool-name ".txt")
+      ;; OK
+          :else (str (prefix organ)
+                     (underscore centre-name) slash
+                     tool-name ".txt"))]
+    (println ::organ-centre-name-tool "path=" path)
+    path))
 
 (comment
   (prefix "lung")

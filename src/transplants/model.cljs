@@ -206,6 +206,9 @@
 (defn use-cox-adjusted?
   "Competing risk tools demand the cox-adjusted model"
   [tool]
+  ;;
+  ;; todo - we should be counting the outcomes here. More than 1 implies true
+  ;;
   (= tool :waiting))
 
 (defn cox

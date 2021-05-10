@@ -3,7 +3,6 @@
    [clojure.string :as string]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
-   ;["core-js/es"]
    [transplants.bundles :as bun]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
@@ -162,17 +161,14 @@
         randomise-icons @(rf/subscribe [::subs/randomise-icons])]
     [:<>
      [:h3 (a-percentage (:percent background-infos) percent)]
-     [ui/row {;:margin-bottom 5
-             :display :flex
-             :justify-content "start"
-             :flex-wrap "wrap"}
+     [ui/row {:style {:display :flex
+                      :justify-content "start"
+                      :flex-wrap "wrap"}}
       [ui/col
        [:div {:sm 3 :style {;:margin-bottom 5
                             :display :flex
                             :justify-content "flex-start"
-                            :flex-wrap "wrap"}
-               ;:flex-direction "column"
-              }
+                            :flex-wrap "wrap"}}
         [:div {:style {:display :flex
                        :flex-direction "row"
                        :width 115

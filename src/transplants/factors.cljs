@@ -321,7 +321,10 @@
     beta-outcome-key]
    (->> (:fmaps bundle)
         (map (fn [[factor master-fmap]]
+               (locals)
+               (?-> (selected-beta-x env factor master-fmap beta-outcome-key) ::selected-beta-x)
                (selected-beta-x env factor master-fmap beta-outcome-key)))
+        
         (map last)
         (apply +)))
 

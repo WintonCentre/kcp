@@ -10,9 +10,6 @@
             [transplants.utils :as utils]
             [shadow.debug :refer [locals ?> ?->]]))
 
-#_(defn survival [outcome baseline-cifs sum-x-betas oct-bundle day]
-  (let [s-outcome-day (js/Math.pow (bun/cif-0 oct-bundle day) (js/Math.exp sum-x-betas))]))
-
 (comment
   (def day 100)
   (def route @(rf/subscribe [::subs/current-route]))

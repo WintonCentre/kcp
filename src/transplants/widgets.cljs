@@ -74,20 +74,12 @@
    [:> bs/Col {:xs widget-width}
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
-(defn highlighted-average-button
-  [{:keys [factor-name factor-key levels default type vertical optional] :as w} 
-]
-
-  (when-let [unknown-subtext (get-in w [:levels :unknown :sub-text])]
-    (when-let [average-level-name (get-in w [:levels unknown-subtext :level-name])]
-      (let [widget-id (key->id factor-key)]
-        (?-> widget-id ::widget-id)))))
-
 (defn radio
   [{:keys [factor-name factor-key levels default type vertical optional] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        optional? (= optional :yes)]
-    (when optional? (?-> levels ::button-levels))
+        optional? (some? optional)]
+;    (locals)
+;    (when optional? (?-> [optional levels] ::button-levels))
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:xs label-width
                  :style {:display "flex" :justify-content "flex-end"}}
@@ -103,9 +95,7 @@
                                 :on-change #(rf/dispatch [factor-key
                                                           (keyword %)])
                                 :buttons-f (fn [] (vals levels))})
-      #_(when (= (value-f) :unknown)
-        (when optional?
-          (highlighted-average-button w)))]]))
+      ]]))
 
 
 

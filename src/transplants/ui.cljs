@@ -21,6 +21,12 @@ the low level ui."
 (def tabs "a react/bootstrap component adapter" (rc/adapt-react-class bs/Tabs))
 (def tab "a react/bootstrap component adapter" (rc/adapt-react-class bs/Tab))
 
+(defn svg-styles
+  [styles]
+  (-> styles
+      (dissoc :label-fill)
+      (dissoc :background-color)
+      (dissoc :color)))
 
 (def themes
   "Very provisional colour palette. Unused as yet."

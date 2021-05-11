@@ -7,7 +7,6 @@
 ;;
 ;; This section may be only runtime - but may go into config on
 ;;
-
 (defn underscore
   "replace special chars in file paths with underscore"
   [s]

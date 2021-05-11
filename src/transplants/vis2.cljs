@@ -192,7 +192,8 @@
                   [:g {:transform (position-f i)
                        :key (str data-key "-" i)}
                    [:rect (merge  {:x 0 :y 0 :width width :height height}
-                                  (dissoc styles :label-fill))]
+                                  (ui/svg-styles styles)
+                                  #_(dissoc styles :label-fill))]
                    [:text {:x 10 :y 40
                            :fill (:label-fill styles)
                            :font-size 30}
@@ -243,7 +244,7 @@
 (defn test-rig
   "expose calcluation in test"
   [{:keys [day beta-keys outcomes fmaps s0 sum-betas F] :as env}]
-  (?-> F ::test-rig)
+;  (?-> F ::test-rig)
   (let [factors (keys fmaps)]
     #_(?-> env ::test-rig)
     #_[:div "Not yet"]
@@ -464,7 +465,7 @@
 
 (defn draw-bin-labels
   [{:keys [bin-labels spacing offset font-size X Y]}]
-  (locals)
+;  (locals)
   (into [:g {:key 1}]
         (map-indexed (fn [bar-index bin-label]
                (let [x0 (- (X (+ (* spacing #_(:time-index bin-label) (inc bar-index)))) (X offset))]
@@ -474,7 +475,7 @@
 
 (defn draw-bars
   [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles font-size X Y]}]
-  (locals)
+;  (locals)
   (into [:g {:key 2}]
         (map-indexed (fn [bar-index bin-label]
                (let [;bar-index (:time-index bin-label)
@@ -493,7 +494,8 @@
                                                       :width bar-width
                                                       :height h
                                                       :data-title cif}
-                                                     (dissoc styles :label-fill))]])))
+                                                     (ui/svg-styles styles)
+                                                     #_(dissoc styles :label-fill))]])))
                                 data-keys
                                 fs
                                 cum-fs))]))
@@ -536,7 +538,8 @@
                                                    :y (- y-mid 30)
                                                    :height 40
                                                    :rx 10}
-                                                  (dissoc styles :label-fill))]
+                                                  (ui/svg-styles styles)
+                                                  #_(dissoc styles :label-fill))]
                                     [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                      (str int-fs "%")]])))
                              (range)
@@ -558,7 +561,7 @@
    outcomes are the cif data-series"
   #_[X Y time-series data-keys tool-mdata data-styles]
   [{:keys [data-keys tool-mdata] :as params}]
-  (locals)
+;  (locals)
   (let [params (assoc params
                       :bin-labels (get-in tool-mdata [:bars :labels])
                       :spacing (get-in tool-mdata [:bars :spacing])
@@ -594,7 +597,7 @@
         plot-order (:plot-order tool-mdata)
         svg-width 1060
         svg-height 700]
-    (locals)
+;    (locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
@@ -612,7 +615,7 @@
 
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-           (locals)
+;           (locals)
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
@@ -672,7 +675,8 @@
                                                       :x (+ x-mid 15)
                                                       :y0 y0
                                                       :y1 (Y cum-cif)
-                                                      :styles (dissoc styles :label-fill)}))
+                                                      :styles (ui/svg-styles styles)
+                                                      #_(dissoc styles :label-fill)}))
                                                  data-keys
                                                  fs
                                                  cum-fs))))
@@ -693,7 +697,7 @@
                                                          :x (+ x-mid 15)
                                                          :y0 y0
                                                          :y1 (Y cum-cif)
-                                                         :styles (dissoc styles :label-fill)}))
+                                                         :styles (ui/svg-styles styles) #_(dissoc styles :label-fill)}))
                                                     data-keys
                                                     fs
                                                     cum-fs))))
@@ -722,7 +726,8 @@
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]
                                    (str x "," y " "))
-                         :style (dissoc  (data-styles dk) :label-fill)}]))
+                         :style (ui/svg-styles (data-styles dk))
+                         #_(dissoc  (data-styles dk) :label-fill)}]))
 
         ; draw labels at yearly intervals
       (into [:g {:key 2}]
@@ -794,7 +799,8 @@
                                                       :y (- y-mid 30)
                                                       :height 40
                                                       :rx 10}
-                                                     (dissoc styles :label-fill))]
+                                                     (ui/svg-styles styles)
+                                                     #_(dissoc styles :label-fill))]
                                        [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                         (str int-fs "%")]])))
                                 (range)
@@ -910,7 +916,7 @@
         labels (get-in tool-mdata [:icons :labels])
         randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
-    (locals)
+;    (locals)
     [ui/col {:sm 12
              :style {:padding 0
                      #_#_:background-color "#CCC"}}
@@ -972,3 +978,49 @@
                          :overflow-y "scroll"}}
       #_"Hello"
       (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)]]))
+
+(defn table-render
+  [year-series tool-mdata data-styles]
+  (let [plot-order (:plot-order tool-mdata)
+        labels (get-in tool-mdata [:table :labels])
+        years (range (count labels))]
+    [:> bs/Table {:responsive "xl" 
+                  :bordered true
+                  :style {:margin-top 20}}
+     [:thead
+      [:tr
+       [:th "Outcome"]
+       (for [i years
+             :let [label (nth labels i)
+                   time-index (:time-index label)
+                   line (:line label)
+                   line (if (sequential? line) (map str line) line)]]
+         [:th {:key (str "y-" i)} line])]]
+     [:tbody
+      (for [j (range (count plot-order))
+            :let [style ((nth plot-order j) data-styles)
+                  outcome (:label style)]]
+        [:tr {:key (str "c-" j) :style style}
+         [:th outcome]
+         (for [i years
+               :let [label (nth labels i)
+                     time-index (:time-index label)
+                     [days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
+           [:td {:key (str "r-" i)} (str (nth int-fs j) "%")])])]]))
+
+(defn table
+  "render a table results view"
+  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+
+  (let [sample-days (map
+                     utils/year->day
+                     (range (inc (utils/day->year (first (last s0))))))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        tool-mdata (get-in env [:mdata organ :tools tool])
+        data-styles (get tool-mdata :outcomes)
+        plot-order (:plot-order tool-mdata)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+    (table-render fs-by-year-in-plot-order tool-mdata data-styles)
+    
+    )
+  )

@@ -59,9 +59,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    (let [value (value-f)
          buttons (buttons-f)
          highlight? (fn [lev] (and (= value :unknown)
-                                   (= lev (:sub-text (first (filter #(= (:level %) :unknown) buttons))))))]
-     (?-> value ::value)
-     (?-> buttons ::buttons)
+                                   (= lev (:optional (first (filter #(= (:level %) :unknown) buttons))))))]
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
              :id id
@@ -77,7 +75,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :border-radius 5
                       :padding 1
                       #_#_:display "grid"}}]
-           (map (fn [{:keys [level-name level sub-text disabled] :as levels}]
+           (map (fn [{:keys [level-name level optional disabled] :as levels}]
                   [:> bs/ToggleButton {;:tabindex "-1"
                                        :type "checkbox"
                                        :key level :disabled false

@@ -87,7 +87,7 @@
  ::randomise-icons
  (fn ;-traced 
    [db [_ _]]
-   (?-> (:randomise-icons db) ::randomise-icons)
+;   (?-> (:randomise-icons db) ::randomise-icons)
    (update db :randomise-icons not)))
 
 (rf/reg-event-db

@@ -22,7 +22,7 @@
    Minimally, navigation from here to an organ home page."
   []
   (let [mdata @(rf/subscribe [::subs/mdata])]
-    (locals)
+;    (locals)
     [ui/page "Trac tools"
      [ui/row
       [ui/col
@@ -322,7 +322,7 @@
              tool-meta (get-tool-meta tools tool)
              tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
              tcb (bun/get-bundle organ centre tool)]
-         (locals)
+;         (locals)
          [ui/page (:description centre-info)
           (when (not= tool :guidance) [ui/background-link organ centre])
           [ui/tools-menu tools organ-name centre-name {:vertical false}]

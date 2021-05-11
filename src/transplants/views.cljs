@@ -51,7 +51,7 @@
        (if-not @tools
          [:div "loading " organ "/edn/tools.txt"]
          (let [centres (sort-by :description ((keyword organ) @centres))
-               centres (filter #(some? (:description %)) centres)
+               centres (filter #(utils/filled-in? (:description %)) centres)
                tools @tools
                centre-card (fn [centre]
                              [ui/centre-card mobile

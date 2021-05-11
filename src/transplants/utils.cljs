@@ -1,5 +1,10 @@
 (ns transplants.utils
-  (:require [clojure.string :refer [starts-with?]]))
+  (:require [clojure.string :as string]))
+
+(defn filled-in?
+  "Does a field contain something?"
+  [field]
+  (and (some? field) (not (string/blank? field))))
 
 (defn get-centre-info
   "Locate the info for an organ & centre from organ-centres"
@@ -127,7 +132,7 @@
        keys
        (map name)
        (remove #{"centre" "days"})
-       ;(filter #(starts-with? % "cif"))
+       ;(filter #(string/starts-with? % "cif"))
        (map #(subs % 4))
        ;(map keyword)
        ))
@@ -138,7 +143,7 @@
   (->> baseline-cifs
        (baseline-outcome-names)
        (map #(keyword (str "cif-" (name %))))
-       ;(filter #(starts-with? % "cif"))
+       ;(filter #(string/starts-with? % "cif"))
        ;(map #(subs % 4))
        ;(map keyword)
        ))
@@ -150,7 +155,7 @@
        first
        keys
        (map name)
-       (filter #(starts-with? % "cif"))
+       (filter #(string/starts-with? % "cif"))
        ;(map #(subs % 4))
        (map keyword)))
 

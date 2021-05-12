@@ -734,7 +734,7 @@
                                                   :stroke-width 1
                                                   :stroke "#000"
                                                   :label-fill "#fff"}
-                                       :ldgraft {:label "LD Graft died"
+                                       :ldgraft {:label "LD graft died"
                                                  :long-label "of LD grafts have died"
                                                  :fill "#ffffff"
                                                  :opacity 0.7

@@ -75,8 +75,8 @@
    :medications "Medications after Transplant Surgery"
    :window "The Window"
    :percent "What does a percentage look like?"
-   :graft-failure "What are my options if my new kidney fails?"}
-  )
+   :graft-failure "What are my options if my new kidney fails?"
+   :kidney-numbers "How many people are on the kidney transplant waiting list?"})
 
 (defmulti show-background-info 
   "Render the selected background info"
@@ -166,6 +166,26 @@
       [:li "HHD (home haemodialysis). HD done at home after training people how to do it. 
             All supplies are provided free. Saves people needing to stick to inflexible 
             hospital appointments."]]]]])
+
+(defmethod show-background-info :kidney-numbers [options]
+  [:<>
+   [:h3 (:kidney-numbers background-infos)]
+   [:p "(April 2019 – March 2020)"]
+   [:p]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of kidney patients on the waiting list"]]
+    [ui/col {:sm 4} [:p 4960]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of transplants carried out"]]
+    [ui/col {:sm 4} [:p 2280]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of deceased transplants carried out"]]
+    [ui/col {:sm 4} [:p 1474]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of living transplants carried out"]]
+    [ui/col {:sm 4} [:p 982]]]
+   [:i {:style {:color "red"}} "These numbers don't add up!"]])
+
 
 (defn a-percentage
   "Replace 'a percentage ' in s with 'v% '"
@@ -265,9 +285,9 @@
        [:> bs/ListGroup.Item {:action true
                               :on-click #(rf/dispatch [::events/background-info :visits])}
         (:visits background-infos)]
-       #_[:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :donors])}
-        (:donors background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :kidney-numbers])}
+        (:kidney-numbers background-infos)]
        [:> bs/ListGroup.Item {:action true
                               :on-click #(rf/dispatch [::events/background-info :medications])}
         (:medications background-infos)]

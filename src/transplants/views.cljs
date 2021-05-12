@@ -275,7 +275,7 @@
                   (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
           [ui/col
-           (when (not= tool :guidance) [ui/background-link organ centre])
+           (when (not= tool :guidance) [ui/background-link organ centre tool])
            [ui/tools-menu tools organ-name centre-name {:vertical false}]]]
          [background-info organ]
          ]))))
@@ -324,7 +324,7 @@
              tcb (bun/get-bundle organ centre tool)]
 ;         (locals)
          [ui/page (:description centre-info)
-          (when (not= tool :guidance) [ui/background-link organ centre])
+          (when (not= tool :guidance) [ui/background-link organ centre tool])
           [ui/tools-menu tools organ-name centre-name {:vertical false}]
           (if-let [tool-centre-bundle tcb]
             [ui/row

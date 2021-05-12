@@ -259,16 +259,18 @@ in the routes table."
 
 (defn background-link
   "Tool menu prefix rubric."
-  [organ centre]
+  [organ centre tool]
   [:p "For more information that will be helpful to patients, follow the link to "
-   [:a {:style {:color "#0062CC"
-                :text-decoration-line "underline"
+   [:a {:style {:color "#007BFF"
+                ;:text-decoration-line "underline"
                 :cursor "pointer"}
         :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
                                  {:organ organ
                                   :centre centre
                                   :tool :guidance}])} "background guidance"]
-   "."])
+   "."
+   " There is also a " [:a {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
+   " which explains the tool in depth."])
 
 (defn nav-card
   "Render a desktop compatible card containing of hospital-local links to tools"

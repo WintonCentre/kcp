@@ -343,8 +343,12 @@
                       (get tool-centre-bundle :fmaps)))]]
              [ui/col {:xs 12 :md {:span 6 :offset 1}}
               [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
-              [:section 
-               [results/results-panel organ centre tool]]]]
+              [:section
+               [results/results-panel organ centre tool]
+               #_(?-> tool-centre-bundle ::tool-centre-bundle)
+               (let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
+                                        [organ :tools tool])]
+                   (:rest-of-page tool-mdata))]]]
             (if (= tool :guidance)
               [background-info organ]
               (let [path (paths/organ-centre-name-tool organ-name

@@ -154,23 +154,29 @@
        #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
         on patients who joined the waiting list between "
           (get-in env [:cohort-dates :from-year]) " and " (get-in env [:cohort-dates :to-year]) "."]
-       [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
-                 :active-key (:selected-vis env)
-                 :on-select #(rf/dispatch [::events/selected-vis %])}
-        [ui/tab {:event-key "bars" :title "Bar Chart"}
-         [vis/bar-chart env]]
+       [:section
+        [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
+                  :active-key (:selected-vis env)
+                  :on-select #(rf/dispatch [::events/selected-vis %])}
+         [ui/tab {:event-key "bars" :title "Bar Chart"}
+          [vis/bar-chart env]]
 
-        [ui/tab {:event-key "area" :title "Area Chart"}
-         [vis/area-chart env]]
+         [ui/tab {:event-key "area" :title "Area Chart"}
+          [vis/area-chart env]]
 
-        [ui/tab {:event-key "icons" :title "Icon Array"}
-         [vis/icon-array env]]
-        
-        [ui/tab {:event-key "table" :title "Table"}
-         [vis/table env]]
+         [ui/tab {:event-key "icons" :title "Icon Array"}
+          [vis/icon-array env]]
 
-        [ui/tab {:variant "secondary"
-                 :event-key "test" :title "[Test]"}
-         [vis/test-rig (conj env
-                             [:rubric [[:h4 "Test Rig"]]]
-                             [:bar-info nil])]]]])))
+         [ui/tab {:event-key "table" :title "Table"}
+          [vis/table env]]
+
+         [ui/tab {:variant "secondary"
+                  :event-key "test" :title "[Test]"}
+          [vis/test-rig (conj env
+                              [:rubric [[:h4 "Test Rig"]]]
+                              [:bar-info nil])]]]
+
+        #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
+                                 [organ :tools tool])]
+          (:rest-of-page tool-mdata))]
+       ])))

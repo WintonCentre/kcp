@@ -989,7 +989,7 @@
                   :style {:margin-top 20}}
      [:thead
       [:tr
-       [:th "Outcome"]
+       ;[:th "Outcome"]
        (for [i years
              :let [label (nth labels i)
                    time-index (:time-index label)
@@ -999,14 +999,14 @@
      [:tbody
       (for [j (range (count plot-order))
             :let [style ((nth plot-order j) data-styles)
-                  outcome (:label style)]]
+                  long-label (:long-label style)]]
         [:tr {:key (str "c-" j) :style style}
-         [:th outcome]
+         ;[:th outcome]
          (for [i years
                :let [label (nth labels i)
                      time-index (:time-index label)
                      [days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
-           [:td {:key (str "r-" i)} (str (nth int-fs j) "%")])])]]))
+           [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
 
 (defn table
   "render a table results view"
@@ -1020,7 +1020,8 @@
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-    (table-render fs-by-year-in-plot-order tool-mdata data-styles)
-    
+        [:section
+         (table-render fs-by-year-in-plot-order tool-mdata data-styles)
+         (:post-section tool-mdata)]
     )
   )

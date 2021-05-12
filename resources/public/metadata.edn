@@ -232,6 +232,7 @@
           :label "Kidney Transplants"
           :tools {:waiting
                   {:outcomes {:transplant {:label "transplanted"
+                                           :long-label "have been transplanted"
                                            :fill "#41af6b"
                                            :background-color "#41af6b"
                                            :color "#fff"
@@ -240,6 +241,7 @@
                                            :stroke "#000"
                                            :label-fill "#fff"}
                               :residual {:label "still waiting"
+                                         :long-label "are still waiting"
                                          :fill "#4866cb"
                                          :background-color "#4866cb"
                                          :color "#fff"
@@ -248,12 +250,14 @@
                                          :stroke "#000"
                                          :label-fill "#fff"}
                               :death {:label "died"
+                                      :long-label "have died"
                                       :fill "#fff"
                                       :opacity 1
                                       :stroke-width 1
                                       :stroke "#000"
                                       :label-fill "#000"}
                               :removal {:label "removed"
+                                        :long-label "have been removed from the list"
                                         :background-color "#fec"
                                         :color "#000"
                                         :fill "#fec"
@@ -261,7 +265,7 @@
                                         :stroke-width 1
                                         :stroke "#000"
                                         :label-fill "#000"}}
-                   :plot-order [:death :transplant :residual :removal]
+                   :plot-order [:death :removal :residual :transplant]
                    :bars {:width 150
                           :spacing 3.2
                           :font-size 30
@@ -345,8 +349,12 @@
                                  [:p "These are the outcomes we would expect for people who entered the same 
                                                information as you, based on patients who joined the waiting list between 2004 and 2014. "]]
                    :post-section [:h5 "Outcomes after listing"]}
-                     ;; these are for deceased donor
+                  ;; these are for deceased donor. Note that the inversion in the outcomes
+                  ;; is caused by the column labelling in the original spreadsheet, and is
+                  ;; not a mistake.
+
                   :survival {:outcomes {:residual {:label "Surviving"
+                                                   :long-label "of patients have survived"
                                                    :fill "#41af6b"
                                                    :background-color "#41af6b"
                                                    :color "#fff"
@@ -355,6 +363,7 @@
                                                    :stroke "#000"
                                                    :label-fill "#fff"}
                                         :survival {:label "Died"
+                                                   :long-label "of patients have died"
                                                    :fill "#ffffff"
                                                    :opacity 0.7
                                                    :stroke-width 1
@@ -437,11 +446,12 @@
                                                :x-offset -10
                                                :y-offset 610
                                                :line ["By the end of year 5"]}]}
-                             
+
                              :pre-section [:h4 "About how long do people survive after a transplant?"]
                              :post-section [:h5 "Patient Survival Post Transplant"]}
 
                   :graft {:outcomes {:residual {:label "Graft survived"
+                                                :long-label "of grafts have survived"
                                                 :fill "#0044AA"
                                                 :background-color "#0044AA"
                                                 :color "#fff"
@@ -449,7 +459,8 @@
                                                 :stroke-width 1
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
-                                     :graft {:label "Graft rejected"
+                                     :graft {:label "Graft failed"
+                                             :long-label "of grafts have died"
                                              :fill "#ffffff"
                                              :opacity 0.7
                                              :stroke-width 1
@@ -531,11 +542,12 @@
                                             :x-offset -10
                                             :y-offset 610
                                             :line ["By the end of year 5"]}]}
-                          
+
                           :pre-section [:h4 "About how long does the graft survive after a transplant?"]
                           :post-section [:h5 "Graft Survival Post Transplant"]}
        ;; ld for living donor
                   :ldsurvival {:outcomes {:residual {:label "Surviving"
+                                                     :long-label "of patients have survived"
                                                      :fill "#41af6b"
                                                      :background-color "#41af6b"
                                                      :color "#fff"
@@ -544,6 +556,7 @@
                                                      :stroke "#000"
                                                      :label-fill "#fff"}
                                           :ldsurvival {:label "Died"
+                                                       :long-label "of patients have died"
                                                        :fill "#ffffff"
                                                        :opacity 0.7
                                                        :stroke-width 1
@@ -625,10 +638,27 @@
                                                  :x-offset -10
                                                  :y-offset 610
                                                  :line ["By the end of year 5"]}]}
-                               
+
                                :pre-section [:h4 "About how long do people survive after a living donor transplant?"]
-                               :post-section [:h5 "Patient survival after a living donor transplant"]}
-                  :ldgraft {:outcomes {:residual {:label "LD Graft survived"
+                               :post-section [:h5 "Patient survival after a living donor transplant"]
+                               :rest-of-page [:section
+                                              [:div {:style {:background-color "#fec"
+                                                             :margin-top 10
+                                                             :padding "20px 0px 5px 20px"
+                                                             :border-left "3px solid #f88"}}
+                                               [:h5 "This is national data, it is not hospital specific. "]
+                                               [:p  "This is because there is not yet enough data to allow a centre 
+                                                specific model to be developed."]]
+                                              [:div {:style {margin-top 20}}
+                                               [:h5 "Why does the display stop at year 5?"]]
+                                              [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                                   data isn’t reliable enough to show 10 year outcomes"]
+                                              [:p "As time passes we will be able to add in more years"]
+                                              [:hr]
+                                              [:p [:i "Data from 2008 indicates that after 10 years, 
+                                              78% were still working"]]]}
+                  :ldgraft {:outcomes {:residual {:label "LD graft survived"
+                                                  :long-label "of LD grafts have survived"
                                                   :fill "#0044AA"
                                                   :background-color "#0044AA"
                                                   :color "#fff"
@@ -636,7 +666,8 @@
                                                   :stroke-width 1
                                                   :stroke "#000"
                                                   :label-fill "#fff"}
-                                       :ldgraft {:label "LD Graft rejected"
+                                       :ldgraft {:label "LD Graft died"
+                                                 :long-label "of LD grafts have died"
                                                  :fill "#ffffff"
                                                  :opacity 0.7
                                                  :stroke-width 1
@@ -718,8 +749,32 @@
                                               :x-offset -10
                                               :y-offset 610
                                               :line ["By the end of year 5"]}]}
-                            
-                            :pre-section [:h4 "About how long does the graft survive after a living donor transplant?"]
-                            :post-section [:h5 "Graft survival after a living donor transplant"]}}
+
+                            :pre-section [:section
+                                          [:h4 "About how long might my new kidney survive if I have a living donor transplant?"]
+                                          [:p "This graph shows what happened to people like you in the past. Here, 'like you' 
+                                              means people who selected the same inputs as you in the tool."]
+                                          [:p "It shows how many kidneys are still working over time."]
+                                          [:p "This is an estimate, an average, there are other factors about you that can 
+                                               influence these results and make the numbers higher or lower. For example 
+                                               you may have other conditions not included in the tool, or you may 
+                                               encounter other lifestyle factors post transplant."]]
+                            :post-section [:h5 "Graft survival after a living donor transplant"]
+                            :rest-of-page [:section
+                                           [:div {:style {:background-color "#fec"
+                                                          :margin-top 10
+                                                          :padding "20px 0px 5px 20px"
+                                                          :border-left "3px solid #f88"}}
+                                            [:h5 "This is national data, it is not hospital specific. "]
+                                            [:p  "This is because there is not yet enough data to allow a centre 
+                                                specific model to be developed."]]
+                                           [:div {:style {margin-top 20}}
+                                            [:h5 "Why does the display stop at year 5?"]]
+                                           [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                                   data isn’t reliable enough to show 10 year outcomes"]
+                                           [:p "As time passes we will be able to add in more years"]
+                                           [:hr]
+                                           [:p [:i "Data from 2008 indicates that after 10 years, 
+                                              78% were still working"]]]}}
                     }}
 

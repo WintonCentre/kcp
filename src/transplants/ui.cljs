@@ -22,11 +22,14 @@ the low level ui."
 (def tab "a react/bootstrap component adapter" (rc/adapt-react-class bs/Tab))
 
 (defn svg-styles
+  "Remove information that should not appear on a DOM element
+   from a styles map."
   [styles]
   (-> styles
       (dissoc :label-fill)
       (dissoc :background-color)
-      (dissoc :color)))
+      (dissoc :color)
+      (dissoc :long-label)))
 
 (def themes
   "Very provisional colour palette. Unused as yet."

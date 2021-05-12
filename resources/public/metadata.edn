@@ -123,14 +123,15 @@
                                          [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
                                          [:p "It shows how many people receive a transplant, or are still waiting, or leave the
-                                             transplant list or die as time goes by."]
+                                             transplant list or die as time goes by."]]]
+                          :post-section [:h5 "Outcomes after listing"]
+                          :rest-of-page [:<>
                                          [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                          [:p "These are the outcomes we would expect for people who entered the same
-                                          information as you, based on patients who joined the waiting list between 2004 and 2014. "]]]
-                          :post-section [:h5 "Outcomes after listing"]}
+                                          information as you, based on patients who joined the waiting list between 2004 and 2014. "]]}
 
                 :post-transplant {:outcomes {:residual {:label "Survived"
                                                         :fill "#008888"
@@ -233,14 +234,15 @@
                                                 [:section
                                                  [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
-                                                 [:p "It shows how many people survive as time goes by."]
+                                                 [:p "It shows how many people survive as time goes by."]]]
+                                  :post-section [:h5 "Patient Survival Post Transplant"]
+                                  :rest-of-page [:<>
                                                  [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                                  [:p "These are the outcomes we would expect for people who entered the same
-                                          information as you, based on patients who joined the waiting list between 2004 and 2014. "]]]
-                                  :post-section [:h5 "Patient Survival Post Transplant"]}}}
+                                                 information as you, based on patients who joined the waiting list between 2004 and 2014. "]]}}}
 
  :kidney {:text "Kidney"
           :label "Kidney Transplants"
@@ -361,19 +363,18 @@
                                   "What might happen after I join the waiting list for a kidney transplant?"]
                                  [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
-                                 [:p "It shows how many people have received a translant, or a re still waiting, or 
-                                      have died or left the list as time goes by."]
-                                 [:p "This is an estimate, an average, there are other factors about you that can 
-                                               influence these results and make the numbers higher or lower. For example 
-                                               you may have other conditions not included in the tool, or you may 
-                                               encounter other lifestyle factors post transplant."]]
+                                 [:p "It shows how many people have received a translant, or are still waiting, or 
+                                      have died or left the list as time goes by."]]
                    :post-section [:h5 "Outcomes after listing for a kidney transplant"]
                    :rest-of-page [:<>
+                                  [:p "This is an estimate, an average, there are other factors about you that can 
+                                               influence these results and make the numbers higher or lower. For example 
+                                               you may have other conditions not included in the tool, or you may 
+                                               encounter other lifestyle factors post transplant."]
                                   [:h5 "Why does the display stop at year 5?"]
                                   [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
-                                  [:p "As time passes we will be able to add in more years"]]
-                   }
+                                  [:p "As time passes we will be able to add in more years"]]}
                   ;; these are for deceased donor. Note that the inversion in the outcomes
                   ;; is caused by the column labelling in the original spreadsheet, and is
                   ;; not a mistake.
@@ -479,14 +480,14 @@
                                            [:h4 "About how long do people survive after a deceased donor transplant?"]
                                            [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
-                                           [:p "It shows how many people survive as time goes by."]
-                                           [:p "This is an estimate, an average, there are other factors about you that can 
-                                               influence these results and make the numbers higher or lower. For example 
-                                               you may have other conditions not included in the tool, or you may 
-                                               encounter other lifestyle factors post transplant."]]
+                                           [:p "It shows how many people survive as time goes by."]]
                              :post-section [:h5 "Patient survival after a deceased donor transplant"]
                              :rest-of-page [:<>
                                             [:div {:style {margin-top 20}}
+                                             [:p "This is an estimate, an average, there are other factors about you that can 
+                                               influence these results and make the numbers higher or lower. For example 
+                                               you may have other conditions not included in the tool, or you may 
+                                               encounter other lifestyle factors post transplant."]
                                              [:h5 "Why does the display stop at year 5?"]]
                                             [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
@@ -592,20 +593,20 @@
                                         [:h4 "About how long might my new kidney survive if I have a deceased donor transplant?"]
                                         [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
-                                        [:p "It shows how many kidneys are still working over time."]
-                                        [:p "This is an estimate, an average, there are other factors about you that can 
+                                        [:p "It shows how many kidneys are still working over time."]]
+                          :post-section [:h5 "Graft survival after a deceased donor transplant"]
+                          :rest-of-page [:<>
+                                         [:div {:style {margin-top 20}}
+                                          [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
-                                               encounter other lifestyle factors post transplant."]]
-                          :post-section [:h5 "Graft survival after a deceased donor transplant"]
-                          :rest-of-page [:section
-                                         [:div {:style {margin-top 20}}
+                                               encounter other lifestyle factors post transplant."]
                                           [:h5 "Why does the display stop at year 5?"]]
                                          [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                          [:p "As time passes we will be able to add in more years"]
                                          #_#_[:hr]
-                                         [:p [:i "Data from 2008 indicates that after 10 years, 
+                                           [:p [:i "Data from 2008 indicates that after 10 years, 
                                               78% were still working"]]]}
        ;; ld for living donor
                   :ldsurvival {:outcomes {:residual {:label "Surviving"
@@ -705,13 +706,13 @@
                                              [:h4 "About how long do people survive after a living donor transplant?"]
                                              [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
-                                             [:p "It shows how many people survive as time goes by."]
-                                             [:p "This is an estimate, an average, there are other factors about you that can 
-                                               influence these results and make the numbers higher or lower. For example 
-                                               you may have other conditions not included in the tool, or you may 
-                                               encounter other lifestyle factors post transplant."]]
+                                             [:p "It shows how many people survive as time goes by."]]
                                :post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
+                                              [:p "This is an estimate, an average, there are other factors about you that can 
+                                               influence these results and make the numbers higher or lower. For example 
+                                               you may have other conditions not included in the tool, or you may 
+                                               encounter other lifestyle factors post transplant."]
                                               [:div {:style {:background-color "#fec"
                                                              :margin-top 10
                                                              :padding "20px 0px 5px 20px"
@@ -821,13 +822,13 @@
                                           [:h4 "About how long might my new kidney survive if I have a living donor transplant?"]
                                           [:p "The display shows what happened to people like you in the past. Here, 'like you' 
                                               means people who selected the same inputs as you in the tool."]
-                                          [:p "It shows how many kidneys are still working over time."]
-                                          [:p "This is an estimate, an average, there are other factors about you that can 
+                                          [:p "It shows how many kidneys are still working over time."]]
+                            :post-section [:h5 "Graft survival after a living donor transplant"]
+                            :rest-of-page [:<>
+                                           [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
-                                               encounter other lifestyle factors post transplant."]]
-                            :post-section [:h5 "Graft survival after a living donor transplant"]
-                            :rest-of-page [:section
+                                               encounter other lifestyle factors post transplant."]
                                            [:div {:style {:background-color "#fec"
                                                           :margin-top 10
                                                           :padding "20px 0px 5px 20px"
@@ -841,7 +842,6 @@
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                            [:p "As time passes we will be able to add in more years"]
                                            #_#_[:hr]
-                                           [:p [:i "Data from 2008 indicates that after 10 years, 
-                                              78% were still working"]]]}}
-                    }}
+                                             [:p [:i "Data from 2008 indicates that after 10 years, 
+                                              78% were still working"]]]}}}}
 

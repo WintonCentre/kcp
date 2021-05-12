@@ -74,7 +74,8 @@
    :donors "Donor Decisions"
    :medications "Medications after Transplant Surgery"
    :window "The Window"
-   :percent "What does a percentage look like?"}
+   :percent "What does a percentage look like?"
+   :graft-failure "What are my options if my new kidney fails?"}
   )
 
 (defmulti show-background-info 
@@ -138,6 +139,33 @@
         their health deteriorates to the point where it would no longer be recommended." ]
    [:> bs/Image {:fluid true
                  :src "assets/The Window.png"}]])
+
+
+(defmethod show-background-info :graft-failure [options]
+  [:<>
+   [:h3 (:graft-failure background-infos)]
+   [ui/row {:style {:display :flex
+                    :justify-content "start"
+                    :flex-wrap "wrap"
+                    :margin-top 20}}
+    [ui/col {:xs 6} 
+     [:h5 "Acute Rejections"]
+     [:p "What to look out for..."]]
+    [ui/col {:xs 6}
+     [:h5 "Chronic Rejection"]
+     [:p "What to look out for..."]]
+    [ui/col {:xs 12}
+     [:h5 "Peritoneal Dialysis (PD) "]
+     [:p "This is always done at home so no regular need to go to hospital for treatment."]]
+    [ui/col {:xs 12}
+     [:h5 "Haemodialysis (HD)"]
+     [:p "There are 2 ways of doing HD:"]
+     [:ul {:style {:margin-top -5}}
+      [:li "HD (haemodialysis). Done at hospital. People go to hospital 3 times a week 
+            (every week) for a 4 hour session."]
+      [:li "HHD (home haemodialysis). HD done at home after training people how to do it. 
+            All supplies are provided free. Saves people needing to stick to inflexible 
+            hospital appointments."]]]]])
 
 (defn a-percentage
   "Replace 'a percentage ' in s with 'v% '"
@@ -230,8 +258,28 @@
   [organ]
   (if (= organ :kidney)
     [ui/row
-     [ui/col
-      [:h3 "Kidney info TBD"]]]
+     [ui/col {:md 4}
+      [:h3 {:style {:margin-top 40}} "Background guidance"]
+
+      [:> bs/ListGroup
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :visits])}
+        (:visits background-infos)]
+       #_[:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :donors])}
+        (:donors background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :medications])}
+        (:medications background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :graft-failure])}
+        (:graft-failure background-infos)]
+       [:> bs/ListGroup.Item {:action true
+                              :on-click #(rf/dispatch [::events/background-info :percent])}
+        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]]
+     [ui/col {:md 8}
+      [:div {:style {:margin-top 40}}
+       (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]
     [ui/row
      [ui/col {:md 4}
       [:h3 {:style {:margin-top 40}} "Background guidance"]

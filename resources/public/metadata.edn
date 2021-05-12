@@ -604,7 +604,7 @@
                                          [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                          [:p "As time passes we will be able to add in more years"]
-                                         [:hr]
+                                         #_#_[:hr]
                                          [:p [:i "Data from 2008 indicates that after 10 years, 
                                               78% were still working"]]]}
        ;; ld for living donor
@@ -840,7 +840,7 @@
                                            [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                            [:p "As time passes we will be able to add in more years"]
-                                           [:hr]
+                                           #_#_[:hr]
                                            [:p [:i "Data from 2008 indicates that after 10 years, 
                                               78% were still working"]]]}}
                     }}

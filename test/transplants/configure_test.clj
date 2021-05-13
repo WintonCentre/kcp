@@ -155,6 +155,16 @@
   ;;     :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs],
   ;;     :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}
 
+  (c/get-bundle :kidney)
+  ;; => {:centres [:centres],
+  ;;     :tools [:tools],
+  ;;     :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs],
+  ;;     :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs],
+  ;;     :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs],
+  ;;     :ldgraft [:ldgraft-baseline-cifs :ldgraft-baseline-vars :ldgraft-inputs],
+  ;;     :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]}
+
+
   (c/get-col-maps :lung :tools)
   ;; => {:description
   ;;     ("for possible outcomes while waiting for a transplant "
@@ -169,7 +179,7 @@
   ;;     :area (nil nil nil),
   ;;     :text (nil nil nil)}
 
-  
+
   ;; => {:key (:waiting :survival :graft :ldsurvival :ldgraft :guidance),
   ;;     :label
   ;;     ("Waiting times"
@@ -188,31 +198,33 @@
   (def centre "St George's")
   (def col-data (mapv rest (c/centre-columns organ sheet centre)))
   (seq ["St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"
-"St George's"])
-  
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"
+        "St George's"])
 
-
+  (deftest untrimmed-centres
+    (testing "untrimmed centres in spreadsheet should work")
+    (is (> (count (c/centre-row-maps :kidney :survival-baseline-cifs "Bristol"))
+           1) "no match on Bristol because spreadsheet adds a space to it"))
 
 ;---- LUNG
   (defn check-baseline-cif-data

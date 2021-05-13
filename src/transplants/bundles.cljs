@@ -13,6 +13,8 @@
   "Subscribe to the collection of bundles"
   []
   @(rf/subscribe [::subs/bundles]))
+;; => #'transplants.bundles/get-all-bundles
+
 
 (defn get-bundle
   "Subscribe to the collection of bundles, and return one indexed by the given 
@@ -43,6 +45,9 @@
 
 (comment
   (get-bundle :lung :new :waiting)
+
+  (get-bundle :kidney :bris :survival)
+  (get-bundle :kidney :birm :survival)
  
 
   (cif-0 {:baseline-cifs [{:days 0 :cif 23}

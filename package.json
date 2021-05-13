@@ -4,6 +4,7 @@
     "description": "A data driven survival tool",
     "scripts": {
         "config": "bb ./bb-scripts/config.clj",
+        "config-test": "look this up!",
         "start": "shadow-cljs watch app",
         "stop": "shadow-cljs stop",
         "watch-all": "shadow-cljs watch app test-browser",

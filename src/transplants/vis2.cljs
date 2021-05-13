@@ -475,31 +475,32 @@
 
 (defn draw-bars
   [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles font-size X Y]}]
-;  (locals)
+
   (into [:g {:key 2}]
         (map-indexed (fn [bar-index bin-label]
-               (let [;bar-index (:time-index bin-label)
-                     x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
-                     [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label))]
-                 [:g (into [:<> {:key (str "bar-" bar-index)}]
-                           (map (fn [data-key cif cum-cif]
-                                  (let [styles (data-styles data-key)
-                                        y0 (- (Y cum-cif) (Y cif))
-                                        h (- (Y cum-cif) (Y (- cum-cif cif)))]
-                                    (when (not (js/isNaN y0))
-                                      [:g
-                                       [:rect (merge {:key data-key
-                                                      :x x0
-                                                      :y y0
-                                                      :width bar-width
-                                                      :height h
-                                                      :data-title cif}
-                                                     (ui/svg-styles styles)
-                                                     #_(dissoc styles :label-fill))]])))
-                                data-keys
-                                fs
-                                cum-fs))]))
-             bin-labels)))
+                       ;(locals)
+                       (let [;bar-index (:time-index bin-label)
+                             x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
+                             [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label))]
+                         [:g (into [:<> {:key (str "bar-" bar-index)}]
+                                   (map (fn [data-key cif cum-cif]
+                                          (let [styles (data-styles data-key)
+                                                y0 (- (Y cum-cif) (Y cif))
+                                                h (- (Y cum-cif) (Y (- cum-cif cif)))]
+                                            (when (not (js/isNaN y0))
+                                              [:g
+                                               [:rect (merge {:key data-key
+                                                              :x x0
+                                                              :y y0
+                                                              :width bar-width
+                                                              :height h
+                                                              :data-title cif}
+                                                             (ui/svg-styles styles)
+                                                             #_(dissoc styles :label-fill))]])))
+                                        data-keys
+                                        fs
+                                        cum-fs))]))
+                     bin-labels)))
 
 (defn draw-percents
   [{:keys [bin-labels spacing offset time-series data-count bar-width data-keys data-styles X Y]}]
@@ -597,7 +598,7 @@
         plot-order (:plot-order tool-mdata)
         svg-width 1060
         svg-height 700]
-;    (locals)
+    ;(locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
@@ -615,7 +616,7 @@
 
        (fn [x y X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-;           (locals)
+;          ;(locals)
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}

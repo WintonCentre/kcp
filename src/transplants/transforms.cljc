@@ -1,7 +1,7 @@
 (ns transplants.transforms
   "db value transforms"
   (:require  [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
-             [clojure.string :refer [starts-with?]]
+             [clojure.string :refer [starts-with? trim]]
              [clojure.pprint :refer [pprint]]))
 
 (comment
@@ -40,13 +40,14 @@
    
    Single arity returns a global key. Double arity returns a namespaced key"
   ([ks]
+   
    (if (and ks (string? ks) (starts-with? ks ":"))
-     (keyword (subs ks 1))
-     ks))
+     (keyword (subs (trim ks) 1))
+     (if (string? ks) (trim ks) ks)))
   ([nsp ks]
    (if (and ks (string? ks) (starts-with? ks ":"))
-     (keyword nsp (subs ks 1))
-     ks)))
+     (keyword (trim nsp) (subs (trim ks) 1))
+     (if (string? ks) (trim ks) ks))))
 
 (comment
   (unstring-key ":hello"))

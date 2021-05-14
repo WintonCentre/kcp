@@ -16,14 +16,18 @@
               {:level :female
                :label "Female"}]
      :default :male})
-  
+  ;
   ; problem2: We need to register subscriptions on the fly. However different tools overlap in their factor requirements and this
   ; can mean that the same factor is registered multiple times on the same organ. We assume that if factors have the same name, then
   ; they are in clinical practice the same (if not, change their name!), and so it is OK to use just the one at run-time for all tools 
   ; that refer to it.
   ; 
-  ; re-frame default behaviour is to warn if a subsscription ore event has been previously registered on a key. 
-  ; That's OK - the warning is useful. In production the warning can be ignored as the most recent registration prevails. There is
+  ; re-frame default behaviour is to warn if a subsscription or event has been previously registered on a key. 
+  ; That's OK - the warning is useful. In production the warning can be ignored as the most recent registration prevails. 
+  ;
+  ; What's not so helpful is that the old subscription is not removed when the new one is created so there is a possible small 
+  ; memory leak each time the configuration is read in (unless garbage collection can handle it). However, since we only 
+  ; read configuration once at startup, the leak is bounded.
   ; 
   )
 
@@ -40,17 +44,22 @@
    
    Single arity returns a global key. Double arity returns a namespaced key"
   ([ks]
-   
-   (if (and ks (string? ks) (starts-with? ks ":"))
-     (keyword (subs (trim ks) 1))
-     (if (string? ks) (trim ks) ks)))
+   (unstring-key nil ks))
   ([nsp ks]
-   (if (and ks (string? ks) (starts-with? ks ":"))
-     (keyword (trim nsp) (subs (trim ks) 1))
-     (if (string? ks) (trim ks) ks))))
+   (let [nsp (if (string? nsp) (trim nsp) nsp)
+         ks (if (string? ks) (trim ks) ks)]
+     (if (and ks (string? ks) (starts-with? ks ":"))
+       (keyword nsp (subs ks 1)) 
+       ks))))
 
 (comment
-  (unstring-key ":hello"))
+  (unstring-key ":hello")
+  ;; => :hello
+
+  (unstring-key ":foo/bar")
+  (unstring-key " :foo/bar ")
+    ;; => " :foo/bar "
+  0)
   ;=> :hello)
 
 (comment

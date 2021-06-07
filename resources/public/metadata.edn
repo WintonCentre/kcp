@@ -2,10 +2,11 @@
  ; Edit this to add a new organ to the tool. 
  ; Forms may be commented out with #_.
  ; Lines or line tail ends may be commented out with ';'
- ; Clojure [], {},
+ ; Syntax is EDN - see definition at https://github.com/edn-format/edn
  :lung {:text "Lung"
         :label "Lung Transplants"
-        :tools {:waiting {:outcomes {:transplant {:label "transplanted"
+        :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration ."]]}
+                          :outcomes {:transplant {:label "transplanted"
                                                   :fill "#41af6b"
                                                   :background-color "#41af6b"
                                                   :color "#fff"
@@ -118,19 +119,17 @@
                           
                           :pre-section [:<>
                                         [:h4
-                                         "What might happen after I join the waiting list for a lung transplant?"]
+                                         "What might happen if you are listed for a transplant?"]
                                         [:section
-                                         [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                         [:p "It shows how many people receive a transplant, or are still waiting, or leave the
-                                             transplant list or die as time goes by."]]]
+                                         [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                         [:p "It shows how many people might be transplanted over 5 years."]]]
                           :post-section [:h5 "Outcomes after listing"]
                           :rest-of-page [:<>
-                                         [:p "This is an estimate, an average, there are other factors about you that can 
-                                               influence these results and make the numbers higher or lower. For example 
-                                               you may have other conditions not included in the tool, or you may 
-                                               encounter other lifestyle factors post transplant."]
-                                         [:p "These are the outcomes we would expect for people who entered the same
+                                         [:p "This is an estimate, an average, there are other factors about you that can influence
+                                              these results and make the numbers higher or lower. eg whether you have other conditions 
+                                              not included in the tool."]
+                                         #_[:p "These are the outcomes we would expect for people who entered the same
                                           information as you, based on patients who joined the waiting list between 2004 and 2014. "]]}
 
                 :post-transplant {:outcomes {:residual {:label "Survived"
@@ -147,7 +146,8 @@
                                                                :label-fill "#000"
                                                                :stroke-width 1
                                                                :stroke "#000000"}}
-                                  :plot-order [:residual :post-transplant]
+                                  :hide #{:residual}
+                                  :plot-order [:post-transplant :residual]
                                   :bars {:width 150
                                          :spacing 3.2
                                          :font-size 30
@@ -230,11 +230,12 @@
 
                                   :pre-section [:<>
                                                 [:h4
-                                                 "What might happen after I receive a lung transplant?"]
+                                                 "What might happen if you are listed for a transplant?"]
                                                 [:section
-                                                 [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                                 [:p "It shows how many people survive as time goes by."]]]
+                                                 [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                                 [:p "It shows how many people might be transplanted over 5 years."]]]
+                            
                                   :post-section [:h5 "Patient Survival Post Transplant"]
                                   :rest-of-page [:<>
                                                  [:p "This is an estimate, an average, there are other factors about you that can 
@@ -246,136 +247,136 @@
 
  :kidney {:text "Kidney"
           :label "Kidney Transplants"
-          :tools {:waiting
-                  {:outcomes {:transplant {:label "transplanted"
-                                           :long-label "have been transplanted"
-                                           :fill "#41af6b"
-                                           :background-color "#41af6b"
-                                           :color "#fff"
-                                           :opacity 0.7
-                                           :stroke-width 1
-                                           :stroke "#000"
-                                           :label-fill "#fff"}
-                              :residual {:label "still waiting"
-                                         :long-label "are still waiting"
-                                         :fill "#4866cb"
-                                         :background-color "#4866cb"
-                                         :color "#fff"
-                                         :opacity 0.7
-                                         :stroke-width 1
-                                         :stroke "#000"
-                                         :label-fill "#fff"}
-                              :death {:label "died"
-                                      :long-label "have died"
-                                      :fill "#fff"
-                                      :opacity 1
-                                      :stroke-width 1
-                                      :stroke "#000"
-                                      :label-fill "#000"}
-                              :removal {:label "removed"
-                                        :long-label "have been removed from the list"
-                                        :background-color "#fec"
-                                        :color "#000"
-                                        :fill "#fec"
-                                        :opacity 1
-                                        :stroke-width 1
-                                        :stroke "#000"
-                                        :label-fill "#000"}}
-                   :plot-order [:death :removal :residual :transplant]
-                   :bars {:width 150
-                          :spacing 3.2
-                          :font-size 30
-                          :svg-width 1060
-                          :svg-height 700
-                          :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                          :svg-padding {:top 40 :right 20 :bottom 100 :left 20}
-                          :labels [{:time-index 1
-                                    :x-offset -10
-                                    :y-offset 610
-                                    :line ["By the end"
-                                           "of year 1"]}
-                                   {:time-index 3
-                                    :x-offset -10
-                                    :y-offset 610
-                                    :line ["By the end"
-                                           "of year 3"]}
-                                   {:time-index 5
-                                    :x-offset -10
-                                    :y-offset 610
-                                    :line ["By the end"
-                                           "of year 5"]}]}
-                   :area {:svg-width 1060
-                          :svg-height 680
-                          :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                          :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
-                          :width 0
-                          :spacing 1.7
-                          :font-size 30
-                          :labels [{:time-index 1
-                                    :x-offset -50
-                                    :y-offset 580
-                                    :line ["End of"
-                                           "year 1"]}
-                                   {:time-index 3
-                                    :x-offset -50
-                                    :y-offset 580
-                                    :line ["End of"
-                                           "year 3"]}
-                                   {:time-index 5
-                                    :x-offset -50
-                                    :y-offset 580
-                                    :line ["End of"
-                                           "year 5"]}]}
-                   :icons {:svg-width 575
-                           :svg-height 250
-                           :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                           :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
-                           :width 0
-                           :font-size 25
-                           :labels [{:time-index 1
-                                     :x-offset -10
-                                     :y-offset 610
-                                     :line "By the end of year 1"}
-                                    {:time-index 3
-                                     :x-offset -10
-                                     :y-offset 610
-                                     :line "By the end of year 3"}
-                                    {:time-index 5
-                                     :x-offset -10
-                                     :y-offset 610
-                                     :line ["By the end of year 5"]}]}
+          :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid at time of registration."]}
+                            :outcomes {:transplant {:label "transplanted"
+                                                    :long-label "have been transplanted"
+                                                    :fill "#41af6b"
+                                                    :background-color "#41af6b"
+                                                    :color "#fff"
+                                                    :opacity 0.7
+                                                    :stroke-width 1
+                                                    :stroke "#000"
+                                                    :label-fill "#fff"}
+                                       :residual {:label "still waiting"
+                                                  :long-label "are still waiting"
+                                                  :fill "#4866cb"
+                                                  :background-color "#4866cb"
+                                                  :color "#fff"
+                                                  :opacity 0.7
+                                                  :stroke-width 1
+                                                  :stroke "#000"
+                                                  :label-fill "#fff"}
+                                       :death {:label "died"
+                                               :long-label "have died"
+                                               :fill "#fff"
+                                               :opacity 1
+                                               :stroke-width 1
+                                               :stroke "#000"
+                                               :label-fill "#000"}
+                                       :removal {:label "removed"
+                                                 :long-label "have been removed from the list"
+                                                 :background-color "#fec"
+                                                 :color "#000"
+                                                 :fill "#fec"
+                                                 :opacity 1
+                                                 :stroke-width 1
+                                                 :stroke "#000"
+                                                 :label-fill "#000"}}
+                            :plot-order [:death :removal :residual :transplant]
+                            :bars {:width 150
+                                   :spacing 3.2
+                                   :font-size 30
+                                   :svg-width 1060
+                                   :svg-height 700
+                                   :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
+                                   :svg-padding {:top 40 :right 20 :bottom 100 :left 20}
+                                   :labels [{:time-index 1
+                                             :x-offset -10
+                                             :y-offset 610
+                                             :line ["By the end"
+                                                    "of year 1"]}
+                                            {:time-index 3
+                                             :x-offset -10
+                                             :y-offset 610
+                                             :line ["By the end"
+                                                    "of year 3"]}
+                                            {:time-index 5
+                                             :x-offset -10
+                                             :y-offset 610
+                                             :line ["By the end"
+                                                    "of year 5"]}]}
+                            :area {:svg-width 1060
+                                   :svg-height 680
+                                   :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
+                                   :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
+                                   :width 0
+                                   :spacing 1.7
+                                   :font-size 30
+                                   :labels [{:time-index 1
+                                             :x-offset -50
+                                             :y-offset 580
+                                             :line ["End of"
+                                                    "year 1"]}
+                                            {:time-index 3
+                                             :x-offset -50
+                                             :y-offset 580
+                                             :line ["End of"
+                                                    "year 3"]}
+                                            {:time-index 5
+                                             :x-offset -50
+                                             :y-offset 580
+                                             :line ["End of"
+                                                    "year 5"]}]}
+                            :icons {:svg-width 575
+                                    :svg-height 250
+                                    :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
+                                    :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
+                                    :width 0
+                                    :font-size 25
+                                    :labels [{:time-index 1
+                                              :x-offset -10
+                                              :y-offset 610
+                                              :line "By the end of year 1"}
+                                             {:time-index 3
+                                              :x-offset -10
+                                              :y-offset 610
+                                              :line "By the end of year 3"}
+                                             {:time-index 5
+                                              :x-offset -10
+                                              :y-offset 610
+                                              :line ["By the end of year 5"]}]}
 
-                   :table {:font-size 20
-                           :labels [{:time-index 1
-                                     :x-offset -10
-                                     :y-offset 610
-                                     :line "By the end of year 1"}
-                                    {:time-index 3
-                                     :x-offset -10
-                                     :y-offset 610
-                                     :line "By the end of year 3"}
-                                    {:time-index 5
-                                     :x-offset -10
-                                     :y-offset 610
-                                     :line ["By the end of year 5"]}]}
-                   :pre-section [:section
-                                 [:h4 {:style {:margin-top 10}}
-                                  "What might happen after I join the waiting list for a kidney transplant?"]
-                                 [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                 [:p "It shows how many people have received a translant, or are still waiting, or 
-                                      have died or left the list as time goes by."]]
-                   :post-section [:h5 "Outcomes after listing for a kidney transplant"]
-                   :rest-of-page [:<>
-                                  [:p "This is an estimate, an average, there are other factors about you that can 
+                            :table {:font-size 20
+                                    :labels [{:time-index 1
+                                              :x-offset -10
+                                              :y-offset 610
+                                              :line "By the end of year 1"}
+                                             {:time-index 3
+                                              :x-offset -10
+                                              :y-offset 610
+                                              :line "By the end of year 3"}
+                                             {:time-index 5
+                                              :x-offset -10
+                                              :y-offset 610
+                                              :line ["By the end of year 5"]}]}
+                            :pre-section [:<>
+                                          [:h4
+                                           "What might happen if you are listed for a transplant?"]
+                                          [:section
+                                           [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                           [:p "It shows how many people might be transplanted over 5 years."]]]
+                            :post-section [:h5 "Outcomes after listing for a kidney transplant"]
+                            :rest-of-page [:<>
+                                           [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
-                                  [:h5 "Why does the display stop at year 5?"]
-                                  [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                           [:h5 "Why does the display stop at year 5?"]
+                                           [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
-                                  [:p "As time passes we will be able to add in more years"]]}
-                  ;; these are for deceased donor. Note that the inversion in the outcomes
+                                           [:p "As time passes we will be able to add in more years"]]}
+                  ;; these are for deceased donor. Note that the inversion in the outcome labels
                   ;; is caused by the column labelling in the original spreadsheet, and is
                   ;; not a mistake.
 
@@ -477,10 +478,12 @@
                              #_#_:post-section [:h5 "Patient Survival Post Transplant"]
 
                              :pre-section [:<>
-                                           [:h4 "About how long do people survive after a deceased donor transplant?"]
-                                           [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                           [:p "It shows how many people survive as time goes by."]]
+                                           [:h4
+                                            "What might happen if you are listed for a transplant?"]
+                                           [:section
+                                            [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                            [:p "It shows how many people might be transplanted over 5 years."]]]
                              :post-section [:h5 "Patient survival after a deceased donor transplant"]
                              :rest-of-page [:<>
                                             [:div {:style {margin-top 20}}
@@ -589,11 +592,13 @@
                           #_#_:pre-section [:h4 "About how long does the graft survive after a transplant?"]
                           #_#_:post-section [:h5 "Graft Survival Post Transplant"]
 
-                          :pre-section [:section
-                                        [:h4 "About how long might my new kidney survive if I have a deceased donor transplant?"]
-                                        [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                        [:p "It shows how many kidneys are still working over time."]]
+                          :pre-section [:<>
+                                        [:h4
+                                         "What might happen if you are listed for a transplant?"]
+                                        [:section
+                                         [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                         [:p "It shows how many people might be transplanted over 5 years."]]]
                           :post-section [:h5 "Graft survival after a deceased donor transplant"]
                           :rest-of-page [:<>
                                          [:div {:style {margin-top 20}}
@@ -702,11 +707,13 @@
                                                  :y-offset 610
                                                  :line ["By the end of year 5"]}]}
 
-                               :pre-section [:section
-                                             [:h4 "About how long do people survive after a living donor transplant?"]
-                                             [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                             [:p "It shows how many people survive as time goes by."]]
+                               :pre-section [:<>
+                                             [:h4
+                                              "What might happen if you are listed for a transplant?"]
+                                             [:section
+                                              [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                              [:p "It shows how many people might be transplanted over 5 years."]]]
                                :post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
                                               [:p "This is an estimate, an average, there are other factors about you that can 
@@ -774,8 +781,7 @@
                                    :labels [{:time-index 1
                                              :x-offset -50
                                              :y-offset 580
-                                             :line ["End of"
-                                                    "year 1"]}
+                                             :line ["Day 1"]}
                                             {:time-index 3
                                              :x-offset -50
                                              :y-offset 580
@@ -818,11 +824,13 @@
                                               :y-offset 610
                                               :line ["By the end of year 5"]}]}
 
-                            :pre-section [:section
-                                          [:h4 "About how long might my new kidney survive if I have a living donor transplant?"]
-                                          [:p "The display shows what happened to people like you in the past. Here, 'like you' 
-                                              means people who selected the same inputs as you in the tool."]
-                                          [:p "It shows how many kidneys are still working over time."]]
+                            :pre-section [:<>
+                                          [:h4
+                                           "What might happen if you are listed for a transplant?"]
+                                          [:section
+                                           [:p "The display shows what happened to people like you in the past
+                                              (eg same blood group, age, disease etc.)."]
+                                           [:p "It shows how many people might be transplanted over 5 years."]]]
                             :post-section [:h5 "Graft survival after a living donor transplant"]
                             :rest-of-page [:<>
                                            [:p "This is an estimate, an average, there are other factors about you that can 

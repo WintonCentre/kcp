@@ -400,7 +400,7 @@
              tool-meta (get-tool-meta tools tool)
              tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
              tcb (bun/get-bundle organ centre tool)]
-;         (locals)
+         (locals)
          [ui/page (:description centre-info)
           (when (not= tool :guidance) [ui/background-link organ centre tool])
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]
@@ -409,6 +409,9 @@
              [ui/col {:xs 12 :md 6}
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
+              (when-let [input-header (get-in tool-mdata [:inputs :header])] 
+                input-header)
+
               [:div {:style {:padding "0px 30px 15px 15px"
                              :height "calc(100vh + 10ex)"
                              :overflow-y "scroll"}}

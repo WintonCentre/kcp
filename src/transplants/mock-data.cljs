@@ -350,7 +350,7 @@
        {:beta-transplant 0,
         :beta-death 0,
         :info-box? nil,
-        :level-name "Chronic Obstructive Pulmonary Disease",
+        :level-name "COPD",
         :type :v-radio,
         :sub-text nil,
         :level :copd,

@@ -5,7 +5,7 @@
  ; Syntax is EDN - see definition at https://github.com/edn-format/edn
  :lung {:text "Lung"
         :label "Lung Transplants"
-        :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration ."]]}
+        :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                           :outcomes {:transplant {:label "transplanted"
                                                   :fill "#41af6b"
                                                   :background-color "#41af6b"
@@ -247,7 +247,7 @@
 
  :kidney {:text "Kidney"
           :label "Kidney Transplants"
-          :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid at time of registration."]}
+          :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                             :outcomes {:transplant {:label "transplanted"
                                                     :long-label "have been transplanted"
                                                     :fill "#41af6b"
@@ -496,8 +496,8 @@
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                             [:p "As time passes we will be able to add in more years"]]}
 
-                  :graft {:outcomes {:residual {:label "Graft survived"
-                                                :long-label "of grafts have survived"
+                  :graft {:outcomes {:residual {:label "Kidneys still working"
+                                                :long-label "of kidneys have survived"
                                                 :fill "#0044AA"
                                                 :background-color "#0044AA"
                                                 :color "#fff"
@@ -505,8 +505,8 @@
                                                 :stroke-width 1
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
-                                     :graft {:label "Graft failed"
-                                             :long-label "of grafts have died"
+                                     :graft {:label "Failed kidney transplants"
+                                             :long-label "of kidneys have died"
                                              :fill "#ffffff"
                                              :opacity 0.7
                                              :stroke-width 1
@@ -594,12 +594,12 @@
 
                           :pre-section [:<>
                                         [:h4
-                                         "What might happen if you are listed for a transplant?"]
+                                         "How long might my kidney last?"]
                                         [:section
                                          [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
-                                         [:p "It shows how many people might be transplanted over 5 years."]]]
-                          :post-section [:h5 "Graft survival after a deceased donor transplant"]
+                                         ]]
+                          :post-section [:h5 "Kidney survival after a deceased donor transplant"]
                           :rest-of-page [:<>
                                          [:div {:style {margin-top 20}}
                                           [:p "This is an estimate, an average, there are other factors about you that can 
@@ -713,27 +713,27 @@
                                              [:section
                                               [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
-                                              [:p "It shows how many people might be transplanted over 5 years."]]]
+                                              [:p "It shows how many people might be transplanted over 5 years."]]
+                                             [:section {:style {:background-color "#fec"
+                                                                :margin-top 10
+                                                                :padding "20px 0px 5px 20px"
+                                                                :border-left "3px solid #f88"}}
+                                              [:h5 "This is national data, it is not hospital specific. "]
+                                              [:p  "This is because there is not yet enough data to allow a centre 
+                                                specific model to be developed."]]]
                                :post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
                                               [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
-                                              [:div {:style {:background-color "#fec"
-                                                             :margin-top 10
-                                                             :padding "20px 0px 5px 20px"
-                                                             :border-left "3px solid #f88"}}
-                                               [:h5 "This is national data, it is not hospital specific. "]
-                                               [:p  "This is because there is not yet enough data to allow a centre 
-                                                specific model to be developed."]]
                                               [:div {:style {margin-top 20}}
                                                [:h5 "Why does the display stop at year 5?"]]
                                               [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                               [:p "As time passes we will be able to add in more years"]]}
-                  :ldgraft {:outcomes {:residual {:label "LD graft survived"
-                                                  :long-label "of LD grafts have survived"
+                  :ldgraft {:outcomes {:residual {:label "Kidneys still working"
+                                                  :long-label "of kidneys have survived"
                                                   :fill "#0044AA"
                                                   :background-color "#0044AA"
                                                   :color "#fff"
@@ -741,8 +741,8 @@
                                                   :stroke-width 1
                                                   :stroke "#000"
                                                   :label-fill "#fff"}
-                                       :ldgraft {:label "LD graft died"
-                                                 :long-label "of LD grafts have died"
+                                       :ldgraft {:label "Failed kidney transplants"
+                                                 :long-label "of kidneys have failed"
                                                  :fill "#ffffff"
                                                  :opacity 0.7
                                                  :stroke-width 1
@@ -826,24 +826,25 @@
 
                             :pre-section [:<>
                                           [:h4
-                                           "What might happen if you are listed for a transplant?"]
+                                           "How long might my kidney last?"]
                                           [:section
                                            [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
-                                           [:p "It shows how many people might be transplanted over 5 years."]]]
+                                           [:p "It shows how many people might be transplanted over 5 years."]]
+                                          [:section {:style {:background-color "#fec"
+                                                         :margin-top 10
+                                                         :padding "20px 0px 5px 20px"
+                                                         :border-left "3px solid #f88"}}
+                                           [:h5 "This is national data, it is not hospital specific. "]
+                                           [:p  "This is because there is not yet enough data to allow a centre 
+                                                specific model to be developed."]]]
                             :post-section [:h5 "Graft survival after a living donor transplant"]
                             :rest-of-page [:<>
                                            [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
-                                           [:div {:style {:background-color "#fec"
-                                                          :margin-top 10
-                                                          :padding "20px 0px 5px 20px"
-                                                          :border-left "3px solid #f88"}}
-                                            [:h5 "This is national data, it is not hospital specific. "]
-                                            [:p  "This is because there is not yet enough data to allow a centre 
-                                                specific model to be developed."]]
+
                                            [:div {:style {margin-top 20}}
                                             [:h5 "Why does the display stop at year 5?"]]
                                            [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 

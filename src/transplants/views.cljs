@@ -376,6 +376,7 @@
   (get-tool-meta tools tool)
   ,)
 
+;; todo - move to config
 (def boxed-fill "#ddffff")
 (def boxed-border "1px solid #000000")
 (def boxed-text "DONOR")

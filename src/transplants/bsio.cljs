@@ -1,9 +1,10 @@
 (ns transplants.bsio
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
-where we can work on defining a common interface. 
-"
+where we can work on defining a common interface. "
   (:require ["react-bootstrap" :as bs]
             [shadow.debug :refer [locals ?> ?-> ?->>]]))
+
+(def missing-color "#ff0000")
 
 (comment
 
@@ -71,7 +72,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :style  {:border (str "3px solid "
                                    (if (or (nil? value)
                                            (= :unknown value)) 
-                                     (if optional "teal" "#ff8888") "#CCCCCC"))
+                                     (if optional "teal" missing-color) "#CCCCCC"))
                       :border-radius 5
                       :padding 1
                       #_#_:display "grid"}}]
@@ -106,7 +107,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :title  (:level-name (first (if-let [x (seq (filter (fn [{:keys [level]}]
                                                               (= value level)) buttons))]
                                       x (buttons-f))))
-             :style  {:border (str "3px solid " (if (nil? value) "#ff8888" "#ffffff"))
+             :style  {:border (str "3px solid " (if (nil? value) missing-color "#ffffff"))
                       :border-radius 5
                       :padding 1
                       :width "max-content"}}]

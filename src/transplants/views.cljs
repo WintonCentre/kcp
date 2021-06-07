@@ -16,13 +16,15 @@
 (comment
   (rf/dispatch [::events/initialize-db]))
 
+
+
 ;;; Views ;;;
 (defn home-page
   "Display a generic home page. 
    Minimally, navigation from here to an organ home page."
   []
   (let [mdata @(rf/subscribe [::subs/mdata])]
-;    (locals)
+    ;(locals)
     [ui/page "Trac tools"
      [ui/row
       [ui/col
@@ -272,6 +274,7 @@
   )
 
 (defn background-info
+  ;; TODO: configure this
   "Organ specific background-info.
    TODO: Pull from a file somehow. We need an EDN/Hiccup template mechanism for that. Somebody must
    have written one?"
@@ -279,7 +282,7 @@
   (if (= organ :kidney)
     [ui/row
      [ui/col {:md 4}
-      [:h3 {:style {:margin-top 40}} "Background guidance"]
+      [:h3 {:style {:margin-top 40}} "Useful information"]
 
       [:> bs/ListGroup
        [:> bs/ListGroup.Item {:action true
@@ -302,7 +305,7 @@
        (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]
     [ui/row
      [ui/col {:md 4}
-      [:h3 {:style {:margin-top 40}} "Background guidance"]
+      [:h3 {:style {:margin-top 40}} "Useful information"]
 
       [:> bs/ListGroup
        [:> bs/ListGroup.Item {:action true
@@ -332,7 +335,7 @@
   (let [route @(rf/subscribe [::subs/current-route])
         centres @(rf/subscribe [::subs/organ-centres])
         tools @(rf/subscribe [::subs/tools])
-        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        [organ-name centre-name :as p-names] (utils/path-names (:path-params route))
         [organ centre tool] (map keyword p-names)]
     (when (and organ centre centres tools)
       
@@ -344,7 +347,7 @@
          [ui/row
           [ui/col
            (when (not= tool :guidance) [ui/background-link organ centre tool])
-           [ui/tools-menu tools organ-name centre-name {:vertical false}]]]
+           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]]
          [background-info organ]
          ]))))
 
@@ -373,6 +376,12 @@
   (get-tool-meta tools tool)
   ,)
 
+(def boxed-fill "#ddffff")
+(def boxed-border "1px solid #000000")
+(def boxed-text "DONOR")
+(def boxed-text-color "#000")
+
+
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
@@ -393,23 +402,33 @@
 ;         (locals)
          [ui/page (:description centre-info)
           (when (not= tool :guidance) [ui/background-link organ centre tool])
-          [ui/tools-menu tools organ-name centre-name {:vertical false}]
+          [ui/tools-menu tools true organ-name centre-name {:vertical false}]
           (if-let [tool-centre-bundle tcb]
             [ui/row
-             [ui/col {:xs 12 :md 5}
+             [ui/col {:xs 12 :md 6}
               [:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
               [:div {:style {:padding "0px 30px 15px 15px"
-                             :height "calc(100vh - 25ex)"
+                             :height "calc(100vh + 10ex)"
                              :overflow-y "scroll"}}
                (widg/widget {:type :reset})
                (into [:<>]
                      (map
                       (fn [[k w]] ^{:key (:factor w)}
-                        [:div {:style {:margin-bottom 15}}
-                         (widg/widget (assoc w :model tool))])
+                        [:div {:style {:margin-bottom 15
+                                       :padding-top 5
+                                       :display "relative"
+                                       :border (when (some? (:boxed w)) boxed-border)
+                                       :background-color (when (some? (:boxed w)) boxed-fill)}}
+                         [:div {:style {:position "relative"
+                                        :padding-right 5}}
+                          (if (some? (:boxed w))
+                            [:div {:style {:color boxed-text-color
+                                           :position "absolute"
+                                           :top  0 :left 10}} boxed-text])
+                          (widg/widget (assoc w :model tool))]])
                       (get tool-centre-bundle :fmaps)))]]
-             [ui/col {:xs 12 :md {:span 6 :offset 1}}
+             [ui/col {:xs 12 :md {:span 6}}
               [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
               [:section
                [results/results-panel organ centre tool]

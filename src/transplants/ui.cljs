@@ -239,23 +239,26 @@ in the routes table."
 
 (defn tools-menu
   "Render a group of tool selection buttons"
-  [tools organ-name centre-name orientation]
-  [:> bs/ButtonToolbar
+  [tools include-guidance? organ-name centre-name orientation]
+  (let [tools (if include-guidance?
+                tools 
+                (remove #(= :guidance (:key %)) tools))] ;TODO: configure this filter!
+    [:> bs/ButtonToolbar
    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
    ;; Even better would be to configure the break points as what makes sense will be ver application
    ;; specific.
-   (->> (take 3 tools)
-        (map #(conj % [:organ organ-name]))
-        (map #(conj % [:centre centre-name]))
-        (map #(conj % [:tool (:key %)]))
-        (map tool-buttons)
-        (into [:> bs/ButtonGroup orientation]))
-   (->> (drop 3 tools)
-        (map #(conj % [:organ organ-name]))
-        (map #(conj % [:centre centre-name]))
-        (map #(conj % [:tool (:key %)]))
-        (map tool-buttons)
-        (into [:> bs/ButtonGroup orientation]))])
+     (->> (take 3 tools)
+          (map #(conj % [:organ organ-name]))
+          (map #(conj % [:centre centre-name]))
+          (map #(conj % [:tool (:key %)]))
+          (map tool-buttons)
+          (into [:> bs/ButtonGroup orientation]))
+     (->> (drop 3 tools)
+          (map #(conj % [:organ organ-name]))
+          (map #(conj % [:centre centre-name]))
+          (map #(conj % [:tool (:key %)]))
+          (map tool-buttons)
+          (into [:> bs/ButtonGroup orientation]))]))
 
 (defn background-link
   "Tool menu prefix rubric."
@@ -289,7 +292,7 @@ in the routes table."
                              :justify-content "space-around"
                              :padding-top 20}}
     [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
-    [tools-menu tools organ centre {:vertical true}]
+    [tools-menu tools false organ centre {:vertical true}]
     ]])
 
 (defn phone-card

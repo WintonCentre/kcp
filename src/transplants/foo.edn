@@ -1,3 +1,0 @@
-(not (ish? 
-      [[:transplant 0.3] [:death 0.4] [:residual 0.30000000000000004]] 
-      ([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4])))

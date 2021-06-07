@@ -429,7 +429,8 @@
         :else (locals)))
     :else mdata))
 
-(defn right-arrow
+;; currently unused
+#_(defn right-arrow
   "Render a right-arrow"
   [{:keys [x y fill scale stroke stroke-width]}]
   [:path {:fill fill
@@ -439,7 +440,8 @@
           :transform (when (and x y scale)
                        (str "translate(" x " " y ")scale(" scale ")"))}])
 
-(defn arrow
+;; currently unused
+#_(defn arrow
   "render an svg component that draws a white right arrow."
   [{:keys [index count x-offset y-offset spacing]}]
   ;(locals)
@@ -464,7 +466,7 @@
           (:line bin-label))))
 
 (defn draw-bin-labels
-  [{:keys [bin-labels spacing offset font-size X Y]}]
+  [{:keys [bin-labels spacing offset font-size X]}]
 ;  (locals)
   (into [:g {:key 1}]
         (map-indexed (fn [bar-index bin-label]
@@ -474,7 +476,7 @@
              bin-labels)))
 
 (defn draw-bars
-  [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles font-size X Y]}]
+  [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles X Y]}]
 
   (into [:g {:key 2}]
         (map-indexed (fn [bar-index bin-label]
@@ -614,7 +616,7 @@
                                          :y-ticks 10})
                                  :styles styles)
 
-       (fn [x y X Y]
+       (fn [_ _ X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
 ;          ;(locals)
            [:g
@@ -639,24 +641,13 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  [{:keys [X Y year-series quarter-series data-keys tool-mdata data-styles] :as params}]
-  (let [params (assoc params
-                      :bins (get-in tool-mdata [:area :bins])
-                      :bin-labels (get-in tool-mdata [:area :labels])
-                      :spacing (get-in tool-mdata [:area :spacing])
-                      :offset 1.85
-                      :q-offset 1.86
-                      :data-count (count data-keys)
-                      :bar-width (get-in tool-mdata [:area :width])
-                      :font-size (get-in tool-mdata [:bars :font-size]))])
-
+  [{:keys [X Y year-series quarter-series data-keys tool-mdata data-styles]}]
 
   (let [data-count (count data-keys)
         ;; 
         ;; for 3 years
         bar-width (get-in tool-mdata [:area :width])
         spacing (get-in tool-mdata [:area :spacing])
-        bins (get-in tool-mdata [:area :bins])
         bin-labels (get-in tool-mdata [:area :labels])
         font-size (get-in tool-mdata [:area :font-size])
         offset 1.85
@@ -841,7 +832,7 @@
                                          :y-ticks 10})
                                  :styles styles)
 
-       (fn [x y X Y]
+       (fn [_ _ X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
                fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
            [:g
@@ -924,7 +915,7 @@
      (for [i (range (count labels))
            :let [label (nth labels i)
                  time-index (:time-index label)
-                 [days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
+                 [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
        [ui/row {:style {:padding "0px 0px"}
                 :key (str "year-" time-index)}
         [ui/col {:key 1}
@@ -945,7 +936,7 @@
                                             :y-ticks 10})
                                     :styles styles)
 
-          (fn [x y X Y]
+          (fn [_ _ _ _]
             [:g
              (svg-outcome-legend plot-order data-styles
                                  {:width 320
@@ -975,8 +966,8 @@
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
     [:> bs/Row {:style {:max-width 600}}
      [:> bs/Col {:style {:margin "10px 0px"
-                         :height "calc(100vh - 35ex)"
-                         :overflow-y "scroll"}}
+                         #_#_:height "calc(100vh - 35ex)"
+                         #_#_:overflow-y "scroll"}}
       #_"Hello"
       (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)]]))
 
@@ -993,7 +984,6 @@
        ;[:th "Outcome"]
        (for [i years
              :let [label (nth labels i)
-                   time-index (:time-index label)
                    line (:line label)
                    line (if (sequential? line) (map str line) line)]]
          [:th {:key (str "y-" i)} line])]]
@@ -1006,7 +996,7 @@
          (for [i years
                :let [label (nth labels i)
                      time-index (:time-index label)
-                     [days {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
+                     [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
 
 (defn table

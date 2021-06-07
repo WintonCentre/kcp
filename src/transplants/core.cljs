@@ -47,7 +47,7 @@
   "Initialise the database, sense window-width, and mount root of component tree. 
    
    We're breaking the rules slightly as this is an :afer-load function, which shadow-cljs docs 
-   say it must be synchronous. However the parts that need to be synchronous here are, and we 
+   say must be synchronous. However the parts that need to be synchronous here are, and we 
    let the UI display a 'loading' state till the async dispatches complete. 
    
    If we coded this up as an :after-load-async function we'd need to provide a `done` function 

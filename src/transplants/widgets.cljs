@@ -74,17 +74,20 @@
    [:> bs/Col {:xs widget-width}
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
+
 (defn radio
-  [{:keys [factor-name factor-key levels default type vertical optional] :as w}]
+  [{:keys [factor-name factor-key levels default type vertical optional boxed] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        optional? (some? optional)]
+        optional? (some? optional)
+        boxed? (some? boxed)]
 ;    (locals)
 ;    (when optional? (?-> [optional levels] ::button-levels))
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:xs label-width
                  :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
-       (:factor-name w)]]
+       [:div
+        (:factor-name w)]]]
 
      [:> bs/Col {:xs widget-width}
 

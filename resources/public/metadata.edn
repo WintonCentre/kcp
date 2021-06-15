@@ -7,6 +7,7 @@
         :label "Lung Transplants"
         :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                           :outcomes {:transplant {:label "transplanted"
+                                                  :long-label "have been transplanted"
                                                   :fill "#41af6b"
                                                   :background-color "#41af6b"
                                                   :color "#fff"
@@ -15,6 +16,7 @@
                                                   :stroke "#000"
                                                   :label-fill "#fff"}
                                      :residual {:label "still waiting"
+                                                :long-label "are still waiting"
                                                 :fill "#4866cb"
                                                 :background-color "#4866cb"
                                                 :color "#fff"
@@ -23,12 +25,13 @@
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
                                      :death {:label "died or removed"
+                                             :long-label "have died or been removed from the list"
                                              :fill "#fff"
                                              :opacity 1
                                              :stroke-width 1
                                              :stroke "#000"
                                              :label-fill "#000"}}
-                          :plot-order [:transplant :residual :death]
+                          :plot-order [:death :residual :transplant]
                           :bars {:width 150
                                  :spacing 3.2
                                  :font-size 30

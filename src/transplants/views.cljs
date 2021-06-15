@@ -72,11 +72,11 @@
 ;;
 
 (def background-infos
-  {:visits "Visits to hospital after transplant"
+  {:percent "What does a percentage look like?"
+   :visits "Visits to hospital after transplant"
    :donors "Donor Decisions"
    :medications "Medications after Transplant Surgery"
    :window "The Window"
-   :percent "What does a percentage look like?"
    :graft-failure "What are my options if my new kidney fails?"
    :kidney-numbers "How many people are on the kidney transplant waiting list?"})
 
@@ -284,22 +284,26 @@
      [ui/col {:md 4}
       [:h3 {:style {:margin-top 40}} "Useful information"]
 
-      [:> bs/ListGroup
-       [:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :visits])}
+      [:<>
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
+                      :on-click #(rf/dispatch [::events/background-info :percent])}
+        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
+       [:> bs/Button {:style {:margin-bottom 1 :width "100%"}
+                      :on-click #(rf/dispatch [::events/background-info :visits])}
         (:visits background-infos)]
-       [:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :kidney-numbers])}
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
+                      :on-click #(rf/dispatch [::events/background-info :kidney-numbers])}
         (:kidney-numbers background-infos)]
-       [:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :medications])}
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
+                      :on-click #(rf/dispatch [::events/background-info :medications])}
         (:medications background-infos)]
-       [:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :graft-failure])}
-        (:graft-failure background-infos)]
-       [:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :percent])}
-        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]]
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
+                      :on-click #(rf/dispatch [::events/background-info :graft-failure])}
+        (:graft-failure background-infos)]]]
      [ui/col {:md 8}
       [:div {:style {:margin-top 40}}
        (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]
@@ -307,22 +311,28 @@
      [ui/col {:md 4}
       [:h3 {:style {:margin-top 40}} "Useful information"]
 
-      [:> bs/ListGroup
-       [:> bs/ListGroup.Item {:action true
+      [:<>
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
+                              :on-click #(rf/dispatch [::events/background-info :percent])}
+        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
                               :on-click #(rf/dispatch [::events/background-info :visits])}
         (:visits background-infos)]
-       [:> bs/ListGroup.Item {:action true
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
                               :on-click #(rf/dispatch [::events/background-info :donors])}
         (:donors background-infos)]
-       [:> bs/ListGroup.Item {:action true
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
                               :on-click #(rf/dispatch [::events/background-info :medications])}
         (:medications background-infos)]
-       [:> bs/ListGroup.Item {:action true
+       [:> bs/Button {:style {:margin-bottom 1
+                              :width "100%"}
                               :on-click #(rf/dispatch [::events/background-info :window])}
         (:window background-infos)]
-       [:> bs/ListGroup.Item {:action true
-                              :on-click #(rf/dispatch [::events/background-info :percent])}
-        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]]]
+       ]]
      [ui/col {:md 8}
       [:div {:style {:margin-top 40}}
        (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]))

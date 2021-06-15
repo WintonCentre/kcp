@@ -102,7 +102,7 @@
           overlay (if missing :missing (if unknowns :unknowns nil))]
       [:div {:style {:background-color "#fff"
                      :border (str "3px solid " (condp = overlay 
-                                                 :missing "rgb(255,136,136)" 
+                                                 :missing "rgb(255,0,0)" 
                                                  :unknowns "teal"
                                                  nil "#CCC"))
                      :border-radius 5
@@ -113,8 +113,8 @@
        (condp = overlay
          :missing [:<>
                    [:div {:style {:z-index 1000
-                                  :color "rgb(255,136,136)"
-                                  :border "3px solid rgb(255,136,136)"
+                                  :color "rgb(255,0,0)"
+                                  :border "3px solid rgb(255,0,0)"
                                   :border-radius 5
                                   :background-color "#fec"
                                   :padding "2px 5px"
@@ -123,13 +123,23 @@
                                   :right "20px"}}
                     "Warning: some inputs are missing"]
                    [:div {:style {:z-index 500
-                                  :background-color "#001111f0"
+                                  :background-color "#AAA"
                                   :padding 0
                                   :position "absolute"
                                   :top 0
                                   :right 0
                                   :bottom 0
-                                  :left 0}}]]
+                                  :left 0
+                                  :display "flex"
+                                  :align-items "center"
+                                  :justify-content "center"
+                                  }}
+                    [:h2 {:flex "auto"
+                          :style {:color "#fff"
+                                  :text-align "center"
+                                  :width 400}}
+                     "Results will appear here once all inputs have been entered."]
+                    ]]
          :unknowns [:<>
                    [:div {:style {:z-index 1000
                                   :color "teal"

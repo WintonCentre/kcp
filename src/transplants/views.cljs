@@ -449,7 +449,7 @@
                #_(?-> tool-centre-bundle ::tool-centre-bundle)
                (let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
                                         [organ :tools tool])]
-                   (:rest-of-page tool-mdata))]]]
+                 (:rest-of-page tool-mdata))]]]
             (if (= tool :guidance)
               [background-info organ]
               (let [path (paths/organ-centre-name-tool organ-name

@@ -196,7 +196,7 @@
                                   #_(dissoc styles :label-fill))]
                    [:text {:x 10 :y 40
                            :fill (:label-fill styles)
-                           :font-size 30}
+                           :font-size 25}
                     (str (:label styles) (string-value-f i))]]))
               (range)
               plot-order))))
@@ -713,7 +713,7 @@
      ;; Plot areas
      ;;
      [:g
-      (into [:g {:opacity 0.7}]
+      (into [:g {:opacity 1}]
             (for [dk data-keys]
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]
@@ -939,7 +939,7 @@
           (fn [_ _ _ _]
             [:g
              (svg-outcome-legend plot-order data-styles
-                                 {:width 320
+                                 {:width 380
                                   :string-value-f (fn [i] (str ": " (int-fs i) "%"))
                                   :position-f #(str "translate(0 " (+ -35 (* 60 %)) "),scale(0.7)")})
              (for [i (range 10)
@@ -976,9 +976,11 @@
   (let [plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-    [:> bs/Table {:responsive "xl" 
+    [:> bs/Table {:style {:margin-top 20
+                          :border "3px solid #666"}
+                  :responsive "xl" 
                   :bordered true
-                  :style {:margin-top 20}}
+                  }
      [:thead
       [:tr
        ;[:th "Outcome"]
@@ -986,7 +988,10 @@
              :let [label (nth labels i)
                    line (:line label)
                    line (if (sequential? line) (map str line) line)]]
-         [:th {:key (str "y-" i)} line])]]
+         [:th {:style {:border-bottom "3px solid #666"
+                       #_#_:color "#fff"
+                       #_#_:background-color "#888"}
+               :key (str "y-" i)} line])]]
      [:tbody
       (for [j (range (count plot-order))
             :let [style ((nth plot-order j) data-styles)

@@ -5,7 +5,8 @@
  ; Syntax is EDN - see definition at https://github.com/edn-format/edn
  :lung {:text "Lung"
         :label "Lung Transplants"
-        :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
+        :tools {:waiting {:button-type "primary"
+                          :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                           :outcomes {:transplant {:label "transplanted"
                                                   :long-label "have been transplanted"
                                                   :fill "#41af6b"
@@ -256,7 +257,7 @@
                                                     :fill "#41af6b"
                                                     :background-color "#41af6b"
                                                     :color "#fff"
-                                                    :opacity 0.7
+                                                    :opacity 1
                                                     :stroke-width 1
                                                     :stroke "#000"
                                                     :label-fill "#fff"}
@@ -265,7 +266,7 @@
                                                   :fill "#4866cb"
                                                   :background-color "#4866cb"
                                                   :color "#fff"
-                                                  :opacity 0.7
+                                                  :opacity 1
                                                   :stroke-width 1
                                                   :stroke "#000"
                                                   :label-fill "#fff"}

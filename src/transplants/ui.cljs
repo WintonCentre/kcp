@@ -222,9 +222,9 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key label organ centre tool]}]
+  [{:keys [key label organ centre tool active-tool]}]
 
-  (let [active (= (name tool)  (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool]))]
+  (let [active (= (name tool) active-tool)]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2
@@ -240,23 +240,22 @@ in the routes table."
 (defn tools-menu
   "Render a group of tool selection buttons"
   [tools include-guidance? organ-name centre-name orientation]
-  (let [tools (if include-guidance?
-                tools 
-                (remove #(= :guidance (:key %)) tools))] ;TODO: configure this filter!
+  (let [active-tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])
+        tools (->> (if include-guidance?
+                     tools
+                     (remove #(= :guidance (:key %)) tools))
+                   (map #(conj % [:organ organ-name]))
+                   (map #(conj % [:centre centre-name]))
+                   (map #(conj % [:tool (:key %)]))
+                   (map #(conj % [:active-tool active-tool])))] ;TODO: configure this filter!
     [:> bs/ButtonToolbar
    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
    ;; Even better would be to configure the break points as what makes sense will be ver application
    ;; specific.
      (->> (take 3 tools)
-          (map #(conj % [:organ organ-name]))
-          (map #(conj % [:centre centre-name]))
-          (map #(conj % [:tool (:key %)]))
           (map tool-buttons)
           (into [:> bs/ButtonGroup orientation]))
      (->> (drop 3 tools)
-          (map #(conj % [:organ organ-name]))
-          (map #(conj % [:centre centre-name]))
-          (map #(conj % [:tool (:key %)]))
           (map tool-buttons)
           (into [:> bs/ButtonGroup orientation]))]))
 

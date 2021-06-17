@@ -241,13 +241,15 @@ in the routes table."
   "Render a group of tool selection buttons"
   [tools include-guidance? organ-name centre-name orientation]
   (let [active-tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])
+        mdata @(rf/subscribe [::subs/mdata])
         tools (->> (if include-guidance?
                      tools
                      (remove #(= :guidance (:key %)) tools))
                    (map #(conj % [:organ organ-name]))
                    (map #(conj % [:centre centre-name]))
                    (map #(conj % [:tool (:key %)]))
-                   (map #(conj % [:active-tool active-tool])))] ;TODO: configure this filter!
+                   (map #(conj % [:active-tool active-tool]))
+                   (map #(conj % [:mdata mdata])))] ;TODO: configure this filter!
     [:> bs/ButtonToolbar
    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
    ;; Even better would be to configure the break points as what makes sense will be ver application

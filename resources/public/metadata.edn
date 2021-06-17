@@ -125,7 +125,7 @@
                                         [:h3 "What might happen if you are listed for a transplant?"]
                                         [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
-                                        [:p "It shows how many people might be transplanted over 5 years."]
+                                        [:p "It shows how many people might be transplanted over 3 years."]
                                         [:p "This is an estimate, an average, there are other factors about you that can influence
                                               these results and make the numbers higher or lower. eg whether you have other conditions 
                                               not included in the tool."]]
@@ -242,7 +242,7 @@
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
-[:p "These are the outcomes we would expect for people who entered the same
+                                                #_[:p "These are the outcomes we would expect for people who entered the same
                                                  information as you, based on patients who joined the waiting list between 2004 and 2014. "]]
                             
                                   :post-section [:h5 "Patient Survival Post Transplant"]
@@ -380,7 +380,7 @@
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                            [:h5 "Why does the display stop at year 5?"]
-                                           [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                           #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                            [:p "As time passes we will be able to add in more years"]]]
                             :post-section [:h5 "Outcomes after listing for a kidney transplant"]
@@ -508,20 +508,20 @@
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                             [:h5 "Why does the display stop at year 5?"]
-                                            [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                            #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                             [:p "As time passes we will be able to add in more years"]]]
                              :post-section [:h5 "Patient survival after a deceased donor transplant"]
                              :rest-of-page [:<>
-                                            [:div {:style {margin-top 20}}
-                                             [:p "This is an estimate, an average, there are other factors about you that can 
+                                            #_[:div {:style {margin-top 20}}
+                                               [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
-                                             [:h5 "Why does the display stop at year 5?"]]
-                                            [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                               [:h5 "Why does the display stop at year 5?"]
+                                               [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
-                                            [:p "As time passes we will be able to add in more years"]]}
+                                               [:p "As time passes we will be able to add in more years"]]]}
 
                   :graft {:outcomes {:residual {:label "Kidneys still working"
                                                 :long-label "of kidneys have survived"
@@ -624,7 +624,8 @@
                                          "How long might your kidney last if its from a deceased donor?"]
                                         [:section
                                          [:p "The display shows what happened to people like you in the past
-                                              (eg same blood group, age, disease etc.)."]
+                                              (eg same blood group, age, disease etc.). 
+                                              It shows how many kidneys are still workng over time."]
 
 
                                          [:p "This is an estimate, an average, there are other factors about you that can 
@@ -632,20 +633,20 @@
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                          [:h5 "Why does the display stop at year 5?"]
-                                         [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                         #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                          [:p "As time passes we will be able to add in more years"]]]
                           :post-section [:h5 "Kidney survival after a deceased donor transplant"]
                           :rest-of-page [:<>
                                          #_[:div {:style {margin-top 20}}
-                                          [:p "This is an estimate, an average, there are other factors about you that can 
+                                            [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
-                                          [:h5 "Why does the display stop at year 5?"]]
-                                         [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                            [:h5 "Why does the display stop at year 5?"]
+                                            [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
-                                         [:p "As time passes we will be able to add in more years"]
+                                            [:p "As time passes we will be able to add in more years"]]
                                          ]}
        ;; ld for living donor
                   :ldsurvival {:outcomes {:residual {:label "Surviving"
@@ -747,14 +748,14 @@
                                            [:section
                                             [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
-                                            [:p "It shows how many people might be transplanted over 5 years."]
+                                            #_[:p "It shows how many people might be transplanted over 5 years."]
 
                                             [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                             [:h5 "Why does the display stop at year 5?"]
-                                            [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                            #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                             [:p "As time passes we will be able to add in more years"]]]
                                :post-section [:h5 "Patient survival after a living donor transplant"]
@@ -765,7 +766,7 @@
                                                encounter other lifestyle factors post transplant."]
                                               [:div {:style {margin-top 20}}
                                                [:h5 "Why does the display stop at year 5?"]]
-                                              [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                              #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                               [:p "As time passes we will be able to add in more years"]]}
                   :ldgraft {:outcomes {:residual {:label "Kidneys still working"
@@ -867,13 +868,12 @@
                                            [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
 
-
                                            [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
                                            [:h5 "Why does the display stop at year 5?"]
-                                           [:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
+                                           #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                            [:p "As time passes we will be able to add in more years"]]]
                             :post-section [:h5 "Graft survival after a living donor transplant"]

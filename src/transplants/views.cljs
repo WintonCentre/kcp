@@ -78,7 +78,8 @@
    :medications "Medications after Transplant Surgery"
    :window "The Window"
    :graft-failure "What are my options if my new kidney fails?"
-   :kidney-numbers "How many people are on the kidney transplant waiting list?"})
+   :lung-numbers "Lung transplants - 2019 - 2020 numbers"
+   :kidney-numbers "Kidney transplants - 2019 - 2020 numbers"})
 
 (defmulti show-background-info 
   "Render the selected background info"
@@ -172,22 +173,104 @@
 (defmethod show-background-info :kidney-numbers [options]
   [:<>
    [:h3 (:kidney-numbers background-infos)]
-   [:p "(April 2019 – March 2020)"]
-   [:p]
+   [:p "On the 11th Sept 2019 a new National Kidney Offering Scheme was introduced."]
+   [:p "This tool does can not take into account the new offering scheme because it’s too new."]
    [ui/row
     [ui/col {:sm 8} [:p "Total number of kidney patients on the waiting list"]]
     [ui/col {:sm 4} [:p 4960]]]
    [ui/row
     [ui/col {:sm 8} [:p "Total number of transplants carried out"]]
-    [ui/col {:sm 4} [:p 2280]]]
+    [ui/col {:sm 4} [:p 3448]]]
    [ui/row
     [ui/col {:sm 8} [:p "Total number of deceased transplants carried out"]]
-    [ui/col {:sm 4} [:p 1474]]]
+    [ui/col {:sm 4} [:p 2466]]]
    [ui/row
     [ui/col {:sm 8} [:p "Total number of living transplants carried out"]]
     [ui/col {:sm 4} [:p 982]]]
-   [:i {:style {:color "red"}} "These numbers don't add up!"]])
+   [ui/row
+    [ui/col {:sm 8} [:p "Altruistic donors - who contributed to 146 transplants"]]
+    [ui/col {:sm 4} [:p 95]]]
+   [ui/row
+    [ui/col {:sm 12}
+     [:p " See page 4 of "
+      [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
+           :target "_blank"}
+       "this PDF document for local numbers"]]]]
+   ])
 
+
+(defmethod show-background-info :lung-numbers [options]
+  [:<>
+   [:h3 (:lung-numbers background-infos)]
+   [:p "For further detail, please see "
+    [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf"
+         :target "_blank"} "the annual report"] "."]
+   [ui/row
+    [ui/col {:sm 12} [:h3 "Numbers on the waiting list"]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Papworth"]]
+    [ui/col {:sm 4} [:p 50]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Newcastle"]]
+    [ui/col {:sm 4} [:p 108]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Manchester"]]
+    [ui/col {:sm 4} [:p 52]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Harefield"]]
+    [ui/col {:sm 4} [:p 94]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Birmingham"]]
+    [ui/col {:sm 4} [:p 51]]]
+   [ui/row
+    [ui/col {:sm 12} [:h3 "Numbers who were transplanted"]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Papworth"]]
+    [ui/col {:sm 4} [:p 41]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Newcastle"]]
+    [ui/col {:sm 4} [:p 30]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Manchester"]]
+    [ui/col {:sm 4} [:p 29]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Harefield"]]
+    [ui/col {:sm 4} [:p 40]]]
+   [ui/row
+    [ui/col {:sm 4} [:p "Birmingham"]]
+    [ui/col {:sm 4} [:p 17]]]
+   [ui/row
+    [ui/col {:sm 4} [:p [:b "Nationally"]]]
+    [ui/col {:sm 4} [:p [:b 161]]]]])
+
+
+(defmethod show-background-info :kidney-numbers [options]
+  [:<>
+   [:h3 (:kidney-numbers background-infos)]
+   [:p "On the 11th Sept 2019 a new National Kidney Offering Scheme was introduced."]
+   [:p "This tool does can not take into account the new offering scheme because it’s too new."]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of kidney patients on the waiting list"]]
+    [ui/col {:sm 4} [:p 4960]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of transplants carried out"]]
+    [ui/col {:sm 4} [:p 3448]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of deceased transplants carried out"]]
+    [ui/col {:sm 4} [:p 2466]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Total number of living transplants carried out"]]
+    [ui/col {:sm 4} [:p 982]]]
+   [ui/row
+    [ui/col {:sm 8} [:p "Altruistic donors - who contributed to 146 transplants"]]
+    [ui/col {:sm 4} [:p 95]]]
+   [ui/row
+    [ui/col {:sm 12}
+     [:p " See page 4 of "
+      [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
+           :target "_blank"}
+       "this PDF document for local numbers"]]]]
+   ])
 
 (defn a-percentage
   "Replace 'a percentage ' in s with 'v% '"
@@ -279,63 +362,78 @@
    TODO: Pull from a file somehow. We need an EDN/Hiccup template mechanism for that. Somebody must
    have written one?"
   [organ]
-  (if (= organ :kidney)
-    [ui/row
-     [ui/col {:md 4}
-      [:h3 {:style {:margin-top 40}} "Useful information"]
+  (let [selected @(rf/subscribe [::subs/background-info])]
+    (if (= organ :kidney)
+      [ui/row
+       [ui/col {:md 4}
+        [:h3 {:style {:margin-top 40}} "Useful information"]
 
-      [:<>
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                      :on-click #(rf/dispatch [::events/background-info :percent])}
-        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
-       [:> bs/Button {:style {:margin-bottom 1 :width "100%"}
-                      :on-click #(rf/dispatch [::events/background-info :visits])}
-        (:visits background-infos)]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                      :on-click #(rf/dispatch [::events/background-info :kidney-numbers])}
-        (:kidney-numbers background-infos)]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                      :on-click #(rf/dispatch [::events/background-info :medications])}
-        (:medications background-infos)]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                      :on-click #(rf/dispatch [::events/background-info :graft-failure])}
-        (:graft-failure background-infos)]]]
-     [ui/col {:md 8}
-      [:div {:style {:margin-top 40}}
-       (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]
-    [ui/row
-     [ui/col {:md 4}
-      [:h3 {:style {:margin-top 40}} "Useful information"]
+        [:<>
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= :percent selected)
+                        :on-click #(rf/dispatch [::events/background-info :percent])}
+          (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
+         [:> bs/Button {:style {:margin-bottom 1 :width "100%"}
+                        :active (= :visits selected)
+                        :on-click #(rf/dispatch [::events/background-info :visits])}
+          (:visits background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= :kidney-numbers selected)
+                        :on-click #(rf/dispatch [::events/background-info :kidney-numbers])}
+          (:kidney-numbers background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= :medications selected)
+                        :on-click #(rf/dispatch [::events/background-info :medications])}
+          (:medications background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= :graft-failure selected)
+                        :on-click #(rf/dispatch [::events/background-info :graft-failure])}
+          (:graft-failure background-infos)]]]
+       [ui/col {:md 8}
+        [:div {:style {:margin-top 40}}
+         (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]
+      [ui/row
+       [ui/col {:md 4}
+        [:h3 {:style {:margin-top 40}} "Useful information"]
 
-      [:<>
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                              :on-click #(rf/dispatch [::events/background-info :percent])}
-        (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                              :on-click #(rf/dispatch [::events/background-info :visits])}
-        (:visits background-infos)]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                              :on-click #(rf/dispatch [::events/background-info :donors])}
-        (:donors background-infos)]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                              :on-click #(rf/dispatch [::events/background-info :medications])}
-        (:medications background-infos)]
-       [:> bs/Button {:style {:margin-bottom 1
-                              :width "100%"}
-                              :on-click #(rf/dispatch [::events/background-info :window])}
-        (:window background-infos)]
-       ]]
-     [ui/col {:md 8}
-      [:div {:style {:margin-top 40}}
-       (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]))
+        [:<>
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= selected :percent)
+                        :on-click #(rf/dispatch [::events/background-info :percent])}
+          (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= selected :visits)
+                        :on-click #(rf/dispatch [::events/background-info :visits])}
+          (:visits background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= selected :lung-numbers)
+                        :on-click #(rf/dispatch [::events/background-info :lung-numbers])}
+          (:lung-numbers background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= selected :donors)
+                        :on-click #(rf/dispatch [::events/background-info :donors])}
+          (:donors background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= selected :medications)
+                        :on-click #(rf/dispatch [::events/background-info :medications])}
+          (:medications background-infos)]
+         [:> bs/Button {:style {:margin-bottom 1
+                                :width "100%"}
+                        :active (= selected :window)
+                        :on-click #(rf/dispatch [::events/background-info :window])}
+          (:window background-infos)]]]
+       [ui/col {:md 8}
+        [:div {:style {:margin-top 40}}
+         (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]])))
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured

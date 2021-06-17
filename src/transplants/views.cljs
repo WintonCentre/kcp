@@ -16,8 +16,6 @@
 (comment
   (rf/dispatch [::events/initialize-db]))
 
-
-
 ;;; Views ;;;
 (defn home-page
   "Display a generic home page. 
@@ -514,8 +512,10 @@
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]
           (if-let [tool-centre-bundle tcb]
             [ui/row
+             [ui/col {:xs 12}
+              [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
              [ui/col {:xs 12 :md 6}
-              [:h4 {:style {:margin-top 10}}
+              #_[:h4 {:style {:margin-top 10}}
                (:label tool-meta) " – " (:description tool-meta)]
               (when-let [input-header (get-in tool-mdata [:inputs :header])] 
                 input-header)

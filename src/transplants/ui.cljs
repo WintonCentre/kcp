@@ -320,9 +320,9 @@ in the routes table."
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 
 (def mobile-break
-  "Screens of this size or smaller are rendered with mobile oriented views.
-   We take the surface duo as the widest mobile"
-  800)
+  "Screens of this size or smaller are rendered with mobile oriented views."
+  1200 ;800
+  )
 
 (defn centre-card
   "A single card describingg a centre"
@@ -367,10 +367,11 @@ in the routes table."
 (defn randomise-query-panel
   "A simple checkbox asking whether an icon array should be randomised or ordered."
   [label]
-  [:> bs/Form
+  [:> bs/Form {:style {:margin "0px 0px 0px 0px"
+                       :padding "0px 0px 0px 0px"}}
    [:> bs/Form.Group {:on-click #(rf/dispatch [::events/randomise-icons])
-                      :style {:margin "0px 1.6% 0px 0px"
-                              :padding "10px 0px 0px 20px"
+                      :style {:margin "0px 0px 0px 0px"
+                              :padding "10px 0px 0px 10px"
                               :color "#000"
                               :background-color "#CCC"}}
     [:> bs/Form.Check {:inline true

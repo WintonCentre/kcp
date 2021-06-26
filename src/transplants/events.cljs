@@ -334,16 +334,16 @@
 (rf/reg-event-fx
  ::store-metadata-response
  (fn
-  [{:keys [db]} [_ data-path response]]
-  (let [mdata (edn/read-string response)
-        organs (keys mdata)]
+   [{:keys [db]} [_ data-path response]]
+   (let [mdata (edn/read-string response)
+         organs (keys mdata)]
 
      ; Todo: VALIDATE mdata
-    (doseq [organ organs]
-      (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
+     (doseq [organ organs]
+       (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
 
-    {:db (-> db
-             (assoc :mdata mdata))})))
+     {:db (-> db
+              (assoc :mdata mdata))})))
 
 (rf/reg-event-fx
  ::load-metadata

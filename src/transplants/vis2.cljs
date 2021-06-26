@@ -12,6 +12,7 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [cljstache.core :as mus]
+            [medley.core :as medley]
             [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 ;;
@@ -553,6 +554,25 @@
              (range)
              bin-labels)))
 
+
+(defn tool-metadata
+  [env organ tool]
+  (get-in env [:mdata organ :tools tool]) ;; provisional
+
+  ;; Bear in mind that we will want to provide a default configuration template somehow.
+  ;; It's not entirely clear to me what is the best way to do this, but a deep-merge between the
+  ;; default configuration and the custom metadata is one possibility.
+  ;;
+  ;; The default configuration could be hard-coded into the initial database, or it could be read in
+  ;; from an external edn first.
+  #_(medley/deep-merge (get-in env [:mdata organ :tools :default])
+         (get-in env [:mdata organ :tools tool]))
+  
+  ;; One other issue to sort out here is that we've used organs names and tool names as keys into the
+  ;; configuration. It would be better if the confguartion were free to specify the domains (like :lung) and the
+  ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
+  )
+
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
@@ -595,26 +615,24 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        tool-mdata (get-in env [:mdata organ :tools tool]) ;; returnng nil for path [:mdata :kidney :tools :survival]
+        tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        plot-order (:plot-order tool-mdata)
-        svg-width 1060
-        svg-height 700]
+        plot-order (:plot-order tool-mdata)]
     ;(locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       ;(:pre-section tool-mdata)
 
-      [svgc/svg-container (assoc (space {:outer {:width (get-in tool-mdata [:bars :svg-width])
-                                                 :height (get-in tool-mdata [:bars :svg-height])}
-                                         :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (get-in tool-mdata [:bars :svg-margin]) 
-                                         :padding (get-in tool-mdata [:bars :svg-padding])
-                                         :x-domain [0 14]
-                                         :x-ticks 10
-                                         :y-domain [1 0]
-                                         :y-ticks 10})
-                                 :styles styles)
+      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:bars :svg-width])
+                                              :height (get-in tool-mdata [:bars :svg-height])}
+                                      :margin (get-in tool-mdata [:bars :svg-margin])
+                                      :padding (get-in tool-mdata [:bars :svg-padding])
+                                      :x-domain [0 14]
+                                      :x-ticks 10
+                                      :y-domain [1 0]
+                                      :y-ticks 10})
+                              (assoc :styles styles)
+                              (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
        (fn [_ _ X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
@@ -813,7 +831,7 @@
                       utils/week->day
                       (range (inc (utils/day->week (first (last s0))))))
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
-        tool-mdata (get-in env [:mdata organ :tools tool])
+        tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         svg-width 1060
@@ -821,16 +839,18 @@
       ;(locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
-      [svgc/svg-container (assoc (space {:outer {:width (get-in tool-mdata [:area :svg-width]) 
-                                                 :height (get-in tool-mdata [:area :svg-height])}
-                                         :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (get-in tool-mdata [:bars :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                         :padding (get-in tool-mdata [:bars :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
-                                         :x-domain [0 14]
-                                         :x-ticks 10
-                                         :y-domain [1 0]
-                                         :y-ticks 10})
-                                 :styles styles)
+      [svgc/svg-container 
+       (-> (space {:outer {:width (get-in tool-mdata [:area :svg-width])
+                           :height (get-in tool-mdata [:area :svg-height])}
+                   :aspect-ratio (aspect-ratio svg-width svg-height)
+                   :margin (get-in tool-mdata [:area :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
+                   :padding (get-in tool-mdata [:area :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
+                   :x-domain [0 14]
+                   :x-ticks 10
+                   :y-domain [1 0]
+                   :y-ticks 10})
+           (assoc :styles styles)
+           (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
        (fn [_ _ X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
@@ -897,7 +917,64 @@
   ;; => 5
   )
 
+(defn side-by-side-icon-array
+  "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
+  [year-series tool-mdata data-styles]
+  (let [svg-width (get-in tool-mdata [:icons :svg-width])
+        svg-height (get-in tool-mdata [:icons :svg-height])
+        plot-order (:plot-order tool-mdata)
+        labels (get-in tool-mdata [:icons :labels])
+        randomise-icons @(rf/subscribe [::subs/randomise-icons])
+        icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
+;    (locals)
 
+      #_[ui/randomise-query-panel "Randomise order?"]
+    [:div
+     [ui/randomise-query-panel "Randomise order?"]
+
+     
+
+
+     [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
+                                             :height (get-in tool-mdata [:icons :svg-height])}
+                                     :margin (get-in tool-mdata [:icons :svg-margin]) 
+                                     :padding (get-in tool-mdata [:icons :svg-padding]) 
+                                     :x-ticks 10
+                                     :y-domain [300 0]
+                                     :y-ticks 10})
+                             (assoc :styles styles)
+                             (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
+
+      (fn [x y X Y]
+        (locals)
+        (into [:g {:transform "translate(20,40),scale(1.42)"}]
+              (for [label-index (range (count labels))
+                    :let [label (nth labels label-index)
+                          time-index (:time-index label)
+                          [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)
+                          _ (?-> label ::label)]]
+                [:g {:key (str "lab-" label-index)}
+                 [:g {:key 1}
+                  (for [k (range (count plot-order))
+                        :let [outcome-key (plot-order k)
+                              outcome (get-in tool-mdata [:outcomes outcome-key])]]
+                    [:g {:key (str "outk-" k)
+                         :transform (str "translate (" (* label-index 250) ", " (- (* k 25) 20) ")")}
+                     [h-and-s {:scale 2 :fill (:fill outcome)}]
+                     [:text {:transform "translate (40,15)"} (str (int-fs k) " " (:label outcome))]])]
+
+                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 70)")}
+                  (for [i (range 10)
+                        j (range 10)
+                        :let [ordinal (icon-order (+ j (* 10 i)))]]
+                    [:g {:key (str "i-" j "-" i)
+                         :transform (str "translate(" (* j 22) " " (* i 22) ")")}
+                     [h-and-s
+                      {:scale 2 :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])]
+                 
+                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 320)")}
+                  [:text {:font-size "1.2em"
+                          :x 20} (get-in label [:line 0])]]])))]]))
 ;
 (defn stacked-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
@@ -925,28 +1002,47 @@
               (if (sequential? line) (map str line) line))]
          
          [ui/randomise-query-panel "Randomise order?"]
-         [svgc/svg-container (assoc (space {:outer {:width svg-width
-                                                    :height svg-height}
-                                            :aspect-ratio (aspect-ratio svg-width svg-height)
-                                            :margin (get-in tool-mdata [:icons :svg-margin])
-                                            :padding (get-in tool-mdata [:icons :svg-padding])
-                                            :x-domain [0 300]
-                                            :x-ticks 10
-                                            :y-domain [0 300]
-                                            :y-ticks 10})
-                                    :styles styles)
+         [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
+                                                 :height (get-in tool-mdata [:icons :svg-height])}
+                                         :aspect-ratio (aspect-ratio svg-width svg-height)
+                                         :margin (get-in tool-mdata [:icons :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
+                                         :padding (get-in tool-mdata [:icons :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                         :x-domain [0 300]
+                                         :x-ticks 10
+                                         :y-domain [300 0]
+                                         :y-ticks 10})
+                                 (assoc :styles styles)
+                                 (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
+          #_(assoc (space {:outer {:width svg-width
+                                 :height svg-height}
+                         :aspect-ratio (aspect-ratio svg-width svg-height)
+                         :margin (get-in tool-mdata [:icons :svg-margin])
+                         :padding (get-in tool-mdata [:icons :svg-padding])
+                         :x-domain [0 300]
+                         :x-ticks 10
+                         :y-domain [0 300]
+                         :y-ticks 10})
+                 :styles styles)
 
           (fn [_ _ _ _]
-            [:g
-             (svg-outcome-legend plot-order data-styles
+            [:g {:transform "translate(0,0),scale(1.9)"}
+             [:g {:key 1}
+              (for [k (range (count plot-order))
+                    :let [outcome-key (plot-order k)
+                          outcome (get-in tool-mdata [:outcomes outcome-key])]]
+                [:g {:key (str "outk-" k)
+                     :transform (str "translate (" 10 ", " (+ (* k 25) 20) ")")}
+                 [h-and-s {:scale 2 :fill (:fill outcome)}]
+                 [:text {:transform "translate(30,15)"} (str (int-fs k) " " (:label outcome))]])]
+             #_(svg-outcome-legend plot-order data-styles
                                  {:width 380
                                   :string-value-f (fn [i] (str ": " (int-fs i) "%"))
-                                  :position-f #(str "translate(0 " (+ -35 (* 60 %)) "),scale(0.7)")})
+                                  :position-f #(str "translate(15 " (+ 20 (* 60 %)) "),scale(0.7)")})
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]
                [:g {:key (str "i-" j "-" i)
-                    :transform (str "translate(" (+ 300 (* j 22)) " " (+ -35 (* i 22)) ")")}
+                    :transform (str "translate(" (+ 300 (* j 22)) " " (+ 20 (* i 22)) ")")}
                 [h-and-s
                  {:scale 2
                   :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
@@ -960,16 +1056,17 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        tool-mdata (get-in env [:mdata organ :tools tool])
+        tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-    [:> bs/Row {:style {:max-width 600}}
-     [:> bs/Col {:style {:margin "10px 0px"
-                         #_#_:height "calc(100vh - 35ex)"
-                         #_#_:overflow-y "scroll"}}
-      #_"Hello"
-      (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)]]))
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
+        window-width (rf/subscribe [::subs/window-width])
+        mobile? (<= @window-width ui/mobile-break)]
+    [:> bs/Row
+     [:> bs/Col {:style {:margin "10px 0px"}}
+      (if mobile?
+        (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)
+        (side-by-side-icon-array fs-by-year-in-plot-order tool-mdata data-styles))]]))
 
 (defn table-render
   [year-series tool-mdata data-styles]
@@ -1012,7 +1109,7 @@
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        tool-mdata (get-in env [:mdata organ :tools tool])
+        tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]

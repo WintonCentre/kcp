@@ -573,6 +573,14 @@
   ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
   )
 
+(defn tool-vis-style
+  [tool-mdata vis-key]
+  (get-in tool-mdata [vis-key]))
+
+(defn tool-vis-texts
+  [tool-mdata vis-key]
+  [get-in tool-mdata [vis-key :texts]])
+
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
@@ -588,7 +596,9 @@
   (let [params (assoc params
                       :bin-labels (get-in tool-mdata [:bars :labels])
                       :spacing (get-in tool-mdata [:bars :spacing])
-                      :offset 1.69
+                      :offset (if-let [offset (get-in tool-mdata [:bars :offset])]
+                                offset
+                                1.5)
                       :data-count (count data-keys)
                       :bar-width (get-in tool-mdata [:bars :width])
                       :font-size (get-in tool-mdata [:bars :font-size]))

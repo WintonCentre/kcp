@@ -196,7 +196,7 @@
                                                   "listed"]}
                                           {:time-index 1
                                            :x-offset 30
-                                           :y-offset 610
+                                           :y-offset 600
                                            :line ["End of"
                                                   "year 1"]}
                                           {:time-index 2
@@ -451,17 +451,17 @@
                                    :font-size 30
                                    :labels [{:time-index 1
                                              :x-offset -50
-                                             :y-offset 580
+                                             :y-offset 600
                                              :line ["End of"
                                                     "year 1"]}
                                             {:time-index 3
                                              :x-offset -50
-                                             :y-offset 580
+                                             :y-offset 600
                                              :line ["End of"
                                                     "year 3"]}
                                             {:time-index 5
                                              :x-offset -50
-                                             :y-offset 580
+                                             :y-offset 600
                                              :line ["End of"
                                                     "year 5"]}]}
                             :icons {:svg-width 1060
@@ -574,17 +574,17 @@
                                     :font-size 30
                                     :labels [{:time-index 1
                                               :x-offset -50
-                                              :y-offset 580
+                                              :y-offset 610
                                               :line ["End of"
                                                      "year 1"]}
                                              {:time-index 3
                                               :x-offset -50
-                                              :y-offset 580
+                                              :y-offset 610
                                               :line ["End of"
                                                      "year 3"]}
                                              {:time-index 5
                                               :x-offset -50
-                                              :y-offset 580
+                                              :y-offset 610
                                               :line ["End of"
                                                      "year 5"]}]}
                              :icons {:svg-width 1060
@@ -664,7 +664,7 @@
                                                 :stroke-width 1
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
-                                     :graft {:label "Failed kidney transplants"
+                                     :graft {:label "Failed transplants"
                                              :long-label "of kidneys have died"
                                              :fill "#ffffff"
                                              :opacity 0.7
@@ -703,17 +703,17 @@
                                  :font-size 30
                                  :labels [{:time-index 1
                                            :x-offset -50
-                                           :y-offset 580
+                                           :y-offset 610
                                            :line ["End of"
                                                   "year 1"]}
                                           {:time-index 3
                                            :x-offset -50
-                                           :y-offset 580
+                                           :y-offset 610
                                            :line ["End of"
                                                   "year 3"]}
                                           {:time-index 5
                                            :x-offset -50
-                                           :y-offset 580
+                                           :y-offset 610
                                            :line ["End of"
                                                   "year 5"]}]}
                           :icons {:svg-width 1060
@@ -833,17 +833,17 @@
                                       :font-size 30
                                       :labels [{:time-index 1
                                                 :x-offset -50
-                                                :y-offset 580
+                                                :y-offset 610
                                                 :line ["End of"
                                                        "year 1"]}
                                                {:time-index 3
                                                 :x-offset -50
-                                                :y-offset 580
+                                                :y-offset 610
                                                 :line ["End of"
                                                        "year 3"]}
                                                {:time-index 5
                                                 :x-offset -50
-                                                :y-offset 580
+                                                :y-offset 610
                                                 :line ["End of"
                                                        "year 5"]}]}
                                :icons {:svg-width 1060
@@ -919,7 +919,7 @@
                                                   :stroke-width 1
                                                   :stroke "#000"
                                                   :label-fill "#fff"}
-                                       :ldgraft {:label "Failed kidney transplants"
+                                       :ldgraft {:label "Failed transplants"
                                                  :long-label "of kidneys have failed"
                                                  :fill "#ffffff"
                                                  :opacity 0.7
@@ -958,16 +958,16 @@
                                    :font-size 30
                                    :labels [{:time-index 1
                                              :x-offset -50
-                                             :y-offset 580
+                                             :y-offset 610
                                              :line ["Day 1"]}
                                             {:time-index 3
                                              :x-offset -50
-                                             :y-offset 580
+                                             :y-offset 610
                                              :line ["End of"
                                                     "year 3"]}
                                             {:time-index 5
                                              :x-offset -50
-                                             :y-offset 580
+                                             :y-offset 610
                                              :line ["End of"
                                                     "year 5"]}]}
                             :icons {:svg-width 1060

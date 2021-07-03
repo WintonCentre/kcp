@@ -73,7 +73,7 @@
 
         ;selected-vis @(rf/subscribe [::subs/selected-vis])
 
-        ;; use all of S0 till it gets to be too slow. May need to query tool and vis here.
+        ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
         s0 all-S0
         s0-for-day (model/S0-for-day s0 day)

@@ -226,6 +226,14 @@
 (defn cif
   "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
    The competing risk tool needs the direct cumulative incidence frequency.
+
+   There's a bit of history here that makes this a little tricky. The spreadsheets originally
+   contained columns for baseline cumulative incidence frequencies which were referred to in the code as 
+   baseline-cifs or cifs or cif-0 - dependent on context. Late in the project the NHSBT statisticians
+   switched to giving us survivals. Survivals are (1 - cifs).
+
+   However for competing risk outcomes, the calculation must still be done with cifs since survival is 
+   just what's left after one of the other outc
    "
   [tool cif-0 sum-x-betas]
   #_(when (number? tool)

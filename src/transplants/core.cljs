@@ -55,6 +55,7 @@
    "
   []
   (rf/dispatch-sync [::events/initialize-db])
+
   (rf/dispatch-sync [::events/load-metadata [paths/metadata-path [:metadata]]])
 
   ;;; Removing the following two lines as they hard-coded lung and kidney organs into the tool

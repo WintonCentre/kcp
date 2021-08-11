@@ -32,7 +32,7 @@
 (def dev-edn "dev.cljs.edn")
 
 (defn use-10x
-  "copy 10x.template.edn to dev.cljs.edn unchanged"
+  "copy 10x.template.edn to qdev.cljs.edn unchanged"
   []
   (let [build (edn/read-string (slurp template-edn))]
     (println "switch to 10x")

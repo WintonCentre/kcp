@@ -370,6 +370,10 @@
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 
                                                encounter other lifestyle factors post transplant."]
+                                                [:p "We’re only showing up to 5 years because after that period, we can’t be sure 
+                                                     about the data, other factors come into play such as other health conditions.  
+                                                     The data becomes too unreliable after 5 years.  Your doctor can talk to you 
+                                                     about this in more detail"]
                                                 #_[:p "These are the outcomes we would expect for people who entered the same
                                                  information as you, based on patients who joined the waiting list between 2004 and 2014. "]]
 

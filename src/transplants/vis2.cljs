@@ -955,14 +955,12 @@
                              (assoc :styles styles)
                              (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
-      (fn [x y X Y]
-        (locals)
+      (fn [_x _y _X _Y]
         (into [:g {:transform "translate(20,40),scale(1.42)"}]
               (for [label-index (range (count labels))
                     :let [label (nth labels label-index)
                           time-index (:time-index label)
-                          [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)
-                          _ (?-> label ::label)]]
+                          [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
                 [:g {:key (str "lab-" label-index)}
                  [:g {:key 1}
                   (for [k (range (count plot-order))

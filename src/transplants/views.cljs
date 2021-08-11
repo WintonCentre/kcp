@@ -45,7 +45,7 @@
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
         centres (rf/subscribe [:transplants.subs/organ-centres])
         mobile (<= @window-width ui/mobile-break)]
-    [ui/card-page "Choose your transplant centre"
+    [ui/card-page "Choose your transplant centre" ; todo: configure
      (if-not @centres
        [:div "loading " organ "centres"]
        (if-not @tools
@@ -83,7 +83,7 @@
   "Render the selected background info"
   :info-key)
 
-(defmethod show-background-info :visits [options]
+(defmethod show-background-info :visits []
   [:<>
    [:h3 (:visits background-infos)]
    [:p "A typical patient might revisit"]
@@ -94,7 +94,7 @@
     [:li "in the first year	- every 4 weeks,"]
     [:li "then every 3 months for life"]]])
 
-(defmethod show-background-info :donors [options]
+(defmethod show-background-info :donors []
   [:<>
    [:h3 (:donors background-infos)]
    [:p "A checklist of donor factors that may affect a decision."]
@@ -105,7 +105,7 @@
     [:li "Bacterial or viral infection considered to be low risk to me"]
     [:li "High risk sexual behaviour or intravenous drug use"]]])
 
-(defmethod show-background-info :medications [options]
+(defmethod show-background-info :medications []
   [:<>
    [ui/row
     [ui/col
@@ -131,7 +131,7 @@
                  :src "assets/Post Transplant Medications.png"}]]]])
   
 
-(defmethod show-background-info :window [options]
+(defmethod show-background-info :window []
   [:<>
    [:h3 (:window background-infos)]
    [:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
@@ -142,7 +142,7 @@
                  :src "assets/The Window.png"}]])
 
 
-(defmethod show-background-info :graft-failure [options]
+(defmethod show-background-info :graft-failure []
   [:<>
    [:h3 (:graft-failure background-infos)]
    [ui/row {:style {:display :flex
@@ -168,7 +168,7 @@
             All supplies are provided free. Saves people needing to stick to inflexible 
             hospital appointments."]]]]])
 
-(defmethod show-background-info :kidney-numbers [options]
+(defmethod show-background-info :kidney-numbers []
   [:<>
    [:h3 (:kidney-numbers background-infos)]
    [:p "On the 11th Sept 2019 a new National Kidney Offering Scheme was introduced."]
@@ -197,7 +197,7 @@
    ])
 
 
-(defmethod show-background-info :lung-numbers [options]
+(defmethod show-background-info :lung-numbers []
   [:<>
    [:h3 (:lung-numbers background-infos)]
    [:p "For further detail, please see "
@@ -242,7 +242,7 @@
     [ui/col {:sm 4} [:p [:b 161]]]]])
 
 
-(defmethod show-background-info :kidney-numbers [options]
+(defmethod show-background-info :kidney-numbers []
   [:<>
    [:h3 (:kidney-numbers background-infos)]
    [:p "On the 11th Sept 2019 a new National Kidney Offering Scheme was introduced."]
@@ -277,7 +277,7 @@
                   "a percentage "
                   (str v "% "))
   )
-(comment
+#_(comment
   (def random true)
   (def sample-set (atom #{}))
   (defn resample [n percent]
@@ -288,7 +288,7 @@
         (while (sample-set x))))
     ))
 
-(defmethod show-background-info :percent [options]
+(defmethod show-background-info :percent []
   (let [percent @(rf/subscribe [::subs/guidance-percent])
         randomise-icons @(rf/subscribe [::subs/randomise-icons])]
     [:<>
@@ -420,6 +420,8 @@
       [:div {:style {:margin-top 40}}
        (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]))
 
+(declare organ-centre-tool)
+
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre.
@@ -430,38 +432,35 @@
         tools @(rf/subscribe [::subs/tools])
         [organ-name centre-name :as p-names] (utils/path-names (:path-params route))
         [organ centre tool] (map keyword p-names)]
+    (locals)
     (when (and organ centre centres tools)
       
       ;;; TODO: Tidy organ centre tool up here
       
       (let [centre-info (utils/get-centre-info centres organ centre)]
-        [ui/page [:span (:description centre-info) 
+        [ui/page [:span (:description centre-info)
                   (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
           [ui/col
            (when (not= tool :guidance) [ui/background-link organ centre tool])
            [ui/tools-menu tools true organ-name centre-name {:vertical false}]]]
-         [background-info organ]
-         ]))))
+         [organ-centre-tool]
+         [background-info organ]]))))
 
 (defn get-tool-meta
   [tools tool-key]
   @(rf/subscribe [::subs/tools])
-  (first (filter (fn [{:keys [key level-name description]}]
+  (first (filter (fn [{:keys [key _level-name _description]}]
                    (= tool-key key))
                  tools)))
 
-(comment
+#_(comment
   (def organ "kidney")
   (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
   (paths/organ-centre-name-tool organ
                                 "Belfast"
                                 "waiting"))
 
-
-(defn tool-page-content
-  []
-  )
 
 (comment
   (def tools @(rf/subscribe [::subs/tools]))
@@ -479,74 +478,71 @@
 (defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
-  ([]
-   (organ-centre-tool nil))
-  ([tab]
-   (let [route @(rf/subscribe [::subs/current-route])
-         tools @(rf/subscribe [::subs/tools])
-         organ-centres @(rf/subscribe [::subs/organ-centres])
-         [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
-         [organ centre tool] (map keyword p-names)
-         ]
-     (when (and organ centre ((keyword organ) organ-centres) tool)
-       (let [centre-info (utils/get-centre-info organ-centres organ centre)
-             tool-meta (get-tool-meta tools tool)
-             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
-             tcb (bun/get-bundle organ centre tool)]
-         (locals)
-         [ui/page (:description centre-info)
-          (when (not= tool :guidance) [ui/background-link organ centre tool])
-          [ui/tools-menu tools true organ-name centre-name {:vertical false}]
-          (if-let [tool-centre-bundle tcb]
-            [ui/row
-             [ui/col {:xs 12}
-              [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
-             [ui/col {:xs 12 :md 6}
-              #_[:h4 {:style {:margin-top 10}}
-               (:label tool-meta) " – " (:description tool-meta)]
-              (when-let [input-header (get-in tool-mdata [:inputs :header])] 
-                input-header)
+  []
+  (let [route @(rf/subscribe [::subs/current-route])
+        tools @(rf/subscribe [::subs/tools])
+        organ-centres @(rf/subscribe [::subs/organ-centres])
+        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        [organ centre tool] (map keyword p-names)]
+    (when (and organ centre ((keyword organ) organ-centres) tool)
+      (let [centre-info (utils/get-centre-info organ-centres organ centre)
+            tool-meta (get-tool-meta tools tool)
+            tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
+            tcb (bun/get-bundle organ centre tool)]
+        (locals)
+        [ui/page (:description centre-info)
+         (when (not= tool :guidance) [ui/background-link organ centre tool])
+         [ui/tools-menu tools true organ-name centre-name {:vertical false}]
+         (if-let [tool-centre-bundle tcb]
+           [ui/row
+            [ui/col {:xs 12}
+             [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
+            [ui/col {:xs 12 :md 6}
+             #_[:h4 {:style {:margin-top 10}}
+                (:label tool-meta) " – " (:description tool-meta)]
+             (when-let [input-header (get-in tool-mdata [:inputs :header])]
+               input-header)
 
-              [:div {:style {:padding "0px 30px 15px 15px"
-                             :height "calc(100vh + 10ex)"
-                             :overflow-y "scroll"}}
-               (widg/widget {:type :reset})
-               (into [:<>]
-                     (map
-                      (fn [[k w]] ^{:key (:factor w)}
-                        [:div {:style {:margin-bottom 15
-                                       :padding-top 5
-                                       :display "relative"
-                                       :border (when (some? (:boxed w)) boxed-border)
-                                       :background-color (when (some? (:boxed w)) boxed-fill)}}
-                         [:div {:style {:position "relative"
-                                        :padding-right 5}}
-                          (if (some? (:boxed w))
-                            [:div {:style {:color boxed-text-color
-                                           :position "absolute"
-                                           :top  0 :left 10}} boxed-text])
-                          (widg/widget (assoc w :model tool))]])
-                      (get tool-centre-bundle :fmaps)))]]
-             [ui/col {:xs 12 :md {:span 6}}
-              [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
-              [:section
-               [results/results-panel organ centre tool]
-               #_(?-> tool-centre-bundle ::tool-centre-bundle)
-               (let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
-                                        [organ :tools tool])]
-                 (:rest-of-page tool-mdata))]]]
-            (if (= tool :guidance)
-              [background-info organ]
-              (let [path (paths/organ-centre-name-tool organ-name
-                                                       (:name centre-info)
-                                                       tool-name)]
-                #_(?-> [path
-                        [:bundles organ centre tool]] ::view-dispatch)
-                (rf/dispatch [::events/load-bundles [path
-                                                     [:bundles organ centre tool]]])
-                #_[:div "Loading " path])))
-          [ui/row
-           [ui/col {:class-name "d-none d-md-block"}]]])))))
+             [:div {:style {:padding "0px 30px 15px 15px"
+                            :height "calc(100vh + 10ex)"
+                            :overflow-y "scroll"}}
+              (widg/widget {:type :reset})
+              (into [:<>]
+                    (map
+                     (fn [[_k w]] ^{:key (:factor w)}
+                       [:div {:style {:margin-bottom 15
+                                      :padding-top 5
+                                      :display "relative"
+                                      :border (when (some? (:boxed w)) boxed-border)
+                                      :background-color (when (some? (:boxed w)) boxed-fill)}}
+                        [:div {:style {:position "relative"
+                                       :padding-right 5}}
+                         (if (some? (:boxed w))
+                           [:div {:style {:color boxed-text-color
+                                          :position "absolute"
+                                          :top  0 :left 10}} boxed-text])
+                         (widg/widget (assoc w :model tool))]])
+                     (get tool-centre-bundle :fmaps)))]]
+            [ui/col {:xs 12 :md {:span 6}}
+             [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
+             [:section
+              [results/results-panel organ centre tool]
+              #_(?-> tool-centre-bundle ::tool-centre-bundle)
+              (let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
+                                       [organ :tools tool])]
+                (:rest-of-page tool-mdata))]]]
+           (if (= tool :guidance)
+             [background-info organ]
+             (let [path (paths/organ-centre-name-tool organ-name
+                                                      (:name centre-info)
+                                                      tool-name)]
+               #_(?-> [path
+                       [:bundles organ centre tool]] ::view-dispatch)
+               (rf/dispatch [::events/load-bundles [path
+                                                    [:bundles organ centre tool]]])
+               #_[:div "Loading " path])))
+         [ui/row
+          [ui/col {:class-name "d-none d-md-block"}]]]))))
 
 (comment
   (+ 1 1)
@@ -562,22 +558,28 @@
   )
 
 
+#_(comment
 
-;-------------- Text views below --------------
+    ;; Up for discussion: How should we configure texts in general....
+    
+    ;-------------- Text views below --------------
 ;
 ; Needs replacing with a text system that supports editable rich text somewhere
 ;
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))
 
-(defn sub-page1 []
-  [:h1 "This is sub-page 1"])
+  (defn sub-page1 []
+    [:h1 "This is sub-page 1"])
 
-(defn about []
-  [ui/page "About"])
 
-(defn about-technical
-  "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
+  (defn about []
+    [ui/page "About"])
+
+
+  (defn about-technical
+    "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
 In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
-  []
-  [ui/page "Technical"])
+    []
+    [ui/page "Technical"])
+  )

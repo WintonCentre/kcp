@@ -277,33 +277,41 @@ in the routes table."
    " which explains the tool in depth."])
 
 (defn nav-card
-  "Render a desktop compatible card containing of hospital-local links to tools"
+  "Render a desktop compatible card containing hospital-local links to tools"
   [{:keys [#_img-src organ centre hospital link width tools]}]
-  ;(println ::tools tools)
+  (?->> ::tools tools)
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
-   #_[:<> 
-    [:> bs/Card.Img {:variant "top" :src img-src :height 110 :filter "brightness(50%)"}]
-    [:> bs/Card.ImgOverlay {:style {:pointer-events "none"}}
-     [:> bs/Card.Title {:style {:color "white";
-                                :font-size "1.6rem"
-                                :font-weight "bold"
-                                }}centre]]]
    [:> bs/Card.Body {:style {:display "flex"
                              :flex-direction "column"
                              :justify-content "space-around"
                              :padding-top 20}}
-    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}[:a {:href (apply rfe/href link)} hospital]]
+    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}
+     ;;
+     ;; Note that clicking on a title now routes you to the first tool rather than to an
+     ;; organ/centre home page.
+     ;;
+     [:a {:href "#" #_(apply rfe/href link) ; Disable link to an organ/centre home page
+          :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                         {:organ organ
+                          :centre centre
+                          :tool (:key (first tools))}])} 
+      hospital]]
     [tools-menu tools false organ centre {:vertical true}]
     ]])
 
 (defn phone-card
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
-  [{:keys [hospital link]}]
+  [{:keys [hospital link organ centre tools]}]
   
   ;(println ::phone "PHONE!!!")
-  
+  (?->> ::tools tools)
   [:> bs/ListGroup.Item {:action true
-                         :href (apply rfe/href link)} hospital])
+                         ;:href (apply rfe/href link)
+                         :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                                  {:organ organ
+                                                   :centre centre
+                                                   :tool (:key (first tools))}])}
+   hospital])
 
 (defn page
   "A generic page component, rendering a title and the page's children"
@@ -325,8 +333,11 @@ in the routes table."
   )
 
 (defn centre-card
-  "A single card describingg a centre"
+  "A single card describing a centre"
   [mobile params]
+
+;;;;;; SET TOOL TO WAITING?
+
   (if mobile
     [phone-card params]
     [nav-card params]))

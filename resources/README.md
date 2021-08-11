@@ -3,7 +3,7 @@
 Files in this directory need to be processed into EDN format text files that will be installed with the tool inside
 `resouces/public/lung/edn` or `resouces/public/kidney/edn`.
 
-Source for the configuration tool that does this lives in `src/clj/transplants` with an entry point at 
+The  entry point for configuration tool that does this lives in the transplants.config clj namespace with an entry point at 
 `transplants.configure/-main`.
 
 Run the configuration tool from this directory with:

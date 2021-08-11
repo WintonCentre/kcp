@@ -365,7 +365,7 @@
                                                 [:section
                                                  [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
-                                                 [:p "It shows how many people might be transplanted over 5 years."]]
+                                                 #_[:p "It shows how many people might be transplanted over 5 years."]]
                                                 [:p "This is an estimate, an average, there are other factors about you that can 
                                                influence these results and make the numbers higher or lower. For example 
                                                you may have other conditions not included in the tool, or you may 

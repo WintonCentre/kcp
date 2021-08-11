@@ -518,9 +518,13 @@
                         [:div {:style {:position "relative"
                                        :padding-right 5}}
                          (if (some? (:boxed w))
-                           [:div {:style {:color boxed-text-color
-                                          :position "absolute"
-                                          :top  0 :left 10}} boxed-text])
+                           [:div
+                            [:div {:style {:color boxed-text-color
+                                           :position "absolute"
+                                           :top  0 :left 12}} boxed-text]
+                            [:div {:style {:height "10px"}}]]
+                           )
+                         
                          (widg/widget (assoc w :model tool))]])
                      (get tool-centre-bundle :fmaps)))]]
             [ui/col {:xs 12 :md {:span 6}}

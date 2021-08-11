@@ -1,0 +1,26 @@
+;;
+;; similar in function to the `npm run` tasks initially, but written in clojure
+;;
+{:paths ["bb-scripts"]
+ :deps {}
+ :tasks {:requires ([babashka.fs :as fs])
+         config (shell "clojure -A:config -X transplants.configure/main")
+         start  (shell "shadow-cljs watch app")
+         stop (shell "shadow-cljs stop")
+         watch-all (shell "shadow-cljs watch app test-browser")
+         build "shadow-cljs release app"
+         build-verbose (shell "shadow-cljs release --verbose app")
+         report (shell "shadow-cljs run shadow.cljs.build-report app report.html")
+         debug-build (shell "shadow-cljs release app --debug")
+         serve (shell "serve --single resources/public --listen 5000")
+         dev-build (shell "shadow-cljs compile app")
+         repl (shell "shadow-cljs cljs-repl app")
+         browser-repl (shell "shadow-cljs browser-repl")
+         clojure-repl (shell "shadow-cljs clj-repl")
+         test (shell "shadow-cljs watch test")
+         test-browser (shell "shadow-cljs watch test-browser")
+         test-once (shell "shadow-cljs compile test")
+         clean (shell "rimraf resources/public/js")
+         nuke (shell "rimraf resources/public/js .shadow-cljs node_modules yarn.lock package-lock.json out report.html")
+         shadow-cljs-server (shell "shadow-cljs server")}
+         }

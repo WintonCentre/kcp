@@ -37,12 +37,8 @@
    Return fs converted to a map keyed by outcome and with an additional residual outcome."
   [outcomes fs]
   (assoc (->> [outcomes fs]
-              ;;(?->> ::outcomes-fs)
               (apply map vector)
-              ;;(?->> ::apply-map-vector)
-              (into {})
-              ;;(?->> ::into)
-              )
+              (into {}))
          :residual (residual fs)))
 
 (defn fs-in-order
@@ -95,13 +91,10 @@
   [outcomes plot-order t-fs]
   (map
    (fn [[t fs]]
-     #_(locals)
+     ;(locals)
      [t (->> fs
-             ;(?->> :fs)
              (fs-mapped outcomes)
-             ;(?->> :fs-mapped-outcomes)
              (fs-in-order plot-order)
-             ;(?->> :fs-in-order)
              (int-fs-series))])
    t-fs))
 
@@ -245,9 +238,7 @@
 (defn test-rig
   "expose calcluation in test"
   [{:keys [day beta-keys outcomes fmaps s0 sum-betas F] :as env}]
-;  (?-> F ::test-rig)
   (let [factors (keys fmaps)]
-    #_(?-> env ::test-rig)
     #_[:div "Not yet"]
     [:> bs/Row {:style {:margin-top 20}}
      (when factors
@@ -401,7 +392,8 @@
 ;; => nil
 ;; 
 
-(defn get-mustache
+;; currently unused
+#_(defn get-mustache
   "Lookup x in a form that may be a mustached template or a simple vector or a combination of both. 
    If the form is a string, return it
    If the form is a vector, then return the xth element.
@@ -775,10 +767,6 @@
             (map
              (fn [bp]
                (let [x (:x (first bp))]
-                 #_(?->> ::bp bp)
-                 #_(?->> ::lines {:x0 x :x1 x :y0 0 :y1 600
-                                  :style {:stroke "#000" :stroke-width 3}})
-
                  [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
                          :style {:stroke "#fff" :stroke-width 3}}])))
             bar-positions)]

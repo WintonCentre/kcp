@@ -279,7 +279,6 @@ in the routes table."
 (defn nav-card
   "Render a desktop compatible card containing hospital-local links to tools"
   [{:keys [#_img-src organ centre hospital link width tools]}]
-  (?->> ::tools tools)
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    [:> bs/Card.Body {:style {:display "flex"
                              :flex-direction "column"
@@ -304,7 +303,6 @@ in the routes table."
   [{:keys [hospital link organ centre tools]}]
   
   ;(println ::phone "PHONE!!!")
-  (?->> ::tools tools)
   [:> bs/ListGroup.Item {:action true
                          ;:href (apply rfe/href link)
                          :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool

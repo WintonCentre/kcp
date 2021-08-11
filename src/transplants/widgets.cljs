@@ -76,12 +76,10 @@
 
 
 (defn radio
-  [{:keys [factor-name factor-key levels default type vertical optional boxed] :as w}]
+  [{:keys [_factor-name factor-key levels _default _type vertical optional boxed] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        optional? (some? optional)
-        boxed? (some? boxed)]
+        optional? (some? optional)]
 ;    (locals)
-;    (when optional? (?-> [optional levels] ::button-levels))
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:xs label-width
                  :style {:display "flex" :justify-content "flex-end"}}

@@ -432,7 +432,7 @@
         tools @(rf/subscribe [::subs/tools])
         [organ-name centre-name :as p-names] (utils/path-names (:path-params route))
         [organ centre tool] (map keyword p-names)]
-    (locals)
+    ;(locals)
     (when (and organ centre centres tools)
       
       ;;; TODO: Tidy organ centre tool up here
@@ -527,7 +527,6 @@
              [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
              [:section
               [results/results-panel organ centre tool]
-              #_(?-> tool-centre-bundle ::tool-centre-bundle)
               (let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
                                        [organ :tools tool])]
                 (:rest-of-page tool-mdata))]]]
@@ -536,8 +535,6 @@
              (let [path (paths/organ-centre-name-tool organ-name
                                                       (:name centre-info)
                                                       tool-name)]
-               #_(?-> [path
-                       [:bundles organ centre tool]] ::view-dispatch)
                (rf/dispatch [::events/load-bundles [path
                                                     [:bundles organ centre tool]]])
                #_[:div "Loading " path])))

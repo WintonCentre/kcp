@@ -354,84 +354,71 @@
   (- i)
   )
 
+
+(defn useful-info-button
+  [{:keys [active event label]}]
+  [:> bs/Button {:style {:width "100%"}
+                 :variant (if active "secondary" "outline-secondary")
+                 #_(if active "primary" "outline-primary")
+                 :active active
+                 :on-click #(rf/dispatch event)}
+   label])
+
+
 (defn background-info
   ;; TODO: configure this
   "Organ specific background-info.
    TODO: Pull from a file somehow. We need an EDN/Hiccup template mechanism for that. Somebody must
    have written one?"
   [organ]
-  (let [selected @(rf/subscribe [::subs/background-info])]
-    (if (= organ :kidney)
-      [ui/row
-       [ui/col {:md 4}
-        [:h3 {:style {:margin-top 40}} "Useful information"]
+  (let [selected @(rf/subscribe [::subs/background-info])
+        sample-percentage (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
+    [ui/row
+     (cond
+       (= organ :kidney) [ui/col {:md 4}
+                          [:h3 {:style {:margin-top 40}} "Useful information"] ; :todo
 
-        [:<>
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= :percent selected)
-                        :on-click #(rf/dispatch [::events/background-info :percent])}
-          (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
-         [:> bs/Button {:style {:margin-bottom 1 :width "100%"}
-                        :active (= :visits selected)
-                        :on-click #(rf/dispatch [::events/background-info :visits])}
-          (:visits background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= :kidney-numbers selected)
-                        :on-click #(rf/dispatch [::events/background-info :kidney-numbers])}
-          (:kidney-numbers background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= :medications selected)
-                        :on-click #(rf/dispatch [::events/background-info :medications])}
-          (:medications background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= :graft-failure selected)
-                        :on-click #(rf/dispatch [::events/background-info :graft-failure])}
-          (:graft-failure background-infos)]]]
-       [ui/col {:md 8}
-        [:div {:style {:margin-top 40}}
-         (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]
-      [ui/row
-       [ui/col {:md 4}
-        [:h3 {:style {:margin-top 40}} "Useful information"]
+                          [:> bs/ButtonGroup {:vertical true}
+                           [useful-info-button {:active (= :percent selected)
+                                                :event [::events/background-info :percent]
+                                                :label sample-percentage}]
+                           [useful-info-button {:active (= :visits selected)
+                                                :event [::events/background-info :visits]
+                                                :label (:visits background-infos)}]
+                           [useful-info-button {:active (= :kidney-numbers selected)
+                                                :event [::events/background-info :kidney-numbers]
+                                                :label (:kidney-numbers background-infos)}]
+                           [useful-info-button {:active (= :medications selected)
+                                                :event [::events/background-info :medications]
+                                                :label (:medications background-infos)}]
+                           [useful-info-button {:active (= :graft-failure selected)
+                                                :event [::events/background-info :graft-failure]
+                                                :label (:graft-failure background-infos)}]]]
 
-        [:<>
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= selected :percent)
-                        :on-click #(rf/dispatch [::events/background-info :percent])}
-          (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= selected :visits)
-                        :on-click #(rf/dispatch [::events/background-info :visits])}
-          (:visits background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= selected :lung-numbers)
-                        :on-click #(rf/dispatch [::events/background-info :lung-numbers])}
-          (:lung-numbers background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= selected :donors)
-                        :on-click #(rf/dispatch [::events/background-info :donors])}
-          (:donors background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= selected :medications)
-                        :on-click #(rf/dispatch [::events/background-info :medications])}
-          (:medications background-infos)]
-         [:> bs/Button {:style {:margin-bottom 1
-                                :width "100%"}
-                        :active (= selected :window)
-                        :on-click #(rf/dispatch [::events/background-info :window])}
-          (:window background-infos)]]]
-       [ui/col {:md 8}
-        [:div {:style {:margin-top 40}}
-         (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]])))
+       (= organ :lung) [ui/col {:md 4}
+                        [:h3 {:style {:margin-top 40}} "Useful information"]
+                        [:> bs/ButtonGroup {:vertical true}
+                         [useful-info-button {:active (= selected :percent)
+                                              :event [::events/background-info :percent]
+                                              :label sample-percentage}]
+                         [useful-info-button {:active (= selected :visits)
+                                              :event [::events/background-info :visits]
+                                              :label (:visits background-infos)}]
+                         [useful-info-button {:active (= selected :lung-numbers)
+                                              :event [::events/background-info :lung-numbers]
+                                              :label (:lung-numbers background-infos)}]
+                         [useful-info-button {:active (= selected :donors)
+                                              :event [::events/background-info :donors]
+                                              :label (:donors background-infos)}]
+                         [useful-info-button {:active (= selected :medications)
+                                              :event [::events/background-info :medications]
+                                              :label (:medications background-infos)}]
+                         [useful-info-button {:active (= selected :window)
+                                              :event [::events/background-info :window]
+                                              :label (:window background-infos)}]]])
+     [ui/col {:md 8}
+      [:div {:style {:margin-top 40}}
+       (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]))
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured

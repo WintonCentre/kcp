@@ -486,7 +486,7 @@
         [organ centre tool] (map keyword p-names)]
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
-            tool-meta (get-tool-meta tools tool)
+            ;tool-meta (get-tool-meta tools tool)
             tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
             tcb (bun/get-bundle organ centre tool)]
         (locals)

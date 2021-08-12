@@ -4,8 +4,8 @@
    "Perform spline calculation to transform x using knots and betas. See Jenny Mehew doc.
    x0 is the base var, x is the entered var, and the betas and knots are configured in the
    spreadsheet."
-   [[k1 k2 k3 k4 :as knots]
-    [beta1 beta2 beta3 :as betas]
+   [[k1 k2 k3 k4]
+    [_beta1 _beta2 _beta3 :as betas]
     x0 x]
    (let [cube+ (fn [x] (if (pos? x) (* x x x) 0))
          d3+ (fn [x n] (cube+ (- x n)))

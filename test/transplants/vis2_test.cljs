@@ -6,19 +6,20 @@
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop :include-macros true]
-            [shadow.debug :refer [?-> ?->> locals]]))
+            ;[shadow.debug :refer [?-> ?->> locals]]
+            ))
 
 (def outcomes "fixture" [:transplant :death])
 (def fs "fixture" [0.3 0.4])
-(def plot-order "fixture" {:transplant 1 :residual 2 :death 3})
+;(def plot-order "fixture" {:transplant 1 :residual 2 :death 3})
 (def data-keys "fixture" [:death :residual :transplant])
-(def fsk "fixture" [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
+;(def fsk "fixture" [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
 
 ;;
 ;; The fs are presented in spreadsheet column order which is often different from plot order. 
 ;; They are also missing the residuals.
 ;; 
-(def t-fs "fixture" [[1 [0.2 0.1]]
+#_(def t-fs "fixture" [[1 [0.2 0.1]]
                      [3 [0.3 0.15]]
                      [4 [0.4 0.2]]])
 

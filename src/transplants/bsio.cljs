@@ -2,7 +2,8 @@
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
 where we can work on defining a common interface. "
   (:require ["react-bootstrap" :as bs]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]))
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            ))
 
 (def missing-color "#ff0000")
 
@@ -45,7 +46,7 @@ low level inputs to react to value changes without the user having to press a su
 I've also missed out things like stopPropagation, preventDefault, and touch events.
 
 "
-    [value-k value-f event-f & [options]]
+    [value-k value-f event-f & [_options]]
     (let [handle-change (fn [e] (event-f [value-k (-> e .-target .-value)]))]
       [:input {:type "text" :value (value-f) :on-change handle-change}])))
 
@@ -76,7 +77,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :border-radius 5
                       :padding 1
                       #_#_:display "grid"}}]
-           (map (fn [{:keys [level-name level optional disabled] :as levels}]
+           (map (fn [{:keys [level-name level]}]
                   [:> bs/ToggleButton {;:tabindex "-1"
                                        :type "checkbox"
                                        :key level :disabled false
@@ -111,7 +112,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                       :border-radius 5
                       :padding 1
                       :width "max-content"}}]
-           (map (fn [{:keys [level-name level disabled]}]
+           (map (fn [{:keys [level-name level]}]
                   [:> bs/Dropdown.Item {:key level :as "button"
                                         :eventKey level
                                         :on-click #(.preventDefault %)}
@@ -141,13 +142,3 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                      :buttons-f (fn [] [{:level :male :level-name "Male"}
                                                                         {:level :female :level-name "Female"}])}))
                         2))))
-
-(defn tabs
-  [options & content]
-  (into [:> bs/Tabs options] 
-        content))
-
-(defn tab
-  [options content]
-  [:> bs/Tab options
-   content])

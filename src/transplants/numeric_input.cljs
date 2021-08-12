@@ -1,5 +1,5 @@
 (ns transplants.numeric-input
-  (:require [clojure.string :refer [split replace]]
+  (:require [clojure.string :refer [split]]
             [transplants.rgb :as rgb]
             ["react-bootstrap" :as bs]))
 
@@ -21,18 +21,6 @@
 
 (defn near-integer? [n]
   (< (js/Math.abs (- n (js/Math.round n))) epsilon))
-
-
-;;
-;; There's a real mix up between dps and precision here!!!
-;; Which do we want ???
-;; 
-;; Answer: dps
-;;
-
-(defn trim-trailing-zero [s]
-  (if-let [[m m1] (re-matches #"(.*\.\d)\d+" s)]
-    m1 s))
 
 (defn to-dps
   [n dps]
@@ -146,8 +134,7 @@
   (handle-inc value on-change nmin nmax dps increment))
 
 (defn inc-dec-button
-  [{:keys [value-f on-change min max nmin nmax dps increment]
-    :as   props}]
+  [{:keys [value-f on-change _min max nmin nmax dps increment]}]
   (let [value (str-to-num (value-f))]
     [:span {:class-name "incdec"}
      [:> bs/Button {:class-name  (str (if (pos? increment) "right" "left") " btn btn-default ")
@@ -159,8 +146,12 @@
                     :on-click    #(update-value value nmin nmax dps increment on-change)}
       (if (pos? increment) "+" "–")]]))
 
+;;
+;; This will need more work if used in production.
+;;                                                             
 (defn numeric-input
-  [{:keys [key id value-f on-change min max error-color color dps units] :or {error-color "red" color "black"} :as props}]
+  [{:keys [key _id value-f on-change min max dps units] 
+    :as props}]
 
   ;(println "KEY " (type key) " ID " id)
   (let [[good bad] (split (value-f) #":")

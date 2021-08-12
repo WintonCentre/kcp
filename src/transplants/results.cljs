@@ -7,10 +7,10 @@
             [transplants.model :as model]
             [transplants.vis2 :as vis]
             [transplants.ui :as ui]
-            [transplants.utils :as utils]
-            [shadow.debug :refer [locals ?> ?->]]))
+            ;[shadow.debug :refer [locals ?> ?->]]
+            ))
 
-(comment
+#_(comment
   (def day 100)
   (def route @(rf/subscribe [::subs/current-route]))
   (def tools @(rf/subscribe [::subs/tools]))
@@ -35,12 +35,6 @@
   (def  sum-betas (map #(fac/sum-beta-xs env %) beta-outcome-keys))
   0)
 
-(def waiting-fill "#0088EE" #_"#7C91D8")
-(def transplant-fill "#66CC88" #_"#44dd99")
-(def death-fill "#002244")
-(def survival-fill "#927AAA")
-(def graft-fill "#0099DD")
-
 (comment 
   (def sum-betas '(0 0)))
 
@@ -49,7 +43,7 @@
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [organ centre tool]
   (let [day @(rf/subscribe [::subs/test-day])
-        {:keys [fmaps baseline-cifs baseline-vars outcome-keys
+        {:keys [fmaps outcome-keys
                 base-outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
          :as bundle} (bun/get-bundle organ centre tool)
         env {:organ organ
@@ -70,8 +64,6 @@
              :inputs (get @(rf/subscribe [::subs/inputs]) organ)
              :selected-vis @(rf/subscribe [::subs/selected-vis])
              }
-
-        ;selected-vis @(rf/subscribe [::subs/selected-vis])
 
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
@@ -157,9 +149,7 @@
                                  :bottom 0
                                  :left 0}}]]
        nil nil)
-     #_[:p "These are the outcomes we would expect for people who entered the same information as you, based
-        on patients who joined the waiting list between "
-        (get-in env [:cohort-dates :from-year]) " and " (get-in env [:cohort-dates :to-year]) "."]
+     
      [:section
       [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                 :active-key (:selected-vis env)
@@ -180,8 +170,4 @@
                 :event-key "test" :title "[Test]"}
         [vis/test-rig (conj env
                             [:rubric [[:h4 "Test Rig"]]]
-                            [:bar-info nil])]]]
-
-      #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
-                                 [organ :tools tool])]
-          (:rest-of-page tool-mdata))]]))
+                            [:bar-info nil])]]]]]))

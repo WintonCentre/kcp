@@ -1,7 +1,8 @@
 (ns transplants.model
   "Functions which assist in the model calculations."
   (:require [transplants.utils :as utils]
-            [shadow.debug :refer [locals ?-> ?->>]]))
+            ;[shadow.debug :refer [locals ?-> ?->>]]
+            ))
 
 (defn to-precision
   "js number to sig figs"
@@ -79,9 +80,9 @@
     ;;     then monthly for 1st quarter; 
     ;;     then by quarter
     (concat W1S0
-            (mapv last (partition-by (fn [[day H]] (utils/day->week day)) M1S0))
-            (mapv last (partition-by (fn [[day H]] (utils/day->month day)) Q1S0))
-            (mapv last (partition-by (fn [[day H]] (utils/day->quarter day)) Qs)))))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->week day)) M1S0))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->month day)) Q1S0))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->quarter day)) Qs)))))
 
   ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
   ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
@@ -113,9 +114,9 @@
     (loop [SD survival-data
            s 1
            f (map (constantly 0) sum-beta-xs)
-           sumall 1
+           _sumall 1
            result [[0 f]]]
-      (let [[days S] (first SD)
+      (let [[_days S] (first SD)
             SD+ (rest SD)]
         (if (seq SD+)
           (let [[days+ S+] (first SD+)
@@ -222,28 +223,6 @@
   ;;   
   (map #(- 1 (js/Math.pow 0.9 (js/Math.exp %))) [0.9 0.7]))
 
-;; todo: remove this
-(defn cif
-  "Calculates the cif(t) from a baseline cif-0(t) and the sum of the x_i.beta_i.
-   The competing risk tool needs the direct cumulative incidence frequency.
-
-   There's a bit of history here that makes this a little tricky. The spreadsheets originally
-   contained columns for baseline cumulative incidence frequencies which were referred to in the code as 
-   baseline-cifs or cifs or cif-0 - dependent on context. Late in the project the NHSBT statisticians
-   switched to giving us survivals. Survivals are (1 - cifs).
-
-   However for competing risk outcomes, the calculation must still be done with cifs since survival is 
-   just what's left after one of the other outc
-   "
-  [tool cif-0 sum-x-betas]
-  #_(when (number? tool)
-      (js/console.error "number?" tool))
-  (if (use-cox-adjusted? tool)
-    (- 1 (js/Math.pow (- 1 cif-0) (js/Math.exp sum-x-betas)))
-    (js/Math.pow cif-0 (js/Math.exp sum-x-betas))))
-
-
-
 (comment
   ;; cox-adjusted gives exactly the same results as the R adjcox on the original data.
   ;; adjcox uses the same data, but inserts values at every day by copying the previous day if there is no data.
@@ -260,7 +239,7 @@
 
     (cox-adjusted surv-data sum-beta-xs))
   (time
-   (doseq [x (range 10000)]
+   (doseq [_x (range 10000)]
      (let [surv-data [[0 [1 1]]
                       [1 [0.9857067242 0.9980148933]]
                       [2 [0.9815928264 0.9960015827]]

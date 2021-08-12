@@ -13,13 +13,14 @@
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]))
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   ))
 
 ;;; Events ;;;
 
 (rf/reg-event-db
  ::initialize-db
- (fn ;-traced 
+ (fn  
    [_ _]
    (merge init-db/default-db
           {:current-route nil
@@ -36,130 +37,68 @@
 
 (rf/reg-event-fx
  ::navigate
- (fn ;-traced 
-   [{:keys [db]} [_ route params query]]
+ (fn  
+   [{:keys [_db]} [_ route params query]]
    ;; See `navigate` effect in routes.cljs
    {::fx/navigate! [route params query]}))
 
 (rf/reg-event-db
  ::navigated
- (fn ;-traced 
+ (fn  
    [db [_ new-match]]
    (assoc db :current-route new-match)))
 
 (rf/reg-event-db
  ; active organ
  ::organ
- (fn ;-traced 
+ (fn  
    [db [_ organ]]
    (assoc db :organ organ)))
 
 (rf/reg-event-db
  ; active centre
  ::centre
- (fn ;-traced 
+ (fn  
    [db [_ c]]
    (assoc db :centre c)))
 
 (rf/reg-event-db
  ; organ centres
  ::organ-centres
- (fn ;-traced 
+ (fn  
    [db [_ ocs]]
    (assoc db :organ-centres ocs)))
 
 (rf/reg-event-db
  ; reset inputs
  ::reset-inputs
- (fn ;-traced 
+ (fn  
    [db [_ _]]
    (assoc db :inputs {})))
 
 (rf/reg-event-db
  ; background-info
  ::background-info
- (fn ;-traced 
+ (fn  
    [db [_ b-info]]
    (assoc db :background-info b-info)))
 
 (rf/reg-event-db
  ; randomise-icons
  ::randomise-icons
- (fn ;-traced 
+ (fn  
    [db [_ _]]
    (update db :randomise-icons not)))
 
 (rf/reg-event-db
  ; guidance-percent
  ::inc-guidance-percent
- (fn ;-traced 
+ (fn  
    [db [_ increment]]
    (update db :guidance-percent
            (fn [old]
              (let [new (+ old increment)]
                (max (min new 100) 0))))))
-#_(comment
-    (rf/reg-event-db
- ; flag that tool-data is required after centres have been loaded
-     ::require-tool-data
-     (fn [db [_ td]]
-       (assoc db :require-tool-data td))))
-
-;;;
-;; Input values: These are both stored and registered on the same namespaced key
-;;;
-(defn reg-input [nsk]
-  (rf/reg-event-db
-   nsk
-   (fn [db [_ v]] (assoc db nsk v))))
-
-
-
-(comment
-  (enable-console-print!)
-  (def raw {:min '(0 16 10 0 16 -2.2 0.35 1 1.3 16 14 nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :knot3 '(2.22 56 nil nil 56 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :knot2 '(1.63 44 nil nil 46 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :knot4 '(3.55 63 nil nil 63 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :max '(5 70 100 100 70 4.5 6.8 77 9 70 35.7 nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :factor '(:fvc :age :bmi :bilirubin :age :tlc-mismatch :fvc :bilirubin :cholesterol :age :bmi nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :dps '(2 0 0 0 0 1 1 0 1 0 1 nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :knot1 '(0.94 21 nil nil 22 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-            :model '(:waiting :waiting :waiting :waiting
-                              :post-transplant :post-transplant :post-transplant :post-transplant :post-transplant
-                              :from-listing :from-listing nil nil nil nil nil nil nil nil nil nil nil nil nil nil)})
-  #_(defn index-by
-      "Take a raw data table in map of vectors form.
-   Convert it a vector of maps.
-   Remove any maps where the primary index is nil.
-   Then index by the (orange) index columns which are specified in metadata.edn
-   Finally, convert those indexes to keywords."
-      [raw indexes]
-      (as-> raw x
-        (map-of-vs->v-of-maps x)
-        (filter (comp some? (first indexes)) x)
-        (into #{} x)
-        (rel/index x indexes)
-        (map (fn [[k v]] [(xf/map-vals xf/unstring-key k) (into {} v)]) x)
-    ;(into {} x)
-        ))
-
-  #_(index-by raw
-              [:factor :model])
-  ; => Note that the resulting keys are maps containing distinct values of the original keys (:factor and :model in this case).
-  #_{{:model :waiting, :factor :bmi} {:min 10, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bmi", :dps 0, :knot1 nil, :model ":waiting"}
-     {:model :waiting, :factor :bilirubin} {:min 0, :knot3 nil, :knot2 nil, :knot4 nil, :max 100, :factor ":bilirubin", :dps 0, :knot1 nil, :model ":waiting"}
-     {:model :from-listing, :factor :age} {:min 16, :knot3 nil, :knot2 nil, :knot4 nil, :max 70, :factor ":age", :dps 0, :knot1 nil, :model ":from-listing"}
-     {:model :post-transplant, :factor :cholesterol} {:min 1.3, :knot3 nil, :knot2 nil, :knot4 nil, :max 9, :factor ":cholesterol", :dps 1, :knot1 nil, :model ":post-transplant"}
-     {:model :post-transplant, :factor :bilirubin} {:min 1, :knot3 nil, :knot2 nil, :knot4 nil, :max 77, :factor ":bilirubin", :dps 0, :knot1 nil, :model ":post-transplant"}
-     {:model :post-transplant, :factor :tlc-mismatch} {:min -2.2, :knot3 nil, :knot2 nil, :knot4 nil, :max 4.5, :factor ":tlc-mismatch", :dps 1, :knot1 nil, :model ":post-transplant"}
-     {:model :waiting, :factor :age} {:min 16, :knot3 56, :knot2 44, :knot4 63, :max 70, :factor ":age", :dps 0, :knot1 21, :model ":waiting"}, {:model :post-transplant, :factor :age}
-     {:min 16, :knot3 56, :knot2 46, :knot4 63, :max 70, :factor ":age", :dps 0, :knot1 22, :model ":post-transplant"}
-     {:model :waiting, :factor :fvc} {:min 0, :knot3 2.22, :knot2 1.63, :knot4 3.55, :max 5, :factor ":fvc", :dps 2, :knot1 0.94, :model ":waiting"}
-     {:model :from-listing, :factor :bmi} {:min 14, :knot3 nil, :knot2 nil, :knot4 nil, :max 35.7, :factor ":bmi", :dps 1, :knot1 nil, :model ":from-listing"}
-     {:model :post-transplant, :factor :fvc} {:min 0.35, :knot3 nil, :knot2 nil, :knot4 nil, :max 6.8, :factor ":fvc", :dps 1, :knot1 nil, :model ":post-transplant"}}
-
-  )
 
 (defn bundle-sheet
   "Concat a sheet type suffix onto the bundle name to generate a specific sheet key 
@@ -179,8 +118,6 @@
         fmaps))
 
 
-
-
 ;;;
 ;; Process raw tool bundles into db. 
 ;; 
@@ -188,10 +125,10 @@
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
- (fn ;;-traced
+ (fn 
   [{:keys [_ db]} [_ data-path response]]
   (let [path-params (get-in db [:current-route :path-params])
-        [organ centre tool tab] (utils/path-keys path-params)
+        [organ _centre tool _tab] (utils/path-keys path-params)
         raw (edn/read-string response)
 
         bundle-name (name tool)
@@ -259,19 +196,19 @@
 
 (rf/reg-event-db
  ::inc-test-day
- (fn ;-traced
+ (fn 
    [db [_ step]]
    (update db :test-day #(+ step %))))
 
 (rf/reg-event-db
  ::test-day
- (fn ;-traced
+ (fn 
    [db [_ day]]
    (assoc db :test-day day)))
 
 (rf/reg-event-db
  ::selected-vis
- (fn ;-traced
+ (fn 
    [db [_ selection]]
    (assoc db :selected-vis selection)))
 
@@ -313,7 +250,7 @@
 
   (clojure.set/index relation [:a :b])
   (clojure.set/index relation [:a])
-  (filter (fn [[m s]] (= 1 (:a m))) (clojure.set/index relation [:a :b])))
+  (filter (fn [[m _s]] (= 1 (:a m))) (clojure.set/index relation [:a :b])))
 
 (rf/reg-event-db
  ::transpose-response
@@ -325,7 +262,8 @@
 (rf/reg-event-db
  ::bad-response
  (fn
-  [db [_ data-path response]]
+  [db [_ _data-path _response]]
+   (js/console.error)
   #_(when (or data-path response)
       (js/alert (str "bad-response while loading " data-path "response = " response)))
   db))
@@ -333,7 +271,7 @@
 (rf/reg-event-fx
  ::store-metadata-response
  (fn
-   [{:keys [db]} [_ data-path response]]
+   [{:keys [db]} [_ _data-path response]]
    (let [mdata (edn/read-string response)
          organs (keys mdata)]
 
@@ -347,7 +285,7 @@
 (rf/reg-event-fx
  ::load-metadata
  (fn
-  [{:keys [db]} [evt [path data-path]]]
+  [{:keys [db]} [_evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
                   :uri path
@@ -362,7 +300,7 @@
 (rf/reg-event-fx
  ::load-edn
  (fn
-  [{:keys [db]} [evt [path data-path]]]
+  [{:keys [db]} [_evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
                   :uri path
@@ -375,7 +313,7 @@
 (rf/reg-event-fx
  ::load-bundles
  (fn
-  [{:keys [db]} [evt [path data-path]]]
+  [{:keys [db]} [_evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
                   :uri path
@@ -388,7 +326,7 @@
 (rf/reg-event-fx
  ::load-and-transpose
  (fn
-  [{:keys [db]} [evt [path data-path]]]
+  [{:keys [db]} [_evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
                   :uri path
@@ -401,7 +339,7 @@
 (rf/reg-event-fx
  ::load-and-transpose-always
  (fn
-  [{:keys [db]} [evt [path data-path]]]
+  [{:keys [_db]} [_evt [path data-path]]]
   {:http-xhrio {:method :get
                 :uri path
                 :timeout 8000

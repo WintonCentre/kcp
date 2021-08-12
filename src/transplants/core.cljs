@@ -8,7 +8,7 @@
    [transplants.paths :as paths]
    [transplants.ui :as ui]
    [error-boundary.error-boundary :refer [err-boundary]]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 (enable-console-print!)
@@ -26,7 +26,6 @@
    shadow-cljs to call mount-root after a hot-reload and clear the subsciption cache so
    everything gets updated nicely."
   []
-;  (?-> "mount-root" ::mount-root)
   (rf/clear-subscription-cache!)
   (routes/init-routes!) ;; Reset routes on figwheel reload
   (rd/render [err-boundary
@@ -36,7 +35,7 @@
 
 (defn on-window-resize
   "Handle window-size change by dispatching new width to db"
-  [evt]
+  [_evt]
   (rf/dispatch [::events/update-window-width (.-innerWidth js/window)]))
 
 (comment
@@ -70,19 +69,3 @@
 
 (defonce start-up (do (init) true))
 
-#_(comment
-  (defn mount-app-element []
-    (when-let [el (get-app-element)]
-      (mount el)))
-
-;; conditionally start your application based on the presence of an "app" element
-;; this is particularly helpful for testing this ns without launching the app
-  (mount-app-element)
-
-;; specify reload hook with ^;after-load metadata
-  (defn ^:after-load on-reload []
-    (mount-app-element)
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-    ))

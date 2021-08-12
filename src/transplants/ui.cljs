@@ -9,7 +9,8 @@ the low level ui."
             [transplants.events :as events]
             [transplants.subs :as subs]
             [transplants.numeric-input :as ni]
-            [shadow.debug :refer [?-> ?->> locals]]))
+            ;[shadow.debug :refer [?-> ?->> locals]]
+            ))
 
 (enable-console-print!)
 
@@ -263,7 +264,7 @@ in the routes table."
 
 (defn background-link
   "Tool menu prefix rubric."
-  [organ centre tool]
+  [organ centre _tool]
   [:p "For more information that will be helpful to patients, follow the link to "
    [:a {:style {:color "#007BFF"
                 ;:text-decoration-line "underline"
@@ -278,7 +279,7 @@ in the routes table."
 
 (defn nav-card
   "Render a desktop compatible card containing hospital-local links to tools"
-  [{:keys [#_img-src organ centre hospital link width tools]}]
+  [{:keys [#_img-src organ centre hospital _link width tools]}]
   [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
    [:> bs/Card.Body {:style {:display "flex"
                              :flex-direction "column"
@@ -300,7 +301,7 @@ in the routes table."
 
 (defn phone-card
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
-  [{:keys [hospital link organ centre tools]}]
+  [{:keys [hospital _link organ centre tools]}]
   
   ;(println ::phone "PHONE!!!")
   [:> bs/ListGroup.Item {:action true

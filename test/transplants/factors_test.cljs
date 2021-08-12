@@ -1,16 +1,18 @@
 (ns transplants.factors-test
-  (:require [cljs.test :refer [deftest testing is use-fixtures]]
+  #_(:require [cljs.test :refer [deftest testing is use-fixtures]]
             [transplants.bundles :as bun]
             [transplants.factors :as fac]
-            [shadow.resource :as sc]))
+            [shadow.resource :as sc]
+            ))
 
+#_(comment
 (def bundle {:fmaps "foo"})
 (def master-fmaps (:fmaps bundle))
 (def master-fmap (get-in bundle [:fmaps :d-gp*centre]))
 (def master-fmap-level (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm]))
 
 
-#_(comment
+
   (fac/lookup-cross-over-factor-level env :dgp*centre)
   (:centre (first env))
 

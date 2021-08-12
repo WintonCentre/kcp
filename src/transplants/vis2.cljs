@@ -11,9 +11,8 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            [cljstache.core :as mus]
-            [medley.core :as medley]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]))
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            ))
 
 ;;
 ;; Plot data prep utilities
@@ -565,13 +564,6 @@
   ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
   )
 
-(defn tool-vis-style
-  [tool-mdata vis-key]
-  (get-in tool-mdata [vis-key]))
-
-(defn tool-vis-texts
-  [tool-mdata vis-key]
-  [get-in tool-mdata [vis-key :texts]])
 
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
@@ -917,26 +909,24 @@
 
 (defn side-by-side-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
-  [year-series tool-mdata data-styles]
-  (let [svg-width (get-in tool-mdata [:icons :svg-width])
-        svg-height (get-in tool-mdata [:icons :svg-height])
-        plot-order (:plot-order tool-mdata)
+  [year-series tool-mdata _data-styles]
+  (let [plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
         randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
 ;    (locals)
 
-      #_[ui/randomise-query-panel "Randomise order?"]
+    #_[ui/randomise-query-panel "Randomise order?"]
     [:div
      [ui/randomise-query-panel "Randomise order?"]
 
-     
+
 
 
      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
                                              :height (get-in tool-mdata [:icons :svg-height])}
-                                     :margin (get-in tool-mdata [:icons :svg-margin]) 
-                                     :padding (get-in tool-mdata [:icons :svg-padding]) 
+                                     :margin (get-in tool-mdata [:icons :svg-margin])
+                                     :padding (get-in tool-mdata [:icons :svg-padding])
                                      :x-ticks 10
                                      :y-domain [300 0]
                                      :y-ticks 10})
@@ -967,14 +957,14 @@
                          :transform (str "translate(" (* j 22) " " (* i 22) ")")}
                      [h-and-s
                       {:scale 2 :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])]
-                 
+
                  [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 320)")}
                   [:text {:font-size "1.2em"
                           :x 20} (get-in label [:line 0])]]])))]]))
 ;
 (defn stacked-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
-  [year-series tool-mdata data-styles]
+  [year-series tool-mdata _]
   (let [svg-width (get-in tool-mdata [:icons :svg-width])
         svg-height (get-in tool-mdata [:icons :svg-height])
         plot-order (:plot-order tool-mdata)

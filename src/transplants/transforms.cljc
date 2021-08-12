@@ -34,10 +34,6 @@
 (defn map-vals [f m]
   (into {} (map (fn [[k v]] [k (f v)]) m)))
 
-(defn valid-keystring?
-  [s]
-  (and s (string? s) (= (first s) ":")))
-
 (defn unstring-key
   "ks is a string starting with a colon. Convert it to a true keyword.
    Useful when processing ':keyword' values readin from a spreadsheet into true keywords.
@@ -90,32 +86,6 @@
                (partition-by :factor)
                (sort-by (comp :order first))))
   )
-
-(defn collect-level-info
-  "Given a seq of input-maps all for the same factor, collect all level information under the first of these,
-   and return that fmap."
-  [factor-key input-maps]
-  nil
-  )
-
-(defn inputs->factor-maps
-  "Preprocess an inputs sheet before storing it"
-  [organ inputs]
-  (let [input-maps (map-of-vs->v-of-maps inputs)]   
-    (map
-     (fn [ins]
-       (let [f-map (first ins)]
-         (assoc f-map 
-                :factor-key (keyword organ (unstring-key (:factor f-map)))
-                :levels (map (fn [{:keys [level level-name]}]
-                               {:level level
-                                :label level-name}) ins))))
-     (->> inputs
-          (map-of-vs->v-of-maps)
-          (filter #(keyword? (:factor %)) )
-          (map #(map-vals unstring-key %))
-          (partition-by :factor)
-          (sort-by (comp :order first))))))
 
 
 (comment

@@ -6,10 +6,9 @@
             [winton-utils.data-frame :refer [map-of-vs->v-of-maps]]
             [transplants.transforms :as xf]
             [transplants.spline :refer [spline]]
-            [transplants.subs :as subs]
             [transplants.bundles :as bun]
-            [re-frame.core :as rf]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]))
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            ))
 
 (comment
 
@@ -95,7 +94,7 @@
 (defn level-maps
   "Given a seq of input-maps all for the same factor, collect all level information under the first of these,
    and return that fmap. "
-  [factor f-maps]
+  [_factor f-maps]
   (->> f-maps
        (map (fn [m] (update m :type #(if (string? %)
                                        (edn/read-string %)
@@ -110,9 +109,8 @@
    containing nested detail relating to levels"
   [organ f-maps]
   (let [f-map (first f-maps)
-        categorical-levels (group-by :level (filter (comp keyword? :level) (level-maps (:factor f-map) f-maps)))]
-         ;(js/console.log "beta-keys")
-         ;(js/console.log beta-keys)
+        #_#_categorical-levels (group-by :level (filter (comp keyword? :level) (level-maps (:factor f-map) f-maps)))]
+
     (assoc f-map
            ; todo: :factor-key is probably no longer necessary, though it is currently used.
            :factor-key (keyword organ (xf/unstring-key (:factor f-map)))
@@ -259,7 +257,7 @@
       (let [level-key (lookup-cross-over-factor-level env factor)
                beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
            [factor level-key (if beta beta 0)])
-      (catch :default e
+      (catch :default _e
         ;(js/console.log "error " (pr-str factor))
         [factor nil 0]))
 
@@ -288,7 +286,7 @@
           baseline-vars (:baseline-vars bundle)
           levels (:levels master-fmap)
           knots (->> (get-in levels [[:spline :x :beta1 :beta2 :beta3] :type])
-                     (filter (fn [[k v]] (starts-with? (name k) "knot")))
+                     (filter (fn [[k _v]] (starts-with? (name k) "knot")))
                      (sort-by first)
                      (map second))
           betas (->> (select-keys levels [:beta1 :beta2 :beta3])

@@ -11,7 +11,7 @@
    [transplants.views :as views]
    [transplants.subs :as subs]
    [transplants.paths :as paths]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                        Nav Nav.Link]]))
 (comment
@@ -54,7 +54,7 @@
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
                                 :start (fn [params]
-                                         (let [centre (keyword (get-in params [:path :centre]))]))
+                                         (let [_centre (keyword (get-in params [:path :centre]))]))
                                 :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :centre])))}]}
      [""] ; required to make [":organ/:centre"] a leaf route
      ["/:tool" {:name ::views/organ-centre-tool
@@ -62,7 +62,7 @@
                 :link-text "organ-centre-tool"
                 :controllers [{:parameters {:path [:organ :centre :tool]}
                                :start (fn [params]
-                                        (let [tool (keyword (get-in params [:path :tool]))]
+                                        (let [_tool (keyword (get-in params [:path :tool]))]
                                           (js/console.log "Entering organ-centre-tool: " params)))
                                :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :tool])))}]}
       [""] ; required to make [":organ/:centre/:tool"] a leaf route
@@ -72,7 +72,7 @@
         :link-text "organ-centre-tool"
         :controllers [{:parameters {:path [:organ :centre :tool :tab]}
                        :start (fn [params]
-                                (let [tool (keyword (get-in params [:path :tool]))
+                                (let [_tool (keyword (get-in params [:path :tool]))
                                       tab (keyword (get-in params [:path :tab]))]
                                   (js/console.log "Entering organ-centre-tool: " params)
                                   (tap> {:tab  tab

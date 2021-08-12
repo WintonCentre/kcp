@@ -11,7 +11,7 @@
 (comment
   
   ; only needed if running tests from the REPL
-  (defn -main [& args]
+  (defn -main [& _args]
     (run-tests-async 5000))
   
   (-main))  

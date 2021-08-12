@@ -1,12 +1,11 @@
 (ns transplants.widgets
   (:require [re-frame.core :as rf]
-            [reagent.core :as reagent]
             [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (defn key->id
@@ -34,7 +33,7 @@
               (bad-widget-type ":type :numeric should be like {:type :numeric :dps 0 :min 0 :max 100}" )
               (js/console.log "culprit is: " (pr-str m))
               :unsupported)))
-        (catch :default e
+        (catch :default _e
           (bad-widget-type "Invalid type")
           :unsupported))))
   :default :unsupported)
@@ -63,12 +62,12 @@
   nil)
 
 (def mb 5)
-(def mt 0)
+(def _mt 0)
 (def label-width "label column grid-size" 5)
 (def widget-width "Widget column grid-size" 7)
 
 (defmethod widget :reset
-  [w]
+  [_w]
   [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
    [:> bs/Col {:xs label-width}]
    [:> bs/Col {:xs widget-width}
@@ -76,7 +75,7 @@
 
 
 (defn radio
-  [{:keys [_factor-name factor-key levels _default _type vertical optional boxed] :as w}]
+  [{:keys [_factor-name factor-key levels _default _type vertical optional _boxed] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
         optional? (some? optional)]
 ;    (locals)
@@ -114,7 +113,7 @@
 ; dropdowns are similar to radio buttons but are useful when a radio-button-group
 ; would is too wide
 (defmethod widget :dropdown
-  [{:keys [factor-name factor-key levels default type] :as w}]
+  [{:keys [_factor-name factor-key levels _default _type] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
     
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
@@ -131,7 +130,7 @@
 
 ; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
-  [{:keys [factor-name factor-key factor levels default type model] :as w}]
+  [{:keys [_factor-name factor-key _factor _levels _default _type _model] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
         numerics (edn/read-string (:type w))]
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
@@ -161,7 +160,7 @@
   (widget {:type :foo}))
 
 (defmethod widget :unsupported
-  [{:keys [type :as m]}]
+  [{:keys [type] :as m}]
    (js/console.log "unsupported widget-type: "  m)
   [:div  type " widget badly configured"])
 
@@ -195,6 +194,5 @@
                                                {:key :female
                                                 :level :female
                                                 :level-name "Female"}])})
-
   )
 

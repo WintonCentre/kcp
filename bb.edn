@@ -4,6 +4,7 @@
 {:paths ["bb-scripts"]
  :deps {}
  :tasks {:requires ([babashka.fs :as fs])
+         install (shell "npm install")
          config (shell "clojure -A:config -X transplants.configure/main")
          start  (shell "shadow-cljs watch app")
          stop (shell "shadow-cljs stop")

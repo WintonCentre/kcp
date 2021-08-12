@@ -15,7 +15,7 @@
   (if k (str (namespace k) "-" (name k)) nil))
 
 (defn bad-widget-type [msg]
-  (js/alert msg))
+  (js/console.log "Bad widget type" msg))
 
 (defmulti widget
   "Create a widget component of a given type.

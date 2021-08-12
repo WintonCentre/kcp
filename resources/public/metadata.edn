@@ -890,6 +890,7 @@
                                              [:h3
                                               "How long might your kidney last if its from a living donor?"]
                                              [:section
+                                              [:p [:b "This is National data and not centre specific."]]
                                               [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
                                               #_[:p "It shows how many people might be transplanted over 5 years."]
@@ -1014,6 +1015,7 @@
                                           [:h3
                                            "How long might your kidney last if its from a living donor?"]
                                           [:section
+                                           [:p [:b "This is National data and not centre specific."]]
                                            [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]
 

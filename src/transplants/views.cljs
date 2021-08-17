@@ -34,7 +34,7 @@
                                   :variant "primary"
                                   :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
                        (get-in mdata [organ :label])]])
-                   (mdata :domains))])]]]))
+                   (mdata :organs))])]]]))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.

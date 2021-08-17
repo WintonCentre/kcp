@@ -53,6 +53,8 @@
    to call on completion. Meanwhile, the UI would be dead.
    "
   []
+  (enable-console-print!)
+
   (rf/dispatch-sync [::events/initialize-db])
 
   (rf/dispatch-sync [::events/load-metadata [paths/metadata-path [:metadata]]])

@@ -7,7 +7,7 @@
         org.apache.poi/poi-ooxml {:mvn/version "4.1.2"}
         dk.ative/docjure {:mvn/version "1.14.0"}
         org.apache.commons/commons-math3 {:mvn/version "3.6.1"}
-        hashp/hashp {:mvn/version "0.2.0"}}
+        org.clojars.ertucetin/re-frame-flow {:mvn/version "0.1.4"}}
  :paths ["src" "test" "resources" "target"]
  :aliases {;; if we wish to configure bootstrap css with sass:sass 
            :sass ["-M" "sass4clj.main" --source-paths]

@@ -3,7 +3,11 @@
 ;;
 {:paths ["bb-scripts"]
  :deps {}
- :tasks {:requires ([babashka.fs :as fs])
+ :tasks {:requires ([babashka.fs :as fs]
+                    [clojure.string :as string])
+         ;:init (defn env [s] (System/getenv s))
+         :enter (println "Entering:" (:name (current-task)))
+         print-env (println (env (first *command-line-args*)))
          install (shell "npm install")
          config (shell "clojure -A:config -X transplants.configure/main")
          start  (shell "shadow-cljs watch app")
@@ -21,7 +25,11 @@
          test (shell "shadow-cljs watch test")
          test-browser (shell "shadow-cljs watch test-browser")
          test-once (shell "shadow-cljs compile test")
-         clean (shell "rimraf resources/public/js")
-         nuke (shell "rimraf resources/public/js .shadow-cljs node_modules yarn.lock package-lock.json out report.html")
-         shadow-cljs-server (shell "shadow-cljs server")}
-         }
+         clean (fs/delete-tree "resources/public/js")
+         nuke (run! fs/delete-tree ["resources/public/js" ".shadow-cljs" "node_modules"
+                                    "yarn.lock" "package-lock.json" "out" "report.html"])
+         install* (shell (string/join " " (cons "npm install" *command-line-args*)))
+         shadow-cljs-server (shell "shadow-cljs server")
+         share-xlsx (shell "bb -f bb_scripts/upload_xlsx.clj") ;; publish .xslx files to dropbox
+         lint-subs (shell "bb -f bb_scripts/re_frame_subscriptions.clj")
+         }}

@@ -11,8 +11,8 @@
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
-            ))
+            [medley.core :as medl]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 ;;
 ;; Plot data prep utilities
@@ -393,7 +393,7 @@
 
 ;; currently unused
 #_(defn get-mustache
-  "Lookup x in a form that may be a mustached template or a simple vector or a combination of both. 
+    "Lookup x in a form that may be a mustached template or a simple vector or a combination of both. 
    If the form is a string, return it
    If the form is a vector, then return the xth element.
    If the form is a map then it should have a :template and :data. Optionally also an :indexed value.
@@ -401,49 +401,49 @@
    even when other values require a template.
    If the mdata map has no indexed field or x yields nil, then the :data value is assumed to be a mustached field name
    in the :template. Render the template with that fied replaced by x"
-  [mdata x]
-  (cond
-    (string? mdata)
-    mdata
+    [mdata x]
+    (cond
+      (string? mdata)
+      mdata
 
-    (vector? mdata)
-    (mdata x)
+      (vector? mdata)
+      (mdata x)
 
-    (map? mdata)
-    (let [{:keys [indexed template data]} mdata]
-      (cond
-        (and indexed (get indexed x))
-        (get indexed x)
+      (map? mdata)
+      (let [{:keys [indexed template data]} mdata]
+        (cond
+          (and indexed (get indexed x))
+          (get indexed x)
 
-        (and template data)
-        (mus/render template {data x})
+          (and template data)
+          (mus/render template {data x})
 
-        :else (locals)))
-    :else mdata))
+          :else (locals)))
+      :else mdata))
 
 ;; currently unused
 #_(defn right-arrow
-  "Render a right-arrow"
-  [{:keys [x y fill scale stroke stroke-width]}]
-  [:path {:fill fill
-          :stroke stroke
-          :stroke-width stroke-width
-          :d "M5 0v2h-5v1h5v2l3-2.53-3-2.47z"
-          :transform (when (and x y scale)
-                       (str "translate(" x " " y ")scale(" scale ")"))}])
+    "Render a right-arrow"
+    [{:keys [x y fill scale stroke stroke-width]}]
+    [:path {:fill fill
+            :stroke stroke
+            :stroke-width stroke-width
+            :d "M5 0v2h-5v1h5v2l3-2.53-3-2.47z"
+            :transform (when (and x y scale)
+                         (str "translate(" x " " y ")scale(" scale ")"))}])
 
 ;; currently unused
 #_(defn arrow
-  "render an svg component that draws a white right arrow."
-  [{:keys [index count x-offset y-offset spacing]}]
+    "render an svg component that draws a white right arrow."
+    [{:keys [index count x-offset y-offset spacing]}]
   ;(locals)
-  (when (< 0 index count)
-    (right-arrow {:x (+ x-offset (* index spacing))
-                  :y y-offset
-                  :fill "#fff"
-                  :scale "3.5,6"
-                  :stroke "#fff"
-                  :stroke-width 2})))
+    (when (< 0 index count)
+      (right-arrow {:x (+ x-offset (* index spacing))
+                    :y y-offset
+                    :fill "#fff"
+                    :scale "3.5,6"
+                    :stroke "#fff"
+                    :stroke-width 2})))
 
 (defn multiline-bin-label
   "render a multiline bin label"
@@ -462,10 +462,9 @@
 ;  (locals)
   (into [:g {:key 1}]
         (map-indexed (fn [bar-index bin-label]
-               (let [x0 (- (X (+ (* spacing #_(:time-index bin-label) (inc bar-index)))) (X offset))]
-                 (multiline-bin-label bin-label x0 font-size)
-                 ))
-             bin-labels)))
+                       (let [x0 (- (X (+ (* spacing #_(:time-index bin-label) (inc bar-index)))) (X offset))]
+                         (multiline-bin-label bin-label x0 font-size)))
+                     bin-labels)))
 
 (defn draw-bars
   [{:keys [bin-labels spacing offset time-series bar-width data-keys data-styles X Y]}]
@@ -548,6 +547,7 @@
 
 (defn tool-metadata
   [env organ tool]
+  (locals)
   (get-in env [:mdata organ :tools tool]) ;; provisional
 
   ;; Bear in mind that we will want to provide a default configuration template somehow.
@@ -556,9 +556,9 @@
   ;;
   ;; The default configuration could be hard-coded into the initial database, or it could be read in
   ;; from an external edn first.
-  #_(medley/deep-merge (get-in env [:mdata organ :tools :default])
-         (get-in env [:mdata organ :tools tool]))
-  
+  (medl/deep-merge (get-in env [:mdata organ :tools :default])
+                   (get-in env [:mdata organ :tools tool]))
+
   ;; One other issue to sort out here is that we've used organs names and tool names as keys into the
   ;; configuration. It would be better if the confguartion were free to specify the domains (like :lung) and the
   ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
@@ -585,8 +585,7 @@
                                 1.5)
                       :data-count (count data-keys)
                       :bar-width (get-in tool-mdata [:bars :width])
-                      :font-size (get-in tool-mdata [:bars :font-size]))
-        ]
+                      :font-size (get-in tool-mdata [:bars :font-size]))]
     [:g {:key 1}
      [:rect {:key        1
              :class-name (:inner styles)
@@ -665,26 +664,26 @@
         offset 1.85
         q-offset 1.86
         bar-positions (into []
-                             (map (fn [bin-label]
-                                    (let [bar-index (:time-index bin-label)
-                                          [time {:keys [fs cum-fs]}] (nth year-series bar-index)]
-                                      (into []
-                                            (map (fn [data-key cif cum-cif]
-                                                   (let [styles (data-styles data-key)
-                                                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
-                                                         x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                                         y0 (- (Y cum-cif) (Y cif))]
-                                                     {:key data-key
-                                                      :time time
-                                                      :x (+ x-mid 15)
-                                                      :y0 y0
-                                                      :y1 (Y cum-cif)
-                                                      :styles (ui/svg-styles styles)
-                                                      #_(dissoc styles :label-fill)}))
-                                                 data-keys
-                                                 fs
-                                                 cum-fs))))
-                                  bin-labels))
+                            (map (fn [bin-label]
+                                   (let [bar-index (:time-index bin-label)
+                                         [time {:keys [fs cum-fs]}] (nth year-series bar-index)]
+                                     (into []
+                                           (map (fn [data-key cif cum-cif]
+                                                  (let [styles (data-styles data-key)
+                                                        x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
+                                                        x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                                        y0 (- (Y cum-cif) (Y cif))]
+                                                    {:key data-key
+                                                     :time time
+                                                     :x (+ x-mid 15)
+                                                     :y0 y0
+                                                     :y1 (Y cum-cif)
+                                                     :styles (ui/svg-styles styles)
+                                                     #_(dissoc styles :label-fill)}))
+                                                data-keys
+                                                fs
+                                                cum-fs))))
+                                 bin-labels))
 
            ;;todo: these are no longer quarter year intervals. Rename
         quarter-positions (into []
@@ -742,14 +741,14 @@
                      [:g
                       (multiline-bin-label bin-label x0 font-size)
                       #_(into [:g {:key (str "area-chart-" bar-index)}]
-                            (map (fn [cif cum-cif]
-                                   (let [x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                         y0 (- (Y cum-cif) (Y cif))]
+                              (map (fn [cif cum-cif]
+                                     (let [x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
+                                           y0 (- (Y cum-cif) (Y cif))]
 
-                                     #_(when (not (js/isNaN y0))
-                                         (multiline-bin-label bin-label x0 font-size))))
-                                 fs
-                                 cum-fs))]))
+                                       #_(when (not (js/isNaN y0))
+                                           (multiline-bin-label bin-label x0 font-size))))
+                                   fs
+                                   cum-fs))]))
                  bin-labels))
 
        ;;
@@ -826,15 +825,17 @@
         plot-order (:plot-order tool-mdata)
         svg-width 1060
         svg-height 660]
+    (?-> tool-mdata ::area-chart)
       ;(locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
-      [svgc/svg-container 
+      [svgc/svg-container
        (-> (space {:outer {:width (get-in tool-mdata [:area :svg-width])
                            :height (get-in tool-mdata [:area :svg-height])}
                    :aspect-ratio (aspect-ratio svg-width svg-height)
                    :margin (get-in tool-mdata [:area :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
-                   :padding (get-in tool-mdata [:area :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
+                   :padding #_(get-in tool-mdata [:area :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
+                   {:top 40, :right 20, :bottom 100, :left 20}
                    :x-domain [0 14]
                    :x-ticks 10
                    :y-domain [1 0]
@@ -984,9 +985,9 @@
         [ui/col {:key 1}
 
          [:h5 {:style {:margin-top 20}}
-            (let [line (:line label)]
-              (if (sequential? line) (map str line) line))]
-         
+          (let [line (:line label)]
+            (if (sequential? line) (map str line) line))]
+
          [ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
                                                  :height (get-in tool-mdata [:icons :svg-height])}
@@ -1000,15 +1001,15 @@
                                  (assoc :styles styles)
                                  (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
           #_(assoc (space {:outer {:width svg-width
-                                 :height svg-height}
-                         :aspect-ratio (aspect-ratio svg-width svg-height)
-                         :margin (get-in tool-mdata [:icons :svg-margin])
-                         :padding (get-in tool-mdata [:icons :svg-padding])
-                         :x-domain [0 300]
-                         :x-ticks 10
-                         :y-domain [0 300]
-                         :y-ticks 10})
-                 :styles styles)
+                                   :height svg-height}
+                           :aspect-ratio (aspect-ratio svg-width svg-height)
+                           :margin (get-in tool-mdata [:icons :svg-margin])
+                           :padding (get-in tool-mdata [:icons :svg-padding])
+                           :x-domain [0 300]
+                           :x-ticks 10
+                           :y-domain [0 300]
+                           :y-ticks 10})
+                   :styles styles)
 
           (fn [_ _ _ _]
             [:g {:transform "translate(0,0),scale(1.9)"}
@@ -1021,9 +1022,9 @@
                  [h-and-s {:scale 2 :fill (:fill outcome)}]
                  [:text {:transform "translate(30,15)"} (str (int-fs k) " " (:label outcome))]])]
              #_(svg-outcome-legend plot-order data-styles
-                                 {:width 380
-                                  :string-value-f (fn [i] (str ": " (int-fs i) "%"))
-                                  :position-f #(str "translate(15 " (+ 20 (* 60 %)) "),scale(0.7)")})
+                                   {:width 380
+                                    :string-value-f (fn [i] (str ": " (int-fs i) "%"))
+                                    :position-f #(str "translate(15 " (+ 20 (* 60 %)) "),scale(0.7)")})
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]
@@ -1061,9 +1062,8 @@
         years (range (count labels))]
     [:> bs/Table {:style {:margin-top 20
                           :border "3px solid #666"}
-                  :responsive "xl" 
-                  :bordered true
-                  }
+                  :responsive "xl"
+                  :bordered true}
      [:thead
       [:tr
        ;[:th "Outcome"]
@@ -1099,8 +1099,6 @@
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-        [:section
-         (table-render fs-by-year-in-plot-order tool-mdata data-styles)
-         (:post-section tool-mdata)]
-    )
-  )
+    [:section
+     (table-render fs-by-year-in-plot-order tool-mdata data-styles)
+     (:post-section tool-mdata)]))

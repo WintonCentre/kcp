@@ -2,7 +2,7 @@
 
  :dependencies
  [;[com.cognitect/transit-js "0.8.867"]
-  [reagent               "1.0.0"]
+  [reagent               "1.1.0"]
   [reagent-utils/reagent-utils         "0.3.3"]
   [re-frame              "1.2.0"]
   [aero/aero             "1.1.6"]
@@ -15,7 +15,8 @@
   [binaryage/devtools    "1.0.2"]
   [cljstache/cljstache   "2.0.6"]
   [same/ish              "0.1.4"]
-  [cider/cider-nrepl "0.21.0"]]
+  [cider/cider-nrepl "0.21.0"]
+  [org.clojars.ertucetin/re-frame-flow "0.1.4"]]
 
  :dev-http
  {3000 "resources/public"}
@@ -26,7 +27,8 @@
         :asset-path "/js"
         :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
-        :modules {:app {:init-fn transplants.core/init}}}
+        :modules {:app {:init-fn transplants.core/init}}
+        :devtools {:preloads [re-frame-flow.preload]}}
 
   :test-browser {:target     :browser-test
                  :test-dir   "out/browser/test"

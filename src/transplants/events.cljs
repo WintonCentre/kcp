@@ -13,7 +13,7 @@
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;; Events ;;;
@@ -122,6 +122,8 @@
 ;; Process raw tool bundles into db. 
 ;; 
 ;; It may be more efficient to do this processing at configuration time
+;;
+;; 
 ;;;
 (rf/reg-event-fx
  ::store-bundle-inputs
@@ -264,8 +266,6 @@
  (fn
   [db [_ _data-path _response]]
    (js/console.error)
-  #_(when (or data-path response)
-      (js/alert (str "bad-response while loading " data-path "response = " response)))
   db))
 
 (rf/reg-event-fx
@@ -273,14 +273,12 @@
  (fn
    [{:keys [db]} [_ _data-path response]]
    (let [mdata (edn/read-string response)
-         organs (keys mdata)]
+           organs (mdata :organs)]
 
-     ; Todo: VALIDATE mdata
-     (doseq [organ organs]
-       (rf/dispatch [::load-and-transpose [(paths/centres-path organ) [:organ-centres organ]]]))
-
-     {:db (-> db
-              (assoc :mdata mdata))})))
+     ; todo: VALIDATE mdata once we know what it should look like!
+       {:db (-> db
+                (assoc :mdata mdata))
+        ::fx/load-organ-centres organs})))
 
 (rf/reg-event-fx
  ::load-metadata
@@ -323,9 +321,21 @@
                   :on-success [::store-bundle-inputs data-path]
                   :on-failure [::bad-response data-path]}})))
 
+(defn load-and-transpose
+  [{:keys [db]} [_evt [path data-path]]]
+  (when (nil? (get-in db data-path))
+    {:http-xhrio {:method :get
+                  :uri path
+                  :timeout 8000
+                  :format          (ajax/text-request-format)
+                  :response-format (ajax/text-response-format)
+                  :on-success [::transpose-response data-path]
+                  :on-failure [::bad-response data-path]}}))
+
 (rf/reg-event-fx
  ::load-and-transpose
- (fn
+ load-and-transpose
+ #_(fn
   [{:keys [db]} [_evt [path data-path]]]
   (when (nil? (get-in db data-path))
     {:http-xhrio {:method :get
@@ -335,6 +345,10 @@
                   :response-format (ajax/text-response-format)
                   :on-success [::transpose-response data-path]
                   :on-failure [::bad-response data-path]}})))
+
+(rf/reg-event-fx
+ ::load-and-transpose-centres
+ load-and-transpose)
 
 (rf/reg-event-fx
  ::load-and-transpose-always

@@ -1,6 +1,8 @@
 (ns transplants.fx
   (:require [re-frame.core :as rf]
-            [reitit.frontend.easy :as rfe]))
+            [reitit.frontend.easy :as rfe]
+            [transplants.paths :as paths]
+            [shadow.debug :refer [?-> locals]]))
 
 
 
@@ -22,6 +24,13 @@
 ::dispatch
 (fn [[event-key event-params]]
   (rf/dispatch [event-key event-params])))
+
+(rf/reg-fx
+ ::load-organ-centres
+ (fn [organs]
+   (doseq [organ organs]
+     (locals)
+     (rf/dispatch [:transplants.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))
 
 (comment
   ; from predict code

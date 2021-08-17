@@ -34,7 +34,7 @@
                                   :variant "primary"
                                   :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
                        (get-in mdata [organ :label])]])
-                   (keys mdata))])]]]))
+                   (mdata :domains))])]]]))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
@@ -47,7 +47,7 @@
         mobile (<= @window-width ui/mobile-break)]
     [ui/card-page "Choose your transplant centre" ; todo: configure
      (if-not @centres
-       [:div "loading " organ "centres"]
+       [:div "loading " organ " centres"]
        (if-not @tools
          [:div "loading " organ "/edn/tools.txt"]
          (let [centres (sort-by :description ((keyword organ) @centres))

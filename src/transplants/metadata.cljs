@@ -2,11 +2,5 @@
   "Code related to tool metadata")
 
 ;; 
-;; todo:
+;; todo: Lots. See devnotes/Configuration.md
 ;;
-;; Add schema and validation
-;; Determine app validation rules
-   ;; outcome names (:beta-survival) in spreadsheet must match :survival outcome in metadata.edn
-;; Abstract read api
-;; Add edit api
-;; sort out csv requirements

@@ -272,7 +272,7 @@ in the routes table."
         :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
                                  {:organ organ
                                   :centre centre
-                                  :tool :guidance}])} "background guidance"]
+                                  :tool :guidance}])} "useful information"]
    "."
    " There is also a " [:a {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
    " which explains the tool in depth."])

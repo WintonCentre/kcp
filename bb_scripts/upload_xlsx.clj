@@ -10,7 +10,7 @@
          )
 
 (def home (.getProperty System "user.home"))
-(def slash File/separator)
+(def slash java.io.File/separator)
 
 ;
 ; Locate Dropbox path through ~/.dropbox/info.json 

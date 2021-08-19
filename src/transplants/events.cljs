@@ -7,13 +7,13 @@
    [transplants.utils :as utils]
    [transplants.db :as init-db]
    [transplants.factors :as fac]
-   [transplants.paths :as paths]
+   ;[transplants.paths :as paths]
    [transplants.model :as model]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;; Events ;;;
@@ -273,7 +273,7 @@
  (fn
    [{:keys [db]} [_ _data-path response]]
    (let [mdata (edn/read-string response)
-           organs (mdata :organs)]
+           organs (mdata :organ-order)]
 
      ; todo: VALIDATE mdata once we know what it should look like!
        {:db (-> db

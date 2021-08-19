@@ -9,7 +9,7 @@ the low level ui."
             [transplants.events :as events]
             [transplants.subs :as subs]
             [transplants.numeric-input :as ni]
-            ;[shadow.debug :refer [?-> ?->> locals]]
+            [shadow.debug :refer [?-> ?->> locals]]
             ))
 
 (enable-console-print!)
@@ -134,6 +134,13 @@ in the routes table."
     ak)
   )
 
+(defn loading
+  "The page is loading"
+  []
+  [:div {:style {:display "flex" :flex-direction "column" :justify-content "space-around"}}
+   [:h1 "Loading"]]
+  )
+
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
   [{:keys [home-url logo]}]
@@ -223,13 +230,15 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key label organ centre tool active-tool]}]
-
+  [{:keys [key label organ centre tool active-tool button-colour]}]
+  (?-> tool ::tool-buttons)
+  (?-> button-colour ::tool-buttons)
   (let [active (= (name tool) active-tool)]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2
-                     :margin-right 2}
+                     :margin-right 2
+                     :background (:button-colour tool)}
              :active active
              :key key
              :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
@@ -250,11 +259,13 @@ in the routes table."
                    (map #(conj % [:centre centre-name]))
                    (map #(conj % [:tool (:key %)]))
                    (map #(conj % [:active-tool active-tool]))
-                   (map #(conj % [:mdata mdata])))] ;TODO: configure this filter!
+                   (map #(conj % [:mdata mdata])))]
+    (?-> tools ::tools-menu)
+    ;TODO: configure this filter!
     [:> bs/ButtonToolbar
-   ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
-   ;; Even better would be to configure the break points as what makes sense will be ver application
-   ;; specific.
+    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
+    ;; Even better would be to configure the break points as what makes sense will be ver application
+    ;; specific.
      (->> (take 3 tools)
           (map tool-buttons)
           (into [:> bs/ButtonGroup orientation]))

@@ -25,10 +25,12 @@
  {:app {:target     :browser
         :output-dir "resources/public/js"
         :asset-path "/js"
+        ;:preloads [re-frame-flow.preload]
+        :devtools {:preloads [re-frame-flow.preload]}
         :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
-        :modules {:app {:init-fn transplants.core/init}}
-        :devtools {:preloads [re-frame-flow.preload]}}
+        :modules {:app {:init-fn transplants.core/init
+                        #_#_:devtools {:preloads [re-frame-flow.preload]}}}}
 
   :test-browser {:target     :browser-test
                  :test-dir   "out/browser/test"

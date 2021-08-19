@@ -22,7 +22,7 @@
  ;;
 
  ;; :todo: Rename :organs. Domains?
- :organs [:lung :kidney] ; This app will contain the :lung and :kidney home-pages.
+ :organ-order [:lung :kidney] ; This app will contain the :lung and :kidney home-pages in that order
 
  ;;
  ; :todo If an app only contains one domain, then the domain selection buttons should be skipped and the app should load 
@@ -38,9 +38,10 @@
                              "a page of guidance")}
 
  :lung {:text "Lung"
-        :label "Lung Transplants" ; Labels for any button that takes you to the Lung domain home page
+        :label "Lung Transplants" ; Labels for any button that takes you to the Lung home page
         :primary-colour "purple" ; unused 
-        :tools {; The default tool provides a default configuration for each tool in this domain
+        :tool-order [:waiting :survival :background-info]
+        :tools {; The default tool provides a default configuration for each tool for this organ
                 :default {:button-type "primary"
                           :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                           :outcomes {:transplant {:label "transplanted"
@@ -168,6 +169,7 @@
                                               these results and make the numbers higher or lower. eg whether you have other conditions 
                                               not included in the tool."]]}
                 :waiting {:button-type "primary"
+                          :button-colour "pink"
                           :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                           :outcomes {:transplant {:label "transplanted"
                                                   :long-label "have been transplanted"
@@ -424,6 +426,7 @@
 
  :kidney {:text "Kidney"
           :label "Kidney Transplants"
+          :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :background-info]
           :tools {:waiting {:inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                             :outcomes {:transplant {:label "transplanted"
                                                     :long-label "have been transplanted"

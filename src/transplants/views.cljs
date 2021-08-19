@@ -21,20 +21,23 @@
   "Display a generic home page. 
    Minimally, navigation from here to an organ home page."
   []
+  ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])]
     ;(locals)
-    [ui/page "Trac tools"
-     [ui/row
-      [ui/col
-       (into [:div {:style {:margin-bottom 20}}
-              (map (fn [organ]
-                     [:div {:key (get-in mdata [organ :text])
-                            :style {:margin-bottom 20}}
-                      [ui/button {:id (str (name organ) "-button")
-                                  :variant "primary"
-                                  :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
-                       (get-in mdata [organ :label])]])
-                   (mdata :organs))])]]]))
+    (if mdata
+      [ui/page "Trac tools"
+       [ui/row
+        [ui/col
+         (into [:div {:style {:margin-bottom 20}}
+                (map (fn [organ]
+                       [:div {:key (get-in mdata [organ :text])
+                              :style {:margin-bottom 20}}
+                        [ui/button {:id (str (name organ) "-button")
+                                    :variant "primary"
+                                    :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
+                         (get-in mdata [organ :label])]])
+                     (mdata :organ-order))])]]]
+      [ui/loading])))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
@@ -79,7 +82,7 @@
    :lung-numbers "Lung transplants - 2019 - 2020 numbers"
    :kidney-numbers "Kidney transplants - 2019 - 2020 numbers"})
 
-(defmulti show-background-info 
+(defmulti show-background-info
   "Render the selected background info"
   :info-key)
 
@@ -128,8 +131,8 @@
       [:li "Anti-ulcer medications"]]]
     [ui/col {:md 6}
      [:> bs/Image {:fluid true
-                 :src "assets/Post Transplant Medications.png"}]]]])
-  
+                   :src "assets/Post Transplant Medications.png"}]]]])
+
 
 (defmethod show-background-info :window []
   [:<>
@@ -137,7 +140,7 @@
    [:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
         decreases, there comes a point where a transplant could be recommended. This opens
         a window of opportunity which persists until the patient receives a transplant or
-        their health deteriorates to the point where it would no longer be recommended." ]
+        their health deteriorates to the point where it would no longer be recommended."]
    [:> bs/Image {:fluid true
                  :src "assets/The Window.png"}]])
 
@@ -149,7 +152,7 @@
                     :justify-content "start"
                     :flex-wrap "wrap"
                     :margin-top 20}}
-    [ui/col {:xs 6} 
+    [ui/col {:xs 6}
      [:h5 "Acute Rejections"]
      [:p "What to look out for..."]]
     [ui/col {:xs 6}
@@ -193,8 +196,7 @@
      [:p " See page 4 of "
       [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
            :target "_blank"}
-       "this PDF document for local numbers"]]]]
-   ])
+       "this PDF document for local numbers"]]]]])
 
 
 (defmethod show-background-info :lung-numbers []
@@ -267,26 +269,23 @@
      [:p " See page 4 of "
       [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
            :target "_blank"}
-       "this PDF document for local numbers"]]]]
-   ])
+       "this PDF document for local numbers"]]]]])
 
 (defn a-percentage
   "Replace 'a percentage ' in s with 'v% '"
   [s v]
   (string/replace s
                   "a percentage "
-                  (str v "% "))
-  )
+                  (str v "% ")))
 #_(comment
-  (def random true)
-  (def sample-set (atom #{}))
-  (defn resample [n percent]
-    (when (zero? n) 
-      (reset! sample-set #{}))
-    (if (< (count sample-set) percent)
-      (let [x (rand-int 100)] 
-        (while (sample-set x))))
-    ))
+    (def random true)
+    (def sample-set (atom #{}))
+    (defn resample [n percent]
+      (when (zero? n)
+        (reset! sample-set #{}))
+      (if (< (count sample-set) percent)
+        (let [x (rand-int 100)]
+          (while (sample-set x))))))
 
 (defmethod show-background-info :percent []
   (let [percent @(rf/subscribe [::subs/guidance-percent])
@@ -327,8 +326,7 @@
          [:> bs/Button {:style {:width 55 :height 50}
                         :disabled (= 100 percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]]]
-       (ui/randomise-query-panel "Randomised? ")
-       ]
+       (ui/randomise-query-panel "Randomised? ")]
       [ui/col {:sm 9}
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
          (into
@@ -343,16 +341,15 @@
                                {:key (str "icon-col-" i)
                                 :color (if (neg? (if randomise-icons
                                                    (order (- 100 (+ 10 (* j 10) (- i))))
-                                                   (- percent (- 101 (+ 10 (* j 10) (- i)))))) 
-                                         "#CCC" 
-                                         "#488") 
+                                                   (- percent (- 101 (+ 10 (* j 10) (- i))))))
+                                         "#CCC"
+                                         "#488")
                                 #_(if (< (- 100 (+ 10 (* j 10) (- i))) percent) "#488" "#CCC")
                                 :padding "4px 5px"} "person"]) (range 10))])]])
             (range 10))]))]]]))
 (comment
   (def i 5)
-  (- i)
-  )
+  (- i))
 
 
 (defn useful-info-button
@@ -434,9 +431,9 @@
         [organ centre tool] (map keyword p-names)]
     ;(locals)
     (when (and organ centre centres tools)
-      
+
       ;;; TODO: Tidy organ centre tool up here
-      
+
       (let [centre-info (utils/get-centre-info centres organ centre)]
         [ui/page [:span (:description centre-info)
                   (str " " (string/capitalize (name organ)) " transplant centre")]
@@ -447,26 +444,23 @@
          [organ-centre-tool]
          [background-info organ]]))))
 
-(defn get-tool-meta
-  [tools tool-key]
-  @(rf/subscribe [::subs/tools])
-  (first (filter (fn [{:keys [key _level-name _description]}]
-                   (= tool-key key))
-                 tools)))
 
-#_(comment
-  (def organ "kidney")
-  (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
-  (paths/organ-centre-name-tool organ
-                                "Belfast"
-                                "waiting"))
+(defn get-tool-meta
+  [organ tool]
+  (let [mdata @(rf/subscribe [::subs/mdata])]
+    (get-in mdata [organ :tools tool])))
+
+(comment
+    (def organ "kidney")
+    (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
+    (paths/organ-centre-name-tool organ
+                                  "Belfast"
+                                  "waiting"))
 
 
 (comment
-  (def tools @(rf/subscribe [::subs/tools]))
-  (def tool :waiting)
-  (get-tool-meta tools tool)
-  ,)
+  (get-tool-meta :lung :waiting)
+  )
 
 ;; todo - move to config
 (def boxed-fill "#ddffff")
@@ -506,6 +500,7 @@
              [:div {:style {:padding "0px 30px 15px 15px"
                             :height "calc(100vh + 10ex)"
                             :overflow-y "scroll"}}
+
               (widg/widget {:type :reset})
               (into [:<>]
                     (map
@@ -522,9 +517,8 @@
                             [:div {:style {:color boxed-text-color
                                            :position "absolute"
                                            :top  0 :left 12}} boxed-text]
-                            [:div {:style {:height "10px"}}]]
-                           )
-                         
+                            [:div {:style {:height "10px"}}]])
+
                          (widg/widget (assoc w :model tool))]])
                      (get tool-centre-bundle :fmaps)))]]
             [ui/col {:xs 12 :md {:span 6}}
@@ -550,19 +544,18 @@
   (paths/organ-centre-name-tool :kidney
                                 "The Royal Free"
                                 :waiting)
-    (paths/organ-centre-name-tool :kidney
-                                  "The Royal Free"
-                                  "waiting")
   (paths/organ-centre-name-tool :kidney
                                 "The Royal Free"
-                                :guidance)
-  )
+                                "waiting")
+  (paths/organ-centre-name-tool :kidney
+                                "The Royal Free"
+                                :guidance))
 
 
 #_(comment
 
     ;; Up for discussion: How should we configure texts in general....
-    
+
     ;-------------- Text views below --------------
 ;
 ; Needs replacing with a text system that supports editable rich text somewhere
@@ -570,17 +563,16 @@
 ;(defn lung-home [] (organ-home :lung))
 ;(defn kidney-home [] (organ-home :kidney))
 
-  (defn sub-page1 []
-    [:h1 "This is sub-page 1"])
+    (defn sub-page1 []
+      [:h1 "This is sub-page 1"])
 
 
-  (defn about []
-    [ui/page "About"])
+    (defn about []
+      [ui/page "About"])
 
 
-  (defn about-technical
-    "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
+    (defn about-technical
+      "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
 In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
-    []
-    [ui/page "Technical"])
-  )
+      []
+      [ui/page "Technical"]))

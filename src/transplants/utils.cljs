@@ -33,6 +33,16 @@
   ;=> (:k :c :t)
   )
 
+(defn get-tools
+  "Returns a vector of tool keywords for an organ, read from mdata (data from /metadata.edn).
+  If mdata has not yet arrived, or organ is invalid, will return nil."
+  [mdata organ]
+  (get-in mdata [(keyword organ) :tool-order]))
+
+(defn get-tool-meta
+  "returns tool metadata for an organ. Returns nil if called before mdata is available (i.e. if it's nil)"
+  [mdata organ tool]
+  (get-in mdata [(keyword organ) :tools tool]))
 
 (defn make-sheet-key
   "Reconsruct a sheet key from a tool key and the sheet type suffix

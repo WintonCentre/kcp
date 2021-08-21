@@ -43,19 +43,20 @@
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
    Minimally, navigate to an organ centre home page."
   []
-  (let [window-width (rf/subscribe [::subs/window-width])
-        tools (rf/subscribe [:transplants.subs/tools])
+  (let [window-width @(rf/subscribe [::subs/window-width])
+        mdata @(rf/subscribe [::subs/mdata])
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
-        centres (rf/subscribe [:transplants.subs/organ-centres])
-        mobile (<= @window-width ui/mobile-break)]
+        centres @(rf/subscribe [::subs/organ-centres])
+        mobile (<= window-width ui/mobile-break)]
+
     [ui/card-page "Choose your transplant centre" ; todo: configure
-     (if-not @centres
-       [:div "loading " organ " centres"]
-       (if-not @tools
-         [:div "loading " organ "/edn/tools.txt"]
-         (let [centres (sort-by :description ((keyword organ) @centres))
+     (if-not centres
+       [:div "loading /" organ " centres"]
+       (if-not mdata
+         [:div "Loading /metadata.edn"]
+         (let [centres (sort-by :description ((keyword organ) centres))
                centres (filter #(utils/filled-in? (:description %)) centres)
-               tools @tools
+               tools (utils/get-tools mdata organ)
                centre-card (fn [centre]
                              [ui/centre-card mobile
                               {:img-src (:image centre)
@@ -72,7 +73,7 @@
 ;; Move background info to config
 ;;
 
-(def background-infos
+(def guidances
   {:percent "What does a percentage look like?"
    :visits "Visits to hospital after transplant"
    :donors "Donor Decisions"
@@ -82,13 +83,13 @@
    :lung-numbers "Lung transplants - 2019 - 2020 numbers"
    :kidney-numbers "Kidney transplants - 2019 - 2020 numbers"})
 
-(defmulti show-background-info
+(defmulti show-guidance
   "Render the selected background info"
   :info-key)
 
-(defmethod show-background-info :visits []
+(defmethod show-guidance :visits []
   [:<>
-   [:h3 (:visits background-infos)]
+   [:h3 (:visits guidances)]
    [:p "A typical patient might revisit"]
    [:ul
     [:li "in the first month 	-  once a week,"]
@@ -97,9 +98,9 @@
     [:li "in the first year	- every 4 weeks,"]
     [:li "then every 3 months for life"]]])
 
-(defmethod show-background-info :donors []
+(defmethod show-guidance :donors []
   [:<>
-   [:h3 (:donors background-infos)]
+   [:h3 (:donors guidances)]
    [:p "A checklist of donor factors that may affect a decision."]
    [:ul
     [:li "Recent or ex smoker"]
@@ -108,11 +109,11 @@
     [:li "Bacterial or viral infection considered to be low risk to me"]
     [:li "High risk sexual behaviour or intravenous drug use"]]])
 
-(defmethod show-background-info :medications []
+(defmethod show-guidance :medications []
   [:<>
    [ui/row
     [ui/col
-     [:h3 (:medications background-infos)]]]
+     [:h3 (:medications guidances)]]]
    [ui/row
     [ui/col {:md 5}
      [:ul
@@ -134,9 +135,9 @@
                    :src "assets/Post Transplant Medications.png"}]]]])
 
 
-(defmethod show-background-info :window []
+(defmethod show-guidance :window []
   [:<>
-   [:h3 (:window background-infos)]
+   [:h3 (:window guidances)]
    [:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
         decreases, there comes a point where a transplant could be recommended. This opens
         a window of opportunity which persists until the patient receives a transplant or
@@ -145,9 +146,9 @@
                  :src "assets/The Window.png"}]])
 
 
-(defmethod show-background-info :graft-failure []
+(defmethod show-guidance :graft-failure []
   [:<>
-   [:h3 (:graft-failure background-infos)]
+   [:h3 (:graft-failure guidances)]
    [ui/row {:style {:display :flex
                     :justify-content "start"
                     :flex-wrap "wrap"
@@ -171,9 +172,9 @@
             All supplies are provided free. Saves people needing to stick to inflexible 
             hospital appointments."]]]]])
 
-(defmethod show-background-info :kidney-numbers []
+(defmethod show-guidance :kidney-numbers []
   [:<>
-   [:h3 (:kidney-numbers background-infos)]
+   [:h3 (:kidney-numbers guidances)]
    [:p "On the 11th Sept 2019 a new National Kidney Offering Scheme was introduced."]
    [:p "This tool does can not take into account the new offering scheme because it’s too new."]
    [ui/row
@@ -199,9 +200,9 @@
        "this PDF document for local numbers"]]]]])
 
 
-(defmethod show-background-info :lung-numbers []
+(defmethod show-guidance :lung-numbers []
   [:<>
-   [:h3 (:lung-numbers background-infos)]
+   [:h3 (:lung-numbers guidances)]
    [:p "For further detail, please see "
     [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf"
          :target "_blank"} "the annual report"] "."]
@@ -244,9 +245,9 @@
     [ui/col {:sm 4} [:p [:b 161]]]]])
 
 
-(defmethod show-background-info :kidney-numbers []
+(defmethod show-guidance :kidney-numbers []
   [:<>
-   [:h3 (:kidney-numbers background-infos)]
+   [:h3 (:kidney-numbers guidances)]
    [:p "On the 11th Sept 2019 a new National Kidney Offering Scheme was introduced."]
    [:p "This tool does can not take into account the new offering scheme because it’s too new."]
    [ui/row
@@ -287,11 +288,11 @@
         (let [x (rand-int 100)]
           (while (sample-set x))))))
 
-(defmethod show-background-info :percent []
+(defmethod show-guidance :percent []
   (let [percent @(rf/subscribe [::subs/guidance-percent])
         randomise-icons @(rf/subscribe [::subs/randomise-icons])]
     [:<>
-     [:h3 (a-percentage (:percent background-infos) percent)]
+     [:h3 (a-percentage (:percent guidances) percent)]
      [ui/row {:style {:display :flex
                       :justify-content "start"
                       :flex-wrap "wrap"}}
@@ -362,14 +363,14 @@
    label])
 
 
-(defn background-info
+(defn guidance
   ;; TODO: configure this
-  "Organ specific background-info.
+  "Organ specific guidance.
    TODO: Pull from a file somehow. We need an EDN/Hiccup template mechanism for that. Somebody must
    have written one?"
   [organ]
-  (let [selected @(rf/subscribe [::subs/background-info])
-        sample-percentage (a-percentage (:percent background-infos) @(rf/subscribe [::subs/guidance-percent]))]
+  (let [selected @(rf/subscribe [::subs/guidance])
+        sample-percentage (a-percentage (:percent guidances) @(rf/subscribe [::subs/guidance-percent]))]
     [ui/row
      (cond
        (= organ :kidney) [ui/col {:md 4}
@@ -377,58 +378,62 @@
 
                           [:> bs/ButtonGroup {:vertical true}
                            [useful-info-button {:active (= :percent selected)
-                                                :event [::events/background-info :percent]
+                                                :event [::events/guidance :percent]
                                                 :label sample-percentage}]
                            [useful-info-button {:active (= :visits selected)
-                                                :event [::events/background-info :visits]
-                                                :label (:visits background-infos)}]
+                                                :event [::events/guidance :visits]
+                                                :label (:visits guidances)}]
                            [useful-info-button {:active (= :kidney-numbers selected)
-                                                :event [::events/background-info :kidney-numbers]
-                                                :label (:kidney-numbers background-infos)}]
+                                                :event [::events/guidance :kidney-numbers]
+                                                :label (:kidney-numbers guidances)}]
                            [useful-info-button {:active (= :medications selected)
-                                                :event [::events/background-info :medications]
-                                                :label (:medications background-infos)}]
+                                                :event [::events/guidance :medications]
+                                                :label (:medications guidances)}]
                            [useful-info-button {:active (= :graft-failure selected)
-                                                :event [::events/background-info :graft-failure]
-                                                :label (:graft-failure background-infos)}]]]
+                                                :event [::events/guidance :graft-failure]
+                                                :label (:graft-failure guidances)}]]]
 
        (= organ :lung) [ui/col {:md 4}
                         [:h3 {:style {:margin-top 40}} "Useful information"]
                         [:> bs/ButtonGroup {:vertical true}
                          [useful-info-button {:active (= selected :percent)
-                                              :event [::events/background-info :percent]
+                                              :event [::events/guidance :percent]
                                               :label sample-percentage}]
                          [useful-info-button {:active (= selected :visits)
-                                              :event [::events/background-info :visits]
-                                              :label (:visits background-infos)}]
+                                              :event [::events/guidance :visits]
+                                              :label (:visits guidances)}]
                          [useful-info-button {:active (= selected :lung-numbers)
-                                              :event [::events/background-info :lung-numbers]
-                                              :label (:lung-numbers background-infos)}]
+                                              :event [::events/guidance :lung-numbers]
+                                              :label (:lung-numbers guidances)}]
                          [useful-info-button {:active (= selected :donors)
-                                              :event [::events/background-info :donors]
-                                              :label (:donors background-infos)}]
+                                              :event [::events/guidance :donors]
+                                              :label (:donors guidances)}]
                          [useful-info-button {:active (= selected :medications)
-                                              :event [::events/background-info :medications]
-                                              :label (:medications background-infos)}]
+                                              :event [::events/guidance :medications]
+                                              :label (:medications guidances)}]
                          [useful-info-button {:active (= selected :window)
-                                              :event [::events/background-info :window]
-                                              :label (:window background-infos)}]]])
+                                              :event [::events/guidance :window]
+                                              :label (:window guidances)}]]])
      [ui/col {:md 8}
       [:div {:style {:margin-top 40}}
-       (show-background-info {:info-key @(rf/subscribe [::subs/background-info])})]]]))
+       (show-guidance {:info-key @(rf/subscribe [::subs/guidance])})]]]))
 
 (declare organ-centre-tool)
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
-   for that organ and centre.
+   for that organ and centre. I think we no longer use this component because we always set the tool to 
+   the first available one for the organ, so we never display a page without a known tool.
    Minimally, navigate to an organ-centre-tool home page."
   []
   (let [route @(rf/subscribe [::subs/current-route])
         centres @(rf/subscribe [::subs/organ-centres])
-        tools @(rf/subscribe [::subs/tools])
+
         [organ-name centre-name :as p-names] (utils/path-names (:path-params route))
-        [organ centre tool] (map keyword p-names)]
+        [organ centre tool] (map keyword p-names)
+        ;tools @(rf/subscribe [::subs/tools])
+        mdata @(rf/subscribe [::subs/mdata])
+        tools (utils/get-tools mdata organ)]
     ;(locals)
     (when (and organ centre centres tools)
 
@@ -442,13 +447,9 @@
            (when (not= tool :guidance) [ui/background-link organ centre tool])
            [ui/tools-menu tools true organ-name centre-name {:vertical false}]]]
          [organ-centre-tool]
-         [background-info organ]]))))
+         [guidance organ]]))))
 
 
-(defn get-tool-meta
-  [organ tool]
-  (let [mdata @(rf/subscribe [::subs/mdata])]
-    (get-in mdata [organ :tools tool])))
 
 (comment
     (def organ "kidney")
@@ -459,7 +460,7 @@
 
 
 (comment
-  (get-tool-meta :lung :waiting)
+  (utils/get-tool-meta @(rf/subscribe [::subs/mdata]) :lung :waiting)
   )
 
 ;; todo - move to config
@@ -474,19 +475,24 @@
    for that organ and centre."
   []
   (let [route @(rf/subscribe [::subs/current-route])
-        tools @(rf/subscribe [::subs/tools])
+        mdata @(rf/subscribe [::subs/mdata])
         organ-centres @(rf/subscribe [::subs/organ-centres])
         [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
-        [organ centre tool] (map keyword p-names)]
+        [organ centre tool] (map keyword p-names)
+        tools (utils/get-tools mdata organ)]
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
-            ;tool-meta (get-tool-meta tools tool)
-            tool-mdata (get-in @(rf/subscribe [::subs/mdata]) [organ :tools tool])
+            tool-mdata (utils/get-tool-meta mdata organ tool)
             tcb (bun/get-bundle organ centre tool)]
         (locals)
         [ui/page (:description centre-info)
-         (when (not= tool :guidance) [ui/background-link organ centre tool])
+         [ui/background-link organ centre tool]
+         #_(if (= tool :guidance)
+             [:div {:style {:height 40}}]
+             [ui/background-link organ centre tool])
+
          [ui/tools-menu tools true organ-name centre-name {:vertical false}]
+
          (if-let [tool-centre-bundle tcb]
            [ui/row
             [ui/col {:xs 12}
@@ -525,11 +531,12 @@
              [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
              [:section
               [results/results-panel organ centre tool]
-              (let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
-                                       [organ :tools tool])]
-                (:rest-of-page tool-mdata))]]]
+              (:rest-of-page tool-mdata)
+              #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
+                                         [organ :tools tool])]
+                  (:rest-of-page tool-mdata))]]]
            (if (= tool :guidance)
-             [background-info organ]
+             [guidance organ]
              (let [path (paths/organ-centre-name-tool organ-name
                                                       (:name centre-info)
                                                       tool-name)]

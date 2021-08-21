@@ -7,13 +7,13 @@ the low level ui."
             ["react-bootstrap" :as bs]
             [re-frame.core :as rf]
             [transplants.events :as events]
+            [transplants.utils :as utils]
             [transplants.subs :as subs]
             [transplants.numeric-input :as ni]
             [shadow.debug :refer [?-> ?->> locals]]
             ))
 
 (enable-console-print!)
-
 
 (def container "a react/bootstrap component adapter" (rc/adapt-react-class bs/Container))
 (def col "a react/bootstrap component adapter" (rc/adapt-react-class bs/Col))
@@ -230,15 +230,17 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key label organ centre tool active-tool button-colour]}]
-  (?-> tool ::tool-buttons)
-  (?-> button-colour ::tool-buttons)
+  [{:keys [key label organ centre tool active-tool button-colour] :as tb-params}]
+  (?-> tb-params ::tool-buttons)
+  ;(?-> tool ::tool-buttons)
+  ;(?-> button-colour ::tool-buttons)
   (let [active (= (name tool) active-tool)]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active "primary" "outline-primary")
              :style {:margin-bottom 2
                      :margin-right 2
-                     :background (:button-colour tool)}
+                     :background button-colour
+                     :color "#fff"}
              :active active
              :key key
              :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
@@ -248,45 +250,63 @@ in the routes table."
      label]))
 
 (defn tools-menu
-  "Render a group of tool selection buttons"
+  "Render a group of tool selection buttons.
+   tools is a vector of tool keys offered for this organ"
   [tools include-guidance? organ-name centre-name orientation]
   (let [active-tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])
         mdata @(rf/subscribe [::subs/mdata])
-        tools (->> (if include-guidance?
-                     tools
-                     (remove #(= :guidance (:key %)) tools))
-                   (map #(conj % [:organ organ-name]))
-                   (map #(conj % [:centre centre-name]))
-                   (map #(conj % [:tool (:key %)]))
-                   (map #(conj % [:active-tool active-tool]))
-                   (map #(conj % [:mdata mdata])))]
+        menu-data  (map
+                    (fn [tool]
+                      (assoc
+                       (if (= tool :guidance)
+                         {:label "User informations"
+                          :button-colour "black"}
+                         (select-keys (utils/get-tool-meta mdata organ-name tool)
+                                      [:label :button-colour]))
+                       :organ organ-name
+                       :tool tool
+                       :centre centre-name
+                       :active-tool active-tool
+                       :key tool
+                       :mdata mdata))
+                    (if include-guidance? tools (remove #(= :guidance %) tools)))
+        #_{:organ organ-name
+           :centre centre-name
+           :tool (if include-guidance?
+                   tools
+                   (remove #(= :guidance %) tools))
+           :active-tool active-tool
+           :mdata mdata}]
     (?-> tools ::tools-menu)
+    (?-> menu-data ::menu-data)
     ;TODO: configure this filter!
     [:> bs/ButtonToolbar
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
     ;; Even better would be to configure the break points as what makes sense will be ver application
     ;; specific.
-     (->> (take 3 tools)
+     (->> (take 3 menu-data)
           (map tool-buttons)
           (into [:> bs/ButtonGroup orientation]))
-     (->> (drop 3 tools)
+     (->> (drop 3 menu-data)
           (map tool-buttons)
           (into [:> bs/ButtonGroup orientation]))]))
 
 (defn background-link
   "Tool menu prefix rubric."
-  [organ centre _tool]
-  [:p "For more information that will be helpful to patients, follow the link to "
-   [:a {:style {:color "#007BFF"
-                ;:text-decoration-line "underline"
-                :cursor "pointer"}
-        :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                 {:organ organ
-                                  :centre centre
-                                  :tool :guidance}])} "useful information"]
-   "."
-   " There is also a " [:a {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
-   " which explains the tool in depth."])
+  [organ centre tool]
+  (if (= tool :guidance)
+    [:p {:style {:opacity 0}} "invisible spacer"]
+    [:p "For more information that will be helpful to patients, follow the link to "
+     [:a {:style {:color "#007BFF"
+                  :text-decoration-line "underline"
+                  :cursor "pointer"}
+          :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                   {:organ organ
+                                    :centre centre
+                                    :tool :guidance}])} "useful information"]
+     "."
+     " There is also a " [:a {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
+     " which explains the tool in depth."]))
 
 (defn nav-card
   "Render a desktop compatible card containing hospital-local links to tools"
@@ -305,7 +325,7 @@ in the routes table."
           :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
                          {:organ organ
                           :centre centre
-                          :tool (:key (first tools))}])} 
+                          :tool (first tools)}])} 
       hospital]]
     [tools-menu tools false organ centre {:vertical true}]
     ]])
@@ -320,7 +340,7 @@ in the routes table."
                          :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
                                                   {:organ organ
                                                    :centre centre
-                                                   :tool (:key (first tools))}])}
+                                                   :tool (first tools)}])}
    hospital])
 
 (defn page

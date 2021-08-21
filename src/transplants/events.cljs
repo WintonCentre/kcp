@@ -77,11 +77,11 @@
    (assoc db :inputs {})))
 
 (rf/reg-event-db
- ; background-info
- ::background-info
+ ; guidance
+ ::guidance
  (fn  
    [db [_ b-info]]
-   (assoc db :background-info b-info)))
+   (assoc db :guidance b-info)))
 
 (rf/reg-event-db
  ; randomise-icons
@@ -254,12 +254,22 @@
   (clojure.set/index relation [:a])
   (filter (fn [[m _s]] (= 1 (:a m))) (clojure.set/index relation [:a :b])))
 
-(rf/reg-event-db
- ::transpose-response
- (fn
+(defn transpose-response
+  "store and transpose labelled column data to row maps format.
+   :todo - perhaps we should store the column format too to avoid regenerating it. I think we use column format for baselines?"
   [db [_ data-path response]]
   (-> db
-      (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response))))))
+      (assoc-in data-path (map-of-vs->v-of-maps (edn/read-string response)))))
+
+(rf/reg-event-db
+ ::transpose-response
+ transpose-response
+ )
+
+(rf/reg-event-db
+ ::transpose-response-centres
+ transpose-response)
+
 
 (rf/reg-event-db
  ::bad-response
@@ -329,7 +339,7 @@
                   :timeout 8000
                   :format          (ajax/text-request-format)
                   :response-format (ajax/text-response-format)
-                  :on-success [::transpose-response data-path]
+                  :on-success [::transpose-response-centres data-path]
                   :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx

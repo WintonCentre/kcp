@@ -20,7 +20,7 @@
 
 (rf/reg-sub ::organ-centres (fn [db] (get-in db [:organ-centres])))
 
-(rf/reg-sub ::background-info (fn [db] (get-in db [:background-info])))
+(rf/reg-sub ::guidance (fn [db] (get-in db [:guidance])))
 
 (rf/reg-sub ::guidance-percent (fn [db] (get-in db [:guidance-percent])))
 

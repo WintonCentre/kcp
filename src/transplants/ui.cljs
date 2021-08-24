@@ -32,15 +32,6 @@ the low level ui."
       (dissoc :color)
       (dissoc :long-label)))
 
-(def themes
-  "Very provisional colour palette. Unused as yet."
-  {:lung {:name "Lung Transplants"
-          :organ-logo nil
-          :primary "black"}
-   :kidney {:name "Kidney Transplants"
-            :organ-logo nil
-            :primary "black"}})
-
 (defn href
   "Return relative url for given route. Url can be used in HTML links. Note that k is a route name defined 
 in the routes table."
@@ -230,17 +221,17 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key label organ centre tool active-tool button-colour] :as tb-params}]
+  [{:keys [key label organ centre tool active-tool button-type] :as tb-params}]
   (?-> tb-params ::tool-buttons)
   ;(?-> tool ::tool-buttons)
   ;(?-> button-colour ::tool-buttons)
+  (?-> button-type ::button-type)
   (let [active (= (name tool) active-tool)]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
-             :variant (if active "primary" "outline-primary")
+             :variant (if active button-type (str "outline-" button-type)) 
+             #_(if active "primary" "outline-primary")
              :style {:margin-bottom 2
-                     :margin-right 2
-                     :background button-colour
-                     :color "#fff"}
+                     :margin-right 0}
              :active active
              :key key
              :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
@@ -248,6 +239,19 @@ in the routes table."
                                        :centre centre
                                        :tool tool}])}
      label]))
+
+(defn background-link
+  "Tool menu prefix rubric."
+  [organ centre]
+  [:p
+   "For more information that will be helpful to patients, follow the link to "
+   [:a.centre-header-link {:on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                                    {:organ organ
+                                                     :centre centre
+                                                     :tool :guidance}])} "useful information"]
+   "."
+   " There is also a " [:a.centre-header-link {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
+   " which explains the tool in depth."])
 
 (defn tools-menu
   "Render a group of tool selection buttons.
@@ -259,10 +263,10 @@ in the routes table."
                     (fn [tool]
                       (assoc
                        (if (= tool :guidance)
-                         {:label "User informations"
-                          :button-colour "black"}
+                         {:label "Useful information"
+                          :button-type "usefulinfo"}
                          (select-keys (utils/get-tool-meta mdata organ-name tool)
-                                      [:label :button-colour]))
+                                      [:label :button-type]))
                        :organ organ-name
                        :tool tool
                        :centre centre-name
@@ -270,43 +274,35 @@ in the routes table."
                        :key tool
                        :mdata mdata))
                     (if include-guidance? tools (remove #(= :guidance %) tools)))
-        #_{:organ organ-name
-           :centre centre-name
-           :tool (if include-guidance?
-                   tools
-                   (remove #(= :guidance %) tools))
-           :active-tool active-tool
-           :mdata mdata}]
+        ]
     (?-> tools ::tools-menu)
     (?-> menu-data ::menu-data)
     ;TODO: configure this filter!
-    [:> bs/ButtonToolbar
+    [:<>
+     
+     [#_#_#_:> bs/ButtonToolbar {:style {:background-color "#ffffff66"
+                                   :padding 15
+                                   :border-radius 10}}
+      row
+      [col {:xs 12 :sm 8}
+       [:h3 {:style {:padding-right 20}} "Choose a tool:"]
+
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
     ;; Even better would be to configure the break points as what makes sense will be ver application
     ;; specific.
-     (->> (take 3 menu-data)
-          (map tool-buttons)
-          (into [:> bs/ButtonGroup orientation]))
-     (->> (drop 3 menu-data)
-          (map tool-buttons)
-          (into [:> bs/ButtonGroup orientation]))]))
+       (for [group (partition-by :button-type (butlast menu-data))]
+         [:div #_{:style {:display "flex" :flex-direction "row" :align-items "stretch"
+                          :justify-content "space-between"}}
 
-(defn background-link
-  "Tool menu prefix rubric."
-  [organ centre tool]
-  (if (= tool :guidance)
-    [:p {:style {:opacity 0}} "invisible spacer"]
-    [:p "For more information that will be helpful to patients, follow the link to "
-     [:a {:style {:color "#007BFF"
-                  :text-decoration-line "underline"
-                  :cursor "pointer"}
-          :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                   {:organ organ
-                                    :centre centre
-                                    :tool :guidance}])} "useful information"]
-     "."
-     " There is also a " [:a {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
-     " which explains the tool in depth."]))
+          (->> group
+               (map tool-buttons)
+               (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])]
+      [col {:xs 12 :sm 4}
+       (tool-buttons (last menu-data))
+       [background-link organ-name centre-name]
+       ]]]))
+
+
 
 (defn nav-card
   "Render a desktop compatible card containing hospital-local links to tools"

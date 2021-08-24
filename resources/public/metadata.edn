@@ -42,7 +42,7 @@
         :primary-colour "purple" ; unused 
         :tool-order [:waiting :post-transplant :guidance]
         :tools {; The default tool provides a default configuration for each tool for this organ
-                :default {:button-type "primary"
+                :default {:button-type "usefulinfo"
                           :label "hide-me!"
                           :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                           :outcomes {:transplant {:label "transplanted"
@@ -169,7 +169,7 @@
                                          #_[:p "This is an estimate, an average, there are other factors about you that can influence
                                               these results and make the numbers higher or lower. eg whether you have other conditions 
                                               not included in the tool."]]}
-                :waiting {:button-type "primary"
+                :waiting {:button-type "waiting"
                           :label "Waiting times"
                           :button-colour "pink"
                           :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
@@ -301,7 +301,7 @@
                                               these results and make the numbers higher or lower. eg whether you have other conditions 
                                               not included in the tool."]]}
 
-                :post-transplant {:button-type "primary"
+                :post-transplant {:button-type "survival"
                                   :label "Survival post transplant"
                                   :button-colour "green"
                                   :outcomes {:residual {:label "Survived"
@@ -432,7 +432,7 @@
  :kidney {:text "Kidney"
           :label "Kidney Transplants"
           :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :guidance]
-          :tools {:waiting {:button-type "primary"
+          :tools {:waiting {:button-type "waiting"
                             :label "Waiting times"
                             :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
                             :outcomes {:transplant {:label "transplanted"
@@ -576,7 +576,7 @@
                   ;; is caused by the column labelling in the original spreadsheet, and is
                   ;; not a mistake.
 
-                  :survival {:button-type "primary"
+                  :survival {:button-type "survival"
                              :label "Survival - deceased donor"
                              :outcomes {:residual {:label "Surviving"
                                                    :long-label "of patients have survived"
@@ -707,7 +707,7 @@
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                                [:p "As time passes we will be able to add in more years"]]]}
 
-                  :graft {:button-type "primary"
+                  :graft {:button-type "graft"
                           :label "Kidney survival - deceased donor"
                           :outcomes {:residual {:label "Kidneys still working"
                                                 :long-label "of kidneys have survived"
@@ -838,7 +838,7 @@
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                             [:p "As time passes we will be able to add in more years"]]]}
        ;; ld for living donor
-                  :ldsurvival {:button-type "primary"
+                  :ldsurvival {:button-type "survival"
                                :label "Survival - living donor"
                                :outcomes {:residual {:label "Surviving"
                                                      :long-label "of patients have survived"
@@ -966,8 +966,8 @@
                                   #_[:p "Kidney allocation changed in 2010 and again in 2014 and as such the 
                                                    data isn’t reliable enough to show 10 year outcomes"]
                                   [:p "As time passes we will be able to add in more years"]]}
-                  :ldgraft {:button-type "primary"
-                            :label "Kidney survival - deceased donor"
+                  :ldgraft {:button-type "graft"
+                            :label "Kidney survival - living donor"
                             :outcomes {:residual {:label "Kidneys still working"
                                                   :long-label "of kidneys have survived"
                                                   :fill "#0044AA"

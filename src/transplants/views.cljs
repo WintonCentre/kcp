@@ -444,7 +444,7 @@
                   (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
           [ui/col
-           (when (not= tool :guidance) [ui/background-link organ centre tool])
+           ;(when (not= tool :guidance) [ui/background-link organ centre tool])
            [ui/tools-menu tools true organ-name centre-name {:vertical false}]]]
          [organ-centre-tool]
          [guidance organ]]))))
@@ -485,13 +485,16 @@
             tool-mdata (utils/get-tool-meta mdata organ tool)
             tcb (bun/get-bundle organ centre tool)]
         (locals)
-        [ui/page (:description centre-info)
-         [ui/background-link organ centre tool]
-         #_(if (= tool :guidance)
-             [:div {:style {:height 40}}]
-             [ui/background-link organ centre tool])
+        [:div
+         
+         [:div {:style {:width "100%" :background-color "#0072BA" :padding 20 :color "white"}}
+          [:h1 (:description centre-info)]
+          ;[ui/background-link organ centre]
+          #_(if (= tool :guidance)
+              [:div {:style {:height 40}}]
+              [ui/background-link organ centre])
 
-         [ui/tools-menu tools true organ-name centre-name {:vertical false}]
+          [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
 
          (if-let [tool-centre-bundle tcb]
            [ui/row

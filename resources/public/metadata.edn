@@ -306,8 +306,8 @@
                                   :button-colour "green"
                                   :outcomes {:residual {:label "Survived"
                                                         :long-label "of patients have survived"
-                                                        :fill "#008888"
-                                                        :background-color "#008888"
+                                                        :fill "#00979C"
+                                                        :background-color "#00979C"
                                                         :color "#fff"
                                                         :stroke-width 1
                                                         :stroke "#000"
@@ -580,8 +580,8 @@
                              :label "Survival - deceased donor"
                              :outcomes {:residual {:label "Surviving"
                                                    :long-label "of patients have survived"
-                                                   :fill "#41af6b"
-                                                   :background-color "#41af6b"
+                                                   :fill "#00979C"
+                                                   :background-color "#00979C"
                                                    :color "#fff"
                                                    :opacity 0.7
                                                    :stroke-width 1
@@ -711,8 +711,8 @@
                           :label "Kidney survival - deceased donor"
                           :outcomes {:residual {:label "Kidneys still working"
                                                 :long-label "of kidneys have survived"
-                                                :fill "#0044AA"
-                                                :background-color "#0044AA"
+                                                :fill "#0491d8" #_"#0044AA"
+                                                :background-color "#0491d8" #_"#0044AA"
                                                 :color "#fff"
                                                 :opacity 0.7
                                                 :stroke-width 1
@@ -811,7 +811,7 @@
 
                           :pre-section [:<>
                                         [:h3
-                                         "How long might your kidney last if its from a deceased donor?"]
+                                         "How long might your kidney last if it's from a deceased donor?"]
                                         [:section
                                          [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.). 
@@ -842,8 +842,8 @@
                                :label "Survival - living donor"
                                :outcomes {:residual {:label "Surviving"
                                                      :long-label "of patients have survived"
-                                                     :fill "#41af6b"
-                                                     :background-color "#41af6b"
+                                                     :fill "#00979C"
+                                                     :background-color "#00979C"
                                                      :color "#fff"
                                                      :opacity 0.7
                                                      :stroke-width 1
@@ -939,7 +939,7 @@
 
                                :pre-section [:<>
                                              [:h3
-                                              "How long might your kidney last if its from a living donor?"]
+                                              "How long might your kidney last if it's from a living donor?"]
                                              [:section
                                               [:p [:b "This is National data and not centre specific."]]
                                               [:p "The display shows what happened to people like you in the past
@@ -970,8 +970,8 @@
                             :label "Kidney survival - living donor"
                             :outcomes {:residual {:label "Kidneys still working"
                                                   :long-label "of kidneys have survived"
-                                                  :fill "#0044AA"
-                                                  :background-color "#0044AA"
+                                                  :fill "#0491D8"
+                                                  :background-color "#0491D8"
                                                   :color "#fff"
                                                   :opacity 0.7
                                                   :stroke-width 1
@@ -1066,7 +1066,7 @@
 
                             :pre-section [:<>
                                           [:h3
-                                           "How long might your kidney last if its from a living donor?"]
+                                           "How long might your kidney last if it's from a living donor?"]
                                           [:section
                                            [:p [:b "This is National data and not centre specific."]]
                                            [:p "The display shows what happened to people like you in the past

@@ -48,7 +48,9 @@
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
         centres @(rf/subscribe [::subs/organ-centres])
         mobile (<= window-width ui/mobile-break)]
-
+    ;;
+    ;; Insert Kidney or Lung home page here
+    ;;
     [ui/card-page "Choose your transplant centre" ; todo: configure
      (if-not centres
        [:div "loading /" organ " centres"]
@@ -371,10 +373,10 @@
   [organ]
   (let [selected @(rf/subscribe [::subs/guidance])
         sample-percentage (a-percentage (:percent guidances) @(rf/subscribe [::subs/guidance-percent]))]
-    [ui/row
+    [ui/row {:style {:margin "40px 10px" :min-height "calc(100vh - 490px"}}
      (cond
        (= organ :kidney) [ui/col {:md 4}
-                          [:h3 {:style {:margin-top 40}} "Useful information"] ; :todo
+                          [:h3  "Useful information"] ; :todo
 
                           [:> bs/ButtonGroup {:vertical true}
                            [useful-info-button {:active (= :percent selected)
@@ -394,7 +396,7 @@
                                                 :label (:graft-failure guidances)}]]]
 
        (= organ :lung) [ui/col {:md 4}
-                        [:h3 {:style {:margin-top 40}} "Useful information"]
+                        [:h3  "Useful information"]
                         [:> bs/ButtonGroup {:vertical true}
                          [useful-info-button {:active (= selected :percent)
                                               :event [::events/guidance :percent]
@@ -430,23 +432,30 @@
         centres @(rf/subscribe [::subs/organ-centres])
 
         [organ-name centre-name :as p-names] (utils/path-names (:path-params route))
-        [organ centre tool] (map keyword p-names)
+        [organ centre _tool] (map keyword p-names)
         ;tools @(rf/subscribe [::subs/tools])
         mdata @(rf/subscribe [::subs/mdata])
         tools (utils/get-tools mdata organ)]
     ;(locals)
+    
     (when (and organ centre centres tools)
 
       ;;; TODO: Tidy organ centre tool up here
 
       (let [centre-info (utils/get-centre-info centres organ centre)]
-        [ui/page [:span (:description centre-info)
+        
+         [:div {:style {:width "100%" :background-color "#889988" #_"#0072BA" :padding 20 :color "white"}}
+          [:h1 (:description centre-info)]
+
+          [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
+        [guidance organ]
+
+        #_[ui/page [:span (:description centre-info)
                   (str " " (string/capitalize (name organ)) " transplant centre")]
          [ui/row
           [ui/col
            ;(when (not= tool :guidance) [ui/background-link organ centre tool])
            [ui/tools-menu tools true organ-name centre-name {:vertical false}]]]
-         [organ-centre-tool]
          [guidance organ]]))))
 
 
@@ -478,31 +487,30 @@
         mdata @(rf/subscribe [::subs/mdata])
         organ-centres @(rf/subscribe [::subs/organ-centres])
         [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        tool-name (if (nil? tool-name) :waiting tool-name)
         [organ centre tool] (map keyword p-names)
-        tools (utils/get-tools mdata organ)]
+        tools (utils/get-tools mdata organ)
+        ;tool (if tool tool "waiting")
+        ]
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
             tool-mdata (utils/get-tool-meta mdata organ tool)
             tcb (bun/get-bundle organ centre tool)]
-        (locals)
-        [:div
-         
-         [:div {:style {:width "100%" :background-color "#0072BA" :padding 20 :color "white"}}
+        ;(locals)
+        [:div 
+
+         [:div {:style {:width "100%" :background-color "#889988" #_"#0072BA" :padding 20 :color "white"}}
           [:h1 (:description centre-info)]
-          ;[ui/background-link organ centre]
-          #_(if (= tool :guidance)
-              [:div {:style {:height 40}}]
-              [ui/background-link organ centre])
 
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
 
          (if-let [tool-centre-bundle tcb]
-           [ui/row
+           [ui/row {:style {:margin "0px 10px"}}
             [ui/col {:xs 12}
              [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
-            [ui/col {:xs 12 :md 6}
-             #_[:h4 {:style {:margin-top 10}}
-                (:label tool-meta) " – " (:description tool-meta)]
+            [ui/col {:xs 12 :md 6
+                     :style {:margin-top 10}}
+
              (when-let [input-header (get-in tool-mdata [:inputs :header])]
                input-header)
 
@@ -530,9 +538,9 @@
 
                          (widg/widget (assoc w :model tool))]])
                      (get tool-centre-bundle :fmaps)))]]
-            [ui/col {:xs 12 :md {:span 6}}
+            [ui/col {:xs 12 :md 6 }
              [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
-             [:section
+             [:section 
               [results/results-panel organ centre tool]
               (:rest-of-page tool-mdata)
               #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])

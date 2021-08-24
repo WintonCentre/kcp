@@ -547,7 +547,7 @@
 
 (defn tool-metadata
   [env organ tool]
-  (locals)
+  ;(locals)
   (get-in env [:mdata organ :tools tool]) ;; provisional
 
   ;; Bear in mind that we will want to provide a default configuration template somehow.
@@ -825,8 +825,8 @@
         plot-order (:plot-order tool-mdata)
         svg-width 1060
         svg-height 660]
-    (?-> tool-mdata ::area-chart)
-      ;(locals)
+    ;(?-> tool-mdata ::area-chart)
+    ;(locals)
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10}}
       [svgc/svg-container
@@ -1097,7 +1097,10 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        plot-order (:plot-order tool-mdata)
+
+        ;; table plot order puts death at the end.
+        ;; todo: make this adjustment configurable
+        plot-order (conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
     [:section
      (table-render fs-by-year-in-plot-order tool-mdata data-styles)

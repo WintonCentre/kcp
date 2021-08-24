@@ -168,9 +168,10 @@ in the routes table."
                                         {:organ (name organ)
                                          :centre (name (:key centre))
                                          :tool (name tool)})
-                                  (href :transplants.views/organ-centre
+                                  (href :transplants.views/organ-centre-tool
                                         {:organ (name organ)
-                                         :centre (name (:key centre))}))
+                                         :centre (name (:key centre))
+                                         :tool "waiting"}))
                           :key (name (:key centre))}
 
                           (:name centre)])
@@ -197,7 +198,7 @@ in the routes table."
   (let [current-route @(subscribe-current-route)]
     [:div {:style {:display :flex :flex-direction "column-reverse"}}
      (when current-route
-       [:div {:style {:margin-top "0px" :padding-top 20 }}
+       [:div {:style {:margin-top "0px" :padding-top 0 }}
         [(-> current-route :data :view)]
         [footer]])
      [navbar {:router router
@@ -222,10 +223,10 @@ in the routes table."
 (defn tool-buttons
   "Create buttons for each transplant tool"
   [{:keys [key label organ centre tool active-tool button-type] :as tb-params}]
-  (?-> tb-params ::tool-buttons)
+  ;(?-> tb-params ::tool-buttons)
   ;(?-> tool ::tool-buttons)
   ;(?-> button-colour ::tool-buttons)
-  (?-> button-type ::button-type)
+  ;(?-> button-type ::button-type)
   (let [active (= (name tool) active-tool)]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type)) 
@@ -242,18 +243,20 @@ in the routes table."
 
 (defn background-link
   "Tool menu prefix rubric."
-  [organ centre]
+  [organ centre tool]
   [:p
-   "For more information that will be helpful to patients, follow the link to "
-   [:a.centre-header-link {:on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                                    {:organ organ
-                                                     :centre centre
-                                                     :tool :guidance}])} "useful information"]
-   "."
+   (when (not= tool "guidance")
+     [:span
+      "For more information that will be helpful to patients, follow the link to "
+      [:a.centre-header-link {:on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                                       {:organ organ
+                                                        :centre centre
+                                                        :tool :guidance}])} "useful information"]
+      "."])
    " There is also a " [:a.centre-header-link {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
    " which explains the tool in depth."])
 
-(defn tools-menu
+(defn tools-menu*
   "Render a group of tool selection buttons.
    tools is a vector of tool keys offered for this organ"
   [tools include-guidance? organ-name centre-name orientation]
@@ -273,10 +276,60 @@ in the routes table."
                        :active-tool active-tool
                        :key tool
                        :mdata mdata))
+                    (if include-guidance? tools (remove #(= :guidance %) tools)))]
+    ;(?-> active-tool ::active-tool)
+    ;(?-> tools ::tools-menu)
+    ;(?-> menu-data ::menu-data)
+    ;TODO: configure this filter!
+    [:<>
+
+     [#_#_#_:> bs/ButtonToolbar {:style {:background-color "#ffffff66"
+                                         :padding 15
+                                         :border-radius 10}}
+      row
+      [col {:xs 12 :sm 8}
+       [:h3 {:style {:padding-right 20}} "Choose a tool:"]
+
+    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
+    ;; Even better would be to configure the break points as what makes sense will be ver application
+    ;; specific.
+       (for [group (partition-by :button-type (butlast menu-data))]
+         [:div #_{:style {:display "flex" :flex-direction "row" :align-items "stretch"
+                          :justify-content "space-between"}}
+
+          (->> group
+               (map tool-buttons)
+               (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])]
+      [col {:xs 12 :sm 4}
+       (tool-buttons (last menu-data))
+       [background-link organ-name centre-name active-tool]]]]))
+
+(defn tools-menu
+  "Render a group of tool selection buttons.
+   tools is a vector of tool keys offered for this organ"
+  [tools include-guidance? organ centre-name orientation]
+  (let [active-tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])
+        organ-name (name organ)
+        mdata @(rf/subscribe [::subs/mdata])
+        menu-data  (map
+                    (fn [tool]
+                      (assoc
+                       (if (= tool :guidance)
+                         {:label "Useful information"
+                          :button-type "usefulinfo"}
+                         (select-keys (utils/get-tool-meta mdata organ-name tool)
+                                      [:label :button-type]))
+                       :organ organ-name
+                       :tool tool
+                       :centre centre-name
+                       :active-tool active-tool
+                       :key (str organ-name "-" tool)
+                       :mdata mdata))
                     (if include-guidance? tools (remove #(= :guidance %) tools)))
         ]
-    (?-> tools ::tools-menu)
-    (?-> menu-data ::menu-data)
+    ;(?-> active-tool ::active-tool)
+    ;(?-> tools ::tools-menu)
+    ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!
     [:<>
      
@@ -299,7 +352,7 @@ in the routes table."
                (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
-       [background-link organ-name centre-name]
+       [background-link organ-name centre-name active-tool]
        ]]]))
 
 
@@ -361,12 +414,11 @@ in the routes table."
 (defn centre-card
   "A single card describing a centre"
   [mobile params]
-
-;;;;;; SET TOOL TO WAITING?
-
-  (if mobile
+  #_(if mobile
     [phone-card params]
-    [nav-card params]))
+    [nav-card params])
+  ; Always use phone format
+  [phone-card params])
 
 (defn centre-card-deck
   "A card deck where the cards are simple list items in mobile view, but true cards in desktop view."

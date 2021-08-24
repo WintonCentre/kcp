@@ -43,10 +43,10 @@
 (defn fs-in-order
   "order by outcome is a map of outcome-key to plot order.
    fsk are a seq of [outcome-key fs] key-values like '([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4]).
-   plot-order is like {:transplant 1 :residual 2 :death 3}
+   plot-order is like [:transplant :residual :death]
    Result would be (0.3 0.30000000000000004 0.4)"
   [plot-order fsm]
-  #_(locals)
+  (locals)
   (map
    (fn [data-key]
      (fsm data-key))
@@ -910,22 +910,19 @@
 
 (defn side-by-side-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
-  [year-series tool-mdata _data-styles]
+  [plot-order* year-series tool-mdata _data-styles]
   (let [plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
-        randomise-icons @(rf/subscribe [::subs/randomise-icons])
-        icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
+        ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
+        icon-order (into [] (range 100))]
 ;    (locals)
 
     #_[ui/randomise-query-panel "Randomise order?"]
     [:div
-     [ui/randomise-query-panel "Randomise order?"]
-
-
-
+     ;[ui/randomise-query-panel "Randomise order?"]
 
      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                             :height (get-in tool-mdata [:icons :svg-height])}
+                                             :height (+ 40 (get-in tool-mdata [:icons :svg-height]))}
                                      :margin (get-in tool-mdata [:icons :svg-margin])
                                      :padding (get-in tool-mdata [:icons :svg-padding])
                                      :x-ticks 10
@@ -940,7 +937,9 @@
                     :let [label (nth labels label-index)
                           time-index (:time-index label)
                           [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
-                [:g {:key (str "lab-" label-index)}
+
+                [:g {:key (str "lab-" label-index)
+                     :transform "translate (0, 10)"}
                  [:g {:key 1}
                   (for [k (range (count plot-order))
                         :let [outcome-key (plot-order k)
@@ -950,7 +949,7 @@
                      [h-and-s {:scale 2 :fill (:fill outcome)}]
                      [:text {:transform "translate (40,15)"} (str (int-fs k) " " (:label outcome))]])]
 
-                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 70)")}
+                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 90)")}
                   (for [i (range 10)
                         j (range 10)
                         :let [ordinal (icon-order (+ j (* 10 i)))]]
@@ -959,7 +958,7 @@
                      [h-and-s
                       {:scale 2 :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])]
 
-                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 320)")}
+                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 340)")}
                   [:text {:font-size "1.2em"
                           :x 20} (get-in label [:line 0])]]])))]]))
 ;
@@ -970,8 +969,8 @@
         svg-height (get-in tool-mdata [:icons :svg-height])
         plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
-        randomise-icons @(rf/subscribe [::subs/randomise-icons])
-        icon-order (if randomise-icons (shuffle (range 100)) (into [] (range 100)))]
+        ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
+        icon-order (into [] (range 100))]
 ;    (locals)
     [ui/col {:sm 12
              :style {:padding 0
@@ -988,7 +987,7 @@
           (let [line (:line label)]
             (if (sequential? line) (map str line) line))]
 
-         [ui/randomise-query-panel "Randomise order?"]
+         ;[ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
                                                  :height (get-in tool-mdata [:icons :svg-height])}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
@@ -1012,7 +1011,7 @@
                    :styles styles)
 
           (fn [_ _ _ _]
-            [:g {:transform "translate(0,0),scale(1.9)"}
+            [:g {:transform "translate(10,15),scale(1.9)"}
              [:g {:key 1}
               (for [k (range (count plot-order))
                     :let [outcome-key (plot-order k)
@@ -1034,6 +1033,25 @@
                  {:scale 2
                   :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
 
+(defn move-to-end
+  "Returns a-vector with all items (if any) at the end."
+  [a-vector item]
+  (if (not-any? #(= item %) a-vector)
+    a-vector
+    (into [] (sort-by (fn [el]
+                        (if (= item el) 1 -1)) a-vector))))
+
+(comment
+  (move-to-end [1 2 3] 1)
+  ;; => [2 3 1]
+
+  (move-to-end [1 2 3] 7)
+  ;; => [1 2 3]
+
+  (move-to-end [1 1 2 3] 1)
+  ;; => [2 3 1 1]
+
+  0)
 
 (defn icon-array
   "render an icon array results view"
@@ -1046,6 +1064,9 @@
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
+        plot-order* (as-> (:plot-order tool-mdata) x
+                      (move-to-end x :removal)
+                      (move-to-end x :death))
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
         window-width (rf/subscribe [::subs/window-width])
         mobile? (<= @window-width ui/mobile-break)]
@@ -1053,11 +1074,11 @@
      [:> bs/Col {:style {:margin "10px 0px"}}
       (if mobile?
         (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)
-        (side-by-side-icon-array fs-by-year-in-plot-order tool-mdata data-styles))]]))
+        (side-by-side-icon-array plot-order* fs-by-year-in-plot-order tool-mdata data-styles))]]))
 
 (defn table-render
-  [year-series tool-mdata data-styles]
-  (let [plot-order (:plot-order tool-mdata)
+  [year-series tool-mdata plot-order data-styles]
+  (let [;plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     [:> bs/Table {:style {:margin-top 20
@@ -1087,6 +1108,7 @@
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
 
+
 (defn table
   "render a table results view"
   [{:keys [organ tool base-outcome-keys s0 F] :as env}]
@@ -1097,11 +1119,16 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-
+        
         ;; table plot order puts death at the end.
         ;; todo: make this adjustment configurable
-        plot-order (conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+        plot-order* (as-> (:plot-order tool-mdata) x
+                     (move-to-end x :removal)
+                     (move-to-end x :death))
+        
+        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
+    (locals)
     [:section
-     (table-render fs-by-year-in-plot-order tool-mdata data-styles)
+     (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
      (:post-section tool-mdata)]))

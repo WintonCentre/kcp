@@ -393,6 +393,7 @@
                                                 :label (:medications guidances)}]
                            [useful-info-button {:active (= :graft-failure selected)
                                                 :event [::events/guidance :graft-failure]
+                                    
                                                 :label (:graft-failure guidances)}]]]
 
        (= organ :lung) [ui/col {:md 4}

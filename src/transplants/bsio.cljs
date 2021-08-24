@@ -66,6 +66,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
             {:type "radio"
              :id id
              ;:inline "true"
+             :size "sm"
              :vertical vertical
              :name id
              :value value

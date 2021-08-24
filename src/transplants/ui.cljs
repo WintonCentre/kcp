@@ -229,8 +229,7 @@ in the routes table."
   ;(?-> button-type ::button-type)
   (let [active (= (name tool) active-tool)]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
-             :variant (if active button-type (str "outline-" button-type)) 
-             #_(if active "primary" "outline-primary")
+             :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2
                      :margin-right 0}
              :active active

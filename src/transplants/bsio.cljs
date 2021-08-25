@@ -72,7 +72,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :value value
              :on-change on-change
              :style  {:border (str "3px solid "
-                                   (if (or (nil? value) (= :unknown value))
+                                   (if (nil? value)
+                                     missing-color
+                                     (if (= value :unknown)
+                                       "teal"
+                                       "#CCCCCC"))
+                                   #_(if (or (nil? value) (= :unknown value))
                                      #_(if optional "teal" missing-color)
                                      missing-color
                                      "#CCCCCC"))

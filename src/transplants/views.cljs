@@ -474,8 +474,8 @@
   )
 
 ;; todo - move to config
-(def boxed-fill "#ddffff")
-(def boxed-border "1px solid #000000")
+(def boxed-fill "#DFE4DF")
+(def boxed-border "20px solid #DFE4DF")
 (def boxed-text "DONOR")
 (def boxed-text-color "#000")
 
@@ -506,47 +506,52 @@
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
 
          (if-let [tool-centre-bundle tcb]
-           [ui/row {:style {:margin "0px 10px"}}
-            [ui/col {:xs 12}
-             [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
-            [ui/col {:xs 12 :md 6
-                     :style {:margin-top 10}}
+           (let [tcb-fmaps (get tool-centre-bundle :fmaps)
+                 first-boxed (ffirst (filter (fn [[_k w]] (:boxed w)) tcb-fmaps))]
+             [ui/row {:style {:margin "0px 10px"}}
+              [ui/col {:xs 12}
+               [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
+              [ui/col {:xs 12 :md 6
+                       :style {:margin-top 10}}
 
-             (when-let [input-header (get-in tool-mdata [:inputs :header])]
-               input-header)
+               (when-let [input-header (get-in tool-mdata [:inputs :header])]
+                 input-header)
 
-             [:div {:style {:padding "0px 30px 15px 15px"
-                            :height "calc(100vh + 10ex)"
-                            :overflow-y "scroll"}}
+               [:div {:style {:padding "0px 30px 15px 15px"
+                              :height "calc(100vh + 10ex)"
+                              :overflow-y "scroll"}}
 
-              (widg/widget {:type :reset})
-              (into [:<>]
-                    (map
-                     (fn [[_k w]] ^{:key (:factor w)}
-                       [:div {:style {:margin-bottom 15
-                                      :padding-top 5
-                                      :display "relative"
-                                      :border (when (some? (:boxed w)) boxed-border)
-                                      :background-color (when (some? (:boxed w)) boxed-fill)}}
-                        [:div {:style {:position "relative"
-                                       :padding-right 5}}
-                         (if (some? (:boxed w))
-                           [:div
-                            [:div {:style {:color boxed-text-color
-                                           :position "absolute"
-                                           :top  0 :left 12}} boxed-text]
-                            [:div {:style {:height "10px"}}]])
+                (widg/widget {:type :reset})
 
-                         (widg/widget (assoc w :model tool))]])
-                     (get tool-centre-bundle :fmaps)))]]
-            [ui/col {:xs 12 :md 6 }
-             [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
-             [:section 
-              [results/results-panel organ centre tool]
-              (:rest-of-page tool-mdata)
-              #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
-                                         [organ :tools tool])]
-                  (:rest-of-page tool-mdata))]]]
+                (into [:<>]
+                      (map-indexed
+                       (fn [i [k w]] ^{:key (:factor w)}
+                         [:div {:style {:margin-top (if (zero? i) 20 0)
+                                        :margin-bottom -5
+                                        :padding 5
+                                        :display "relative"
+                                        :outline-bottom (when (some? (:boxed w)) boxed-border)
+                                        :background-color (when (some? (:boxed w)) boxed-fill)}}
+                          [:div {:style {:position "relative"
+                                         :padding-right 5}}
+                           (when (= k first-boxed) boxed-text)
+                           (if (= w first-boxed) #_(some? (:boxed w))
+                               [:div
+                                [:div {:style {:color boxed-text-color
+                                               :position "absolute"
+                                               :top  0 :right 12}} boxed-text]
+                                [:div {:style {:height "10px"}}]])
+
+                           (widg/widget (assoc w :model tool))]])
+                       tcb-fmaps))]]
+              [ui/col {:xs 12 :md 6}
+               [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
+               [:section
+                [results/results-panel organ centre tool]
+                (:rest-of-page tool-mdata)
+                #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
+                                           [organ :tools tool])]
+                    (:rest-of-page tool-mdata))]]])
            (if (= tool :guidance)
              [guidance organ]
              (let [path (paths/organ-centre-name-tool organ-name

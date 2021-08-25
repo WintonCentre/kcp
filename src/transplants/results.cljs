@@ -113,7 +113,7 @@
                                 :right "20px"}}
                   "Warning: some inputs are missing"]
                  [:div {:style {:z-index 500
-                                :background-color "#AAA"
+                                :background-color "#889988"
                                 :padding 0
                                 :position "absolute"
                                 :top 0

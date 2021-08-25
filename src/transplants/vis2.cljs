@@ -1033,13 +1033,25 @@
                  {:scale 2
                   :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
 
-(defn move-to-end
-  "Returns a-vector with all items (if any) at the end."
+(defn move-item
+    "Returns a-vector with all items (if any) moved to the start or the end depending on whether
+     a < b or b < a
+     "
+[a-vector item a b]
+(if (not-any? #(= item %) a-vector)
+  a-vector
+  (into [] (sort-by (fn [el]
+                      (if (= item el) a b)) a-vector))))
+(defn move-to-start
+  "Move item to start of vector"
   [a-vector item]
-  (if (not-any? #(= item %) a-vector)
-    a-vector
-    (into [] (sort-by (fn [el]
-                        (if (= item el) 1 -1)) a-vector))))
+  (move-item a-vector item -1 1)
+)
+
+(defn move-to-end
+  "Move item to end of vector."
+  [a-vector item]
+  (move-item a-vector item 1 -1))
 
 (comment
   (move-to-end [1 2 3] 1)
@@ -1081,6 +1093,7 @@
   (let [;plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
+    [:div (pr-str plot-order)
     [:> bs/Table {:style {:margin-top 20
                           :border "3px solid #666"}
                   :responsive "xl"
@@ -1106,7 +1119,7 @@
                :let [label (nth labels i)
                      time-index (:time-index label)
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
-           [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
+           [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]]))
 
 
 (defn table
@@ -1120,11 +1133,16 @@
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         
-        ;; table plot order puts death at the end.
-        ;; todo: make this adjustment configurable
+        ;; Table plots need to have positive items at the start; negative (like death) at the end.
+        ;; for survival curves the :residual component is positive farmed, so bring 
+        ;; this to the start.
+        ;;
+        ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
+        ;; rather than at the tool level.
         plot-order* (as-> (:plot-order tool-mdata) x
-                     (move-to-end x :removal)
-                     (move-to-end x :death))
+                      (move-to-start x :residual)
+                      (move-to-end x :removal)
+                      (move-to-end x :death))
         
         ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]

@@ -57,3 +57,13 @@ $removed-darker: #DBCDB1;
         text-decoration: underline !important;
     }
 }
+
+.toggler {
+    margin: 5px;
+    padding: 7px;
+    &:hover {
+        color: #fff;
+        background-color: #88998898 !important;
+    }
+    //outline: 10px dashed orange;
+}

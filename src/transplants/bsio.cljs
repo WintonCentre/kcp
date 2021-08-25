@@ -66,8 +66,8 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
             {:type "radio"
              :id id
              ;:inline "true"
-             :size "sm"
-             :vertical vertical
+             ;:size "sm"
+             ;:vertical vertical
              :name id
              :value value
              :on-change on-change
@@ -77,18 +77,20 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                      (if optional "teal" missing-color) "#CCCCCC"))
                       :border-radius 5
                       :padding 1
-                      #_#_:display "grid"}}]
+                      :display "flex"
+                      :justify-content "space-between"
+                      :flex-wrap "wrap"}}]
            (map (fn [{:keys [level-name level]}]
-                  [:> bs/ToggleButton {;:tabindex "-1"
-                                       :type "checkbox"
+                  [:> bs/ToggleButton {:type "checkbox"
+                                       :class-name "toggler"
                                        :key level :disabled false
                                        :value level
                                        :style {:border-radius 0
                                                :margin 0
                                                :color (when (highlight? level) "teal")
                                                :font-weight (when (highlight? level) "bold")
-                                               :background-color (if (highlight? level) "#fec" "#fff")
-                                               #_#_:padding 5}
+                                               :background-color (if (highlight? level) "#fec" 
+                                                                     (if (= level value) "#889988" "#fff"))}
                                        :variant "outline-secondary"}
                    level-name])
                 buttons)))])

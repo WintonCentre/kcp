@@ -132,7 +132,7 @@
       [:li "Diuretics"]
       [:li "Antibiotics"]
       [:li "Anti-ulcer medications"]]]
-    [ui/col {:md 6}
+    #_[ui/col {:md 6}
      [:> bs/Image {:fluid true
                    :src "assets/Post Transplant Medications.png"}]]]])
 

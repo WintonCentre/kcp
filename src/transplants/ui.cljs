@@ -255,7 +255,7 @@ in the routes table."
    " There is also a " [:a.centre-header-link {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
    " which explains the tool in depth."])
 
-(defn tools-menu*
+#_(defn tools-menu*
   "Render a group of tool selection buttons.
    tools is a vector of tool keys offered for this organ"
   [tools include-guidance? organ-name centre-name orientation]
@@ -342,13 +342,13 @@ in the routes table."
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
     ;; Even better would be to configure the break points as what makes sense will be ver application
     ;; specific.
-       (for [group (partition-by :button-type (butlast menu-data))]
-         [:div #_{:style {:display "flex" :flex-direction "row" :align-items "stretch"
-                          :justify-content "space-between"}}
-
-          (->> group
-               (map tool-buttons)
-               (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])]
+       (map-indexed
+        (fn [i group]
+          [:div {:key i}
+           (->> group
+                (map tool-buttons)
+                (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])
+        (partition-by :button-type (butlast menu-data)))]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
        [background-link organ-name centre-name active-tool]

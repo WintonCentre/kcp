@@ -25,7 +25,7 @@
         "shadow-cljs-server": "shadow-cljs server"
     },
     "dependencies": {
-        "@restart/hooks": "^0.4.0",
+        "@restart/hooks": "^0.3.27",
         "bootstrap": "^4.6.0",
         "dagre": "0.8.5",
         "prop-types-extra": "^1.1.1",

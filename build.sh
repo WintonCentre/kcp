@@ -1,5 +1,5 @@
 #!/bin/bash
-./bb-scripts/build.clj
+./bb_scripts/build.clj
 
 # echo "=== npm install start ==="
 # npm install

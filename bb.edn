@@ -1,7 +1,7 @@
 ;;
 ;; similar in function to the `npm run` tasks initially, but written in clojure
 ;;
-{:paths ["bb-scripts"]
+{:paths ["bb_scripts"]
  :deps {}
  :tasks {:requires ([babashka.fs :as fs]
                     [clojure.string :as string])

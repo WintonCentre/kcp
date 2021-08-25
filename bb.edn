@@ -17,7 +17,7 @@
          build-verbose (shell "shadow-cljs release --verbose app")
          report (shell "shadow-cljs run shadow.cljs.build-report app report.html")
          debug-build (shell "shadow-cljs release app --debug")
-         serve (shell "serve --single resources/public --listen 5000")
+         serve (shell "npm run serve")
          dev-build (shell "shadow-cljs compile app")
          repl (shell "shadow-cljs cljs-repl app")
          browser-repl (shell "shadow-cljs browser-repl")

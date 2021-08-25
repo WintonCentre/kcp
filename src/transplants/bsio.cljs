@@ -87,7 +87,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                :margin 0
                                                :color (when (highlight? level) "teal")
                                                :font-weight (when (highlight? level) "bold")
-                                               :background-color (if (highlight? level) "#fec" nil)
+                                               :background-color (if (highlight? level) "#fec" "#fff")
                                                #_#_:padding 5}
                                        :variant "outline-secondary"}
                    level-name])

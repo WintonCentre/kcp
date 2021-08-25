@@ -56,7 +56,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    value-f is a function which, when called returns the current value of the widget.
    event-f is an event handler which is called when the selected level changes
    Each button is configured with a map wih the (buttons-f) containing its :level-name, :level, and :disabled status."
-  [{:keys [id value-f on-change buttons-f vertical optional]}]
+  [{:keys [id value-f on-change buttons-f _vertical optional]}]
   [:<>
    (let [value (value-f)
          buttons (buttons-f)
@@ -67,14 +67,15 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :id id
              ;:inline "true"
              ;:size "sm"
-             ;:vertical vertical
+             ;:vertical vertical 
              :name id
              :value value
              :on-change on-change
              :style  {:border (str "3px solid "
-                                   (if (or (nil? value)
-                                           (= :unknown value)) 
-                                     (if optional "teal" missing-color) "#CCCCCC"))
+                                   (if (or (nil? value) (= :unknown value))
+                                     #_(if optional "teal" missing-color)
+                                     missing-color
+                                     "#CCCCCC"))
                       :border-radius 5
                       :padding 1
                       :display "flex"
@@ -87,10 +88,13 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                        :value level
                                        :style {:border-radius 0
                                                :margin 0
-                                               :color (when (highlight? level) "teal")
+                                               :color (when (highlight? level) "#000B")
                                                :font-weight (when (highlight? level) "bold")
-                                               :background-color (if (highlight? level) "#fec" 
-                                                                     (if (= level value) "#889988" "#fff"))}
+                                               :background-color (if (highlight? level)
+                                                                   "#fec"
+                                                                   (if (= level value) 
+                                                                     "#889988" 
+                                                                     "#fff"))}
                                        :variant "outline-secondary"}
                    level-name])
                 buttons)))])

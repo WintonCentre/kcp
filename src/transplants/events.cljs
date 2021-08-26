@@ -28,7 +28,8 @@
            :inputs {}
            :selected-vis "bars"
            :window-width (.-innerWidth js/window)
-           :test-day 100})))
+           :test-day 100
+           :modal-data nil})))
 
 (rf/reg-event-db
  ::update-window-width
@@ -224,6 +225,11 @@
   [db [_ data-path response]]
   (-> db
       (assoc-in data-path (edn/read-string response)))))
+
+(rf/reg-event-db
+ ::modal-data
+ (fn [db [_ data]]
+   (assoc db :modal-data data)))
 
 (comment
   (def tool-meta-match string/ends-with?)

@@ -2,7 +2,7 @@
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
 where we can work on defining a common interface. "
   (:require ["react-bootstrap" :as bs]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (def missing-color "#ff0000")
@@ -151,3 +151,21 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                                      :buttons-f (fn [] [{:level :male :level-name "Male"}
                                                                         {:level :female :level-name "Female"}])}))
                         2))))
+
+
+(defn modal
+  "A modal dialog box"
+  [data-f]
+  (locals)
+  (let [{:keys [title content cancel save ok] :as data} @(data-f)]
+    (when data
+      [:> bs/Modal {:show true :on-hide ok}
+       [:> bs/Modal.Header {:close-button true}
+        [:> bs/Modal.Title title]]
+       [:> bs/Modal.Body content]
+       [:> bs/Modal.Footer
+        (when cancel [:> bs/Button {:variant "secondary" :on-click cancel}
+                      "Cancel"])
+        (if save
+          [:> bs/Button {:variant "primary" :on-click save} "Save"]
+          [:> bs/Button {:variant "primary" :on-click ok} "OK"])]])))

@@ -3,9 +3,10 @@
             [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
+            [transplants.subs :as subs]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (defn key->id
@@ -83,8 +84,28 @@
      [:> bs/Col {:xs label-width
                  :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
-       [:div
-        (:factor-name w)]]]
+       (:factor-name w)]
+      [:> bs/Button {:size "sm"
+                     :variant "link"
+                     :class-name "more"
+                     :title "click for more info"
+                     ;:style {:cursor "pointer"}
+                     :on-click (fn [_e]
+                                 (rf/dispatch [::events/modal-data
+                                               {:show true
+                                                :title (:factor-name w)
+                                                :content [:p [:b "some"]
+                                                          (repeat 100 " extremely")
+                                                          " long text."]
+                                                #_(str "Some text for " (:factor-name w))
+                                                :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
+                                 (?-> {:show true
+                                       :title (:factor-name w)
+                                       :content [:span [:b "some"] " text"]
+                                       #_(str "Some text for " (:factor-name w))
+                                       :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
+                                      ::radio))}
+       [:span "?"]]]
 
      [:> bs/Col {:xs widget-width}
 
@@ -94,7 +115,8 @@
                                 :optional optional?
                                 :on-change #(rf/dispatch [factor-key
                                                           (keyword %)])
-                                :buttons-f (fn [] (vals levels))})
+                                :buttons-f (fn [] (vals levels))
+                                })
       ]]))
 
 

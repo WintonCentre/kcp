@@ -47,7 +47,6 @@ $removed-darker: #DBCDB1;
 @include unselected("graft", $graft);
 @include selected("usefulinfo", $usefulinfo);
 @include unselected("usefulinfo", $usefulinfo);
-// inline-links in tool centre header
 .centre-header-link {
     color: #FFE599 !important;
     font-weight: bold;
@@ -64,6 +63,24 @@ $removed-darker: #DBCDB1;
     &:hover {
         color: #fff;
         background-color: #88998898 !important;
+    }
+    //outline: 10px dashed orange;
+}
+
+.more {
+    background-color: #ffffff; //color.adjust($colour, $lightness: +40%);
+    border: 1px solid rgba(0, 0, 255, 0.329);
+    border-radius: 5px;
+    font-size: 1em;
+    color: rgba(0, 0, 255, 0.479); //color.adjust($colour, $blackness: +10%);
+    margin-left: 5px;
+    padding: 0 7px;
+    align-self: center;
+    //text-decoration-style: underline;
+    //box-shadow: 1px 1px black;
+    &:hover {
+        background-color: rgba(0, 0, 255, 0.39);
+        color: white;
     }
     //outline: 10px dashed orange;
 }

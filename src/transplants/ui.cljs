@@ -10,8 +10,8 @@ the low level ui."
             [transplants.utils :as utils]
             [transplants.subs :as subs]
             [transplants.numeric-input :as ni]
-            [shadow.debug :refer [?-> ?->> locals]]
-            ))
+            [transplants.bsio :as bsio]
+            [shadow.debug :refer [?-> ?->> locals]]))
 
 (enable-console-print!)
 
@@ -198,7 +198,7 @@ in the routes table."
   (let [current-route @(subscribe-current-route)]
     [:div {:style {:display :flex :flex-direction "column-reverse"}}
      (when current-route
-       [:div {:style {:margin-top "0px" :padding-top 0 }}
+       [:div {:style {:margin-top "0px" :padding-top 0}}
         [(-> current-route :data :view)]
         [footer]])
      [navbar {:router router
@@ -206,7 +206,7 @@ in the routes table."
               :home-url "https://www.nhsbt.nhs.uk/"
               :logo "/assets/nhsbt-left-align_scaled.svg"
               :tool-name "Lung Transplants"}]
-
+     (bsio/modal #(rf/subscribe [::subs/modal-data]))
      ]))
 
 (defn card-page

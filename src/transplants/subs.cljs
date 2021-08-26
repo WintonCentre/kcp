@@ -46,4 +46,5 @@
 
 (rf/reg-sub ::mdata (fn [db] (get-in db [:mdata])))
 
+(rf/reg-sub ::modal-data (fn [db] (get-in db [:modal-data])))
 

@@ -526,7 +526,7 @@
                 (into [:<>]
                       (map-indexed
                        (fn [i [k w]] ^{:key (:factor w)}
-                         [:div {:style {:margin-top (if (zero? i) 20 0)
+                         [:div {:style {:margin-top 0
                                         :margin-bottom -5
                                         :padding 5
                                         :display "relative"
@@ -534,15 +534,16 @@
                                         :background-color (when (some? (:boxed w)) boxed-fill)}}
                           [:div {:style {:position "relative"
                                          :padding-right 5}}
-                           (when (= k first-boxed) boxed-text)
-                           (if (= w first-boxed) #_(some? (:boxed w))
-                               [:div
-                                [:div {:style {:color boxed-text-color
-                                               :position "absolute"
-                                               :top  0 :right 12}} boxed-text]
-                                [:div {:style {:height "10px"}}]])
+                           (when (= k first-boxed)
+                             [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
+                              [:> bs/Col {:xs 5
+                                          :style {:display "flex" :justify-content "flex-end"}}
+                               [:span {:style {:text-align "right"}}
+                                boxed-text]]])
 
-                           (widg/widget (assoc w :model tool))]])
+                           (widg/widget (assoc w :model tool))]
+                          [:div {:style {:height 10}}]])
+                       
                        tcb-fmaps))]]
               [ui/col {:xs 12 :md 6}
                [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]

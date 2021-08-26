@@ -56,7 +56,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    value-f is a function which, when called returns the current value of the widget.
    event-f is an event handler which is called when the selected level changes
    Each button is configured with a map wih the (buttons-f) containing its :level-name, :level, and :disabled status."
-  [{:keys [id value-f on-change buttons-f _vertical optional]}]
+  [{:keys [id value-f on-change buttons-f _vertical _optional]}]
   [:<>
    (let [value (value-f)
          buttons (buttons-f)
@@ -71,16 +71,13 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
              :name id
              :value value
              :on-change on-change
-             :style  {:border (str "3px solid "
+             :style  {:margin-top 5
+                      :border (str "3px solid "
                                    (if (nil? value)
                                      missing-color
                                      (if (= value :unknown)
                                        "teal"
-                                       "#CCCCCC"))
-                                   #_(if (or (nil? value) (= :unknown value))
-                                     #_(if optional "teal" missing-color)
-                                     missing-color
-                                     "#CCCCCC"))
+                                       "#CCCCCC")))
                       :border-radius 5
                       :padding 1
                       :display "flex"

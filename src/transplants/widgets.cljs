@@ -61,14 +61,14 @@
 (defmethod widget nil [_]
   nil)
 
-(def mb 5)
-(def _mt 0)
+(def mb 0)
 (def label-width "label column grid-size" 5)
 (def widget-width "Widget column grid-size" 7)
 
 (defmethod widget :reset
   [_w]
-  [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
+  #_(widget-layout (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])}))
+  [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
    [:> bs/Col {:xs label-width}]
    [:> bs/Col {:xs widget-width}
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])

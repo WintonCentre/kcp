@@ -1093,7 +1093,7 @@
   (let [;plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-    [:div (pr-str plot-order)
+    ;[:div (pr-str plot-order)
     [:> bs/Table {:style {:margin-top 20
                           :border "3px solid #666"}
                   :responsive "xl"

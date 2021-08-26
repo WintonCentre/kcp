@@ -1093,7 +1093,6 @@
   (let [;plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-    ;[:div (pr-str plot-order)
     [:> bs/Table {:style {:margin-top 20
                           :border "3px solid #666"}
                   :responsive "xl"
@@ -1119,7 +1118,7 @@
                :let [label (nth labels i)
                      time-index (:time-index label)
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
-           [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]]))
+           [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
 
 
 (defn table

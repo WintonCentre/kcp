@@ -74,9 +74,8 @@
    [:> bs/Col {:xs widget-width}
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
-
 (defn radio
-  [{:keys [_factor-name factor-key levels _default _type vertical optional _boxed] :as w}]
+  [{:keys [_factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
         optional? (some? optional)]
 ;    (locals)
@@ -85,27 +84,27 @@
                  :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]
-      [:> bs/Button {:size "sm"
-                     :variant "link"
-                     :class-name "more"
-                     :title "click for more info"
+      (when info-box?
+        (?-> (:info-box? w) ::info-box)
+        [:> bs/Button {:size "sm"
+                       :variant "link"
+                       :class-name "more"
+                       :title "click for more info"
                      ;:style {:cursor "pointer"}
-                     :on-click (fn [_e]
-                                 (rf/dispatch [::events/modal-data
-                                               {:show true
-                                                :title (:factor-name w)
-                                                :content [:p [:b "some"]
-                                                          (repeat 100 " extremely")
-                                                          " long text."]
-                                                #_(str "Some text for " (:factor-name w))
-                                                :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
-                                 (?-> {:show true
-                                       :title (:factor-name w)
-                                       :content [:span [:b "some"] " text"]
-                                       #_(str "Some text for " (:factor-name w))
-                                       :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
-                                      ::radio))}
-       [:span "?"]]]
+                       :on-click (fn [_e]
+                                   (rf/dispatch [::events/modal-data
+                                                 {:show true
+                                                  :title (:factor-name w)
+                                                  :content (edn/read-string (:info-box? w))
+                                                  #_(str "Some text for " (:factor-name w))
+                                                  :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
+                                   (?-> {:show true
+                                         :title (:factor-name w)
+                                         :content (:info-box? w)
+                                         #_(str "Some text for " (:factor-name w))
+                                         :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
+                                        ::radio))}
+         [:span "?"]])]
 
      [:> bs/Col {:xs widget-width}
 

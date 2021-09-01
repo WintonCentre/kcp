@@ -158,11 +158,10 @@
                           :pre-section [:section
                                         [:h3 "What might happen if you are listed for a transplant?"]
                                         [:p "The display shows what happened to people like you in the past
-                                              (eg same blood group, age, disease etc.)."]
+                                              (eg. people with the same blood group, age, disease etc.)."]
                                         [:p "It shows how many people might be transplanted over 3 years."]
-                                        [:p "This is an estimate, an average, there are other factors about you that can influence
-                                             these results and make the numbers higher or lower. eg whether you have other conditions 
-                                             not included in the tool. For example you may have other conditions not included 
+                                        [:p "This is an estimate – an average. There are other factors about you that can influence
+                                             these results and make the numbers higher or lower. For example you may have other conditions not included 
                                              in the tool, or you may encounter other lifestyle factors post transplant."]]
                           :post-section [:h5 "Outcomes after listing"]
                           :rest-of-page [:<>
@@ -287,7 +286,7 @@
                                             :y-offset 610
                                             :line ["By the end of year 3"]}]}
                           :page-title ""
-                          :pre-section [:section
+                          :pre-section [:section [:span {:style {:color "red"}} "IMPROVE TEXT"]
                                         [:h3 "What might happen if you are listed for a transplant?"]
                                         [:p "The display shows what happened to people like you in the past
                                               (eg same blood group, age, disease etc.)."]

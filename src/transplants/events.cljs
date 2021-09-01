@@ -13,7 +13,7 @@
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;; Events ;;;
@@ -177,7 +177,8 @@
         ;; Otherwise, use SO for a reduced data optimised calculation
         S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
                             %2) (model/sample-from S0+))]
-
+    ;(?-> tool-inputs ::tool-inputs)
+    ;(locals)
     {:db ;(assoc db :oct-bundle tool-centre-bundle)
      (assoc-in db data-path
                (-> raw
@@ -190,8 +191,7 @@
                           :timed-outcome-keys timed-outcome-keys
                           :beta-keys beta-keys
                           :all-S0 S0+
-                          :S0 S0
-                          )
+                          :S0 S0)
                    (dissoc inputs-key)
                    (dissoc baseline-cifs-key)
                    (dissoc baseline-vars-key)))

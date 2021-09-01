@@ -156,7 +156,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
 (defn modal
   "A modal dialog box"
   [data-f]
-  (locals)
+  ;(locals)
   (let [{:keys [title content cancel save ok] :as data} @(data-f)]
     (when data
       [:> bs/Modal {:show true :on-hide ok}

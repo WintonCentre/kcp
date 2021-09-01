@@ -446,7 +446,13 @@
       (let [centre-info (utils/get-centre-info centres organ centre)]
         
          [:div {:style {:width "100%" :background-color "#889988" #_"#0072BA" :padding 20 :color "white"}}
-          [:h1 (:description centre-info)]
+          [ui/row
+           [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
+           [ui/col {:xs 12 :sm 8} [:h1 organ-name]]
+           ]
+          #_[:div {:style {:display "flex" :justify-content "space-bewteen"}}
+           [:h1 (:description centre-info)]
+           [:h1 (:description centre-info)]]
 
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
         [guidance organ]
@@ -501,7 +507,9 @@
         [:div 
 
          [:div {:style {:width "100%" :background-color "#889988" #_"#0072BA" :padding 20 :color "white"}}
-          [:h1 (:description centre-info)]
+          [ui/row
+           [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
+           [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplants"]]]
 
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
 

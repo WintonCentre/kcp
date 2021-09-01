@@ -46,7 +46,7 @@
    plot-order is like [:transplant :residual :death]
    Result would be (0.3 0.30000000000000004 0.4)"
   [plot-order fsm]
-  (locals)
+  ;(locals)
   (map
    (fn [data-key]
      (fsm data-key))
@@ -910,7 +910,7 @@
 
 (defn side-by-side-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
-  [plot-order* year-series tool-mdata _data-styles]
+  [_plot-order year-series tool-mdata _data-styles]
   (let [plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
         ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
@@ -1145,7 +1145,7 @@
         
         ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-    (locals)
+    ;(locals)
     [:section
      (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
      (:post-section tool-mdata)]))

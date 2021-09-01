@@ -13,7 +13,7 @@
            :sass ["-M" "sass4clj.main" --source-paths]
            :config {:jvm-opts ["-Xmx500m" "-Xms100m"
                                "-Dvlaaad.reveal.prefs={:font-size,17}"]
-                    :extra-deps {vlaaad/reveal {:mvn/version "1.3.194"}}
+                    :extra-deps {vlaaad/reveal {:mvn/version "1.3.212"}}
                     :main-opts  ["-m" "nrepl.cmdline"
                                  "--middleware" "[vlaaad.reveal.nrepl/middleware,cider.nrepl/cider-middleware]"]}
            ;; deps for kaocha (run with bin/kaocha)

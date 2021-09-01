@@ -1,4 +1,4 @@
-@use "sass:color";
+//@use "sass:color";
 // Background variants
 $vis-background: #cccccc;
 // Tool variant colours
@@ -27,7 +27,7 @@ $removed-darker: #DBCDB1;
 @mixin unselected($variant, $colour) {
     .btn-outline-#{$variant} {
         background-color: #ffffff22; //color.adjust($colour, $lightness: +40%);
-        border: 4px solid #ffffff22; //$colour; // rgb(197, 196, 196); //$colour;
+        border: 4px solid #ffffff22; //color.adjust($colour, $lightness: +40%);
         border-radius: 20px;
         font-size: 1.2rem;
         color: #fff; //color.adjust($colour, $blackness: +10%);
@@ -69,7 +69,7 @@ $removed-darker: #DBCDB1;
 
 .more {
     background-color: #ffffff; //color.adjust($colour, $lightness: +40%);
-    border: 1px solid rgba(0, 0, 255, 0.329);
+    border: 1px solid #9C9CFF; //rgba(0, 0, 255, 0.329);
     border-radius: 5px;
     font-size: 1em;
     color: rgba(0, 0, 255, 0.479); //color.adjust($colour, $blackness: +10%);
@@ -79,7 +79,7 @@ $removed-darker: #DBCDB1;
     //text-decoration-style: underline;
     //box-shadow: 1px 1px black;
     &:hover {
-        background-color: rgba(0, 0, 255, 0.39);
+        background-color: #9C9CFF;
         color: white;
     }
     //outline: 10px dashed orange;

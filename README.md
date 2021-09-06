@@ -96,49 +96,20 @@ NB: This whole process needs a lot of work as we are now planning on beefing up 
 Some issues that need sorting out here:
 1) It is difficult to locate the correct configuration variable to tweak.
 2) There is a mix of .xlsx and .edn configuration which makes this problem worse.
-3) There is insufficient configuration validation. We should at least add a run through spec during configuration. Possibly also on the app database during run-time in development builds.
+3) There is insufficient configuration validation. We should at least add a run through spec or mali during configuration. Possibly also on the app database during run-time in development builds. I'm thinking we could add a validator as the last stage in a reframe interceptor chain.
 4) I partitioned the generated EDN files in case the app were installed at individual transplant centres. This will not happen, and
 so those individual by-centre files are a complication that can be removed.
 5) In general we need some kind of configuration editor that makes the configuration understandable to others.
 6) The configuration is incomplete:-
-  * Some hard coded features assume a transplant context.
-  * Some hard coded names make sense only in a transplant context (e.g. 'organ' should be renamed)
+    * Some hard coded features assume a transplant context.
+    * Some hard coded names make sense only in a transplant context (e.g. 'organ' should be renamed)
 7) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the transplants context, but may be worth optimising in a PREDICT like decision tool.
 8) We have not code or generalised features that would upgrade the tool to be more of a PREDICT-like decision tool. In particular:
-  * Pluggable statistical models
-  * Treatment inputs as well as patient characteristics
-  * Delta benefits (and harms) according to treatment.
-  * Comparative with and without treatment visuals.
+    * Pluggable statistical models
+    * Treatment inputs as well as patient characteristics
+    * Delta benefits (and harms) according to treatment.
+    * Comparative with and without treatment visuals.
 
-### Building
-You may find some lagacy figwheel-main build files still in the repo (they are in the history certainly). However we have been using shadow-cljs for sometime now. The Shadow dashboard at localhost:9630 allows you to monitor both the app and run tests.
-
-
-In `figwheel-main.edn` we have
-```
- :auto-testing true
- :extra-main-files {:tests {:main transplants.test-runner}}
-```
-`:extra-main-files` causes figwheel to generate a cljs-out/test image in addition to the standard dev image.
-`:auto-testing true` adds a [heads up test display](http://localhost:9500/figwheel-extra-main/auto-testing), which is useful in development.
-
-# The front-end trac tool
-
-This is a Shadow-cljs app 
-## Getting Started
-
-```
-git clone https://github.com/wintoncentre/transplants
-cd transplants
-npm install
-npm start
-```
-
-Then, open `http://localhost:3000` in your browser, and enjoy!
-
-## Tests
-Run `lein karma` for cljs unit tests
-Run `lein check` for xlsx configuration tests
 
 
 # Original Re-frame template README below

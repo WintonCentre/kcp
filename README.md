@@ -52,7 +52,7 @@ The configuration tools are written in clojure and run on the JVM. JVM 8 or 11 a
 
 The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html) tool set as this gave simpler access to the few `npm` module dependencies such as react-bootstrap that we are using.
 
-<!-->
+<!--
 There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
 -->
 
@@ -77,34 +77,38 @@ See the config files in the data folder.
   The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `public/resources`.
 
 ### Configuration Development
-All data is stored in the `data` folder.
+All run-time data is stored in the `resources` folder.
 ```
 data
 ├── config.edn
-├── incoming-kidney
-│   ├── Competing\ risks\ CIF\ kidney.xlsx
-│   ├── Formal\ post\ tx\ patient\ and\ graft\ survival.xlsx
-│   └── post\ tx\ patient\ and\ graft\ survival.xlsx
-├── incoming-lung
-│   ├── About\ the\ TRAC\ tool\ FINAL.docx
-│   ├── Competing\ risks\ CIF\ lung.xlsx
-│   ├── Data\ for\ lung\ TRAC\ tool.pdf
-│   ├── Post-transplant\ information.xlsx
-│   ├── Survival\ from\ listing\ information.xlsx
-│   └── leila-ucd.xlsx
 ├── kidney-models-master.xlsx
 └── lung-models-master.xlsx
 ```
 
-The `incoming-...` files were received from NHSBT. These have now 
-been reformatted and transcribed into `kidney-models-master.xlsx` and `lung-models-master.xlsx`.
+Incoming data/docs from NHSBT and others now in the `doc` folder.
 
 The job of the clojure configuration app is to read these spreadsheets and validate them, and then write them out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code.
 
 The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing.
 
-NB: This whole process needs a lot of work as we are now planning on beefing up the tool and the configuration process to make this repo capable of generating other tools for other research groups. 
+NB: This whole process needs a lot of work as we are now planning on beefing up the tool and the configuration process to make this repo capable of generating other tools for other research groups.
 
+Some issues that need sorting out here:
+1) It is difficult to locate the correct configuration variable to tweak.
+2) There is a mix of .xlsx and .edn configuration which makes this problem worse.
+3) There is insufficient configuration validation. We should at least add a run through spec during configuration. Possibly also on the app database during run-time in development builds.
+4) I partitioned the generated EDN files in case the app were installed at individual transplant centres. This will not happen, and
+so those individual by-centre files are a complication that can be removed.
+5) In general we need some kind of configuration editor that makes the configuration understandable to others.
+6) The configuration is incomplete:-
+  * Some hard coded features assume a transplant context.
+  * Some hard coded names make sense only in a transplant context (e.g. 'organ' should be renamed)
+7) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the transplants context, but may be worth optimising in a PREDICT like decision tool.
+8) We have not code or generalised features that would upgrade the tool to be more of a PREDICT-like decision tool. In particular:
+  * Pluggable statistical models
+  * Treatment inputs as well as patient characteristics
+  * Delta benefits (and harms) according to treatment.
+  * Comparative with and without treatment visuals.
 
 ### Building
 You may find some lagacy figwheel-main build files still in the repo (they are in the history certainly). However we have been using shadow-cljs for sometime now. The Shadow dashboard at localhost:9630 allows you to monitor both the app and run tests.

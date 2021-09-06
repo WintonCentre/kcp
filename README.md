@@ -4,12 +4,15 @@
 * Install babashka
 * Install npm
 * `npm run` to view scripts help in `package.json` 
+* I'm hoping that babashka tasks will eventually wrap all the administrative scripts we use so we can generate a build system that works in Windows as well as Unix/bash flavour OSs. `bb tasks` will list those tasks.
 
 To run the configuration tool, and start a shadow-cljs dashboard:
 ```sh
 npm run config
 npm run watch-all
 ```
+
+The project is a Shadow-cljs deps.edn project. It no longer uses leiningen.
 
 Open `localhost:9630` for the shadow-cljs dashboard. The `:app` will be served on `localhost:3000` and the 
 `:test-browser` on `localhost:3021`.
@@ -26,18 +29,21 @@ Results will appear in the dashboard inspectors which allow navigation of run-ti
 Requiring `shadow.debug` will provide a higher level interface to `tap>`
 with useful snapshotting utilities that call `tap>`. See the comment at the end of this file for usage: [shadow.debug](https://github.com/thheller/shadow-cljs/blob/master/src/main/shadow/debug.clj)
 
+## Other editors/IDEs
+Start at https://shadow-cljs.github.io/docs/UsersGuide.html#_editor_integration.
+
+## Server builds
+We run a Jenkins server which will currently build development and staging versions of the transplants project, publishing these at https://transplants-dev.wintoncentre.uk and https://transplants-staging.wintoncentre.uk/. These connect to the nhsbt-develop and nhsbt-staging branches.
+
+Future production builds will need to create a servers at lung.transplants.wintoncentre.uk and kidney.transplants.wintoncentre.uk. These have not yet been set up.
+
+
 ## Configuration
 
 > **WARNING:** 
 >
 > If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
 
-
-## Ilan/Maria/Leila mockup
-See https://docs.google.com/presentation/d/1uKk0HyclaTMCb-EIZiyVdJPBjzzHflArWoq8ukwbMGE/edit?usp=sharing
-
-## Design Guidelines (Not yet implemented)
-Follow the [NHSBT website guide](https://www.nhsbt.nhs.uk/987643testarea/website-guide/) where possible.
 
 ## Contents
 This repository contains both a set of configuration utilities and the run-time TRAC tool web-site(s) themselves.
@@ -46,8 +52,9 @@ The configuration tools are written in clojure and run on the JVM. JVM 8 or 11 a
 
 The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html) tool set as this gave simpler access to the few `npm` module dependencies such as react-bootstrap that we are using.
 
+<!-->
 There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
-
+-->
 
 ## Status
 **Requirements**
@@ -65,11 +72,7 @@ See the config files in the data folder.
   Tools are in `src/clj/transplants/configure`.
   Configuration is in `data` and is controlled by `config.edn`
 
-  Run `lein check` to check that the xlsx spreadsheets are not too crazy. This catches a lot of potential problems, but probably not all problems as yet. 
-  Configuration tests run under the `configure` leiningen profile. 
-
-  Run `lein config` to generate a complete set of edn and csv files in the resources/public directory. This
-  also uses the `configure` profile.
+  Run `bb config` to generate a complete set of edn and csv files in the resources/public directory. 
 
   The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `public/resources`.
 
@@ -96,26 +99,15 @@ data
 The `incoming-...` files were received from NHSBT. These have now 
 been reformatted and transcribed into `kidney-models-master.xlsx` and `lung-models-master.xlsx`.
 
-The job of the clojure configuration app is to read these spreadsheets and validate then, and then write them out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code. 
+The job of the clojure configuration app is to read these spreadsheets and validate them, and then write them out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code.
 
-The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing. 
+The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing.
 
-### Jacking in from vs-code to work on the *configuration* process
-If jacking in from VS-Code be sure to select `leiningen` with `no alias` and then the `:configuration` profile. 
+NB: This whole process needs a lot of work as we are now planning on beefing up the tool and the configuration process to make this repo capable of generating other tools for other research groups. 
 
-## Trac Tool Development
-Not sure whether it is going to be possible to develop all organ tools from one repo, but it seems sensible to start that way to avoid duplication. So far so good.
 
 ### Building
-We now have a choice of shadow-cljs or core clojurescript builds. 
-
-Shadow-cljs
-Calva Jack-in (alt-ctrl-C alt-ctrl-J) and select shadow-cljs (or lein-shadow if that is offered instead) and the :app build. Browse to the `:dev-http` port as specified by `shadow-cljs.edn`. 
-
-### cljs-core unit tests
-See https://figwheel.org/docs/testing.html#auto-testing
-and https://figwheel.org/config-options#auto-testing
-and https://figwheel.org/docs/extra_mains
+You may find some lagacy figwheel-main build files still in the repo (they are in the history certainly). However we have been using shadow-cljs for sometime now. The Shadow dashboard at localhost:9630 allows you to monitor both the app and run tests.
 
 
 In `figwheel-main.edn` we have
@@ -125,36 +117,6 @@ In `figwheel-main.edn` we have
 ```
 `:extra-main-files` causes figwheel to generate a cljs-out/test image in addition to the standard dev image.
 `:auto-testing true` adds a [heads up test display](http://localhost:9500/figwheel-extra-main/auto-testing), which is useful in development.
-
-These docs are good but don't deal with the webpack bundle case. I've found that the most reliable way of ensuring that a bundle is generated is to run the commands below with or withoiut -r/--repl. Possibly using -Mfig instead of -Afig at least once.
-
-Subsequently we can jack-in with cider and generate a js that will be pulled in to the pregenerated bundle. At least I think that's what is happening.
-
-I'm not yet clear how to make these tests run sensibly on the server. Ideally we'd want some sort of feedback to the github repo
-in the form of a pass/fail badge, with a test run log. 
-
-The docs talk about commands like this 
-
-```
-clojure -Afig -m figwheel.main  -b dev --repl
-```
-
-but this seems to work better with the extra-mains config - without a repl this time though one can be added.
-```
-clojure -Mfig -m figwheel.main  -b dev
-```
-The tests will also run with this
-In order to create a webpack bundled test build, you may need to run
-```
-clojure -Afig -m figwheel.main -b test 
-```
-
-In order to ensure that tests run when this main is launched, make sure that 
-`transplants.test-runner` calls `-main`. 
-
-The problem here is that all of these tests are still requiring user interaction. The test runner has to be called in the 
-browser context somehow, with results appearing in the test.html console in the browser, or in the REPL. I'm not clear how to do this server side.
-
 
 # The front-end trac tool
 

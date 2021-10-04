@@ -44,7 +44,8 @@
    :usefulinfo (rgb-url [12, 40, 44])
    :white (hex-url "#ffffff")
    :info (hex-url "#9C9CFF")
-   :selected (hex-url "#889988")}
+   :selected (hex-url "#889988")
+   :boxed (hex-url "#dfe4df")}
   ;; => {:vis-background "data:image/gif;base64,R0lGODlhAQABAPAAAMzMzP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
   ;;     :waiting "data:image/gif;base64,R0lGODlhAQABAPAAAEhmy////yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
   ;;     :graft "data:image/gif;base64,R0lGODlhAQABAPAAAASR2P///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",

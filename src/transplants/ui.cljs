@@ -42,89 +42,6 @@ in the routes table."
   ([k params query]
    (rfe/href k params query)))
 
-#_(defn get-client-rect
-  "return the bounding rectangle of a node"
-  [node]
-  (let [r (.getBoundingClientRect node)]
-    {:left (.-left r), :top (.-top r) :right (.-right r) :bottom (.-bottom r) :width (.-width r) :height (.-height r)}))
-
-
-#_(defn link-text
-  "The route :data :link-text gives an indication of link text for this route, which must be adjusted
-   according to its path-params"
-  [route]
-
-  (let [path (-> route :path-params)
-        _ (js/console.log route)
-        organ (:organ path)
-        centre (:centre path)]
-    (if organ
-      organ
-      "Home")))
-
-#_(comment
-;;;;;
-;;
-;;
-  (defn- resolve-href
-    [to path-params query-params]
-    (if (keyword? to)
-      (rfe/href to path-params query-params)
-      (let [match  (rfr/match-by-path rfr/router to)
-            route  (-> match :data :name)
-            params (or path-params (:path-params match))
-            query  (or query-params (:query-params match))]
-        (if match
-          (rfe/href route params query)
-          to))))
-  
-
-  (defn Link
-    [{:keys [to path-params query-params active]} & children]
-    (let [href (resolve-href to path-params query-params)]
-      (into
-       [:a {:href href} (when active "> ")] ;; Apply styles or whatever
-       children)))
-
-  (defn- name-matches?
-    [name path-params match]
-    (and (= name (-> match :data :name))
-         (= (not-empty path-params)
-            (-> match :parameters :path not-empty))))
-
-  (defn- url-matches?
-    [url match]
-    (= (-> url (split #"\?") first)
-       (:path match)))
-
-  (defn NavLink
-    [{:keys [to path-params current-route] :as props} & children]
-    [Link {:to to
-           :path-params path-params
-           :query-params (when current-route 
-                           (get-in current-route [:data :query-params]))
-           :active (when current-route
-                     (or (name-matches? to path-params current-route)
-                         (url-matches? to current-route)))}])
-
-  (defn NavLink-
-    [{:keys [to path-params current-route] :as props} & children]
-    (let [active (or (name-matches? to path-params current-route)
-                     (url-matches? to current-route))]
-      [Link (assoc props :active active) children])))
-;;
-;;;;;
-
-
-#_(defn active-key
-  "Return the active href key given the current-route"
-  [route]
-  (let [ak  (cond
-              (= {} (:path-params route)) (href :transplants.views/home)
-              :else (get-in route [:path-params :organ]))]
-    ak)
-  )
-
 (defn loading
   "The page is loading"
   []
@@ -255,53 +172,7 @@ in the routes table."
    " There is also a " [:a.centre-header-link {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
    " which explains the tool in depth."])
 
-#_(defn tools-menu*
-  "Render a group of tool selection buttons.
-   tools is a vector of tool keys offered for this organ"
-  [tools include-guidance? organ-name centre-name orientation]
-  (let [active-tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])
-        mdata @(rf/subscribe [::subs/mdata])
-        menu-data  (map
-                    (fn [tool]
-                      (assoc
-                       (if (= tool :guidance)
-                         {:label "Useful information"
-                          :button-type "usefulinfo"}
-                         (select-keys (utils/get-tool-meta mdata organ-name tool)
-                                      [:label :button-type]))
-                       :organ organ-name
-                       :tool tool
-                       :centre centre-name
-                       :active-tool active-tool
-                       :key tool
-                       :mdata mdata))
-                    (if include-guidance? tools (remove #(= :guidance %) tools)))]
-    ;(?-> active-tool ::active-tool)
-    ;(?-> tools ::tools-menu)
-    ;(?-> menu-data ::menu-data)
-    ;TODO: configure this filter!
-    [:<>
 
-     [#_#_#_:> bs/ButtonToolbar {:style {:background-color "#ffffff66"
-                                         :padding 15
-                                         :border-radius 10}}
-      row
-      [col {:xs 12 :sm 8}
-       [:h3 {:style {:padding-right 20}} "Choose a tool:"]
-
-    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
-    ;; Even better would be to configure the break points as what makes sense will be ver application
-    ;; specific.
-       (for [group (partition-by :button-type (butlast menu-data))]
-         [:div #_{:style {:display "flex" :flex-direction "row" :align-items "stretch"
-                          :justify-content "space-between"}}
-
-          (->> group
-               (map tool-buttons)
-               (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])]
-      [col {:xs 12 :sm 4}
-       (tool-buttons (last menu-data))
-       [background-link organ-name centre-name active-tool]]]]))
 
 (defn tools-menu
   "Render a group of tool selection buttons.

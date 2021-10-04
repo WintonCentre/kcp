@@ -1,5 +1,9 @@
 (ns transplants.spline)
 
+
+;;
+;; todo: Should the functions be defined outside spline for better performance?
+;;
 (defn spline
    "Perform spline calculation to transform x using knots and betas. See Jenny Mehew doc.
    x0 is the base var, x is the entered var, and the betas and knots are configured in the
@@ -16,6 +20,10 @@
      (apply + (map * betas (xs x x0)))))
 
 (comment
+  ;;
+  ;; NB These tests have been overtaken by events. NHSBT changed the model again
+  ;;
+
   ;; set up a test case to chase age discrepancy)
   (def k1 21)
   (def k2 44)

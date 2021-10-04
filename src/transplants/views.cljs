@@ -11,6 +11,7 @@
    [transplants.paths :as paths]
    [transplants.widgets :as widg]
    [transplants.results :as results]
+   [transplants.print-fills :as prf]
    [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (comment
@@ -539,7 +540,9 @@
                                         :padding 5
                                         :display "relative"
                                         :outline-bottom (when (some? (:boxed w)) boxed-border)
-                                        :background-color (when (some? (:boxed w)) boxed-fill)}}
+                                        :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))
+                                        ;:background-color (when (some? (:boxed w)) boxed-fill)
+                                        }}
                           [:div {:style {:position "relative"
                                          :padding-right 5}}
                            (when (= k first-boxed)

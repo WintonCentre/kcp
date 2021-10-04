@@ -29,37 +29,10 @@
   ; => "123.457"
   )
 
-
-(def scaled-cifs
-  "Scale a seq of cifs so the rest sum to the first - which should be the cif for
-   leaving the list for all reasons.
-   Return the cifs in the original order including the all-reasons cif.
-   If there is only one cif, there is no need to scale, so just return the seq
-   
-   Delete once references are purged."
-  
-  identity
-)
-
-
 ;; TODO: DELETE THIS EVENTUALLY
-(defn with-all-reasons-first
-  "Outcomes with the all reasons outcome in the first slot. 
-   
-   We should probably plan to replace the hard coded 'all-reasons' constant with a
-   value read in from a configuration file.
-   
-   At the moment this function is most closely tied to the model, since it is that which
-   is forcing us to scale to the special 'all-reasons' cif column."
-  [outcomes]
-  (if (> (count outcomes) 1)
-    (let [all-reasons "all-reasons"]
-      (conj (remove #(= % all-reasons) outcomes) all-reasons))
-    outcomes))
-
 (defn sample-from
   "returns a selection of data from S0. Could be optimised so it only needs one pass through S0, 
-   This is a once only call per centre so keeping it simple for now. It's called when centre data data is stored on
+   This is a once only call per centre so keeping it simple for now. It's called when centre data is stored on
    :events/store-bundle-inputs"
   [S0]
   (let [day-in-first? (partial utils/day-in? first)

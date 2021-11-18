@@ -1,7 +1,7 @@
 #work for kidney#
 
 ## Set work area/libname ##
-setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
+#setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
 
 ## Import data ##
 survdata <- read.csv("kid_wlist.csv",fileEncoding = 'UTF-8-BOM')
@@ -64,19 +64,19 @@ for (i in 1:(dim(bel)[1]-1)){
   h_tx[i] <- bel$capHtx[i+1] - bel$capHtx[i]
   p_tx[i] <- h_tx[i] * capS[i]
   capF_tx[i+1] <- capF_tx[i] + p_tx[i]
-  
+
   h_rem[i] <- bel$capHrem[i+1] - bel$capHrem[i]
   p_rem[i] <- h_rem[i] * capS[i]
   capF_rem[i+1] <- capF_rem[i] + p_rem[i]
-  
+
   h_dth[i] <- bel$capHdth[i+1] - bel$capHdth[i]
   p_dth[i] <- h_dth[i] * capS[i]
   capF_dth[i+1] <- capF_dth[i] + p_dth[i]
-  
+
   capS[i+1] <- capS[i] - p_tx[i] - p_rem[i] - p_dth [i]
-  
+
   test[i] <- capS[i] + capF_rem[i] + capF_tx[i] + capF_dth[i]
-  
+
 }
 
 plot(y = capF_tx, x = bel$time, ylab = "Transplant probability", xlab = "Time (days)", ylim = c(0, 1), col = "red")

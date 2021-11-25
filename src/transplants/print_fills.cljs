@@ -1,5 +1,6 @@
 (ns transplants.print-fills
   (:require [clojure.string :as string]
+            [transplants.rgb :as rgb]
             [goog.color :as col :refer [hexToRgb]]))
 
 ;;;
@@ -44,7 +45,7 @@
    :usefulinfo (rgb-url [12, 40, 44])
    :white (hex-url "#ffffff")
    :info (hex-url "#9C9CFF")
-   :selected (hex-url "#889988")
+   :selected (hex-url rgb/theme)
    :boxed (hex-url "#dfe4df")}
   ;; => {:vis-background "data:image/gif;base64,R0lGODlhAQABAPAAAMzMzP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
   ;;     :waiting "data:image/gif;base64,R0lGODlhAQABAPAAAEhmy////yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",

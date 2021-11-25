@@ -12,6 +12,7 @@
    [transplants.widgets :as widg]
    [transplants.results :as results]
    [transplants.print-fills :as prf]
+   [transplants.rgb :as rgb]
    [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (comment
@@ -446,7 +447,7 @@
 
       (let [centre-info (utils/get-centre-info centres organ centre)]
         
-         [:div {:style {:width "100%" :background-color "#889988" #_"#0072BA" :padding 20 :color "white"}}
+         [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
           [ui/row
            [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
            [ui/col {:xs 12 :sm 8} [:h1 organ-name]]
@@ -507,7 +508,7 @@
         ;(locals)
         [:div 
 
-         [:div {:style {:width "100%" :background-color "#889988" #_"#0072BA" :padding 20 :color "white"}}
+         [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
           [ui/row
            [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
            [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplants"]]]

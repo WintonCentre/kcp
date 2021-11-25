@@ -2,7 +2,7 @@
 
 
 ## Set work area/libname ##
-setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
+#setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
 
 ## Import data ##
 survdata <- read.csv("kidney LD post tx patient surv.csv",fileEncoding = 'UTF-8-BOM')
@@ -97,7 +97,7 @@ adjcox <- function(rage = 3, wait = 1, diabetes=0, hla = 3) {
 
 
 
-test <- adjcox (rage = 3, wait = 1, diabetes=0, hla = 3)
+test <- adjcox (rage = 3, wait = 1, diabetes=1, hla = 3)
 
 #Plotting the output #
 plot(y = test$adjsurv, x = test$days, ylab = "Survival", xlab = "Time (days)", ylim = c(0, 1), col = "red")

@@ -7,6 +7,7 @@
             [transplants.model :as model]
             [transplants.vis2 :as vis]
             [transplants.ui :as ui]
+            [transplants.rgb :as rgb]
             ;[shadow.debug :refer [locals ?> ?->]]
             ))
 
@@ -113,7 +114,7 @@
                                 :right "20px"}}
                   "Warning: some inputs are missing"]
                  [:div {:style {:z-index 500
-                                :background-color "#889988"
+                                :background-color rgb/theme
                                 :padding 0
                                 :position "absolute"
                                 :top 0

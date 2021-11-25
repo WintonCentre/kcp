@@ -1,7 +1,7 @@
 #work for kidney deceased donor post tx patient survival #
 
 ## Set work area/libname ##
-setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
+# setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
 
 ## Import data ##
 survdata <- read.csv("kidney dd post tx patient surv.csv",fileEncoding = 'UTF-8-BOM')

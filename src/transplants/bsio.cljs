@@ -2,6 +2,7 @@
   "A (react) bootstrap i/o wrapper. There's an example of a boostrap text input component in the comment
 where we can work on defining a common interface. "
   (:require ["react-bootstrap" :as bs]
+            [transplants.rgb :as rgb]
             [shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
@@ -90,12 +91,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                        :value level
                                        :style {:border-radius 0
                                                :margin 0
-                                               :color (when (highlight? level) "#000B")
+                                               :color (when (highlight? level) "#00B")
                                                :font-weight (when (highlight? level) "bold")
                                                :background-color (if (highlight? level)
                                                                    "#fec"
                                                                    (if (= level value) 
-                                                                     "#889988" 
+                                                                     rgb/theme 
                                                                      "#fff"))}
                                        :variant "outline-secondary"}
                    level-name])

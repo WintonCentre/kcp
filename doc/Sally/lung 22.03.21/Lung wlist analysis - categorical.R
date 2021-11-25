@@ -1,5 +1,5 @@
 ## Set work area/libname ##
-setwd("F:\\Stats & Audit\\Shared\\Cardiothoracic\\Projects\\Outcomes from lung listing\\Modelling\\9. Work for David Speigenhalter\\October 2018\\Cox model work Dec 2020\\R work")
+#setwd("F:\\Stats & Audit\\Shared\\Cardiothoracic\\Projects\\Outcomes from lung listing\\Modelling\\9. Work for David Speigenhalter\\October 2018\\Cox model work Dec 2020\\R work")
 
 ## Import data ##
 survdata <- read.csv("lung wlist surv - categorical.csv")

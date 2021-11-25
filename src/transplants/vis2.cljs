@@ -629,7 +629,7 @@
 
        (fn [_ _ X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-          (locals)
+          ;(locals)
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}

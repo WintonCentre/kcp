@@ -32,7 +32,7 @@
    [""
     {:name      ::views/home
      :view      views/home-page
-     :link-text "Trac tools"
+     :link-text "Lung and Kidney Transplant Risk Tools"
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (println ::routes "Entering Home " params))

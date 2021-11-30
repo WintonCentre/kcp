@@ -63,13 +63,16 @@ in the routes table."
       [:> bs/Nav {:active-key (if organ (name organ) "home")
                  ;:class "mr-auto" :style {:height "100%" :vertical-align "middle"}
                   }
-       [:> bs/Nav.Link {:event-key :home
+       [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                        :event-key :home
                         :href (href :transplants.views/home)} "Home"]
        (into 
-        [:> bs/NavDropdown {:title (if organ (capitalize organ) "Organs") :id "basic-nav-dropdown"}]
+        [:> bs/NavDropdown {:style {:font-size "1.4em"}
+                            :title (if organ (capitalize organ) "Organs") :id "basic-nav-dropdown"}]
         (map (fn [organ]
                [:> bs/NavDropdown.Item
-                {:href (href :transplants.views/organ {:organ (name organ)})
+                {:style {:font-size "1.4em"}
+                 :href (href :transplants.views/organ {:organ (name organ)})
                  :key organ}
                 (name organ)])
               (keys @(rf/subscribe [::subs/organ-centres]))))
@@ -77,7 +80,8 @@ in the routes table."
        (when-let [centres (and organ ((keyword organ) @(rf/subscribe [::subs/organ-centres])))]
          #_(when (and organ centres))
          (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
-           (into [:> bs/NavDropdown {:title "Centres" :id "basic-nav-dropdown"}]
+           (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
+                                     :title "Centres" :id "basic-nav-dropdown"}]
                  (map (fn [centre]
                         [:> bs/NavDropdown.Item
                          {:href (if tool
@@ -129,7 +133,8 @@ in the routes table."
 (defn card-page
   "Render an array of cards"
   [title & children]
-  [container {:key 1 :style {:min-height "calc(100vh - 144px"}}  
+  [container {:key 1 :style {:margin-top 40;
+                             :min-height "calc(100vh - 144px"}}  
    [row
     [col
      (if (> @(rf/subscribe [:transplants.subs/window-width]) 441)
@@ -163,14 +168,9 @@ in the routes table."
   [:p
    (when (not= tool "guidance")
      [:span
-      "For more information that will be helpful to patients, follow the link to "
-      [:a.centre-header-link {:on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                                       {:organ organ
-                                                        :centre centre
-                                                        :tool :guidance}])} "useful information"]
-      "."])
+      "For more information that will be helpful to patients, follow the link to useful information."])
    " There is also a " [:a.centre-header-link {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
-   " which explains the tool in depth."])
+   " which explains the technical details of the tool."])
 
 
 
@@ -201,17 +201,13 @@ in the routes table."
     ;(?-> tools ::tools-menu)
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!
-    [:<>
-     
-     [#_#_#_:> bs/ButtonToolbar {:style {:background-color "#ffffff66"
-                                   :padding 15
-                                   :border-radius 10}}
-      row
+    [:<> 
+     [row
       [col {:xs 12 :sm 8}
        [:h3 {:style {:padding-right 20}} "Choose a tool:"]
 
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
-    ;; Even better would be to configure the break points as what makes sense will be ver application
+    ;; Even better would be to configure the break points as what makes sense will be very application
     ;; specific.
        (map-indexed
         (fn [i group]

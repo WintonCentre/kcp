@@ -27,14 +27,16 @@
   (let [mdata @(rf/subscribe [::subs/mdata])]
     ;(locals)
     (if mdata
-      [ui/page "Trac tools"
+      [ui/page "Lung and Kidney Transplant Risk Tools"
        [ui/row
         [ui/col
-         (into [:div {:style {:margin-bottom 20}}
+         (into [:div {:style {:margin-top 20
+                              :margin-bottom 20}}
                 (map (fn [organ]
                        [:div {:key (get-in mdata [organ :text])
                               :style {:margin-bottom 20}}
                         [ui/button {:id (str (name organ) "-button")
+                                    :class-name "btn-lg"
                                     :variant "primary"
                                     :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
                          (get-in mdata [organ :label])]])
@@ -53,7 +55,8 @@
     ;;
     ;; Insert Kidney or Lung home page here
     ;;
-    [ui/card-page "Choose your transplant centre" ; todo: configure
+    [ui/card-page 
+     "Choose your transplant centre" ; todo: configure
      (if-not centres
        [:div "loading /" organ " centres"]
        (if-not mdata
@@ -484,7 +487,7 @@
 ;; todo - move to config
 (def boxed-fill "#DFE4DF")
 (def boxed-border "20px solid #DFE4DF")
-(def boxed-text "DONOR")
+(def boxed-text [:span {:style {:font-size "1.2em" :font-weight "bold"}} "DONOR Characteristics"])
 (def boxed-text-color "#000")
 
 
@@ -511,7 +514,7 @@
          [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
           [ui/row
            [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
-           [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplants"]]]
+           [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
 
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
 

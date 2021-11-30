@@ -75,9 +75,13 @@
     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
 
 (defn radio
-  [{:keys [_factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]
+  [{:keys [factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
-        optional? (some? optional)]
+        optional? (some? optional)
+        info-box (try (edn/read-string info-box?)
+                      (catch :default e
+                        {:title [:span {:style {:color "red"}} "Info-box syntax error"]
+                         :content [:p "see " factor-name [:br] e]}))]
 ;    (locals)
     [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
      [:> bs/Col {:xs label-width
@@ -94,13 +98,13 @@
                        :on-click (fn [_e]
                                    (rf/dispatch [::events/modal-data
                                                  {:show true
-                                                  :title (:factor-name w)
-                                                  :content (edn/read-string (:info-box? w))
-                                                  #_(str "Some text for " (:factor-name w))
+                                                  :title (get info-box :title (:factor-name w))
+                                                  :content (get info-box :content info-box)
+                                                  ;:content (edn/read-string (:info-box? w))
                                                   :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
                                    (?-> {:show true
-                                         :title (:factor-name w)
-                                         :content (:info-box? w)
+                                         :title (get info-box :title (:factor-name w))
+                                         :content (get info-box :content info-box)
                                          #_(str "Some text for " (:factor-name w))
                                          :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
                                         ::radio))}

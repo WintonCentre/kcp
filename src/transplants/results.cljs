@@ -166,8 +166,11 @@
 
        [ui/tab {:event-key "table" :title "Table"}
         [vis/table env]]
-
-       [ui/tab {:variant "secondary"
+       
+       [ui/tab {:event-key "text" :title "Text"}
+        [vis/text env]]
+       
+       #_[ui/tab {:variant "secondary"
                 :event-key "test" :title "[Test]"}
         [vis/test-rig (conj env
                             [:rubric [[:h4 "Test Rig"]]]

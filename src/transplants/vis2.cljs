@@ -1121,6 +1121,49 @@
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
 
+(defn text-render
+  "If we took an example of 100 transplant patients, who input the same information as you into the tool, we would expect:
+After 1 year	31  of them to have received a transplant
+		67  of them to still be waiting for a transplant
+		  2  of them to have died or been removed from the list
+After 2 years 	67  of them to have received a transplant
+		23  of them to still be waiting for a transplant
+		10  of them to have died or been removed from the list
+After 3 years	75  of them to have received a transplant
+		  3  of them to still be waiting for a transplant
+		22  of them to have died or been removed from the list 
+"
+  [year-series tool-mdata plot-order data-styles]
+  (let [;plot-order (:plot-order tool-mdata)
+        labels (get-in tool-mdata [:table :labels])
+        years (range (count labels))]
+    [:div {:style {:margin-top 20}}
+     #_[:div
+      [:div
+       (for [i years
+             :let [label (nth labels i)
+                   line (:line label)
+                   line (if (sequential? line) (map str line) line)]]
+         [:div {:style {:border-bottom "3px solid #666"
+                       #_#_:color "#fff"
+                       #_#_:background-color "#888"}
+               :key (str "y-" i)} line])]]
+     [:div
+      (for [i years
+            :let [label (nth labels i)
+                  line (:line label)
+                  line (if (sequential? line) (map str line) line)]]
+        [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:h4 line]
+         (for [j (range (count plot-order))
+               :let [style ((nth plot-order j) data-styles)
+                     long-label (:long-label style)]]
+           [:div {:key (str "c-" j)}
+            (let [label (nth labels i)
+                  time-index (:time-index label)
+                  [_ {:keys [int-fs]}] (nth year-series time-index)]
+              [:div {:key (str "r-" i)} (str (nth int-fs j) ) " " long-label])])])]]))
+
+
 
 (defn table
   "render a table results view"
@@ -1149,4 +1192,33 @@
     ;(locals)
     [:section
      (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
-     (:post-section tool-mdata)]))
+     #_(:post-section tool-mdata)]))
+
+(defn text
+  "a text results view"
+  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+
+  (let [sample-days (map
+                     utils/year->day
+                     (range (inc (utils/day->year (first (last s0))))))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        tool-mdata (tool-metadata env organ tool)
+        data-styles (get tool-mdata :outcomes)
+
+        ;; Table plots need to have positive items at the start; negative (like death) at the end.
+        ;; for survival curves the :residual component is positive farmed, so bring 
+        ;; this to the start.
+        ;;
+        ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
+        ;; rather than at the tool level.
+        plot-order* (as-> (:plot-order tool-mdata) x
+                      (move-to-start x :residual)
+                      (move-to-end x :removal)
+                      (move-to-end x :death))
+
+        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
+    ;(locals)
+    [:section
+     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
+     #_(:post-section tool-mdata)]))

@@ -1,5 +1,7 @@
 (ns transplants.utils
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            ;[shadow.debug :refer [?->]]
+            ))
 
 (defn filled-in?
   "Does a field contain something?"
@@ -9,6 +11,7 @@
 (defn get-centre-info
   "Locate the info for an organ & centre from organ-centres"
   [organ-centres organ centre]
+  ;(?-> centre ::centre)
   (first (get (group-by (comp keyword :key) (organ organ-centres)) centre)))
 
 (defn get-centre-info*

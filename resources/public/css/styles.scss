@@ -26,8 +26,9 @@ $removed-darker: #DBCDB1;
 
 @mixin unselected($variant, $colour) {
     .btn-outline-#{$variant} {
-        background-color: #ffffff22; //color.adjust($colour, $lightness: +40%);
-        border: 4px solid #ffffff22; //color.adjust($colour, $lightness: +40%);
+        background-color: /*#ffffff88;*/
+        rgb($colour, 0.4); //color.adjust($colour, $lightness: +40%);
+        border: 4px solid #ffffff66; //color.adjust($colour, $lightness: +40%);
         border-radius: 20px;
         font-size: 1.2rem;
         color: #fff; //color.adjust($colour, $blackness: +10%);

@@ -3,7 +3,7 @@
             [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
-            [transplants.subs :as subs]
+            ;[transplants.subs :as subs]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
             [shadow.debug :refer [locals ?> ?-> ?->>]]

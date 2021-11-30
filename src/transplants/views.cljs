@@ -13,7 +13,8 @@
    [transplants.results :as results]
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]))
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   ))
 
 (comment
   (rf/dispatch [::events/initialize-db]))
@@ -448,11 +449,14 @@
 
       ;;; TODO: Tidy organ centre tool up here
 
-      (let [centre-info (utils/get-centre-info centres organ centre)]
+      (let [centre-info (utils/get-centre-info centres organ centre)
+            uk-info (utils/get-centre-info centres organ "uk")]
         
          [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
           [ui/row
-           [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
+           [ui/col {:xs 12 :sm 8} 
+            [:h1 (:description centre-info)]
+            [:p (:explanation uk-info)]]
            [ui/col {:xs 12 :sm 8} [:h1 organ-name]]
            ]
           #_[:div {:style {:display "flex" :justify-content "space-bewteen"}}
@@ -506,6 +510,7 @@
         ]
     (when (and organ centre ((keyword organ) organ-centres) tool)
       (let [centre-info (utils/get-centre-info organ-centres organ centre)
+            uk-info (utils/get-centre-info organ-centres organ :uk)
             tool-mdata (utils/get-tool-meta mdata organ tool)
             tcb (bun/get-bundle organ centre tool)]
         ;(locals)
@@ -513,7 +518,9 @@
 
          [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
           [ui/row
-           [ui/col {:xs 12 :sm 8} [:h1 (:description centre-info)]]
+           [ui/col {:xs 12 :sm 8} 
+            [:h1 (:description centre-info)]
+            [:p (:explanation uk-info)]]
            [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
 
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
@@ -537,8 +544,8 @@
                 (widg/widget {:type :reset})
 
                 (into [:<>]
-                      (map-indexed
-                       (fn [i [k w]] ^{:key (:factor w)}
+                      (map
+                       (fn [[k w]] ^{:key (:factor w)}
                          [:div {:style {:margin-top 0
                                         :margin-bottom -5
                                         :padding 5

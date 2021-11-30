@@ -13,7 +13,7 @@
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;; Events ;;;

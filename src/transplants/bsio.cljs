@@ -3,7 +3,7 @@
 where we can work on defining a common interface. "
   (:require ["react-bootstrap" :as bs]
             [transplants.rgb :as rgb]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (def missing-color "#ff0000")

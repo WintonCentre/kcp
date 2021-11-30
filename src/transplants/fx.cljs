@@ -2,7 +2,8 @@
   (:require [re-frame.core :as rf]
             [reitit.frontend.easy :as rfe]
             [transplants.paths :as paths]
-            [shadow.debug :refer [?-> locals]]))
+            ;[shadow.debug :refer [?-> locals]]
+            ))
 
 
 
@@ -29,7 +30,7 @@
  ::load-organ-centres
  (fn [organs]
    (doseq [organ organs]
-     (locals)
+     ;(locals)
      (rf/dispatch [:transplants.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))
 
 (comment

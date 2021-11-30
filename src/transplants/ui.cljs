@@ -11,7 +11,8 @@ the low level ui."
             [transplants.subs :as subs]
             [transplants.numeric-input :as ni]
             [transplants.bsio :as bsio]
-            [shadow.debug :refer [?-> ?->> locals]]))
+            ;[shadow.debug :refer [?-> ?->> locals]]
+            ))
 
 (enable-console-print!)
 
@@ -81,7 +82,7 @@ in the routes table."
          #_(when (and organ centres))
          (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
            (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
-                                     :title "Centres" :id "basic-nav-dropdown"}]
+                                     :title "Transplant Centres" :id "basic-nav-dropdown"}]
                  (map (fn [centre]
                         [:> bs/NavDropdown.Item
                          {:href (if tool
@@ -144,7 +145,7 @@ in the routes table."
 
 (defn tool-buttons
   "Create buttons for each transplant tool"
-  [{:keys [key label organ centre tool active-tool button-type] :as tb-params}]
+  [{:keys [key label organ centre tool active-tool button-type]}]
   ;(?-> tb-params ::tool-buttons)
   ;(?-> tool ::tool-buttons)
   ;(?-> button-colour ::tool-buttons)
@@ -164,7 +165,7 @@ in the routes table."
 
 (defn background-link
   "Tool menu prefix rubric."
-  [organ centre tool]
+  [organ _centre tool]
   [:p
    (when (not= tool "guidance")
      [:span
@@ -279,7 +280,7 @@ in the routes table."
 
 (defn centre-card
   "A single card describing a centre"
-  [mobile params]
+  [_mobile params]
   #_(if mobile
     [phone-card params]
     [nav-card params])

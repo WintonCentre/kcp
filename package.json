@@ -28,6 +28,7 @@
         "@restart/hooks": "^0.4.0",
         "bootstrap": "^4.6.0",
         "dagre": "0.8.5",
+        "es6-object-assign": "^1.1.0",
         "prop-types-extra": "^1.1.1",
         "react": "17.0.1",
         "react-bootstrap": "^1.6.1",

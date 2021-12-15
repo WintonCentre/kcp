@@ -19,17 +19,37 @@
   [org.clojars.ertucetin/re-frame-flow "0.1.4"]]
 
  :dev-http
- {3000 "resources/public"}
+ {3000 "resources/public"
+  ;3001 "resources/public-lung"
+  ;3002 "resources/public-kidney"
+  }
 
  :builds
  {:app {:target     :browser
         :output-dir "resources/public/js"
         :asset-path "/js"
-        :devtools {:preloads [re-frame-flow.preload]}
+        :devtools {
+                   :preloads [re-frame-flow.preload]}
         :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
         :modules {:app {:init-fn transplants.core/init}}}
 
+  #_#_:lung {:target     :browser
+        :output-dir "resources/public-lung/js"
+        :asset-path "/js"
+        :devtools {:preloads [re-frame-flow.preload]}
+        :compiler-options {:optimizations  :advanced
+                           :output-wrapper false}
+        :modules {:app {:init-fn transplants.core/lung-init}}}
+  
+  #_#_:kidney {:target     :browser
+           :output-dir "resources/public-kidney/js"
+           :asset-path "/js"
+           :devtools {:preloads [re-frame-flow.preload]}
+           :compiler-options {:optimizations  :advanced
+                              :output-wrapper false}
+           :modules {:app {:init-fn transplants.core/kidney-init}}}
+  
   :test-browser {:target     :browser-test
                  :test-dir   "out/browser/test"
                  :devtools   {:http-port 3021

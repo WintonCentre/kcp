@@ -72,3 +72,16 @@
 ; Not needed for shadow-cljs where init is declared as a module entry point
 ;(defonce start-up (do (init) true))
 
+(defn ^:export lung-init
+  "Entry point for the lung app"
+  []
+  (js/console.log "LUNG")
+  (init)
+  )
+
+(defn ^:export kidney_init
+  "Entry point for the kidney app"
+  []
+  (js/console.log "KIDNEY")
+  (init)
+  )

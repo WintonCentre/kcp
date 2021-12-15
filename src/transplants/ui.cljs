@@ -50,14 +50,33 @@ in the routes table."
    [:h1 "Loading"]]
   )
 
+(defn get-single-organ
+  "extract the single organ or if not single then nil from metadata"
+  [mdata]
+  (let [organ-order (:organ-order mdata)]
+    (if (= (count organ-order) 1)
+      (first organ-order)
+      nil)))
+
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
   [{:keys [home-url logo]}]
   (let [route @(rf/subscribe [::subs/current-route])
-        organ (get-in route [:path-params :organ])]
+        organ (get-in route [:path-params :organ]) ; this is nil until it has been selected
+        mdata  @(rf/subscribe [::subs/mdata])
+
+        ; organ-order gives us the list of configured organ tools, in-order. In development we may have more than one organ,
+        ; but in production each site will have only a single organ. 
+        single-organ (get-single-organ mdata)
+        ]
     [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
                    :style {:border-bottom "1px solid black" :opacity "1"}}
-     [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "NHS"}]]
+     [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "Winton Centre"}]]
+     ; Site name below 
+     [:div {:style {:font-size "2em"}}
+      (if single-organ
+        (get-in mdata [single-organ :label])
+        "Development Site")]
      [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
      [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
 
@@ -67,7 +86,17 @@ in the routes table."
        [:> bs/Nav.Link {:style {:font-size "1.4em"}
                         :event-key :home
                         :href (href :transplants.views/home)} "Home"]
-       (into 
+       [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                        :event-key :home
+                        :href (href :transplants.views/home)} "About"]
+       [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                        :event-key :home
+                        :href (href :transplants.views/home)} "Legal"]
+       [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                        :event-key :home
+                        :href (href :transplants.views/home)} "Publications"]
+       
+       #_(into
         [:> bs/NavDropdown {:style {:font-size "1.4em"}
                             :title (if organ (capitalize organ) "Organs") :id "basic-nav-dropdown"}]
         (map (fn [organ]
@@ -76,8 +105,8 @@ in the routes table."
                  :href (href :transplants.views/organ {:organ (name organ)})
                  :key organ}
                 (name organ)])
-              (keys @(rf/subscribe [::subs/organ-centres]))))
-       
+             (keys @(rf/subscribe [::subs/organ-centres]))))
+
        (when-let [centres (and organ ((keyword organ) @(rf/subscribe [::subs/organ-centres])))]
          #_(when (and organ centres))
          (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
@@ -96,7 +125,7 @@ in the routes table."
                                          :tool "waiting"}))
                           :key (name (:key centre))}
 
-                          (:name centre)])
+                         (:name centre)])
                       centres))))]]]))
 
 (comment 
@@ -110,9 +139,11 @@ in the routes table."
   "Site footer. 
    todo: Needs to be made configurable."
   []
-  [:div {:style {:width "100%" :height "60px" :background-color "black" :color "white"
+  [:div {:style {:width "100%" :height "80px" :background-color "black" :color "white"
                  :display "flex" :align-items "center" :justify-content "center"}}
-   [:div {:style {:margin "20px"}} "Footer"]])
+   [:div {:style {:margin "20px" :display "flex" :flex-direction "row" :align-items "center"}}
+    [:img {:src "assets/crest.png" :style {:height 40 :margin-right 20} :alt "University of Cambridge Crest"}] 
+    "Winton Centre"]])
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
@@ -125,8 +156,8 @@ in the routes table."
         [footer]])
      [navbar {:router router
               :current-route current-route
-              :home-url "https://www.nhsbt.nhs.uk/"
-              :logo "/assets/nhsbt-left-align_scaled.svg"
+              :home-url "/" ;"https://lung-transplants.wintoncentre.uk"
+              :logo "/assets/crest.png"
               :tool-name "Lung Transplants"}]
      (bsio/modal #(rf/subscribe [::subs/modal-data]))
      ]))

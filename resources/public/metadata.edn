@@ -22,7 +22,7 @@
  ;;
 
  ;; :todo: Rename :organs. Domains?
- :organ-order [:lung :kidney] ; This app will contain the :lung and :kidney home-pages in that order
+ :organ-order [:lung] ; This app will contain the :lung and :kidney home-pages in that order
 
  ;;
  ; :todo If an app only contains one domain, then the domain selection buttons should be skipped and the app should load 
@@ -38,7 +38,7 @@
                              "a page of guidance")}
 
  :lung {:text "Lung"
-        :label "Lung Transplants" ; Labels for any button that takes you to the Lung home page
+        :label "Lung" ; Labels for any button that takes you to the Lung home page
         :primary-colour "purple" ; unused 
         :tool-order [:waiting :post-transplant :guidance]
         :tools {; The default tool provides a default configuration for each tool for this organ
@@ -441,7 +441,7 @@
                                                  information as you, based on patients who joined the waiting list between 2004 and 2014. "]]}}}
 
  :kidney {:text "Kidney"
-          :label "Kidney Transplants"
+          :label "Kidney"
           :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :guidance]
           :tools {:waiting {:button-type "waiting"
                             :label "Waiting times"

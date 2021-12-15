@@ -15,8 +15,7 @@
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                        Nav Nav.Link]]))
 (comment
-  (paths/centres-path :lung)
-  )
+  (paths/centres-path :lung))
 
 (def routes
   "Reitit nested route syntax can be tricky. Only the leaves are valid.
@@ -32,7 +31,7 @@
    [""
     {:name      ::views/home
      :view      views/home-page
-     :link-text "Lung and Kidney Transplant Risk Tools"
+     :link-text "Transplant Risks"
      :controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (println ::routes "Entering Home " params))
@@ -77,14 +76,13 @@
                                   (js/console.log "Entering organ-centre-tool: " params)
                                   (tap> {:tab  tab
                                          :params params})
-                                  (rf/dispatch [::events/selected-vis tab])
-                                  ))
+                                  (rf/dispatch [::events/selected-vis tab])))
                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]])
 
 
 (comment
   (paths/tools-path :lung)
-  
+
   (def m [[[:a 1] [:b 2]] [[:a 3] [:b 4]]])
   m
   (map (partial into {}) m)

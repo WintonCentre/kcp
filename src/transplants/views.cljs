@@ -25,12 +25,14 @@
    Minimally, navigation from here to an organ home page."
   []
   ;; This needs to be a promise....
-  (let [mdata @(rf/subscribe [::subs/mdata])]
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        single-organ (ui/get-single-organ mdata)]
     ;(locals)
-    (if mdata
-      [ui/page "Lung and Kidney Transplant Risk Tools"
-       [ui/row
-        [ui/col
+    
+    [ui/page "Transplant Risks"
+     [ui/row
+      [ui/col
+       (if mdata
          (into [:div {:style {:margin-top 20
                               :margin-bottom 20}}
                 (map (fn [organ]
@@ -40,9 +42,12 @@
                                     :class-name "btn-lg"
                                     :variant "primary"
                                     :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
-                         (get-in mdata [organ :label])]])
-                     (mdata :organ-order))])]]]
-      [ui/loading])))
+                         (if single-organ
+                           "Choose your transplant centre"
+                           (get-in mdata [organ :label]))]])
+                     (mdata :organ-order))])
+         [ui/loading])]]]
+    ))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.

@@ -132,6 +132,8 @@
   [{:keys [_ db]} [_ data-path response]]
   (let [path-params (get-in db [:current-route :path-params])
         [organ _centre tool _tab] (utils/path-keys path-params)
+        ;_ (js/console.log ::store-bundle-inputs "tool: " tool)
+        tool (if (nil? tool) :waiting tool)
         raw (edn/read-string response)
 
         bundle-name (name tool)

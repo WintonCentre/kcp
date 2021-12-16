@@ -75,7 +75,7 @@ in the routes table."
      ; Site name below 
      [:div {:style {:font-size "2em"}}
       (if single-organ
-        (get-in mdata [single-organ :label])
+        (str (get-in mdata [single-organ :label]) " Tool")
         "Development Site")]
      [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
      [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
@@ -95,19 +95,8 @@ in the routes table."
        [:> bs/Nav.Link {:style {:font-size "1.4em"}
                         :event-key :home
                         :href (href :transplants.views/home)} "Publications"]
-       
-       #_(into
-        [:> bs/NavDropdown {:style {:font-size "1.4em"}
-                            :title (if organ (capitalize organ) "Organs") :id "basic-nav-dropdown"}]
-        (map (fn [organ]
-               [:> bs/NavDropdown.Item
-                {:style {:font-size "1.4em"}
-                 :href (href :transplants.views/organ {:organ (name organ)})
-                 :key organ}
-                (name organ)])
-             (keys @(rf/subscribe [::subs/organ-centres]))))
 
-       (when-let [centres (and organ ((keyword organ) @(rf/subscribe [::subs/organ-centres])))]
+       (when-let [centres (single-organ @(rf/subscribe [::subs/organ-centres]))]
          #_(when (and organ centres))
          (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
            (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
@@ -116,11 +105,11 @@ in the routes table."
                         [:> bs/NavDropdown.Item
                          {:href (if tool
                                   (href :transplants.views/organ-centre-tool
-                                        {:organ (name organ)
+                                        {:organ (name single-organ)
                                          :centre (name (:key centre))
                                          :tool (name tool)})
                                   (href :transplants.views/organ-centre-tool
-                                        {:organ (name organ)
+                                        {:organ (name single-organ)
                                          :centre (name (:key centre))
                                          :tool "waiting"}))
                           :key (name (:key centre))}

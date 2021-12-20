@@ -37,10 +37,42 @@
                     :start (fn [& params] (println ::routes "Entering Home " params))
        ;; Teardown can be done here.
                     :stop   (fn [& params] (println ::routes "Leaving Home " params))}]}]
-
+   ["about" {:name      ::views/about
+             :view      views/about-page
+             :link-text "About"
+             :conflicting true
+             :controllers [{:parameters {:path [:organ]}
+                            :start (fn [params]
+                                     (js/console.log "Entering About:" params))
+                            :stop  (fn [_params] (js/console.log (str "Leaving About")))}]}]
+   ["legal" {:name      ::views/legal
+             :view      views/legal-page
+             :link-text "Legal"
+             :conflicting true
+             :controllers [{:parameters {:path [:organ]}
+                            :start (fn [params]
+                                     (js/console.log "Entering Legal:" params))
+                            :stop  (fn [_params] (js/console.log (str "Leaving Legal")))}]}]
+   ["pubs" {:name      ::views/pubs
+             :view      views/pubs-page
+             :link-text "Publications"
+             :conflicting true
+             :controllers [{:parameters {:path [:organ]}
+                            :start (fn [params]
+                                     (js/console.log "Entering Pubs:" params))
+                            :stop  (fn [_params] (js/console.log (str "Leaving Pubs")))}]}]
+   ["tech" {:name      ::views/tech
+             :view      views/tech-page
+             :link-text "Technical"
+             :conflicting true
+             :controllers [{:parameters {:path [:organ]}
+                            :start (fn [params]
+                                     (js/console.log "Entering Tech:" params))
+                            :stop  (fn [_params] (js/console.log (str "Leaving Tech")))}]}]
    [":organ" {:name      ::views/organ
               :view      views/organ-home
               :link-text "organ"
+              :conflicting true
               :controllers [{:parameters {:path [:organ]}
                              :start (fn [params]
                                       (js/console.log "Entering organ:" params)

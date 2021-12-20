@@ -13,7 +13,7 @@
    [transplants.results :as results]
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 (comment
@@ -47,7 +47,8 @@
                         :variant "primary"
                         :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
              (if single-organ
-               "Choose your transplant centre"
+               "Start the tool"
+               ;"Choose your transplant centre"
                (get-in mdata [organ :label]))]])
          (mdata :organ-order))))
 
@@ -87,11 +88,11 @@
             you have other health conditions."]
 
         [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication properly, diet and whether you exercise."]
-        [:p "If you want to know more about the models and data behind the tools, go to the xxx tab or link.
+        [:p "If you want to know more about the models and data behind the tools, select Technical from the menu.
 Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
 "]
         (when (= single-organ :kidney)
-          [:p "KIDNEY only - Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"])]]
+          [:p "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"])]]
 
       [:> bs/Col {:md 4}
        [home-section
@@ -129,10 +130,13 @@ Data about transplant patients were used to create statistical models.  When you
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        single-organ (ui/get-single-organ mdata)]
+        route @(rf/subscribe [::subs/current-route])
+        single-organ (ui/get-single-organ mdata)
+        organ (get-in route [:path-params :organ])
+        ]
     ;(locals)
     
-    (if mdata
+    (if-let [organ (or single-organ organ)]
       [ui/page (str (string/capitalize (name single-organ)) " Transplant Risks")
        [ui/row
         [ui/col
@@ -140,6 +144,7 @@ Data about transplant patients were used to create statistical models.  When you
          ]]]
       [ui/loading])
     ))
+
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
@@ -150,29 +155,235 @@ Data about transplant patients were used to create statistical models.  When you
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
         centres @(rf/subscribe [::subs/organ-centres])
         mobile (<= window-width ui/mobile-break)]
+    
     ;;
     ;; Insert Kidney or Lung home page here
     ;;
-    [ui/card-page 
-     "Choose your transplant centre" ; todo: configure
-     (if-not centres
-       [:div "loading /" organ " centres"]
-       (if-not mdata
-         [:div "Loading /metadata.edn"]
-         (let [centres (sort-by :description ((keyword organ) centres))
-               centres (filter #(utils/filled-in? (:description %)) centres)
-               tools (utils/get-tools mdata organ)
-               centre-card (fn [centre]
-                             [ui/centre-card mobile
-                              {:img-src (:image centre)
-                               :organ organ
-                               :link [::organ-centre {:organ organ :centre (name (:key centre))}]
-                               :centre (:key centre)
-                               :hospital (:description centre)
-                               :width 200
-                               :tools tools}])]
-           (into (ui/centre-card-deck mobile)
-                 (map centre-card centres)))))]))
+      [ui/card-page
+       "Choose your transplant centre" ; todo: configure
+       (if-not centres
+         [:div "loading /" organ " centres"]
+         (if-not mdata
+           [:div "Loading /metadata.edn"]
+           (let [centres (sort-by :description ((keyword organ) centres))
+                 centres (filter #(utils/filled-in? (:description %)) centres)
+                 tools (utils/get-tools mdata organ)
+                 centre-card (fn [centre]
+                               [ui/centre-card mobile
+                                {:img-src (:image centre)
+                                 :organ organ
+                                 :link [::organ-centre {:organ organ :centre (name (:key centre))}]
+                                 :centre (:key centre)
+                                 :hospital (:description centre)
+                                 :width 200
+                                 :tools tools}])]
+             (into (ui/centre-card-deck mobile)
+                   (map centre-card centres)))))]))
+
+
+
+(defn pubs-page
+  "Display a generic home page. 
+   Minimally, navigation from here to an organ home page."
+  []
+  ;; This needs to be a promise....
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        route @(rf/subscribe [::subs/current-route])
+        single-organ (ui/get-single-organ mdata)
+        organ (get-in route [:path-params :organ])]
+    (locals)
+
+    (if mdata
+      [ui/page (str "Publications")
+       [ui/row
+        (condp = single-organ
+          :lung [ui/col
+                 [:p "Annual Report on Cardiothoracic Transplantation 2019/2020. NHS Blood and Transplant."
+                  [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf." :target "_blank"}
+                   "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf."] " Published 2020. Accessed 01/03/2021"]
+                 [:p
+                  "Kourliouros A Hogg R Mehew J et al. Patient outcomes from time of listing for lung transplantation in the UK: are there disease-specific differences? Thorax 2019 ;74:60-68. Breslow N. E. (1972) “Discussion of Professor Cox’s Paper” J. Royal Stat. Soc. B 34 216 –217."]]
+          :kidney [ui/col 
+                   [:p "NHSBT organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ")"]
+                   [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
+          :else [ui/col [:p "None."]])]]
+      [ui/loading])))
+
+(defn lung-about-content
+  []
+  [:<>
+   [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions."]
+   [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional."]
+   [:p "Only adult (aged ≥16 years) patients have been used to the develop the tool; it is not suitable for paediatric patients due to the small number of patients involved which would not generate robust models. Patients who were not eligible for National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on a paediatric waiting list were not included. Patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration were also not included. The results from the tool will therefore not be suitable for patients from outside the UK or for those patients who fall outside these inclusion criteria."]
+   [:p "This tool has been developed using retrospective registry data (Section 2.2). Changes to the UK Lung Offering Scheme in May 2017 are not reflected in these models and hence results presented will not be meaningful for patients registered on the Urgent or Super-Urgent Lung Offering Scheme. "]
+   [:h4 "Who built this tool"]
+   [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]])
+
+(defn kidney-about-content
+  []
+  [:<>
+   [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions. "]
+[:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional.
+Data from adult (aged 18 or more) patients only have been used to develop these tools, and they are not suitable for paediatric patients."]
+[:p "The data used to develop this site has been developed patients registered for deceased donor kidney transplants in the UK, or who have received a deceased donor kidney-only transplant in the UK so will not be suitable for patients from other countries." [:span {:style {:color "red"}} " Patients registered on another organ transplant list (e.g. pancreas list) either before, during or after their kidney registration were also not included."] " The results from the tool will therefore not be suitable for those patients who fall outside these inclusion criteria."]
+[:h4 "Who built this tool"]
+[:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]])
+
+;;; Views ;;;
+(defn about-page
+  "Display a generic home page. 
+   Minimally, navigation from here to an organ home page."
+  []
+  ;; This needs to be a promise....
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        route @(rf/subscribe [::subs/current-route])
+        single-organ (ui/get-single-organ mdata)
+        organ (get-in route [:path-params :organ])]
+    ;(locals)
+
+    (if mdata
+      [ui/page (str " About the " (string/capitalize (name single-organ)) " tool")
+       [ui/row
+        (condp = single-organ
+          :lung [ui/col
+                 [lung-about-content]]
+          :kidney [ui/col
+                   [kidney-about-content]]
+          :else [:div])]]
+      [ui/loading])))
+
+(defn lung-tech-content
+  []
+  [:<>
+   [:h4 "Model development"]
+   [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
+   [:p "NHSBT statisticians worked closely with transplant clinicians to compile a large list of potential variables (e.g. age, disease group) from the UKTR to test in the models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. survival after transplant). These variables are referred to as ‘risk factors’."]
+   [:p "At the end of the modelling process, values are obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section (Section 3) to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline curve which represents an ‘average’ patient in the study cohort. This curve when plotted over time represents the estimated chances of survival (for the example of survival after transplant) for a patient in the model development dataset with the mean/most common value of all the risk factors in the model. The parameter estimates are then used by the tool to shift this baseline curve when the values of the risk factors are changed from the mean/most common values. This way, users can select values of each risk factor that best represent their own characteristics and view model results for patients ‘like me’. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre, in order to represent different practice at each centre. Details of the modelling development can be found in Kourliouros et al (2019)."]
+   [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
+   [:p "Patient primary disease is recorded on the UKTR and the following groupings were used for the analysis: COPD (encompassing alpha-1-antitrypsin deficiency and emphysema), cystic fibrosis (CF, also encompassing patients with bronchitectasis) and pulmonary fibrosis (PF, encompassing all fibrotic lung diseases). All other lung diseases were grouped under the category ‘other’."]
+   [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA"]])
+
+
+
+  (defn kidney-tech-content
+    []
+    [:<>
+     [:h3 "Model development"]
+     [:p "The models behind the TRAC tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
+     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the TRAC tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
+     [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section (Section 3) to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:span {:style {:color "red"}} " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the TRAC tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
+
+     [:p "Although the TRAC tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
+
+     [:p "This tool has been developed using retrospective registry data. " [:span {:style {:color "red"}} "Therefore, changes to the Kidney Offering Scheme in 2019 are NOT reflected in these models. "]]
+
+     [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA. "]
+
+     [:h4 "Waiting Times"]
+     [:p "The dataset used for this model comprised of all adult (aged ≥18 years) first kidney-only registrations (i.e. people joining the transplant waiting list) between 1 January 2010 and 31 December 2015."]
+     [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk’ of. We considered outcome data up to 5 years from listing for all patients in the modelling cohort. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox Regression (Section 3.1)."]
+     [:p "Each patient in the cohort was assigned to 1 of 4 categories:"]
+     [:ol
+      [:li "Patients who were transplanted with either a living or deceased donor transplant"]
+      [:li "Patients who died on the list whilst awaiting transplantation"]
+      [:li "Patients who were removed from the list prior to transplantation. This could occur for a number of reasons including patient choice or a deterioration in health such that a transplant was no longer suitable."]
+      [:li "Patients who were still waiting on the list. Patients who were suspended were classed as still waiting on the list."]]
+     [:p "The covariates used in the model were those which have previously been shown to have an impact on outcome and those which were thought to be clinically significant."]
+     [:p "Following development of the Cox Proportional hazards models, a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model. This algorithm enabled the estimated chances of each of the listed outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%."]
+
+     [:h4 "Patient and graft survival after a deceased donor kidney transplant"]
+     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
+
+     [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
+
+     [:h5 "Five-year deceased donor post-transplant patient survival"]
+     [:p "Post-transplant patient survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant if this was within 5 years of transplantation. The following factors were found to be significant and included in the model; recipient age, recipient ethnicity, waiting time, recipient primary renal disease, donor age, donor hypertension, HLA MM level."]
+     [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.71. "]
+
+     [:h5 "Five-year deceased donor post-transplant graft survival"]
+     [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up.  The following factors were found to be significant and included in the model; recipient age, waiting time, graft number, recipient primary renal disease, donor age, donor BMI, donor hypertension, HLA MM level."]
+     [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.63."]
+
+     [:h4 "Patient and graft survival after a living donor kidney transplant"]
+     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2015."]
+     [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
+     [:ul
+      [:li "Donor factors: age, sex, relationship to recipient, BMI, ethnicity, status, hypertension, BMI, height, weight retrieval creatinine."]
+      [:li "Recipient factors: age, sex, ethnicity, diabetic nephropathy as a cause of renal failure, waiting time, dialysis status, matchability, blood group, cold ischaemia time, HLA mismatch and graft number. "]
+      [:li "Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Due to fewer numbers, the transplant centre was not included as a strata and national results have been demonstrated."]]
+     [:h5 "Five-year living donor post-transplant graft survival"]
+     [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up."]
+     [:p "The following factors were found to be significant and included in the model; recipient age, waiting time, matchability, donor age, HLA MM level."]
+     
+     [:h4 "Input factors"]
+     [:p "Explanation of donor and recipient input covariates:"]
+     [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
+     [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender."]
+     [:p [:b "Recipient ethnicity"] " - Asian, Black Chinese, Mixed, White, Other."]
+     [:p [:b "Recipient waiting time (years)"] " - Time waiting on deceased donor kidney waiting list until time of transplant (active and suspended).  This can serve as a proxy for ‘time on dialysis’ as most patients are either already on dialysis or due to commence dialysis within 6 months at the time of listing for transplantation."]
+     [:p [:b "Previous Kidney Transplant?"] " - Yes or No"]
+     [:p [:b "Highly sensitised (cRF >85%)"] "- any antibodies in the blood – e.g. as a result of pregnancy or a previous organ transplant."]
+     [:p [:b "Blood group"] " - Patient’s blood group: O, A, B, AB"]
+     [:p [:b "Dialysis at registration"] " - Refers to any form of dialysis (peritoneal or haemodialysis) at the time of listing for transplantation."]
+     [:p [:b "Matchability"] " - Whether due to a range of factors, such as blood group, it will be ‘easy’, ‘moderate’, or ‘difficult’ to find a matching organ.  The ODT provides further details on how this is calculated and a tool for calculating matchability for individual patients: https://www.odt.nhs.uk/transplantation/tools-policies-and-guidance/calculators/ "]
+     [:p [:b "Donor age"] " - The age at which the donor donated their organs."]
+     [:p [:b "Donor BMI"] " - Donor BMI as recorded at the donating hospital site. Calculated as weight (kilograms) divided by height (m" [:sup "2"] ")"]
+     [:p [:b "Donor Hypertension"] " - Whether the donor suffered from high blood pressure as recorded by NHSBT on data collection forms at the time of donation."]
+     [:p [:b "HLA MM level"] " - Human Leukocyte Antigen (HLA) matching level.  HLA are proteins located on the surface of white blood cells and other tissues. When people share the same HLA’s, they are said to be a ‘match’. There are may different types of HLA, and the matching can occur to different degrees, hence the different levels of matching. "]
+     [:p [:b "Transplant Centre"] " - This refers to which of the 23 UK adult kidney transplant centres the patient will be receiving their transplant.  (This is not always the dialysis centre at which they are followed up)."]
+
+
+
+     [:h3 "Mathematical Section"]
+     [:p "Link to pdf here."]])
+
+(defn tech-page
+  "Display a generic home page. 
+   Minimally, navigation from here to an organ home page."
+  []
+  ;; This needs to be a promise....
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        route @(rf/subscribe [::subs/current-route])
+        single-organ (ui/get-single-organ mdata)
+        organ (get-in route [:path-params :organ])]
+    (locals)
+
+    (if mdata
+      [ui/page (str " Technical Details for the " (string/capitalize (name single-organ)) " tool")
+       [ui/row
+        (condp = single-organ
+          :lung [ui/col
+                 [lung-tech-content]]
+          :kidney [ui/col
+                   [kidney-tech-content]]
+          :else [:div])]]
+      [ui/loading])))
+
+
+(defn legal-page
+  "Display a generic home page. 
+   Minimally, navigation from here to an organ home page."
+  []
+  ;; This needs to be a promise....
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        route @(rf/subscribe [::subs/current-route])
+        single-organ (ui/get-single-organ mdata)
+        organ (get-in route [:path-params :organ])]
+    ;(locals)
+
+    (if mdata
+      [ui/page (str " Legal ")
+       [ui/row
+        [ui/col
+         [:h4 "Disclaimer"]
+         [:p "TRAC uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
+
+         [:h4 "Cookies and Privacy Notice"]
+         [:p "No identifiable user data is collected by the app. No data is transferred to any other
+              system, and the data entered in your browser is erased once you close the application window."]
+         [:p "No cookies are colllected"]
+         ]]]
+      [ui/loading])))
 
 ;;
 ;; Move background info to config
@@ -544,6 +755,27 @@ Data about transplant patients were used to create statistical models.  When you
 (def boxed-text [:span {:style {:font-size "1.2em" :font-weight "bold"}} "DONOR Characteristics"])
 (def boxed-text-color "#000")
 
+(defn factors-not-included
+  "Considered factors that were not included"
+  [mdata]
+  (let [route @(rf/subscribe [::subs/current-route])
+        single-organ (ui/get-single-organ mdata)
+        organ (get-in route [:path-params :organ])]
+    (condp = (or single-organ organ)
+      :lung [:div
+             [:p "Patient inputs that were considered but not included in the tool e.g. antibody status"]
+             [:p [:b "Recipient Antibody Status"] " – not currently collected by NHS BT"]
+             [:p [:b "Recipient Height or TLC" " – BMI is included in model.  In the model building, height was found to be significant for time to transplant and BMI for time to death on list (but not height), so a decision was made to go with BMI as it includes height."]]
+             [:p [:b "O2 need or use / NIV / Frailty / 6 minute walk test"] " - 6 minute walk completeness for cohort used = 84% so would reduce cohort even further to include as we would remove all patients completely from the modelling if they had this missing.  Home oxygen use (y/n) is collected but when we did the original project for this, we were told it was not relevant to include. NIV is not collected."]
+             [:p [:b "FEV1, Transfer Factor"] " - FVC is included in model."]
+             [:p [:b "Comorbidities (coronary artery disease, renal dysfunction, diabetes)"] " - Coronary artery disease collected only as primary disease so not available for inclusion.  eGFR and diabetes was considered when constructing the models originally and were not significant."] [:p [:b "Time on ventilator / mechanical support"] " - Time on support not captured and very low numbers for on ventilator as it is only collected for patients in hospital at transplant – 9 (0.8%) of cohort were on ventilator at transplant."]]
+      :kidney [:div
+               [:p [:b "Recipient BMI"] " - Tested and not found  to be significant in model"]
+               [:p [:b "Creatinine"] " - Although we can get terminal creatinine for donor, we don’t know how many were on filtration in ITU – this would give a falsely low creatinine and be misleading. "]
+               [:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."] 
+               [:p [:b "Remove Donor BMI " [:span {:style {:color "red"}} "???"]] " - Removing factors that have been shown to be significant will make the model less robust."]]
+      :else [:div])))
+
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name]}]
   (when (and organ centre ((keyword organ) organ-centres) tool)
@@ -574,6 +806,27 @@ Data about transplant patients were used to create statistical models.  When you
 
              (when-let [input-header (get-in tool-mdata [:inputs :header])]
                input-header)
+             
+             [:p 
+              [:> bs/Button {:size "sm"
+                             :variant "link"
+                             :class-name "more"
+                             :title "Factors considered but not included"
+                     ;:style {:cursor "pointer"}
+                             :on-click (fn [_e]
+                                         (rf/dispatch [::events/modal-data
+                                                       {:show true
+                                                        :title "Factors considered but not included"
+                                                        :content (factors-not-included mdata)
+                                                  ;:content (edn/read-string (:info-box? w))
+                                                        :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
+                                         (?-> {:show true
+                                               :title "Factors considered but not included"
+                                               :content (factors-not-included mdata)
+                                               #_(str "Some text for " (:factor-name w))
+                                               :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
+                                              ::radio))}
+               [:span "Show factors considered but not included"]]]
 
              [:div {:style {:padding "0px 30px 15px 15px"
                             :height "calc(100vh + 10ex)"
@@ -686,27 +939,3 @@ Data about transplant patients were used to create statistical models.  When you
                                 :guidance))
 
 
-#_(comment
-
-    ;; Up for discussion: How should we configure texts in general....
-
-    ;-------------- Text views below --------------
-;
-; Needs replacing with a text system that supports editable rich text somewhere
-;
-;(defn lung-home [] (organ-home :lung))
-;(defn kidney-home [] (organ-home :kidney))
-
-    (defn sub-page1 []
-      [:h1 "This is sub-page 1"])
-
-
-    (defn about []
-      [ui/page "About"])
-
-
-    (defn about-technical
-      "Technical stuff - in Predict we scroll to this rather than making it a separate page. 
-In reagent, maybe use https://github.com/PEZ/clerk if we need to do this."
-      []
-      [ui/page "Technical"]))

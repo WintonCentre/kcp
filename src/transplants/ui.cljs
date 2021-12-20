@@ -43,6 +43,10 @@ in the routes table."
   ([k params query]
    (rfe/href k params query)))
 
+(comment
+  (href :transplants.views/organ {:organ "kidney"})
+  )
+
 (defn loading
   "The page is loading"
   []
@@ -69,53 +73,61 @@ in the routes table."
         ; but in production each site will have only a single organ. 
         single-organ (get-single-organ mdata)
         ]
-    [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
-                   :style {:border-bottom "1px solid black" :opacity "1"}}
-     [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "Winton Centre"}]]
+    (when-let [organ (or single-organ organ)]
+      [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
+                     :style {:border-bottom "1px solid black" :opacity "1"}}
+       [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "Winton Centre"}]]
      ; Site name below 
-     [:div {:style {:font-size "2em"}}
-      (if single-organ
-        (str (get-in mdata [single-organ :label]) " Tool")
-        "Development Site")]
-     [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
-     [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
+       [:> bs/Nav.Link {:style {:font-size "1em"}
+                        :organ (name organ)
+                        :href (href :transplants.views/organ {:organ (name organ)})}
+        [:div {:style {:font-size "2em"}}
+         (if single-organ
+           (str (get-in mdata [single-organ :label]) " Tool")
+           "Development Site")]]
+       [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
+       [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
 
-      [:> bs/Nav {:active-key (if organ (name organ) "home")
+        [:> bs/Nav {:active-key (if organ (name organ) "home")
                  ;:class "mr-auto" :style {:height "100%" :vertical-align "middle"}
-                  }
-       [:> bs/Nav.Link {:style {:font-size "1.4em"}
-                        :event-key :home
-                        :href (href :transplants.views/home)} "Home"]
-       [:> bs/Nav.Link {:style {:font-size "1.4em"}
-                        :event-key :home
-                        :href (href :transplants.views/home)} "About"]
-       [:> bs/Nav.Link {:style {:font-size "1.4em"}
-                        :event-key :home
-                        :href (href :transplants.views/home)} "Legal"]
-       [:> bs/Nav.Link {:style {:font-size "1.4em"}
-                        :event-key :home
-                        :href (href :transplants.views/home)} "Publications"]
+                    }
+         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                          :event-key :home
+                          :href (href :transplants.views/home)} "Home"]
+         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                          :event-key :about
+                          :href (href :transplants.views/about)} "About"]
+         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                          :event-key :legal
+                          :href (href :transplants.views/legal)} "Legal"]
+         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                          :event-key :pubs
+                          :href (href :transplants.views/pubs)} "Publications"]
+         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+                          :event-key :tech
+                          :href (href :transplants.views/tech)} "Technical"]
 
-       (when-let [centres (single-organ @(rf/subscribe [::subs/organ-centres]))]
-         #_(when (and organ centres))
-         (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
-           (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
-                                     :title "Transplant Centres" :id "basic-nav-dropdown"}]
-                 (map (fn [centre]
-                        [:> bs/NavDropdown.Item
-                         {:href (if tool
-                                  (href :transplants.views/organ-centre-tool
-                                        {:organ (name single-organ)
-                                         :centre (name (:key centre))
-                                         :tool (name tool)})
-                                  (href :transplants.views/organ-centre-tool
-                                        {:organ (name single-organ)
-                                         :centre (name (:key centre))
-                                         :tool "waiting"}))
-                          :key (name (:key centre))}
+         (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
+           (when-let [centres (organ @(rf/subscribe [::subs/organ-centres]))]
+             (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
+               (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
+                                         :title "Transplant Centres" :id "basic-nav-dropdown"}]
+                     (map (fn [centre]
+                            [:> bs/NavDropdown.Item
+                             {:href (if tool
+                                      (href :transplants.views/organ-centre-tool
+                                            {:organ (name single-organ)
+                                             :centre (name (:key centre))
+                                             :tool (name tool)})
+                                      (href :transplants.views/organ-centre-tool
+                                            {:organ (name single-organ)
+                                             :centre (name (:key centre))
+                                             :tool "waiting"}))
+                              :key (name (:key centre))}
 
-                         (:name centre)])
-                      centres))))]]]))
+                             (:name centre)])
+                          centres))))
+           [loading])]]])))
 
 (comment 
   (keys @(rf/subscribe [::subs/organ-centres]))

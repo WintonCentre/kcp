@@ -73,7 +73,7 @@ in the routes table."
         ; but in production each site will have only a single organ. 
         single-organ (get-single-organ mdata)
         ]
-    (when-let [organ (or single-organ organ)]
+    (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
       [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
                      :style {:border-bottom "1px solid black" :opacity "1"}}
        [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "Winton Centre"}]]
@@ -107,27 +107,26 @@ in the routes table."
                           :event-key :tech
                           :href (href :transplants.views/tech)} "Technical"]
 
-         (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
-           (when-let [centres (organ @(rf/subscribe [::subs/organ-centres]))]
-             (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
-               (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
-                                         :title "Transplant Centres" :id "basic-nav-dropdown"}]
-                     (map (fn [centre]
-                            [:> bs/NavDropdown.Item
-                             {:href (if tool
-                                      (href :transplants.views/organ-centre-tool
-                                            {:organ (name single-organ)
-                                             :centre (name (:key centre))
-                                             :tool (name tool)})
-                                      (href :transplants.views/organ-centre-tool
-                                            {:organ (name single-organ)
-                                             :centre (name (:key centre))
-                                             :tool "waiting"}))
-                              :key (name (:key centre))}
+         (when-let [centres (organ @(rf/subscribe [::subs/organ-centres]))]
+           (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
+             (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
+                                       :title "Transplant Centres" :id "basic-nav-dropdown"}]
+                   (map (fn [centre]
+                          [:> bs/NavDropdown.Item
+                           {:href (if tool
+                                    (href :transplants.views/organ-centre-tool
+                                          {:organ (name single-organ)
+                                           :centre (name (:key centre))
+                                           :tool (name tool)})
+                                    (href :transplants.views/organ-centre-tool
+                                          {:organ (name single-organ)
+                                           :centre (name (:key centre))
+                                           :tool "waiting"}))
+                            :key (name (:key centre))}
 
-                             (:name centre)])
-                          centres))))
-           [loading])]]])))
+                           (:name centre)])
+                        centres))))]]]
+      [loading])))
 
 (comment 
   (keys @(rf/subscribe [::subs/organ-centres]))

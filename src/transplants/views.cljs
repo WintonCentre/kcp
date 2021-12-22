@@ -74,7 +74,7 @@
         [:ul
          [:li "What is my likely waiting time for a transplant?"]
          [:li "How long might I survive after a transplant?"]
-         (when (= single-organ = :kidney)
+         (when (= single-organ :kidney)
            [:li "How long might the transplant last?"])]]]
 
       [:> bs/Col {:md 6}
@@ -112,8 +112,14 @@
     
     (if-let [organ (or single-organ organ)]
       
-      [ui/decorated-page 
-       [:img {:src "/assets/lung-banner.png" :style {:zoom 0.5}}]
+      [ui/decorated-page
+       [:div {:style {:width "calc(100% + 30px)"
+                      :background-color "#E0E0E8"
+                      :margin-left "-15px"
+                      :padding "15px"}}
+        [:img (if (= organ :lung)
+                {:src "/assets/lung-banner.png" :style {:height 130}}
+                {:src "/assets/kidney-banner.png" :style {:height 130}})]]
        (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
        [ui/row 
         [ui/col 

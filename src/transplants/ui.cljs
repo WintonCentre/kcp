@@ -72,6 +72,7 @@ in the routes table."
         ; organ-order gives us the list of configured organ tools, in-order. In development we may have more than one organ,
         ; but in production each site will have only a single organ. 
         single-organ (get-single-organ mdata)
+        organ-centres @(rf/subscribe [::subs/organ-centres])
         ]
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
       [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
@@ -106,26 +107,26 @@ in the routes table."
          [:> bs/Nav.Link {:style {:font-size "1.4em"}
                           :event-key :tech
                           :href (href :transplants.views/tech)} "Technical"]
+         (when organ-centres
+           (when-let [centres (organ organ-centres)]
+             (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
+               (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
+                                         :title "Transplant Centres" :id "basic-nav-dropdown"}]
+                     (map (fn [centre]
+                            [:> bs/NavDropdown.Item
+                             {:href (if tool
+                                      (href :transplants.views/organ-centre-tool
+                                            {:organ (name single-organ)
+                                             :centre (name (:key centre))
+                                             :tool (name tool)})
+                                      (href :transplants.views/organ-centre-tool
+                                            {:organ (name single-organ)
+                                             :centre (name (:key centre))
+                                             :tool "waiting"}))
+                              :key (name (:key centre))}
 
-         (when-let [centres (organ @(rf/subscribe [::subs/organ-centres]))]
-           (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
-             (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
-                                       :title "Transplant Centres" :id "basic-nav-dropdown"}]
-                   (map (fn [centre]
-                          [:> bs/NavDropdown.Item
-                           {:href (if tool
-                                    (href :transplants.views/organ-centre-tool
-                                          {:organ (name single-organ)
-                                           :centre (name (:key centre))
-                                           :tool (name tool)})
-                                    (href :transplants.views/organ-centre-tool
-                                          {:organ (name single-organ)
-                                           :centre (name (:key centre))
-                                           :tool "waiting"}))
-                            :key (name (:key centre))}
-
-                           (:name centre)])
-                        centres))))]]]
+                             (:name centre)])
+                          centres)))))]]]
       [loading])))
 
 (comment 

@@ -60,64 +60,30 @@
       [:> bs/Col {:sm 12} (choose-centre-nav mdata)]
       [:> bs/Col
        [home-section
-        [:h4 "What is the tool?"]
-        [:p "This is a communication tool.  It should help patients understand risks and benefits of transplantation 
-           and help health care professionals explain these risks and benefits. 
-           The tool should be used with your transplant doctors or specialist nurses."]
+        [:h4 "What does this site do?"]
+        [:p "This is a communication tool to help patients understand risks and benefits of 
+             transplantation and help health care professionals explain these risks and benefits. "]
 
-        [:p "The tool takes details about transplant patients and produces results that are personalised to that patient.  
-         The results are displayed in the form of graphs and charts."]
+        [:p "The tool takes details about transplant patients and produces results that are personalised to that patient, including
+             what centre they are at.  The results are displayed in the form of graphs and charts which can be printed out."]
 
         [:p "If you are a patient using the tool, be aware that the tool will ask for some medical information such 
-          as blood group, or recent test results.  The tool will be less accurate if you don't have all the relevant information. "]
-
-        [:p "The tool is suitable for lung patients who are over 16 years old and kidney patients who are over 18 years old.
-          This is because we use past data from NHS transplant registry.  Fewer children have transplants than adults and 
-          there is not enough data yet to make a tool for children. "]]
+          as blood group, or recent test results.  The tool will be less accurate if you don't have all the relevant information. "]]
 
        [home-section
-        [:h4 "How does the tool work?"]
-        [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
-           characteristics, and shows what happened to these people."]
-
-        [:p "For example, how many people 'like you' received a transplant within one year of being listed."]
-
-        [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
-
-        [:p "It’s important to remember that the tool cannot take into account  everything about you, for example, whether 
-            you have other health conditions."]
-
-        [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication properly, diet and whether you exercise."]
-        [:p "If you want to know more about the models and data behind the tools, select Technical from the menu.
-Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
-"]
-        (when (= single-organ :kidney)
-          [:p "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"])]]
-
-      [:> bs/Col {:md 4}
-       [home-section
-        [:h4 "What does the tool do?"]
-        [:div "The tool will calculate:"
-         [:ul
-          [:li "What is my likely waiting time for a transplant?"]
-          [:li "How long might I survive after a transplant?"]
-          (when (= single-organ :kidney)
-            [:li "How long might the transplant may last?"])]]]
+        [:h4 "Who is this site for?"]
+        (if (= single-organ = :lung)
+          [:p "The tool is suitable for lung patients who are over 16 years old.
+          This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
+          there is not enough data yet to make a tool for children. "]
+          [:p "The tool is suitable for kidney patients who are over 18 years old.
+          This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
+          there is not enough data yet to make a tool for children. "])]
 
        [home-section
-        [:h4 "Who made the tool?"]
-        [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication in collaboration with NHSBT 
-           who created the statistical models."]
-        [:p "We wisk to thank all the transplant patients and their partners, 
-         as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
+        [:h4 "Where can I find out more?"]
+        [:p "Please go to the " [:a {:href (ui/href :transplants.views/about)} "About page"] " to find out more about the tool."]]
        
-       [home-section {:id "offline"}
-        [:h4 "Using the tool offline"]
-        [:p "You need an internet connection to access the tool for the first time, but once you have visited 
-         the site once, you can access it offline (just don't close the browser)."]
-
-        [:p "The tool can produce a printout of results for later reference."]]
-
        (choose-centre-nav mdata)
        ]]])
 
@@ -221,13 +187,57 @@ Data about transplant patients were used to create statistical models.  When you
 
 (defn kidney-about-content
   []
-  [:<>
-   [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions. "]
-[:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional.
+  [:> bs/Col
+
+   [:h4 "Overview?"]
+   [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
+           characteristics, and shows what happened to these people. "
+
+    "For example, how many people 'like you' received a transplant within one year of being listed."]
+
+   [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
+
+   [:p "It’s important to remember that the tool cannot take into account everything about you, for example, 
+        whether you have other health conditions. The tool will ask for some medical information such as blood group, 
+        or recent test results. The tool will be less accurate if you don't have all the relevant information."]
+
+   [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication 
+        properly, diet and whether you exercise."]
+   [:p "If you want to know more about the models and data behind the tools, please read the "
+    [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
+    "Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
+"]
+
+   [:p "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"]
+
+
+   [:h4 "Using the tool offline"]
+   [:p "You need an internet connection to access the tool for the first time, but once you have visited 
+         the site once, you can access it offline (just don't close the browser)."]
+
+   [:p "The tool can produce a printout of results for later reference."]
+
+   [:h4 "Who is this site for?"]
+   [:p "The tool is suitable for kidney patients who are over 18 years old.
+        This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
+        there is not enough data yet to make a tool for children. "]
+   [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]
+
+
+
+   [:h4 "Who developed the tool?"]
+   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
+        disclosed by NHSBT under a data sharing agreement."]
+   [:p "We wisk to thank all the transplant patients and their partners, 
+        as well as clinical teams at transplant centres in England who took part in researching the tool design."]
+
+#_[:div "...going spare"
+ [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions. "]
+ [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional.
 Data from adult (aged 18 or more) patients only have been used to develop these tools, and they are not suitable for paediatric patients."]
-[:p "The data used to develop this site has been developed patients registered for deceased donor kidney transplants in the UK, or who have received a deceased donor kidney-only transplant in the UK so will not be suitable for patients from other countries." [:span {:style {:color "red"}} " Patients registered on another organ transplant list (e.g. pancreas list) either before, during or after their kidney registration were also not included."] " The results from the tool will therefore not be suitable for those patients who fall outside these inclusion criteria."]
-[:h4 "Who built this tool"]
-[:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]])
+ [:p "The data used to develop this site has been developed patients registered for deceased donor kidney transplants in the UK, or who have received a deceased donor kidney-only transplant in the UK so will not be suitable for patients from other countries." [:span {:style {:color "red"}} " Patients registered on another organ transplant list (e.g. pancreas list) either before, during or after their kidney registration were also not included."] " The results from the tool will therefore not be suitable for those patients who fall outside these inclusion criteria."]
+ [:h4 "Who built this tool"]
+ [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]]])
 
 ;;; Views ;;;
 (defn about-page
@@ -278,7 +288,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
    [:p "The parameter estimates for each of the risk factors in the time to transplant model and the time to death on the list/removal from the list model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Although the two models were developed separately, any risk factor that was found to be significantly influential for one model was retained in the other model in order to keep the same risk factors in all models (although parameter estimates would be different). Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
 
    [:h3 "Patient survival after a deceased donor lung transplant "]
-   [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see Kourliouros et al (2019). However, for the purposes of the TRAC tool we decided to turn all continuous variables into categorical variables."]
+   [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see Kourliouros et al (2019). However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
    [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
 
    [:h3 "Input factors"]
@@ -321,11 +331,11 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
     []
     [:<>
      [:h3 "Model development"]
-     [:p "The models behind the TRAC tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
-     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the TRAC tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
-     [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section (Section 3) to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:span {:style {:color "red"}} " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the TRAC tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
+     [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
+     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
+     [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section (Section 3) to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:span {:style {:color "red"}} " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
 
-     [:p "Although the TRAC tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
+     [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
 
      [:p "This tool has been developed using retrospective registry data. " [:span {:style {:color "red"}} "Therefore, changes to the Kidney Offering Scheme in 2019 are NOT reflected in these models. "]]
 
@@ -428,7 +438,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
        [ui/row
         [ui/col
          [:h4 "Disclaimer"]
-         [:p "TRAC uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
+         [:p "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
 
          [:h4 "Cookies and Privacy Notice"]
          [:p "No identifiable user data is collected by the app. No data is transferred to any other

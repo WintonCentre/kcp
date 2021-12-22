@@ -22,7 +22,7 @@
  ;;
 
  ;; :todo: Rename :organs. Domains?
- :organ-order [:lung] ; This app will contain the :lung and :kidney home-pages in that order
+ :organ-order [:kidney] ; This app will contain the :lung and :kidney home-pages in that order
 
  ;;
  ; :todo If an app only contains one domain, then the domain selection buttons should be skipped and the app should load 

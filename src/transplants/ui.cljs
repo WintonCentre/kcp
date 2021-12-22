@@ -301,7 +301,7 @@ in the routes table."
                        :margin-bottom 20}}
     [row
      [col
-      [:h1 {:style {:margin-top 20}} title]
+      [:h1 {:style {:margin-top 20 :font-size "2em"}} title]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 
 (def mobile-break

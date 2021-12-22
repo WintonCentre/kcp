@@ -22,11 +22,12 @@
 (defn home-section
   [options & content]
   (let [base-style {;:background-color "#337777"
-               :border-radius 5
+                    :border-radius 5
                ;:border "5px solid #62e5e5"
-               :padding "20px 20px 1px 20px"
+                    :padding "20px 20px 1px 20px"
                ;:color "#fff"
-               :margin-bottom 10}]
+                    :margin-bottom 10}]
+    
     (if (map? options)
       [:section {:id (:id options)
                  :style (merge base-style (:style options))}
@@ -57,8 +58,9 @@
   (let [single-organ (ui/get-single-organ mdata)]
     [:<>
      [:> bs/Row
-      [:> bs/Col {:sm 12} (choose-centre-nav mdata)]
-      [:> bs/Col
+      ;[:> bs/Col {:sm 12} (choose-centre-nav mdata)]
+
+      [:> bs/Col {:md 6}
        [home-section
         [:h4 "What does this site do?"]
         [:p "This is a communication tool to help patients understand risks and benefits of 
@@ -67,9 +69,15 @@
         [:p "The tool takes details about transplant patients and produces results that are personalised to that patient, including
              what centre they are at.  The results are displayed in the form of graphs and charts which can be printed out."]
 
-        [:p "If you are a patient using the tool, be aware that the tool will ask for some medical information such 
-          as blood group, or recent test results.  The tool will be less accurate if you don't have all the relevant information. "]]
 
+        [:p "The tool will calculate:"]
+        [:ul
+         [:li "What is my likely waiting time for a transplant?"]
+         [:li "How long might I survive after a transplant?"]
+         (when (= single-organ = :kidney)
+           [:li "How long might the transplant last?"])]]]
+
+      [:> bs/Col {:md 6}
        [home-section
         [:h4 "Who is this site for?"]
         (if (= single-organ = :lung)
@@ -82,10 +90,10 @@
 
        [home-section
         [:h4 "Where can I find out more?"]
-        [:p "Please go to the " [:a {:href (ui/href :transplants.views/about)} "About page"] " to find out more about the tool."]]
-       
-       (choose-centre-nav mdata)
-       ]]])
+        [:p "Please go to the " [:a {:href (ui/href :transplants.views/about)} "About page"] " to find out more about the tool."]]]
+
+      [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
+       (choose-centre-nav mdata)]]])
 
   )
 
@@ -103,7 +111,7 @@
     ;(locals)
     
     (if-let [organ (or single-organ organ)]
-      [ui/page (str (string/capitalize (name single-organ)) " Transplant Risks")
+      [ui/page (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
        [ui/row
         [ui/col
          [:<> (leila-text mdata)]
@@ -177,19 +185,55 @@
 
 (defn lung-about-content
   []
-  [:<>
-   [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions."]
-   [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional."]
-   [:p "Only adult (aged ≥16 years) patients have been used to the develop the tool; it is not suitable for paediatric patients due to the small number of patients involved which would not generate robust models. Patients who were not eligible for National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on a paediatric waiting list were not included. Patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration were also not included. The results from the tool will therefore not be suitable for patients from outside the UK or for those patients who fall outside these inclusion criteria."]
-   [:p "This tool has been developed using retrospective registry data (Section 2.2). Changes to the UK Lung Offering Scheme in May 2017 are not reflected in these models and hence results presented will not be meaningful for patients registered on the Urgent or Super-Urgent Lung Offering Scheme. "]
-   [:h4 "Who built this tool"]
-   [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]])
+  [:> bs/Col
+   [:h4 "Overview"]
+   [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
+           characteristics, and shows what happened to these people. "
+
+    "For example, how many people 'like you' received a transplant within one year of being listed."]
+
+   [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
+
+   [:p "It’s important to remember that the tool cannot take into account everything about you, for example, 
+        whether you have other health conditions. The tool will ask for some medical information such as blood group, 
+        or recent test results. The tool will be less accurate if you don't have all the relevant information."]
+
+   [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication 
+        properly, diet and whether you exercise."]
+   [:p "If you want to know more about the models and data behind the tools, please read the "
+    [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
+    "Data about transplant patients were used to create statistical models.  When you enter information into the tool, 
+     the calculator looks at these models and produces results."]
+
+   [:h4 "Using the tool offline"]
+   [:p "You need an internet connection to access the tool for the first time, but once you have visited 
+         the site once, you can access it offline (just don't close the browser)."]
+
+   [:p "The tool can produce a printout of results for later reference."]
+   [:h4 "Who is this site for?"]
+   [:p "The tool is suitable for lung patients who are over 16 years old.
+        This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
+        there is not enough data yet to make a tool for children. "]
+   [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]
+   
+   [:h4 "Who developed the tool?"]
+   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
+        disclosed by NHSBT under a data sharing agreement."]
+   [:p "We wisk to thank all the transplant patients and their partners, 
+        as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
+  #_[:<>
+     [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions."]
+     [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional."]
+     [:p "Only adult (aged ≥16 years) patients have been used to the develop the tool; it is not suitable for paediatric patients due to the small number of patients involved which would not generate robust models. Patients who were not eligible for National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on a paediatric waiting list were not included. Patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration were also not included. The results from the tool will therefore not be suitable for patients from outside the UK or for those patients who fall outside these inclusion criteria."]
+     [:p "This tool has been developed using retrospective registry data (Section 2.2). Changes to the UK Lung Offering Scheme in May 2017 are not reflected in these models and hence results presented will not be meaningful for patients registered on the Urgent or Super-Urgent Lung Offering Scheme. "]
+     [:h4 "Who built this tool"]
+     [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]])
 
 (defn kidney-about-content
   []
   [:> bs/Col
 
-   [:h4 "Overview?"]
+   [:h4 "Overview"]
    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
            characteristics, and shows what happened to these people. "
 

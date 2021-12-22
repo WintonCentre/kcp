@@ -304,6 +304,20 @@ in the routes table."
       [:h1 {:style {:margin-top 20 :font-size "2em"}} title]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 
+(defn decorated-page
+  "A generic page component, rendering a title and the page's children"
+  ([decoration title & children]
+   [container {:key 1
+               :fluid "xl"
+               :style {:min-height "calc(100vh - 165px"
+                       :background-color "#ffffffbb"
+                       :max-width 2000 ;todo: adjust for side margins
+                       :margin-bottom 20}}
+    [row
+     [col
+      decoration
+      [:h1 {:style {:margin-top 20 :font-size "2em"}} title]
+      (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 (def mobile-break
   "Screens of this size or smaller are rendered with mobile oriented views."
   1200 ;800

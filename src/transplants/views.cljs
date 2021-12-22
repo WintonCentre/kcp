@@ -111,9 +111,12 @@
     ;(locals)
     
     (if-let [organ (or single-organ organ)]
-      [ui/page (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
-       [ui/row
-        [ui/col
+      
+      [ui/decorated-page 
+       [:img {:src "/assets/lung-banner.png" :style {:zoom 0.5}}]
+       (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
+       [ui/row 
+        [ui/col 
          [:<> (leila-text mdata)]
          ]]]
       [ui/loading])

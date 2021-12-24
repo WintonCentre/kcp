@@ -67,7 +67,8 @@
              transplantation and help health care professionals explain these risks and benefits. "]
 
         [:p "The tool takes details about transplant patients and produces results that are personalised to that patient, including
-             what centre they are at.  The results are displayed in the form of graphs and charts which can be printed out."]
+             what centre they are at.  The results are displayed in the form of graphs and charts which can be printed out. " 
+         [:b "When printing ensure the option to print background graphics has been set in the print dialog."]]
 
 
         [:p "The tool will calculate:"]
@@ -376,7 +377,59 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
     [:br] "If male, TLC = 7.99 * (height(cm) / 100) - 7.08"
     [:br] "If female, TLC = 6.6*(height(cm) / 100) - 5.79"]
    [:p [:b "Donor CMV status"] " - Is donor Cytomegalovirus positive or negative"]
-   [:p [:b "Donor smoking status"] " - Is the donor a current or past cigarette smoker (yes/no)?"]])
+   [:p [:b "Donor smoking status"] " - Is the donor a current or past cigarette smoker (yes/no)?"]
+
+   [:h3 "The Cox proportional hazards model"]
+   [:p "Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a 
+        fixed amount known as the hazard ratio or relative risk - essentially the proportional change in the risk of the 
+        event occurring."]
+   [:p "Using the example of post-transplant survival, this means that the cumulative hazard of post-transplant
+        death is the product of two components: the baseline hazard (chances of dying for a patient with a baseline set of 
+        characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of 
+        death due to changes in these risk factors compared to the baseline characteristics)."]
+   [:p "In the case of post-transplant survival, the cumulative hazard is then translated into a survival function which is 
+        what the Lung-RCT presents. This is described in mathematical form below. In the case of the ‘What might happen to 
+        me from time of listing?’ models, the cumulative hazard is further manipulated."]
+   [:p "The estimated cumulative hazard for the ith individual  for the event of interest (e.g. death post-transplant), after t days has the form:
+
+"]
+   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
+    [:i "H" [:sub "i"] "(t) "] " = exp" [:i " (" [:b "β . χ"] [:sub "i"] ") H" [:sub "0"] "(t)"]]
+   [:p "where:"]
+   [:ul
+    [:li [:span {:style {:font-family "serif"}}
+          [:i "H" [:sub "0"] "(t)"]] " is estimated using the Breslow (1972) estimate"]
+    [:li "The log hazard ratios " [:b [:i "β"]] " are estimated by a multivariate linear regression."]
+    [:li [:i {:style {:font-family "serif"}} [:b "χ"] [:sub "i"]] " represents the set of characteristics for the " [:i {:style {:font-family "serif"}} "i"] "th individual."]]
+   [:p "This can be translated into a survival function through the following equation:"]
+   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
+    [:i "S" [:sub "i"] "(t) "] " = exp" [:i " (-H" [:sub "i"] " (t))"]] 
+   [:div ""]
+   [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. 
+
+ 
+
+Numerical Approximation Algorithm for Cause-Specific Cox Proportional Hazards Models
+
+ 
+
+When using Cause-Specific Cox proportional hazards models for competing risks (time to transplant, time to death on the list/removal from the list), the following algorithm was applied to the resulting model output in order to adjust for the associated informative censoring bias.
+
+ 
+
+The estimated cumulative hazard for the ith individual for competing risk j (e.g. transplant), after t days has the form:
+
+ 
+
+                                 Hji(t) = exp (βj' χi) Hj0(t)
+
+ 
+
+Hji(t) is then the instantaneous hazard at time t, i.e. the risk of leaving the list with cause j, given the patient is still on the list at time t.
+
+ 
+
+Assuming independent causes of leaving the list, the probability of still being on the list at time t is:"]])
 
 
 
@@ -429,7 +482,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
      [:h5 "Five-year living donor post-transplant graft survival"]
      [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up."]
      [:p "The following factors were found to be significant and included in the model; recipient age, waiting time, matchability, donor age, HLA MM level."]
-     
+
      [:h4 "Input factors"]
      [:p "Explanation of donor and recipient input covariates:"]
      [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
@@ -494,8 +547,8 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
          [:p "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
 
          [:h4 "Cookies and Privacy Notice"]
-         [:p "No identifiable user data is collected by the app. No data is transferred to any other
-              system, and the data entered in your browser is erased once you close the application window."]
+         [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
+              system, and it is erased once you close the application window. "]
          [:p "No cookies are colllected"]
          ]]]
       [ui/loading])))
@@ -924,9 +977,10 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
              
              [:p 
               [:> bs/Button {:size "sm"
-                             :variant "link"
+                             :variant "outline"
                              :class-name "more"
                              :title "Factors considered but not included"
+                             :style {:margin-left 0}
                      ;:style {:cursor "pointer"}
                              :on-click (fn [_e]
                                          (rf/dispatch [::events/modal-data

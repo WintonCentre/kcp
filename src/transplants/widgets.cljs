@@ -91,7 +91,7 @@
       (when info-box?
         (?-> (:info-box? w) ::info-box)
         [:> bs/Button {:size "sm"
-                       :variant "link"
+                       :variant "outline"
                        :class-name "more"
                        :title "click for more info"
                      ;:style {:cursor "pointer"}

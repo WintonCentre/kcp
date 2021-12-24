@@ -25,31 +25,49 @@
   }
 
  :builds
- {:app {:target     :browser
+ {#_#_:app {:target     :browser
         :output-dir "resources/public/js"
-        :asset-path "/js"
-        :devtools {
-                   :preloads [re-frame-flow.preload]}
-        :compiler-options {:optimizations  :advanced
-                           :output-wrapper false}
-        :modules {:app {:init-fn transplants.core/init}}}
-
-  #_#_:lung {:target     :browser
-        :output-dir "resources/public-lung/js"
         :asset-path "/js"
         :devtools {:preloads [re-frame-flow.preload]}
         :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
-        :modules {:app {:init-fn transplants.core/lung-init}}}
-  
-  #_#_:kidney {:target     :browser
-           :output-dir "resources/public-kidney/js"
+                 :closure-defines {'transplants.utils/ORGAN ""}
+        :modules {:app {:init-fn transplants.core/init}}}
+
+  :lung {:target     :browser
+         :output-dir "resources/public/js"
+         :asset-path "/js"
+         :devtools {:preloads [re-frame-flow.preload]}
+         :compiler-options {:optimizations  :advanced
+                            :output-wrapper false}
+         :closure-defines {transplants.utils/ORGAN "lung"}
+         :modules {:app {:init-fn transplants.core/init}}}
+
+  :kidney {:target     :browser
+           :output-dir "resources/public/js"
            :asset-path "/js"
            :devtools {:preloads [re-frame-flow.preload]}
            :compiler-options {:optimizations  :advanced
                               :output-wrapper false}
-           :modules {:app {:init-fn transplants.core/kidney-init}}}
-  
+           :closure-defines {transplants.utils/ORGAN "kidney"}
+           :modules {:app {:init-fn transplants.core/init}}}
+
+  #_#_:lung {:target     :browser
+             :output-dir "resources/public-lung/js"
+             :asset-path "/js"
+             :devtools {:preloads [re-frame-flow.preload]}
+             :compiler-options {:optimizations  :advanced
+                                :output-wrapper false}
+             :modules {:app {:init-fn transplants.core/lung-init}}}
+
+  #_#_:kidney {:target     :browser
+               :output-dir "resources/public-kidney/js"
+               :asset-path "/js"
+               :devtools {:preloads [re-frame-flow.preload]}
+               :compiler-options {:optimizations  :advanced
+                                  :output-wrapper false}
+               :modules {:app {:init-fn transplants.core/kidney-init}}}
+
   :test-browser {:target     :browser-test
                  :test-dir   "out/browser/test"
                  :devtools   {:http-port 3021

@@ -13,6 +13,7 @@
 
 (enable-console-print!)
 
+
 ;;; Setup ;;;
 (def debug? ^boolean goog.DEBUG)
 
@@ -36,6 +37,8 @@
 (defn on-window-resize
   "Handle window-size change by dispatching new width to db"
   [_evt]
+  ; TODO: debounce this to avoid stupidly small and frequent resizing
+  ; e.g. record time of last update and only change width after 100ms have elapsed.
   (rf/dispatch [::events/update-window-width (.-innerWidth js/window)]))
 
 (comment

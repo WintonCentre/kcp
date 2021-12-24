@@ -291,7 +291,11 @@
  (fn
    [{:keys [db]} [_ _data-path response]]
    (let [mdata (edn/read-string response)
-           organs (mdata :organ-order)]
+         mdata (if (not= utils/ORGAN "")
+                 (assoc mdata :organ-order [(keyword utils/ORGAN)])
+                 mdata)
+         organs (mdata :organ-order)
+         ]
 
      ; todo: VALIDATE mdata once we know what it should look like!
        {:db (-> db

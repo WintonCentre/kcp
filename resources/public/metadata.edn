@@ -21,21 +21,24 @@
  ; cf. Polylith in the clojure world.
  ;;
 
- ;; :todo: Rename :organs. Domains?
- :organ-order [:kidney] ; This app will contain the :lung and :kidney home-pages in that order
+ ;; :todo: Rename :organs to :domains (?) in the generalised tool.
+ ;;;
+ ;; NOTE THAT :organ-order is now a default setting, that is overridden by the :closure-defines transplants.utils/ORDER
+ ;; compilation option.
+ ;;;
+ :organ-order [:lung] ; This app will contain the :lung and :kidney home-pages in that order
 
  ;;
- ; :todo If an app only contains one domain, then the domain selection buttons should be skipped and the app should load 
+ ; :todo - Check - 
+ ; If an app only contains one domain, then the domain selection buttons should be skipped and the app should load 
  ; the domain home page at startup.
+ ;
+ ; If :organ-order contains more than one organ, then the selector should be present on the home page still. 
+ ; [It's debatable whether this option is ever going to be needed, so we may perhaps just require a single organ at startup.]
  ;;
 
  ; this record from excel tools sheets. It pre-dates this metadata file and was used at initialisation 
  ; to load the top-level tools
- #_#_:tool-loade {:key (:waiting :post-transplant :guidance)
-               :label ("Waiting times" "Survival post transplant" "Useful Information")
-               :description ("for possible outcomes while waiting for a transplant"
-                             "survival expectations after a lung transplant"
-                             "a page of guidance")}
 
  :lung {:text "Lung"
         :label "Lung" ; Labels for any button that takes you to the Lung home page

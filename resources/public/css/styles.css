@@ -119,11 +119,11 @@
 
 .more {
   background-color: #ffffff;
-  border: 1px solid #9C9CFF;
+  border: 3px solid #9C9CFF;
   border-radius: 5px;
   font-size: 1em;
-  color: rgba(0, 0, 255, 0.479);
-  margin-left: 5px;
+  color: blue;
+  margin-left: 15px;
   padding: 0 7px;
   align-self: center;
 }

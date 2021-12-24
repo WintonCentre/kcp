@@ -70,11 +70,11 @@ $removed-darker: #DBCDB1;
 
 .more {
     background-color: #ffffff; //color.adjust($colour, $lightness: +40%);
-    border: 1px solid #9C9CFF; //rgba(0, 0, 255, 0.329);
+    border: 3px solid #9C9CFF; //rgba(0, 0, 255, 0.329);
     border-radius: 5px;
     font-size: 1em;
-    color: rgba(0, 0, 255, 0.479); //color.adjust($colour, $blackness: +10%);
-    margin-left: 5px;
+    color: rgba(0, 0, 255, 1); //color.adjust($colour, $blackness: +10%);
+    margin-left: 15px;
     padding: 0 7px;
     align-self: center;
     //text-decoration-style: underline;

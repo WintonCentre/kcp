@@ -3,6 +3,9 @@
             ;[shadow.debug :refer [?->]]
             ))
 
+;; Define this in shadow build :closure-defines to select just one organ
+(goog-define ORGAN "")
+
 (defn filled-in?
   "Does a field contain something?"
   [field]

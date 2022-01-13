@@ -291,7 +291,7 @@
  (fn
    [{:keys [db]} [_ _data-path response]]
    (let [mdata (edn/read-string response)
-         mdata (if (not= utils/ORGAN "")
+         #_#_mdata (if (not= utils/ORGAN "")
                  (assoc mdata :organ-order [(keyword utils/ORGAN)])
                  mdata)
          organs (mdata :organ-order)

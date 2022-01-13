@@ -405,32 +405,8 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
    [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
     [:i "S" [:sub "i"] "(t) "] " = exp" [:i " (-H" [:sub "i"] " (t))"]] 
    [:div ""]
-   [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. 
-
- 
-
-Numerical Approximation Algorithm for Cause-Specific Cox Proportional Hazards Models
-
- 
-
-When using Cause-Specific Cox proportional hazards models for competing risks (time to transplant, time to death on the list/removal from the list), the following algorithm was applied to the resulting model output in order to adjust for the associated informative censoring bias.
-
- 
-
-The estimated cumulative hazard for the ith individual for competing risk j (e.g. transplant), after t days has the form:
-
- 
-
-                                 Hji(t) = exp (βj' χi) Hj0(t)
-
- 
-
-Hji(t) is then the instantaneous hazard at time t, i.e. the risk of leaving the list with cause j, given the patient is still on the list at time t.
-
- 
-
-Assuming independent causes of leaving the list, the probability of still being on the list at time t is:"]])
-
+   [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. "]
+   [:p "The waiting times tool requires a " [:a {:href "/competing_risks.pdf" :target "_blank"} "further adjustment for the competing risks."]]])
 
 
   (defn kidney-tech-content

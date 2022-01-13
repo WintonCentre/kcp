@@ -1,0 +1,135 @@
+.btn-waiting {
+  background-color: #4866CB;
+  border: 4px solid #fff;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-waiting:hover {
+  color: white;
+}
+
+.btn-outline-waiting {
+  background-color: #ffffff22;
+  border: 4px solid #ffffff22;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-waiting:hover {
+  color: #fff;
+  background-color: #4866CB;
+}
+
+.btn-survival {
+  background-color: #00979c;
+  border: 4px solid #fff;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-survival:hover {
+  color: white;
+}
+
+.btn-outline-survival {
+  background-color: #ffffff22;
+  border: 4px solid #ffffff22;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-survival:hover {
+  color: #fff;
+  background-color: #00979c;
+}
+
+.btn-graft {
+  background-color: #0491d8;
+  border: 4px solid #fff;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-graft:hover {
+  color: white;
+}
+
+.btn-outline-graft {
+  background-color: #ffffff22;
+  border: 4px solid #ffffff22;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-graft:hover {
+  color: #fff;
+  background-color: #0491d8;
+}
+
+.btn-usefulinfo {
+  background-color: #0c282c;
+  border: 4px solid #fff;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-usefulinfo:hover {
+  color: white;
+}
+
+.btn-outline-usefulinfo {
+  background-color: #ffffff22;
+  border: 4px solid #ffffff22;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-usefulinfo:hover {
+  color: #fff;
+  background-color: #0c282c;
+}
+
+.centre-header-link {
+  color: #FFE599 !important;
+  font-weight: bold;
+  cursor: pointer;
+}
+.centre-header-link:hover {
+  color: #fff !important;
+  text-decoration: underline !important;
+}
+
+.toggler {
+  margin: 5px;
+  padding: 7px;
+}
+.toggler:hover {
+  color: #fff;
+  background-color: #88998898 !important;
+}
+
+.more {
+  background-color: #ffffff;
+  border: 1px solid #9C9CFF;
+  border-radius: 5px;
+  font-size: 1em;
+  color: rgba(0, 0, 255, 0.479);
+  margin-left: 5px;
+  padding: 0 7px;
+  align-self: center;
+}
+.more:hover {
+  background-color: #9C9CFF;
+  color: white;
+}
+
+/*# sourceMappingURL=foo.css.map */

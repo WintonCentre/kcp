@@ -1,0 +1,1 @@
+{"version":3,"sources":["re_frame_flow/preload.cljc"],"mappings":";AAGA,AAACA","names":["re-frame-flow.core/init!"],"sourcesContent":["(ns re-frame-flow.preload\n  (:require [re-frame-flow.core :as core]))\n\n(core/init!)\n"]}

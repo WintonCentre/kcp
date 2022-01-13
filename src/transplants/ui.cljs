@@ -140,8 +140,8 @@ in the routes table."
   "Site footer. 
    todo: Needs to be made configurable."
   []
-  [:div {:style {:width "100%" :height "80px" :background-color "black" :color "white"
-                 :display "flex" :align-items "center" :justify-content "center"}}
+  [:div.footer {:style {:width "100%" :height "80px" :background-color "black" :color "white"
+                :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "20px" :display "flex" :flex-direction "row" :align-items "center"}}
     [:img {:src "assets/crest.png" :style {:height 40 :margin-right 20} :alt "University of Cambridge Crest"}] 
     "Winton Centre"]])

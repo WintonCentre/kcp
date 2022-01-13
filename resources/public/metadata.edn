@@ -26,7 +26,7 @@
  ;; NOTE THAT :organ-order is now a default setting, that is overridden by the :closure-defines transplants.utils/ORDER
  ;; compilation option.
  ;;;
- :organ-order [:lung] ; This app will contain the :lung and :kidney home-pages in that order
+ :organ-order [:lung :kidney] ; This app will contain the :lung and :kidney home-pages in that order
 
  ;;
  ; :todo - Check - 

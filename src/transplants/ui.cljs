@@ -1,18 +1,17 @@
 (ns transplants.ui
   "This should become the high level ui interface and should have all ns references factored out into 
 the low level ui."
-  (:require [clojure.string :refer [capitalize]]
-            [reagent.core :as rc]
-            [reitit.frontend.easy :as rfe]
-            ["react-bootstrap" :as bs]
-            [re-frame.core :as rf]
-            [transplants.events :as events]
-            [transplants.utils :as utils]
-            [transplants.subs :as subs]
-            [transplants.numeric-input :as ni]
-            [transplants.bsio :as bsio]
+  (:require   [reagent.core :as rc]
+              [reitit.frontend.easy :as rfe]
+              ["react-bootstrap" :as bs]
+              [re-frame.core :as rf]
+              [transplants.events :as events]
+              [transplants.utils :as utils]
+              [transplants.subs :as subs]
+              [transplants.numeric-input :as ni]
+              [transplants.bsio :as bsio]
             ;[shadow.debug :refer [?-> ?->> locals]]
-            ))
+              ))
 
 (enable-console-print!)
 
@@ -60,7 +59,9 @@ in the routes table."
   (let [organ-order (:organ-order mdata)]
     (if (= (count organ-order) 1)
       (first organ-order)
-      nil)))
+      ; todo - redefine a UI to select an organ if we offer more than one at a url
+      :lung ; till we do that, select lung
+      )))
 
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."

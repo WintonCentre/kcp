@@ -1192,9 +1192,33 @@ After 3 years	75  of them to have received a transplant
      (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
      #_(:post-section tool-mdata)]))
 
+
+(defn test-render
+  [organ tool inputs year-series plot-order]
+  (locals)
+  #_(let [labels (get-in tool-mdata [:table :labels])
+          years (range (count labels))]
+      [:div {:style {:margin-top 20}}
+
+       [:div
+        (for [i years
+              :let [label (nth labels i)
+                    line (:line label)
+                    line (if (sequential? line) (map str line) line)]]
+          [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:h4 line]
+           (for [j (range (count plot-order))
+                 :let [style ((nth plot-order j) data-styles)
+                       long-label (:long-label style)]]
+             [:div {:key (str "c-" j)}
+              (let [label (nth labels i)
+                    time-index (:time-index label)
+                    [_ {:keys [int-fs]}] (nth year-series time-index)]
+                [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
+
 (defn text
   "a text results view"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+  [{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
+  (?-> env ::text)
 
   (let [sample-days (map
                      utils/year->day
@@ -1219,32 +1243,14 @@ After 3 years	75  of them to have received a transplant
     ;(locals)
     [:section
      (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
+     (test-render organ tool inputs fs-by-year-in-plot-order plot-order*)
      #_(:post-section tool-mdata)]))
 
-(defn test-render
-  [year-series tool-mdata plot-order data-styles]
-  (let [labels (get-in tool-mdata [:table :labels])
-        years (range (count labels))]
-    [:div {:style {:margin-top 20}}
 
-     [:div
-      (for [i years
-            :let [label (nth labels i)
-                  line (:line label)
-                  line (if (sequential? line) (map str line) line)]]
-        [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:h4 line]
-         (for [j (range (count plot-order))
-               :let [style ((nth plot-order j) data-styles)
-                     long-label (:long-label style)]]
-           [:div {:key (str "c-" j)}
-            (let [label (nth labels i)
-                  time-index (:time-index label)
-                  [_ {:keys [int-fs]}] (nth year-series time-index)]
-              [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
 
 (defn test-gen
   "send a test data structure to tap for comparison against an R structure"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F inputs] :as env}]
   (let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
@@ -1267,5 +1273,5 @@ After 3 years	75  of them to have received a transplant
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
     ;(locals)
     [:section
-     (test-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
+     (test-render organ tool inputs fs-by-year-in-plot-order plot-order*)
      #_(:post-section tool-mdata)]))

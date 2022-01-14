@@ -89,7 +89,7 @@
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]
       (when info-box?
-        (?-> (:info-box? w) ::info-box)
+        ;(?-> (:info-box? w) ::info-box)
         [:> bs/Button {:size "sm"
                        :variant "outline"
                        :class-name "more"

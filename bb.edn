@@ -14,8 +14,6 @@
          stop (shell "shadow-cljs stop")
          watch-all (shell "shadow-cljs watch app test-browser")
          build "shadow-cljs release app"
-         build-lung "shadow-cljs release lung"
-         build-kidney "shadow-cljs release kidney"
          build-verbose (shell "shadow-cljs release --verbose app")
          report (shell "shadow-cljs run shadow.cljs.build-report app report.html")
          debug-build (shell "shadow-cljs release app --debug")

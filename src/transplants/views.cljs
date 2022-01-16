@@ -483,8 +483,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
    [:p [:b "HLA MM level"] " - Human Leukocyte Antigen (HLA) matching level.  HLA are proteins located on the surface of white blood cells and other tissues. When people share the same HLA’s, they are said to be a ‘match’. There are may different types of HLA, and the matching can occur to different degrees, hence the different levels of matching. "]
    [:p [:b "Transplant Centre"] " - This refers to which of the 23 UK adult kidney transplant centres the patient will be receiving their transplant.  (This is not always the dialysis centre at which they are followed up)."]
 
-   (maths-section)
-   ])
+   (maths-section)])
 
 (defn tech-page
   "Display a generic home page. 

@@ -20,46 +20,32 @@
   ]
 
  :dev-http
- {
-  3001 "resources/public-lung"
-  3002 "resources/public-kidney"
-  }
+ {3000 "resources/public"}
 
  :builds
- {; The :app build starts a localhost:3000 server.
-  ;; Switch the :app build to whichever organ you want in :closure-defines. When you switch from one organ to another be sure to
-  ;; delete the .shadow-cljs folder before rebuilding - otherwise some files will not be recompiled that should be.
-  ; The public folder should contain data for all organs
-  #_#_:app {:target     :browser
+ {:app {:target     :browser
         :output-dir "resources/public/js"
         :asset-path "/js"
         :devtools {:preloads [re-frame-flow.preload]}
         :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
-        :closure-defines {transplants.utils/ORGAN ["lung" "kidney"]}
         :modules {:app {:init-fn transplants.core/init}}}
 
-  ; The :lung build starts a localhost:3001 server
-  ;; `bb config` should copy all organ data to public and also lung data only to public-lung
-  :lung {:target     :browser
-         :output-dir "resources/public-lung/js"
-         :asset-path "/js"
-         ;:devtools {:preloads [re-frame-flow.preload]}
-         :compiler-options {:optimizations  :advanced
-                            :output-wrapper false}
-         :closure-defines {transplants.utils/ORGAN "lung"}
-         :modules {:app {:init-fn transplants.core/lung-init}}}
+  #_#_:lung {:target     :browser
+             :output-dir "resources/public-lung/js"
+             :asset-path "/js"
+             :devtools {:preloads [re-frame-flow.preload]}
+             :compiler-options {:optimizations  :advanced
+                                :output-wrapper false}
+             :modules {:app {:init-fn transplants.core/lung-init}}}
 
-  ; The :kidney build starts a localhost:3002 server
-    ;; `bb config` should copy all organ data to public and also kidney data only to public-kidney
-  :kidney {:target     :browser
-           :output-dir "resources/public-kidney/js"
-           :asset-path "/js"
-           ;:devtools {:preloads [re-frame-flow.preload]}
-           :compiler-options {:optimizations  :advanced
-                              :output-wrapper false}
-           :closure-defines {transplants.utils/ORGAN "kidney"}
-           :modules {:app {:init-fn transplants.core/kidney-init}}}
+  #_#_:kidney {:target     :browser
+               :output-dir "resources/public-kidney/js"
+               :asset-path "/js"
+               :devtools {:preloads [re-frame-flow.preload]}
+               :compiler-options {:optimizations  :advanced
+                                  :output-wrapper false}
+               :modules {:app {:init-fn transplants.core/kidney-init}}}
 
   :test-browser {:target     :browser-test
                  :test-dir   "out/browser/test"

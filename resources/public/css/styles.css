@@ -1,3 +1,21 @@
+@media print {
+  @page {
+    size: 210mm 297mm;
+    /* landscape */
+    /* you can also specify margins here: */
+    margin: 10mm;
+    margin-right: 10mm;
+    /* for compatibility with both A4 and Letter */
+  }
+  .footer {
+    display: none;
+  }
+}
+@media screen {
+  .footer {
+    display: flex;
+  }
+}
 .btn-waiting {
   background-color: #4866CB;
   border: 4px solid #fff;
@@ -119,11 +137,11 @@
 
 .more {
   background-color: #ffffff;
-  border: 1px solid #9C9CFF;
+  border: 3px solid #9C9CFF;
   border-radius: 5px;
   font-size: 1em;
-  color: rgba(0, 0, 255, 0.479);
-  margin-left: 5px;
+  color: blue;
+  margin-left: 15px;
   padding: 0 7px;
   align-self: center;
 }

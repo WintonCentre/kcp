@@ -12,7 +12,7 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [medley.core :as medl]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 ;;
@@ -1035,19 +1035,18 @@
                   :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
 
 (defn move-item
-    "Returns a-vector with all items (if any) moved to the start or the end depending on whether
+  "Returns a-vector with all items (if any) moved to the start or the end depending on whether
      a < b or b < a
      "
-[a-vector item a b]
-(if (not-any? #(= item %) a-vector)
-  a-vector
-  (into [] (sort-by (fn [el]
-                      (if (= item el) a b)) a-vector))))
+  [a-vector item a b]
+  (if (not-any? #(= item %) a-vector)
+    a-vector
+    (into [] (sort-by (fn [el]
+                        (if (= item el) a b)) a-vector))))
 (defn move-to-start
   "Move item to start of vector"
   [a-vector item]
-  (move-item a-vector item -1 1)
-)
+  (move-item a-vector item -1 1))
 
 (defn move-to-end
   "Move item to end of vector."
@@ -1139,15 +1138,15 @@ After 3 years	75  of them to have received a transplant
         years (range (count labels))]
     [:div {:style {:margin-top 20}}
      #_[:div
-      [:div
-       (for [i years
-             :let [label (nth labels i)
-                   line (:line label)
-                   line (if (sequential? line) (map str line) line)]]
-         [:div {:style {:border-bottom "3px solid #666"
-                       #_#_:color "#fff"
-                       #_#_:background-color "#888"}
-               :key (str "y-" i)} line])]]
+        [:div
+         (for [i years
+               :let [label (nth labels i)
+                     line (:line label)
+                     line (if (sequential? line) (map str line) line)]]
+           [:div {:style {:border-bottom "3px solid #666"
+                          #_#_:color "#fff"
+                          #_#_:background-color "#888"}
+                  :key (str "y-" i)} line])]]
      [:div
       (for [i years
             :let [label (nth labels i)
@@ -1161,7 +1160,7 @@ After 3 years	75  of them to have received a transplant
             (let [label (nth labels i)
                   time-index (:time-index label)
                   [_ {:keys [int-fs]}] (nth year-series time-index)]
-              [:div {:key (str "r-" i)} (str (nth int-fs j) ) " " long-label])])])]]))
+              [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
 
 
 
@@ -1175,7 +1174,7 @@ After 3 years	75  of them to have received a transplant
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        
+
         ;; Table plots need to have positive items at the start; negative (like death) at the end.
         ;; for survival curves the :residual component is positive farmed, so bring 
         ;; this to the start.
@@ -1186,7 +1185,7 @@ After 3 years	75  of them to have received a transplant
                       (move-to-start x :residual)
                       (move-to-end x :removal)
                       (move-to-end x :death))
-        
+
         ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
     ;(locals)
@@ -1194,9 +1193,33 @@ After 3 years	75  of them to have received a transplant
      (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
      #_(:post-section tool-mdata)]))
 
+
+(defn test-render
+  [organ tool inputs year-series plot-order]
+  (locals)
+  #_(let [labels (get-in tool-mdata [:table :labels])
+          years (range (count labels))]
+      [:div {:style {:margin-top 20}}
+
+       [:div
+        (for [i years
+              :let [label (nth labels i)
+                    line (:line label)
+                    line (if (sequential? line) (map str line) line)]]
+          [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:h4 line]
+           (for [j (range (count plot-order))
+                 :let [style ((nth plot-order j) data-styles)
+                       long-label (:long-label style)]]
+             [:div {:key (str "c-" j)}
+              (let [label (nth labels i)
+                    time-index (:time-index label)
+                    [_ {:keys [int-fs]}] (nth year-series time-index)]
+                [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
+
 (defn text
   "a text results view"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+  [{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
+  (?-> env ::text)
 
   (let [sample-days (map
                      utils/year->day
@@ -1221,4 +1244,35 @@ After 3 years	75  of them to have received a transplant
     ;(locals)
     [:section
      (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
+     (test-render organ tool inputs fs-by-year-in-plot-order plot-order*)
+     #_(:post-section tool-mdata)]))
+
+
+
+(defn test-gen
+  "send a test data structure to tap for comparison against an R structure"
+  [{:keys [organ tool base-outcome-keys s0 F inputs] :as env}]
+  (let [sample-days (map
+                     utils/year->day
+                     (range (inc (utils/day->year (first (last s0))))))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        tool-mdata (tool-metadata env organ tool)
+        data-styles (get tool-mdata :outcomes)
+
+        ;; Table plots need to have positive items at the start; negative (like death) at the end.
+        ;; for survival curves the :residual component is positive farmed, so bring 
+        ;; this to the start.
+        ;;
+        ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
+        ;; rather than at the tool level.
+        plot-order* (as-> (:plot-order tool-mdata) x
+                      (move-to-start x :residual)
+                      (move-to-end x :removal)
+                      (move-to-end x :death))
+
+        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
+    ;(locals)
+    [:section
+     (test-render organ tool inputs fs-by-year-in-plot-order plot-order*)
      #_(:post-section tool-mdata)]))

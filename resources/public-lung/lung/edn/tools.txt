@@ -1,1 +1,0 @@
-{:key (:waiting :post-transplant :guidance), :label ("Waiting times" "Survival post transplant" "Useful Information"), :description ("for possible outcomes while waiting for a transplant " "survival expectations after a lung transplant" "a page of guidance")}

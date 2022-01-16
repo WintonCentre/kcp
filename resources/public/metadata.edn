@@ -22,11 +22,8 @@
  ;;
 
  ;; :todo: Rename :organs to :domains (?) in the generalised tool.
- ;;;
- ;; NOTE THAT :organ-order is now a default setting, that is overridden by the :closure-defines transplants.utils/ORDER
- ;; compilation option.
- ;;;
- :organ-order [:kidney] ; This app will contain the :lung and :kidney home-pages in that order
+ ;; Revert to a single organ selector rather than an order for multiple organs and simplify the code....
+ :organ-order [:kidney] 
 
  ;;
  ; :todo - Check - 

@@ -12,7 +12,8 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [medley.core :as medl]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]))
+            [shadow.debug :refer [locals ?> ?-> ?->>]]
+            ))
 
 ;;
 ;; Plot data prep utilities

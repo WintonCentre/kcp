@@ -8,6 +8,7 @@
          ;:init (defn env [s] (System/getenv s))
          :enter (println "Entering:" (:name (current-task)))
          print-env (println (env (first *command-line-args*)))
+         tex (shell "pandoc doc/competing_risks.tex -o resources/public/competing_risks.pdf")
          install (shell "npm install")
          config (shell "clojure -A:config -X transplants.configure/main")
          start  (shell "shadow-cljs watch app")

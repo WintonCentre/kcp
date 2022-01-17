@@ -144,7 +144,7 @@ in the routes table."
   [:div.footer {:style {:width "100%" :height "80px" :background-color "black" :color "white"
                 :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "20px" :display "flex" :flex-direction "row" :align-items "center"}}
-    [:img {:src "assets/crest.png" :async true :style {:height 40 :margin-right 20} :alt "University of Cambridge Crest"}] 
+    [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}] 
     "Winton Centre"]])
 
 (defn root-component

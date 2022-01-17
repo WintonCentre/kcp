@@ -107,7 +107,7 @@
                                 :color "rgb(255,0,0)"
                                 :border "3px solid rgb(255,0,0)"
                                 :border-radius 5
-                                :background-color "#fec"
+                                :background-color "#fff"
                                 :padding "2px 5px"
                                 :position "absolute"
                                 :top "-20px"

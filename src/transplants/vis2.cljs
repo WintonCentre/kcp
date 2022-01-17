@@ -984,7 +984,7 @@
                 :key (str "year-" time-index)}
         [ui/col {:key 1}
 
-         [:h5 {:style {:margin-top 20}}
+         [:h4 {:style {:margin-top 20}}
           (let [line (:line label)]
             (if (sequential? line) (map str line) line))]
 
@@ -1133,8 +1133,7 @@ After 3 years	75  of them to have received a transplant
 		22  of them to have died or been removed from the list 
 "
   [year-series tool-mdata plot-order data-styles]
-  (let [;plot-order (:plot-order tool-mdata)
-        labels (get-in tool-mdata [:table :labels])
+  (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     [:div {:style {:margin-top 20}}
      #_[:div

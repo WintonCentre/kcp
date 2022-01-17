@@ -23,7 +23,7 @@
 
  ;; :todo: Rename :organs to :domains (?) in the generalised tool.
  ;; Revert to a single organ selector rather than an order for multiple organs and simplify the code....
- :organ-order [:lung] 
+ :organ-order [:kidney] 
 
  ;;
  ; :todo - Check - 

@@ -78,7 +78,7 @@ in the routes table."
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
       [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
                      :style {:border-bottom "1px solid black" :opacity "1"}}
-       [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40} :alt "Winton Centre"}]]
+       [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 37} :alt "Winton Centre"}]]
      ; Site name below 
        [:> bs/Nav.Link {:style {:font-size "1em"}
                         :organ (name organ)
@@ -144,7 +144,7 @@ in the routes table."
   [:div.footer {:style {:width "100%" :height "80px" :background-color "black" :color "white"
                 :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "20px" :display "flex" :flex-direction "row" :align-items "center"}}
-    [:img {:src "assets/crest.png" :style {:height 40 :margin-right 20} :alt "University of Cambridge Crest"}] 
+    [:img {:src "assets/crest.png" :async true :style {:height 40 :margin-right 20} :alt "University of Cambridge Crest"}] 
     "Winton Centre"]])
 
 (defn root-component
@@ -202,9 +202,7 @@ in the routes table."
   [:p
    (when (not= tool "guidance")
      [:span
-      "For more information that will be helpful to patients, follow the link to useful information."])
-   " There is also a " [:a.centre-header-link {:target "_blank" :href (str (name organ) ".pdf")} "PDF download"]
-   " which explains the technical details of the tool."])
+      "For more information that will be helpful to patients, follow the link to useful information."])])
 
 
 

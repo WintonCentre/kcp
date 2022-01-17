@@ -119,8 +119,8 @@
                         :margin-left "-15px"
                         :padding "15px"}}
           [:img (if (= organ :lung)
-                  {:src "/assets/lung-banner.png" :style {:height 130}}
-                  {:src "/assets/kidney-banner.png" :style {:height 130}})]]
+                  {:src "/assets/lung-banner.png" :async true :style {:height 130 :width 250}}
+                  {:src "/assets/kidney-banner.png" :async true :style {:height 130 :width 260}})]]
          (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
          [ui/row
           [ui/col
@@ -606,7 +606,8 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
         a window of opportunity which persists until the patient receives a transplant or
         their health deteriorates to the point where it would no longer be recommended."]
    [:> bs/Image {:fluid true
-                 :src "assets/The Window.png"}]])
+                 :src "assets/The Window.png"
+                 :async true}]])
 
 
 (defmethod show-guidance :graft-failure []

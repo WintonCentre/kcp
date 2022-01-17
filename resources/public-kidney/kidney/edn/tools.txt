@@ -1,1 +1,0 @@
-{:key (:waiting :graft :ldgraft :survival :ldsurvival :guidance), :label ("Waiting times" "Kidney survival - deceased donor" "Kidney survival - living donor " "Survival - deceased donor" "Survival - living donor" "Useful Information"), :description ("for possible outcomes" "over time" "over time" "over time" "over time" "a page of guidance")}

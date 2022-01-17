@@ -1,0 +1,50 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+Read in the parameter values 'param' from csv
+```{r}
+param <- read.csv("kidney dd post tx graft params.csv",fileEncoding = 'UTF-8-BOM')
+param
+```
+
+So, given s = "rage_4" how can we access param$rage_4 via s?
+```{r}
+s<-"rage_4"
+param[[s]]
+```
+Find all the levels in param:
+```{r}
+colnames(param)
+```
+Find all the factor names
+```{r}
+library(rematch)
+s <- "diabetes_2"
+pattern <- "(?<factor>[[:alpha:]]+)_(?<level>[[:digit:]]+)"
+as.data.frame(re_match(pattern, s, perl = TRUE))
+```
+It looks like the rematch package is useful for pulling out and naming the components.
+If there is no match we get NA values.
+```{r}
+as.data.frame(re_match(pattern, "foo", perl = TRUE))
+```
+So, let's define a function to make this easy
+```{r}
+factor_level <- function(field_name) {
+  pattern <- "(?<factor>[[:alnum:]]+)_(?<level>[[:digit:]]+)";
+  as.data.frame(re_match(pattern, field_name, perl = TRUE))
+}
+factor("wom3bat_65")
+```
+Now to map that function over the param column names
+```{r}
+unique(lapply(colnames(param), function(field_name) {factor_level(field_name)$factor}))
+```
+We want to match these factors and their numeric levels to the names and levels used by the clojure code... How to do that?
+

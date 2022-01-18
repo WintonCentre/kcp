@@ -9,6 +9,13 @@ param <- read.csv("kidney dd post tx graft params.csv",fileEncoding = 'UTF-8-BOM
 attach(survdata)
 attach(param)
 
+ksource <- function(x, ...) {
+  library(knitr)
+  source(purl(x, output = tempfile()), ...)
+}
+
+ksource("Notes.Rmd")
+
 ## Check data ##
 head(survdata)
 head(param)

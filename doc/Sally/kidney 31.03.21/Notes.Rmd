@@ -7,24 +7,31 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
+Pull in some useful libraries
+```{r}
+library(rematch)
+library(tidyverse)
+```
+
+
 Read in the parameter values 'param' from csv
 ```{r}
-param <- read.csv("kidney dd post tx graft params.csv",fileEncoding = 'UTF-8-BOM')
-param
+get.params <- function(path) {read.csv(path, fileEncoding = 'UTF-8-BOM')}
+params <- get.params("kidney dd post tx graft params.csv")
+params
 ```
 
 So, given s = "rage_4" how can we access param$rage_4 via s?
 ```{r}
 s<-"rage_4"
-param[[s]]
+params[[s]]
 ```
 Find all the levels in param:
 ```{r}
-colnames(param)
+colnames(params)
 ```
 Find all the factor names
 ```{r}
-library(rematch)
 s <- "diabetes_2"
 pattern <- "(?<factor>[[:alpha:]]+)_(?<level>[[:digit:]]+)"
 as.data.frame(re_match(pattern, s, perl = TRUE))
@@ -42,9 +49,29 @@ factor_level <- function(field_name) {
 }
 factor("wom3bat_65")
 ```
-Now to map that function over the param column names
+Now to map that function over the columns in param to extract unique names
 ```{r}
-unique(lapply(colnames(param), function(field_name) {factor_level(field_name)$factor}))
+unique.factors <- function(df) {
+  unique(lapply(colnames(df), function(field_name) {factor_level(field_name)$factor}))
+}
+unique.factors(params)
 ```
-We want to match these factors and their numeric levels to the names and levels used by the clojure code... How to do that?
+We also need to know which levels have zero coefficients. factor.base gives us the full factor_level name of a zero
+valued coefficient.
+```{r}
+factor.base <- function (fname) {
+  f <- params %>% select(starts_with(fname)) 
+  colnames(select_if(f, near(f,0)))
+}
+factor.base("dage")
 
+```
+
+We want to know all the base factors and their numeric levels. These mostly will not change in the tests.
+```{r}
+base.factors <- function(df) {vapply(unique.factors(df), factor.base, FUN.VALUE = 'a')}
+bases <- base.factors(params) 
+bases
+```
+
+[Aside: This would be so much easier in clojure!]

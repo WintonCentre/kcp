@@ -171,9 +171,9 @@
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        route @(rf/subscribe [::subs/current-route])
+        #_#_route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])]
+        #_#_organ (get-in route [:path-params :organ])]
     (locals)
 
     (if mdata
@@ -299,9 +299,9 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        route @(rf/subscribe [::subs/current-route])
+        #_#_route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])]
+        #_#_organ (get-in route [:path-params :organ])]
     ;(locals)
 
     (if mdata
@@ -490,9 +490,9 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        route @(rf/subscribe [::subs/current-route])
+        #_#_route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])]
+        #_#_organ (get-in route [:path-params :organ])]
     ;(locals)
 
     (if mdata
@@ -513,9 +513,9 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        route @(rf/subscribe [::subs/current-route])
-        single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])]
+        #_#_route @(rf/subscribe [::subs/current-route])
+        #_#_single-organ (ui/get-single-organ mdata)
+        #_#_organ (get-in route [:path-params :organ])]
     ;(locals)
 
     (if mdata
@@ -1062,7 +1062,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
         organ-centres @(rf/subscribe [::subs/organ-centres])
         [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
         tool-name (if (nil? tool-name) :waiting tool-name)
-        [organ centre tool :as p-keys] (map keyword p-names)
+        [organ centre tool] (map keyword p-names)
         tools (utils/get-tools mdata organ)]
 
     (tool-page {:organ organ

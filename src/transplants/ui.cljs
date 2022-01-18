@@ -198,7 +198,7 @@ in the routes table."
 
 (defn background-link
   "Tool menu prefix rubric."
-  [organ _centre tool]
+  [_organ _centre tool]
   [:p
    (when (not= tool "guidance")
      [:span

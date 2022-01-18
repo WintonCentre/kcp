@@ -1256,7 +1256,7 @@ After 3 years	75  of them to have received a transplant
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
-        data-styles (get tool-mdata :outcomes)
+        #_#_data-styles (get tool-mdata :outcomes)
 
         ;; Table plots need to have positive items at the start; negative (like death) at the end.
         ;; for survival curves the :residual component is positive farmed, so bring 

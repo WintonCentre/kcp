@@ -56,8 +56,7 @@ unique.factors <- function(df) {
 }
 unique.factors(params)
 ```
-We also need to know which levels have zero coefficients. factor.base gives us the full factor_level name of a zero
-valued coefficient.
+We also need to know which levels have zero coefficients. factor.base gives us the full factor_level name of a zero valued coefficient.
 ```{r}
 factor.base <- function (fname) {
   f <- params %>% select(starts_with(fname)) 

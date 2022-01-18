@@ -119,8 +119,8 @@
                         :margin-left "-15px"
                         :padding "15px"}}
           [:img (if (= organ :lung)
-                  {:src "/assets/lung-banner.png" :async true :style {:height 130 :width 250}}
-                  {:src "/assets/kidney-banner.png" :async true :style {:height 130 :width 260}})]]
+                  {:src "/assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
+                  {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
          (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
          [ui/row
           [ui/col

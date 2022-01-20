@@ -1,0 +1,52 @@
+{
+  "times" : [ 1, 3, 5 ],
+  "factors" : [ {
+    "clj" : "age",
+    "r" : "rage",
+    "zero" : 3,
+    "min" : 1,
+    "max" : 6
+  }, {
+    "clj" : "wait",
+    "r" : "wait",
+    "zero" : 1,
+    "min" : 1,
+    "max" : 5
+  }, {
+    "clj" : "graft",
+    "r" : "graft",
+    "zero" : 1,
+    "min" : 1,
+    "max" : 2
+  }, {
+    "clj" : "diabetes",
+    "r" : "diabetes",
+    "zero" : 1,
+    "min" : 0,
+    "max" : 1
+  }, {
+    "clj" : "donor-age",
+    "r" : "dage",
+    "zero" : 4,
+    "min" : 1,
+    "max" : 6
+  }, {
+    "clj" : "donor-bmi",
+    "r" : "dbmi",
+    "zero" : 2,
+    "min" : 1,
+    "max" : 3
+  }, {
+    "clj" : "donor-ht",
+    "r" : "dhtn",
+    "zero" : 2,
+    "min" : 1,
+    "max" : 2
+  }, {
+    "clj" : "hla-mismatch",
+    "r" : "hla",
+    "zero" : 1,
+    "min" : 1,
+    "max" : 4
+  } ]
+}

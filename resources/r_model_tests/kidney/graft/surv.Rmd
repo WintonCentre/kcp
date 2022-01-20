@@ -1,0 +1,181 @@
+# Kidney deceased donor post tx graft survival #
+```{r}
+## Set work area/libname ##
+# setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
+```
+## Pull in libraries we need 
+```{r}
+library(tidyverse)
+library(jsonlite)
+```
+
+## Import data ##
+There are errors in surv.csv caused by the use of different quoting characters in
+hospital names. These are ignored as we do not want to change the supplied test data.
+```{r}
+survdata <- read.csv("surv.csv",fileEncoding = 'UTF-8-BOM')
+param <- read.csv("params.csv",fileEncoding = 'UTF-8-BOM')
+attach(survdata)
+attach(param)
+
+## Check data ##
+head(survdata)
+head(param)
+```
+
+## Define adjusted cox function
+```{r}
+## Adjusted capH will be - log(tx_surv) * exp(XB) ##
+
+adjcox <- function(cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn =2, hla = 1) {
+  
+  ## Calculate individual xbeta terms ##
+  
+  #Recipient age at transplant #
+  if(rage == 1){xbeta_rage = rage_1}
+  if(rage == 2){xbeta_rage = rage_2}
+  if(rage == 3){xbeta_rage = rage_3}
+  if(rage == 4){xbeta_rage = rage_4}
+  if(rage == 5){xbeta_rage = rage_5}
+  if(rage == 6){xbeta_rage = rage_6}
+  
+  #Wait time #
+  if(wait == 1){xbeta_wait = wait_1}
+  if(wait == 2){xbeta_wait = wait_2}
+  if(wait == 3){xbeta_wait = wait_3}
+  if(wait == 4){xbeta_wait = wait_4}
+  if(wait == 5){xbeta_wait = wait_5}
+  
+  #Diabetes #
+   if(diabetes == 0){xbeta_diabetes = diabetes_0}
+  if(diabetes == 1){xbeta_diabetes = diabetes_1}
+  
+  #Graft #
+  if(graft == 1){xbeta_graft = graft_1}
+  if(graft == 2){xbeta_graft = graft_2}
+ 
+  #Donor age#
+  if(dage == 1){xbeta_dage = dage_1}
+  if(dage == 2){xbeta_dage = dage_2}
+  if(dage == 3){xbeta_dage = dage_3}
+  if(dage == 4){xbeta_dage = dage_4}
+  if(dage == 5){xbeta_dage = dage_5}
+  if(dage == 6){xbeta_dage = dage_6}
+  
+  #Donor BMI#
+  if(dbmi == 1){xbeta_dbmi = dbmi_1}
+  if(dbmi == 2){xbeta_dbmi = dbmi_2}
+  if(dbmi == 3){xbeta_dbmi = dbmi_3}
+  
+  #Donor htn#
+  if(dhtn == 1){xbeta_dhtn = dhtn_1}
+  if(dhtn == 2){xbeta_dhtn = dhtn_2}
+  
+  #HLA MM#
+  if(hla == 1){xbeta_hla = hla_1}
+  if(hla == 2){xbeta_hla = hla_2}
+  if(hla == 3){xbeta_hla = hla_3}
+  if(hla == 4){xbeta_hla = hla_4}
+  
+  
+  ## Total xbetas ##
+  xbeta <- sum(xbeta_rage, xbeta_wait, xbeta_graft, xbeta_diabetes, xbeta_dage, xbeta_dbmi, xbeta_dhtn, xbeta_hla)
+  
+  
+  ## Calculate cumulative hazard for each term ##
+  adjsurv <- surv ** (exp(xbeta))
+  
+  basehaz <- data.frame(survdata, adjsurv)
+  
+  #Restrict to centre #
+  centre <- basehaz[rec_unit==cent,]
+  
+  #Set up for 1 row per every day #
+  days <- numeric(length = 1827)
+  days <- 0:1826
+  
+  adjsurv2 <- numeric(length = 1827)
+  
+  secondday <- centre$time[2]
+  secondday
+  
+  ## delete second entry for day 0 - S(0) needs to start at 1 - only if second time entry is 0 ##
+  
+  if(secondday == 0){centre <- centre[-c(2),]}
+  
+  ## set up new dataset for day 0- 1826 - make sure there are data points for every day ##
+  
+  smoothed_cent <- data.frame(days)
+  smoothed_cent$adjsurv <- adjsurv2
+  
+  
+  ## impute values from newc ##
+  j<-1
+  for (i in 1:1827){
+    if (smoothed_cent$days[i] == centre$time[j] )
+    {  smoothed_cent$adjsurv[i] <- centre$adjsurv[j]
+    j <- j + 1}
+    else {smoothed_cent$adjsurv[i] <- centre$adjsurv[j-1]
+    }
+  }
+  return(smoothed_cent)
+}
+```
+## Generate R Test Values
+### Read in and simplify test-configuration.json 
+```{r}
+test.config <- function(simplifyVector = TRUE) {
+  return(read_json("test-configuration.json"))
+}
+config <- test.config()
+times <- as.integer(config$times)
+days <- round(365.25 * times)
+days
+factors <- map_dfr(config$factors, as.data.frame)
+factors
+
+```
+### Diversion - how to call an R function with formal parameters read from a data frame?
+After much dinking about, here's one way...
+Define a sample function with formal parameters a and b, and check that order does not matter.
+```{r}
+f <- function(a = 1, b = 2) {a + 6*b}
+f(a = 3, b = 4)
+f(b = 3, a = 4)
+```
+Now create a string representation of f from f
+```{r}
+deparse(f)
+```
+And recreate a function g that behaves exactly like f from that string
+```{r}
+g <- eval(parse(text=deparse(f)))
+g(a = 3, b = 4)
+g(b = 3, a = 4)
+```
+This allows us to construct a call to f with values obtained from an external table in a position independent form.
+
+### Call adjcox
+Use Belfast as the centre, calling adjcox with:
+* All the zero effect levels
+* With the first non-zero effect level, keeping all other levels at zero effect
+
+
+
+```{r}
+r <- adjcox(cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn = 2, hla = 1) %>%
+as.data.frame()
+
+S <- function(day) {
+  r[day+1,]$adjsurv
+}
+map_dfr(days, S)
+```
+
+
+<!-- Eliding the plot
+test <- adjcox (cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn =2, hla = 1 )
+
+#Plotting the output #
+plot(y = test$adjsurv, x = test$days, ylab = "Survival", xlab = "Time (days)", ylim = c(0, 1), col = "red")
+-->

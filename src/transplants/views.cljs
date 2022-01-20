@@ -46,6 +46,7 @@
             [ui/button {:id (str (name organ) "-button")
                         :class-name "btn-lg"
                         :variant "primary"
+                        :style {:font-size "1.5em"}
                         :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
              (if single-organ
                "Start the tool"

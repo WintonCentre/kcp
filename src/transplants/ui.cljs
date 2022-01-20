@@ -251,7 +251,8 @@ in the routes table."
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
        [background-link organ-name centre-name active-tool]
-       ]]]))
+       ]]])
+       )
 
 
 

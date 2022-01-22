@@ -143,7 +143,7 @@ f <- function(a = 1, b = 2) {a + 6*b}
 f(a = 3, b = 4)
 f(b = 3, a = 4)
 ```
-Now create a string representation of f from f
+Now create a string representation of f from f. Then edit in the formal parameters from the data frame (skipped here)
 ```{r}
 deparse(f)
 ```
@@ -157,21 +157,31 @@ This allows us to construct a call to f with values obtained from an external ta
 
 ### Call adjcox
 Use Belfast as the centre, calling adjcox with:
-* All the zero effect levels
-* With the first non-zero effect level, keeping all other levels at zero effect
-
-
+First All the zero effect levels - given by the defauk parameters
+Then with the first non-zero test level, keeping all other levels at zero effect
 
 ```{r}
-r <- adjcox(cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn = 2, hla = 1) %>%
-as.data.frame()
+r <- adjcox(cent = "Belfast") %>% as.data.frame()
 
 S <- function(day) {
   r[day+1,]$adjsurv
 }
-map_dfr(days, S)
+rbind(days, map_dbl(days, S))
 ```
+Then with the first non-zero test levels, keeping all other levels at zero effect
+```{r}
+r <- adjcox(cent = "Belfast", rage = 1) %>% as.data.frame()
+w <- adjcox(cent = "Belfast", wait = 5) %>% as.data.frame()
+R <- function(day) {
+  r[day+1,]$adjsurv
+}
+W <- function(day) {
+  w[day+1,]$adjsurv
+}
+rbind(days, map_dbl(days, R), map_dbl(days, W))
 
+
+```
 
 <!-- Eliding the plot
 test <- adjcox (cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn =2, hla = 1 )

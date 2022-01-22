@@ -26,7 +26,7 @@
  {:app {:target     :browser
         :output-dir "resources/public/js"
         :asset-path "/js"
-        :devtools {:preloads [re-frame-flow.preload]}
+        ;:devtools {:preloads [re-frame-flow.preload]}
         :compiler-options {:optimizations  :advanced
                            :output-wrapper false}
         :modules {:app {:init-fn transplants.core/init}}}

@@ -33,4 +33,5 @@
          shadow-cljs-server (shell "shadow-cljs server")
          share-xlsx (shell "bb -f bb_scripts/upload_xlsx.clj") ;; publish .xslx files to dropbox
          lint-subs (shell "bb -f bb_scripts/re_frame_subscriptions.clj")
+         rjson (shell "jet --from resources/r_model_tests/kidney/graft/test-configuration.edn --to resources/r_model_tests/kidney/graft/test-configuration.json")
          sass (shell "sass resources/public/css/styles.scss:resources/public/css/styles.css")}}

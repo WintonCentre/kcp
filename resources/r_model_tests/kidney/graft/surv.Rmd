@@ -153,20 +153,46 @@ g <- eval(parse(text=deparse(f)))
 g(a = 3, b = 4)
 g(b = 3, a = 4)
 ```
-This allows us to construct a call to f with values obtained from an external table in a position independent form.
+This allows us to construct a call to adjcox with values obtained from an external table such as factors in a position independent form.
+### This is better
+```{r}
+args <- formals(adjcox)
+args[["rage"]] <- 1
+adjcox.rage <- as.function(c(args, body(adjcox)), parent.frame())
+adjcox()[1095,]$adjsurv
+adjcox.rage()[1095,]$adjsurv
+fn.survival <- function(fn, param.name = NULL, param.value = NULL) {
+  args <- formals(fn)
+  # change one value
+  if(!(is.null(param.name) || is.null(param.value))) {
+    args[[param.name]] <- param.value
+  }
+  as.function(c(args, body(fn)), parent.frame())
+}
+adjcox.perturbed <- function(param.name, param.value) {
+  fn.survival(adjcox, param.name, param.value)()$adjsurv
+}
+adjcox.perturbed("rage", 1)[1095]
+results.at.times <- function(param.name, param.value, times) {
+  f <- function(t) {fn.survival(adjcox, param.name, param.value)()$adjsurv[t]}
+  map_dbl(times, f)
+}
+results.at.times("rage", 1, c(1, 100, 1095))
+```
 
-### Call adjcox
-Use Belfast as the centre, calling adjcox with:
-First All the zero effect levels - given by the defauk parameters
-Then with the first non-zero test level, keeping all other levels at zero effect
+So, let's call adjcox with the inputs given by r$zero and r$test columns in factors:
+```{r}
+
+results <- rbind(
+results.at.times(NULL,NULL,c(1, 100, 1095)),
+results.at.times("rage", 1, c(1, 100, 1095)))
+
+```
+Put results into a dataframe
 
 ```{r}
-r <- adjcox(cent = "Belfast") %>% as.data.frame()
+set_names(as.list(results), nm=c("a","b","c")) %>% as.data.frame()
 
-S <- function(day) {
-  r[day+1,]$adjsurv
-}
-rbind(days, map_dbl(days, S))
 ```
 Then with the first non-zero test levels, keeping all other levels at zero effect
 ```{r}
@@ -178,9 +204,9 @@ R <- function(day) {
 W <- function(day) {
   w[day+1,]$adjsurv
 }
-rbind(days, map_dbl(days, R), map_dbl(days, W))
+df <- cbind("result", map_dbl(days, R)) %>% as.data.frame()
 
-
+df
 ```
 
 <!-- Eliding the plot

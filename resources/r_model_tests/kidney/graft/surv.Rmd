@@ -188,8 +188,8 @@ for(i in seq_len(nrow(factors))) {
   acc <- rbind(acc, results.for.factor(factors[i,]))
 }
 acc %>% 
-  as.data.frame() %>%
-  rename(Var=V1, Year1 = V2, Year3 = V3, Year5=V4)
+  as.data.frame() %>% rename(Var=V1, Year1 = V2, Year3 = V3, Year5=V4) %>%
+  write.csv("test_results.csv", row.names=FALSE)
   
 
 ```

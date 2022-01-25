@@ -176,42 +176,22 @@ results
 ```
 How to make a list of results from factors?
 ```{r}
+
 results.for.factor <- function (f) {
   results.at.times(f$r, f$test, days) %>% prepend(f$r)
 }
-# append.row <- function(rows, row) {
-#   rows <- rbind(rows, row)
-# }
-# factor.rows <- by(factors, seq_len(nrow(factors)), function(row) {row %>% as.data.frame()}, simplify=TRUE)
-acc <- array(NA, c(0,4))
+
+acc <- results.at.times(NULL,NULL,days) %>% prepend("unchanged")
 for(i in seq_len(nrow(factors))) {
   acc <- rbind(acc, results.for.factor(factors[i,]))
 }
-acc %>% 
-  as.data.frame() %>% rename(Var=V1, Year1 = V2, Year3 = V3, Year5=V4) %>%
-  write.csv("test_results.csv", row.names=FALSE)
-  
+acc <- acc %>% as.data.frame()
 
+graft <- data.frame("kidney", "graft", acc)
+graft <- rename(graft, organ = X.kidney. , tool = X.graft., factor=V1, year1 = V2, year3 = V3, year5=V4)
+write.csv(graft, "kidney-graft.csv", row.names=FALSE)
 ```
-Put results into a dataframe
-```{r}
-df <- results %>% as.data.frame()
-rename(df, Var=V1, Year1 = V2, Year3 = V3, Year5=V4)
-```
-Then with the first non-zero test levels, keeping all other levels at zero effect
-```{r}
-r <- adjcox(cent = "Belfast", rage = 6) %>% as.data.frame()
-w <- adjcox(cent = "Belfast", wait = 5) %>% as.data.frame()
-R <- function(day) {
-  r[day+1,]$adjsurv
-}
-W <- function(day) {
-  w[day+1,]$adjsurv
-}
-df <- cbind("result", map_dbl(days, R)) %>% as.data.frame()
 
-df
-```
 
 <!-- Eliding the plot
 test <- adjcox (cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn =2, hla = 1 )

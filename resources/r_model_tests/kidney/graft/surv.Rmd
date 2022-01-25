@@ -166,29 +166,31 @@ So, let's call adjcox with the inputs given by some r\$zero and r\$test columns 
 ```{r}
 
 days <- lapply(config$times, function(x) {round(365.25*x)})
+acc <- array(NA, c(0,4))
 results <- 
-  rbind(results.at.times(NULL,NULL,days) %>% prepend("unchanged"),
+  rbind(acc,
+        results.at.times(NULL,NULL,days) %>% prepend("unchanged"),
         results.at.times("rage", 6, days) %>% prepend("rage"),
         results.at.times("wait", 5, days) %>% prepend("wait"))
-
+results
 ```
 How to make a list of results from factors?
 ```{r}
-# results.for.factor <- function (f) {
-#   results.at.times(f$r, f$test, days) %>% prepend(f$r)
-# }
-rows = function(x) lapply(seq_len(nrow(x)), function(i) lapply(x,"[",i))
-rows(factors)
-for(row in rows(factors)) {
-  print(row$r)
+results.for.factor <- function (f) {
+  results.at.times(f$r, f$test, days) %>% prepend(f$r)
 }
-# rows <- data_frame()
-# append.row <- function(row) {
-#   str(row)
+# append.row <- function(rows, row) {
 #   rows <- rbind(rows, row)
 # }
-# for(i in seq_len(nrow(factors))) {rows <- rbind(rows, factors[[,i]])}
-#by(factors, seq_len(nrow(factors)), append.row)
+# factor.rows <- by(factors, seq_len(nrow(factors)), function(row) {row %>% as.data.frame()}, simplify=TRUE)
+acc <- array(NA, c(0,4))
+for(i in seq_len(nrow(factors))) {
+  acc <- rbind(acc, results.for.factor(factors[i,]))
+}
+acc %>% 
+  as.data.frame() %>%
+  rename(Var=V1, Year1 = V2, Year3 = V3, Year5=V4)
+  
 
 ```
 Put results into a dataframe

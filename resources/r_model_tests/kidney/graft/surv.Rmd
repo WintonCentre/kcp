@@ -135,26 +135,8 @@ factors <- map_dfr(config$factors, as.data.frame)
 factors
 
 ```
-### Diversion - how to call an R function with formal parameters read from a data frame?
-After much dinking about, here's one way...
-Define a sample function with formal parameters a and b, and check that order does not matter.
-```{r}
-f <- function(a = 1, b = 2) {a + 6*b}
-f(a = 3, b = 4)
-f(b = 3, a = 4)
-```
-Now create a string representation of f from f. Then edit in the formal parameters from the data frame (skipped here)
-```{r}
-deparse(f)
-```
-And recreate a function g that behaves exactly like f from that string
-```{r}
-g <- eval(parse(text=deparse(f)))
-g(a = 3, b = 4)
-g(b = 3, a = 4)
-```
-This allows us to construct a call to adjcox with values obtained from an external table such as factors in a position independent form.
-### This is better
+
+### Poke the changed forrmal parameters ino adjcox
 ```{r}
 args <- formals(adjcox)
 args[["rage"]] <- 1
@@ -180,23 +162,43 @@ results.at.times <- function(param.name, param.value, times) {
 results.at.times("rage", 1, c(1, 100, 1095))
 ```
 
-So, let's call adjcox with the inputs given by r$zero and r$test columns in factors:
+So, let's call adjcox with the inputs given by some r\$zero and r\$test columns in factors:
 ```{r}
 
-results <- rbind(
-results.at.times(NULL,NULL,c(1, 100, 1095)),
-results.at.times("rage", 1, c(1, 100, 1095)))
+days <- lapply(config$times, function(x) {round(365.25*x)})
+results <- 
+  rbind(results.at.times(NULL,NULL,days) %>% prepend("unchanged"),
+        results.at.times("rage", 6, days) %>% prepend("rage"),
+        results.at.times("wait", 5, days) %>% prepend("wait"))
+
+```
+How to make a list of results from factors?
+```{r}
+# results.for.factor <- function (f) {
+#   results.at.times(f$r, f$test, days) %>% prepend(f$r)
+# }
+rows = function(x) lapply(seq_len(nrow(x)), function(i) lapply(x,"[",i))
+rows(factors)
+for(row in rows(factors)) {
+  print(row$r)
+}
+# rows <- data_frame()
+# append.row <- function(row) {
+#   str(row)
+#   rows <- rbind(rows, row)
+# }
+# for(i in seq_len(nrow(factors))) {rows <- rbind(rows, factors[[,i]])}
+#by(factors, seq_len(nrow(factors)), append.row)
 
 ```
 Put results into a dataframe
-
 ```{r}
-set_names(as.list(results), nm=c("a","b","c")) %>% as.data.frame()
-
+df <- results %>% as.data.frame()
+rename(df, Var=V1, Year1 = V2, Year3 = V3, Year5=V4)
 ```
 Then with the first non-zero test levels, keeping all other levels at zero effect
 ```{r}
-r <- adjcox(cent = "Belfast", rage = 1) %>% as.data.frame()
+r <- adjcox(cent = "Belfast", rage = 6) %>% as.data.frame()
 w <- adjcox(cent = "Belfast", wait = 5) %>% as.data.frame()
 R <- function(day) {
   r[day+1,]$adjsurv

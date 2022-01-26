@@ -1,16 +1,3 @@
-## Set work area/libname ##
-#setwd("F:\\Stats & Audit\\Shared\\Cardiothoracic\\Projects\\Outcomes from lung listing\\Modelling\\9. Work for David Speigenhalter\\October 2018\\Cox model work Dec 2020\\R work")
-
-## Import data ##
-survdata <- read.csv("lung wlist surv - categorical.csv")
-param <- read.csv("wlist param - categorical.csv")
-attach(survdata)
-attach(param)
-
-## Check data ##
-head(survdata)
-head(param)
-
 ## Adjusted capH will be - log(tx_surv) * exp(XB) ##
 
 adjcox <- function(cent = "Newcastle", sex = 1, disgrp = "COPD", pred = "0", inhosp = 1, nyha = 3, age_grp = 4, prevthor = 1, bld = "O", bmi_grp = 2, fvc_grp = 3) {
@@ -161,12 +148,3 @@ adjcox <- function(cent = "Newcastle", sex = 1, disgrp = "COPD", pred = "0", inh
   
 
 }
-
-test <- adjcox (cent = "Newcastle", sex = 2, disgrp = "CF", inhosp = 2, bmi_grp = 1, fvc_grp = 2, bld = "A", age_grp = 1, pred = "1-14", nyha = 2, prevthor = 2)
-
-#Plotting the output #
-plot(y = test$capF_tx, x = test$days, ylab = "Transplant probability", xlab = "Time (days)", ylim = c(0, 1), col = "red")
-points(y = test$capS, x = test$days, col = "blue")
-points(y = test$capF_rem, x = test$days, col="green")
-points(y = test$sumall, x = test$days, col="black")
-

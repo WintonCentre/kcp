@@ -1,20 +1,3 @@
-#work for kidney#
-
-## Set work area/libname ##
-#setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
-
-## Import data ##
-survdata <- read.csv("kid_wlist.csv",fileEncoding = 'UTF-8-BOM')
-param <- read.csv("kid_waitlist_params.csv",fileEncoding = 'UTF-8-BOM')
-attach(survdata)
-attach(param)
-
-## Check data ##
-head(survdata)
-head(param)
-
-
-
 ## Adjusted capH will be - log(tx_surv) * exp(XB) ##
 
 adjcox <- function(cent = "Belfast", sex = 1, rethnic_grp=1, diabetes=2, hsp_reg=1, rbg_new=1, dial_reg=1, matchpts_grp = 1, reg_age10 = 4, graft_no_new = 0) {
@@ -174,14 +157,3 @@ adjcox <- function(cent = "Belfast", sex = 1, rethnic_grp=1, diabetes=2, hsp_reg
   return(out)
   
 }
-
-test <- adjcox (cent = "Belfast", sex = 1, rethnic_grp=1, diabetes=2, hsp_reg=1, rbg_new=1, dial_reg=1, matchpts_grp = 1, reg_age10 = 6, graft_no_new = 0)
-
-#Plotting the output #
-plot(y = test$capF_tx, x = test$days, ylab = "Transplant probability", xlab = "Time (days)", ylim = c(0, 1), col = "red")
-points(y = test$capS, x = test$days, col = "blue")
-points(y = test$capF_rem, x = test$days, col="green")
-points(y = test$capF_dth, x = test$days, col= "purple")
-points(y = test$sumall, x = test$days, col="black")
-
-

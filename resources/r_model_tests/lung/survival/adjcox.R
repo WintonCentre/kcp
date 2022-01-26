@@ -1,18 +1,3 @@
-## Set work area/libname ##
-#setwd("F:\\Stats & Audit\\Shared\\Cardiothoracic\\Projects\\Outcomes from lung listing\\Modelling\\9. Work for David Speigenhalter\\October 2018\\Cox model work Dec 2020\\R work")
-
-## Import data ##
-survdata <- read.csv("lung post-tx surv.csv")
-param <- read.csv("lung post-tx param.csv")
-attach(survdata)
-attach(param)
-
-## Check data ##
-head(survdata)
-head(param)
-
-## Adjusted capH will be - log(tx_surv) * exp(XB) ##
-
 adjcox <- function(cent = "Newcastle", dcmv = 1, dsmoke = 1, pred_grp = "0", tx_type = 2, dis_grp = "COPD", rage_grp = 4, tlc_grp = 2, fvc_grp = 3, bili_grp = 2, chol_grp = 2) {
   
   
@@ -118,9 +103,3 @@ adjcox <- function(cent = "Newcastle", dcmv = 1, dsmoke = 1, pred_grp = "0", tx_
   
   
 }
-
-test <- adjcox (cent = "Manchester", dcmv = 1, dsmoke = 1, pred_grp = "0", tx_type = 2, dis_grp = "PF", rage_grp = 5, tlc_grp = 2, fvc_grp = 1, bili_grp = 2, chol_grp = 2 )
-
-#Plotting the output #
-plot(y = test$adjsurv, x = test$days, ylab = "Survival", xlab = "Time (days)", ylim = c(0, 1), col = "red")
-

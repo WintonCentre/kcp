@@ -1,22 +1,3 @@
-#work for kidney living donor post tx graft survival #
-
-
-## Set work area/libname ##
-#setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
-
-## Import data ##
-survdata <- read.csv("kidney LD post tx graft surv.csv",fileEncoding = 'UTF-8-BOM')
-param <- read.csv("kidney LD post tx graft params.csv",fileEncoding = 'UTF-8-BOM')
-attach(survdata)
-attach(param)
-
-## Check data ##
-head(survdata)
-head(param)
-
-
-## Adjusted capH will be - log(tx_surv) * exp(XB) ##
-
 adjcox <- function(rage = 3, wait = 1, match=3, dage = 3, hla = 3) {
   
   
@@ -102,9 +83,3 @@ adjcox <- function(rage = 3, wait = 1, match=3, dage = 3, hla = 3) {
   
   
 }
-
-test <- adjcox (rage = 3, wait = 1, match=3, dage = 3, hla = 3)
-
-#Plotting the output #
-plot(y = test$adjsurv, x = test$days, ylab = "Survival", xlab = "Time (days)", ylim = c(0, 1), col = "red")
-

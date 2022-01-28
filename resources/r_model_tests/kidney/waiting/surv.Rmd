@@ -1,0 +1,94 @@
+# Kidney deceased donor post tx graft survival #
+```{r}
+## Set work area/libname ##
+# setwd("F:\\Shared\\Organ Utilisation\\Winton Centre\\Kidney CR\\R work")
+```
+## Pull in libraries we need 
+```{r}
+library(tidyverse)
+library(jsonlite)
+```
+
+## Import data ##
+There are some errors in surv.csv caused by the use of different quoting characters in
+hospital names. We simply avoid those hospitals in the test.
+```{r}
+survdata <- read.csv("surv.csv",fileEncoding = 'UTF-8-BOM')
+param <- read.csv("params.csv",fileEncoding = 'UTF-8-BOM')
+attach(survdata)
+attach(param)
+
+## Check data ##
+head(survdata)
+head(param)
+```
+
+## Define adjusted cox function 
+```{r}
+source("adjcox.R")
+```
+## Generate R Test Values
+### Read in and simplify test-configuration.json 
+```{r}
+test.config <- function(simplifyVector = TRUE) {
+  return(read_json("test-configuration.json"))
+}
+config <- test.config()
+times <- as.integer(config$times)
+days <- round(365.25 * times)
+days
+factors <- map_dfr(config$factors, as.data.frame)
+factors
+
+```
+
+Poke the changed formal parameters into adjcox yielding new adjcox.perturbed function.
+Then tabulate the call results.
+
+```{r}
+fn.survival <- function(fn, param.name = NULL, param.value = NULL) {
+  args <- formals(fn)
+  # change one value
+  if(!(is.null(param.name) || is.null(param.value))) {
+    args[[param.name]] <- param.value
+  }
+  as.function(c(args, body(fn)), parent.frame())
+}
+adjcox.perturbed <- function(param.name, param.value) {
+  fn.survival(adjcox, param.name, param.value)()$adjsurv
+}
+results.at.times <- function(param.name, param.value, times) {
+  f <- function(t) {fn.survival(adjcox, param.name, param.value)()$adjsurv[t]}
+  map_dbl(times, f)
+}
+```
+
+Accumulate results for all factors 
+```{r}
+days <- lapply(config$times, function(x) {round(365.25*x)})
+names(days) <- c("year1", "year3", "year5")
+days <- as.data.frame(days)
+
+results.for.factor <- function (f) {
+  results.at.times(f$r, f$test, days) %>% prepend(f$r)
+}
+```
+Log the unchanged results first. adjcox with default parameters gives us the zero values. 
+```{r}
+acc <- results.at.times(NULL,NULL,days) %>% prepend("unchanged")
+```
+Then log one changed factor at a time
+```{r}
+for(i in seq_len(nrow(factors))) {
+  acc <- rbind(acc, results.for.factor(factors[i,]))
+}
+acc <- rename(as.data.frame(acc), factor = V1)
+```
+Label with organ and tool and export to csv
+```{r}
+generate.results <- function(csv.path, organ, tool, acc) {
+  write.csv(data.frame(organ, tool, acc), csv.path, row.names=FALSE)
+}
+generate.results("results.csv", "kidney", "graft", acc)
+```
+

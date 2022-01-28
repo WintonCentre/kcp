@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env bb nrepl-server -- -g lung -t survival
 (ns config)
   (require '[clojure.java.shell :as shell])
 

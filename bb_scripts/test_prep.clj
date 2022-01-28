@@ -100,19 +100,11 @@
   ;{:pre [(valid-r-tool-address tool-address)]}
   (keys (tool-bundle tool-address)))
   
-
-(defn distinct-r-factors
-  "Seq of distinct R factor names"
-  []
-  (let [names (first params)]
-    (->> (first params)
-         (map #(subs % 0 (str/last-index-of % "_")))
-         (distinct))))
-
 (defn near-zero? "What counts as zero?" [x] (< (Math/abs x) 1e-8))
 (defn name-num
   [[name num]]
-  [name (edn/read-string num)])
+  [name (let [n (edn/read-string num)]
+          (if (number? n) n num))])
 
 (defn name-nums
   "Waiting tool factor r-names split into 3 parts and in this case we ignore the first part - the outcome code, 
@@ -122,6 +114,15 @@
     (if (> (count parts) 2)
       (drop 1 parts)
       parts)))
+
+(defn distinct-r-factors
+  "Map of R zero-effect factor-levels"
+  []
+  (->> (map #(name-num (name-nums %))
+            (->> param-map
+                 (map first)))
+       (map first)
+       (distinct)))
 
 (defn zero-r-factors
   "Map of R zero-effect factor-levels"
@@ -166,8 +167,8 @@
 (comment
   (println (base-dir options))
 
-  (pr "params " params)
-  (pr "param-map " param-map)
+  params
+  param-map
 
 
   (subs "123" 0 2)
@@ -182,7 +183,7 @@
   (tool-bundle-keys {:centre "Belfast" :organ "kidney" :tool "graft"})
   (tool-bundle-keys {:centre "Belfast" :organ "kidney" :tool "survival"})
   (tool-bundle-keys {:centre "Belfast" :organ "kidney" :tool "waiting"})
-(valid-r-tool-address {:centre "Belfast" :organ "kidney" :tool "ldsurvival"})
+  (valid-r-tool-address {:centre "Belfast" :organ "kidney" :tool "ldsurvival"})
   (tool-bundle-keys {:centre "Belfast" :organ "kidney" :tool "ldsurvival"})
 
   (def inputs-key (nth (tool-bundle-keys {:centre "Belfast" :organ "kidney" :tool "survival"}) 2))
@@ -206,7 +207,7 @@
 
       :else
       []))
-  
+
   (def factors* (map-of-vs->v-of-maps inputs))
 
   (< "1" "2")

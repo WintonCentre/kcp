@@ -1,10 +1,1 @@
-{:times [1 3 5]
- :factors [{:clj :age :r "rage" :zero 3 :test 6}
-           {:clj :wait :r "wait" :zero 1 :test 5}
-           {:clj :diabetes :r "diabetes" :zero 1 :test 0}
-           {:clj :graft :r "graft" :zero 1 :test 2}
-           {:clj :donor-age :r "dage" :zero 4 :test 6}
-           {:clj :donor-bmi :r "dbmi" :zero 2 :test 3}
-           {:clj :donor-ht :r "dhtn" :zero 2 :test 1}
-           {:clj :hla-mismatch :r "hla" :zero 1 :test 4}
-           ]}
+{:times (1 3 5), :factors ({:clj :age, :r "age", :clj-test :70+, :zero 5, :test 7} {:clj :sex, :r "sex", :clj-test :female, :zero "m", :test "f"} {:clj :blood-group, :r "bld", :clj-test :B, :zero "o", :test "b"} {:clj :dialysis, :r "dialysis", :clj-test :no, :zero 1, :test 2} {:clj :ethnicity, :r "eth", :clj-test nil, :zero "wh", :test "nonwh"} {:clj :matchability, :r "match", :clj-test :difficult, :zero 1, :test 3} {:clj :graft, :r "graft", :clj-test :first, :zero 0, :test 1} {:clj :diabetes, :r "diabetes", :clj-test nil, :zero 1, :test 2} {:clj :sensitised, :r "sens", :clj-test nil, :zero 1, :test 2})}

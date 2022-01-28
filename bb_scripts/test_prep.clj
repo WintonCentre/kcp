@@ -48,7 +48,15 @@
        (rest csv-data)))
 
 (def options (:options (parse-opts *command-line-args* cli-options)))
-  
+
+(def times (map :time-index
+                   (-> (edn/read-string (slurp "resources/public/metadata.edn"))
+                       ((keyword (:organ options)))
+                       :tools
+                       ((keyword (:tool options)))
+                       :table
+                       :labels)))
+
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
 (defn base-dir [{:keys [organ tool]}]
@@ -124,6 +132,9 @@
        (map first)
        (distinct)))
 
+(defn r-factor [r-name]
+  (first (name-num (name-nums r-name))))
+
 (defn zero-r-factors
   "Map of R zero-effect factor-levels"
   []
@@ -152,16 +163,77 @@
                              
                    (group-by first))))))
 
+(defn map-of-vs->v-of-maps
+  "Transpose a map of vectors to a vector of maps.
+  Resulting vector will be truncated to the length of the shortest input vector.
+  e.g. {:a [0 1 2] :b [10 11 12]} -> [{:a 0 :b 10} {:a 1 :b 11} {:a 2 :b 12}]"
+  [k-vs]
+  (cond
+    (seq k-vs) (mapv (fn [vs]
+                       (into {} (map-indexed (fn [k v] [(nth (keys k-vs) k) v]) vs)))
+                     (apply map vector (vals k-vs)))
+    (nil? k-vs) nil
+    :else []))
+
+(defn clj-factors- []
+  (let [inputs-key (nth (tool-bundle-keys options) 2)
+        bundle (tool-bundle options)
+        inputs (bundle inputs-key)
+        factors (map-of-vs->v-of-maps inputs)]
+    (->> (filter (comp some? :factor) factors)
+         (group-by :factor))))
+
+(def clj-factors (memoize clj-factors-))
+
+(def clj-factor-map
+  (into {}
+        (map
+         (fn [fkey]
+           [fkey
+            (->> (clj-factors)
+                 fkey
+                 first
+                 :r-name
+                 name-nums
+                 first)])
+         (keys (clj-factors)))))
+
+(defn r-level->clj-level
+  "find the clj-level corresponding to an r-level"
+  [fkey r-level]
+  (->> (filter (fn [f] (= r-level (:r-name f))) (fkey (clj-factors)))
+       first
+       :level))
 
 
 (defn assemble
-  "Assemble the test_configuration ready for export."
+  "Assemble the test_configuration data ready for export."
   []
-  (let [z (zero-r-factors)
+  (let [cm clj-factor-map
+        z (zero-r-factors)
         t (test-r-factors)]
-    (->> (distinct-r-factors)
-        (map (fn [f] {:r f :zero (get z f) :test (get t f)})))))
+    {:times times
+     :factors (->> (keys clj-factor-map)
+                   (map (fn [k]
+                          (let [f (cm k)]
+                            {:clj k
+                             :r f
+                             :clj-test (r-level->clj-level k (str f "_" (get t f)))
+                             :zero (get z f)
+                             :test (get t f)}))))}))
 
+(defn export-json
+  [path edn-data]
+  (spit path (json/generate-string edn-data)))
+
+(def export-edn spit)
+
+;;;
+;; main
+;;;
+(do
+  (export-json (str (base-dir options) file-sep "test-configuration.json") (assemble))
+  (export-edn (str (base-dir options) file-sep "test-configuration.edn") (assemble)))
 
 
 (comment
@@ -169,7 +241,12 @@
 
   params
   param-map
-
+  (clj-factors)
+  (keys (clj-factors))
+  (r-level->clj-level :age "age_2")
+  clj-factor-map
+  (:age (clj-factors))
+  
 
   (subs "123" 0 2)
   (get param-map "rage_1")
@@ -191,26 +268,10 @@
   (def bundle (tool-bundle {:centre "Belfast" :organ "kidney" :tool "waiting"}))
   (def inputs (bundle inputs-key))
   (def factors (csv-data->maps inputs))
+  (def r-name "Tx_age_3")
+  (r-factor r-name)
 
-  (defn map-of-vs->v-of-maps
-    "Transpose a map of vectors to a vector of maps.
-  Resulting vector will be truncated to the length of the shortest input vector.
-  e.g. {:a [0 1 2] :b [10 11 12]} -> [{:a 0 :b 10} {:a 1 :b 11} {:a 2 :b 12}]"
-    [k-vs]
-    (cond
-      (seq k-vs)
-      (mapv (fn [vs]
-              (into {} (map-indexed (fn [k v] [(nth (keys k-vs) k) v]) vs)))
-            (apply map vector (vals k-vs)))
-      (nil? k-vs)
-      nil
 
-      :else
-      []))
-
-  (def factors* (map-of-vs->v-of-maps inputs))
-
-  (< "1" "2")
   (def surv (str base-dir file-sep "surv.csv"))
 
   (defn from-edn [edn-file]

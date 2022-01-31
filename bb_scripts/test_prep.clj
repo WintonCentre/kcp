@@ -95,7 +95,9 @@
     [(map str/trim names) (map edn/read-string values)]))
 
 (def param-map (apply zipmap params))
-  
+(comment 
+  (pprint param-map))
+
 (defn valid-r-tool-address
   "We limit tool addresses to those that are used in the front-end and also in the NHSBT provided R files
    Note that the ldxxxx tools are UK wide rather than locally centred"
@@ -134,83 +136,116 @@
   [tool-address]
   ;{:pre [(valid-r-tool-address tool-address)]}
   (keys (tool-bundle tool-address)))
+#_(comment
+  (tool-bundle-keys options)
+  )
 
+(defn near-zero? "What counts as zero?" [x] (< (if (neg? x) (- x) x) 1e-8))
+#_(comment
+  (near-zero? -1e-9)
+  (near-zero? 1e9))
 
-  (defn near-zero? "What counts as zero?" [x] (< (if (neg? x) (- x) x) 1e-8))
+(defn parse-r-name
+  "Extract relevant fields from an r-name read in from params.csv.
+   There are a few awkward cases in the data here"
+  [r-name]
+  
+  (let [parts (str/split r-name #"_")
+        p1 (first parts)
+        pn (next parts)
+        has-outcome? (fn [] (and (= (:tool options) "waiting") (#{"tx" "rem" "dth"} p1)))
+        parts (if (has-outcome?)
+                pn
+                parts)]
+    (cond
+      (str/index-of r-name "in_hosp") {:r-factor "in_hosp"
+                                       :r-level (last pn)}
+      (str/index-of r-name "prev_thor") {:r-factor "prev_thor"
+                                         :r-level (last pn)}
+      :else {:r-factor (first parts)
+             :r-level (str/join "_" (next parts))})))
+(comment
+  (parse-r-name "dth_rage_4")
+  (parse-r-name "tx_in_hosp_2")
+  (parse-r-name "tx_prev_thor_1")
+  (parse-r-name "rem_pred_1_14")
+  (str/index-of "tx_in_hosp_2" "in_hosp")
+  (str/index-of "dth_rage_4" "in-hosp")
+  )
 
-  (defn parse-r-name
-    "Extract relevant fields from an r-name read in from params.csv"
-    [r-name]
-    (let [parts (str/split r-name #"_")
-          p1 (first parts)
-          pn (next parts)
-          parts (if (and (= (:tool options) "waiting") (#{"tx" "rem" "dth"} p1))
-                  pn
-                  parts)]
-      {:r-factor (first parts)
-       :r-level (str/join "_" (next parts))}
-      #_{:r-factor (str/join "_" (butlast parts))
-         :r-level (last parts)}))
-
-
+  
 ;;;;
 ;;; R summaries
 ;;;;
-  (defn r-factor-value
-    [info]
-    (if (= (:tool options) "waiting")
-      (assoc info :info
-             (mapv
-              (fn [outcome-code]
-                (let [r-name (str/join "_" [outcome-code (:r-factor info) (:r-level info)])]
-                  {:r-name r-name
-                   :r-outcome outcome-code
-                   :r-value (get param-map r-name)}))
-              (if (= (:organ options) "kidney")
-                ["tx" "rem" "dth"]
-                ["tx" "rem"])))))
+(defn r-factor-value
+  [info]
+  (if (= (:tool options) "waiting")
+    (assoc info :info
+           (mapv
+            (fn [outcome-code]
+              (let [r-name (str/join "_" [outcome-code (:r-factor info) (:r-level info)])]
+                {:r-name    r-name
+                 :r-outcome outcome-code
+                 :r-value   (get param-map r-name)}))
+            (if (= (:organ options) "kidney")
+              ["tx" "rem" "dth"]
+              ["tx" "rem"])))))
+#_(comment
+  (pprint (r-factor-value {:r-factor "rage", :r-level "3"}))
+  )
 
 
-  (defn r-info-by-clj-name
-    "r-info maps grouped by r-factor and r-level - as they are in clojure EDN"
-    []
-    (group-by :r-factor #_(fn [info] (str/join "_" (vals (select-keys info [:r-factor :r-level]))))
-              (map r-factor-value (r-factor-info))))
+(defn r-factor-info
+  []
+  (map parse-r-name (first params)))
+#_(comment
+    (pprint (r-factor-info)))
+
+
+
+(defn r-info-by-clj-name
+  "r-info maps grouped by r-factor and r-level - as they are in clojure EDN"
+  []
+  (group-by :r-factor #_(fn [info] (str/join "_" (vals (select-keys info [:r-factor :r-level]))))
+            (map r-factor-value (r-factor-info))))
+#_(comment
+  (pprint (r-info-by-clj-name))
+  )
+
 (comment
-
   (pprint (r-factor-info))
   (pprint (r-info-by-clj-name))
   )
+
 ;;;;
 ;; Data from xlsx-sourced EDN files
 ;;;;
 
-  (defn map-of-vs->v-of-maps
-    "Transpose a map of vectors to a vector of maps.
+(defn map-of-vs->v-of-maps
+  "Transpose a map of vectors to a vector of maps.
     Resulting vector will be truncated to the length of the shortest input vector.
     e.g. {:a [0 1 2] :b [10 11 12]} -> [{:a 0 :b 10} {:a 1 :b 11} {:a 2 :b 12}]"
-    [k-vs]
-    (cond
-      (seq k-vs) (mapv (fn [vs]
-                         (into {} (map-indexed (fn [k v] [(nth (keys k-vs) k) v]) vs)))
-                       (apply map vector (vals k-vs)))
-      (nil? k-vs) nil
-      :else []))
+  [k-vs]
+  (cond
+    (seq k-vs) (mapv (fn [vs]
+                       (into {} (map-indexed (fn [k v] [(nth (keys k-vs) k) v]) vs)))
+                     (apply map vector (vals k-vs)))
+    (nil? k-vs) nil
+    :else []))
 
-  (defn add-outcome-prefix
-    "Prefixes an rname with the outcome code if bk is one of the listed betas.
+(defn add-outcome-prefix
+  "Prefixes an rname with the outcome code if bk is one of the listed betas.
      Unlisted betas do not add a prefix.
      
      The R code for lungs codes 'death or removal' as 'rem', and there is no 'dth'.
      The clojure code uses :beta-death, and there is no :beta-removal.
      
      For kidneys both R and clj use all 3 (death + removal + transplant)."
-     
-    [rname bk]
-    (str ({:beta-death (if (= (:organ options) "lung") "rem_" "dth_")
-           :beta-removal "rem_"
-           :beta-transplant "tx_"} bk) rname)
-    )
+
+  [rname bk]
+  (str ({:beta-death (if (= (:organ options) "lung") "rem_" "dth_")
+         :beta-removal "rem_"
+         :beta-transplant "tx_"} bk) rname))
 
   (defn stripped-factor
     "factor map stripped of fields that are not relevant to tests."
@@ -258,10 +293,6 @@
   (defn distinct-clj-factors
     []
     (keys (clj-info-by-clj-factor)))
-
-
-  (def fkey :rage)
-
 
   (defn zero-r-factor
     "Map of R zero-effect factor-levels"
@@ -350,18 +381,7 @@
 
 
    (clojure.pprint/pprint (clj-factors))
-   (keys (clj-factors))
-   (r-level->clj-level :age "age_2")
-   clj-factor-map
-   (:age (clj-factors))
 
-   (subs "123" 0 2)
-   (vals (select-keys {:a 2 :b 3 :c 4} [:a :c]))
-
-   (distinct-r-factors)
-   (zero-r-factors)
-   (test-r-factors)
-   (assemble)
    (clojure.pprint/pprint (assemble))
    (str/split "rem@sens_1" #"_")
 
@@ -410,7 +430,8 @@
    (require '[clojure.math :as math])
    (math/get-exponent 100000)
    (math/log 100000)
-   (/ 1 10000))
+   (/ 1 10000)
+   )
 
 
 
@@ -419,37 +440,9 @@
 
 ;;;;;;;;;;; REMOVE name-num stuff soon
 
- (defn name-num
-   [[name num]]
-   [name (let [n (edn/read-string num)]
-           (if (number? n) n num))])
 
-
-
- (defn name-nums
-   "Deprecated (see canonical-r-names): Waiting tool factor r-names split into 3 parts and in this case we ignore the first part - the outcome code, 
-   leaving always the factor and level parts."
-   [r-name]
-   (let [parts (str/split r-name #"_")
-         np (count parts)]
-     (assert (str r-name " must have 2 or 3 parts"))
-     (cond
-       (= np 2) (drop 1 parts)
-       (= np 3) (let [[p1 p2 p3] parts]
-                  (if (#{"tx" "rem" "dth"} p1)
-                    [p2 p3]
-                    [(str p1 "_" p2) p3])))))
-
-
-
- (defn r-factor [r-name]
-   (first (name-num (name-nums r-name))))
-
-
-
-
- (defn clj-factors
-   []
+ (def clj-factors
+   ;[]
    (->> r-named-factors
         (group-by :factor)))
 
@@ -513,7 +506,7 @@
 
 
 
- (defn assemble
+ #_(defn assemble
    "Assemble the test_configuration data ready for export."
    []
    (let [cm clj-factor-map

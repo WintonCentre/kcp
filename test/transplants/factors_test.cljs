@@ -27,7 +27,7 @@
   (fac/is-categorical? env :bmi)
   (fac/is-numeric? env :bmi)
   (fac/lookup-simple-factor-level bundle :bmi)
-  (fac/lookup-simple-factor-level bundle :dd-pred)
+  (fac/lookup-simple-factor-level bundle :pred)
 
   ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
   (fac/lookup-simple-factor-level bundle :d-gp*centre)
@@ -37,7 +37,7 @@
   #_(lookup-cross-over-factor-level env :d-gp*centre)
 
   (fac/selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
-  (fac/selected-beta-x env :dd-pred master-fmap :beta-transplant)
+  (fac/selected-beta-x env :pred master-fmap :beta-transplant)
   (fac/selected-beta-x env :ethnicity master-fmap :beta-transplant)
 
    ;(selected-beta-xs env :beta-transplant)
@@ -45,7 +45,7 @@
   ;=>
   #_([:d-gp*centre :pf*birm -0.10624]
      [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
-     [:dd-pred :pred-1-14 0.15256]
+     [:pred :pred-1-14 0.15256]
      [:nyha-class :nyha-2 0.52044]
      [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
      [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]

@@ -12,7 +12,7 @@
      :in-hosp :no,
      :fvc 1.9,
      :bmi 23,
-     :dd-pred :pred-0,
+     :pred :pred-0,
      :thoracotomy :yes,
      :nyha-class :4,
      :d-gp :copd},
@@ -107,7 +107,7 @@
       :factor-key :lung/age,
       :order 1.02,
       :factor-name "Age at registration"},
-     :dd-pred
+     :pred
      {:beta-transplant 0,
       :beta-death 0,
       :info-box? :yes?,
@@ -124,7 +124,7 @@
         :type :v-radio,
         :sub-text nil,
         :level :pred-0,
-        :factor :dd-pred,
+        :factor :pred,
         :order 1.03,
         :factor-name "Daily dose of prednisolone at registration"},
        :pred-1-14
@@ -135,7 +135,7 @@
         :type :v-radio,
         :sub-text nil,
         :level :pred-1-14,
-        :factor :dd-pred,
+        :factor :pred,
         :order 1.03,
         :factor-name nil},
        :pred-15+
@@ -146,10 +146,10 @@
         :type :v-radio,
         :sub-text nil,
         :level :pred-15+,
-        :factor :dd-pred,
+        :factor :pred,
         :order 1.03,
         :factor-name nil}},
-      :factor :dd-pred,
+      :factor :pred,
       :factor-key :lung/dd-pred,
       :order 1.03,
       :factor-name "Daily dose of prednisolone at registration"},

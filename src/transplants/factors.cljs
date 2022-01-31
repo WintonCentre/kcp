@@ -329,7 +329,7 @@
    (def bundle (bun/get-bundle :lung :new :waiting))
 
   ;inputs
-   (def inputs* {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :dd-pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
+   (def inputs* {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
 
    (def path-params {:organ :lung, :centre :birm, :tool :waiting})
 
@@ -359,7 +359,7 @@
    (is-categorical? env :bmi)
    (is-numeric? env :bmi)
    (lookup-simple-factor-level env :bmi)
-   (lookup-simple-factor-level env :dd-pred)
+   (lookup-simple-factor-level env :pred)
 
   ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
    (lookup-simple-factor-level env :d-gp*centre)
@@ -369,7 +369,7 @@
    #_(lookup-cross-over-factor-level env :d-gp*centre)
 
    (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
-   (selected-beta-x env :dd-pred master-fmap :beta-transplant)
+   (selected-beta-x env :pred master-fmap :beta-transplant)
    (selected-beta-x env :ethnicity master-fmap :beta-transplant)
 
    ;(selected-beta-xs env :beta-transplant)
@@ -377,7 +377,7 @@
   ;=>
    #_([:d-gp*centre :pf*birm -0.10624]
       [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
-      [:dd-pred :pred-1-14 0.15256]
+      [:pred :pred-1-14 0.15256]
       [:nyha-class :nyha-2 0.52044]
       [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
       [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]

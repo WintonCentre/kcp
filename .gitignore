@@ -54,3 +54,4 @@ report.html
 .Rhistory
 .RData
 resources/r_model_tests/kidney/graft/surv.html
+**/test-configuration.*

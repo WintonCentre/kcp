@@ -288,7 +288,7 @@
 
 (clojure.pprint/pprint
  {:times times
-  :factors (take 2 (mapv r-test-for-clj-factor (distinct-clj-factors)))})
+  :factors (mapv r-test-for-clj-factor (distinct-clj-factors))})
 
 ;;;
 ;; Generate R test configurations

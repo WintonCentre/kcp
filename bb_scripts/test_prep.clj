@@ -202,20 +202,22 @@
     (pprint (r-factor-info)))
 
 
-
-(defn r-info-by-clj-name
-  "r-info maps grouped by r-factor and r-level - as they are in clojure EDN"
+(defn r-info-by-clj-r-name
+  "r-info maps grouped by the factor in the r-name spreadsheet column EDN.
+   This map is NOT created from the EDN, but should be accessible from the r-name column.
+   "
   []
-  (group-by :r-factor #_(fn [info] (str/join "_" (vals (select-keys info [:r-factor :r-level]))))
-            (map r-factor-value (r-factor-info))))
+  (into {}
+        (map (fn [[[fac lev] v]] [(str fac "_" lev) v])
+             (group-by (juxt :r-factor :r-level) #_(fn [info] (str/join "_" (vals (select-keys info [:r-factor :r-level]))))
+                       (map r-factor-value (r-factor-info))))))
 #_(comment
-  (pprint (r-info-by-clj-name))
-  )
+    (pprint (get (r-info-by-clj-name) "prev_thor")))
 
 (comment
   (pprint (r-factor-info))
-  (pprint (r-info-by-clj-name))
-  )
+  (pprint (r-info-by-clj-r-name)))
+
 
 ;;;;
 ;; Data from xlsx-sourced EDN files

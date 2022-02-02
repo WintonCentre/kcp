@@ -27,8 +27,7 @@
 
 (defn get-r-value
   [rnf r-outcome]
-  (:r-value (s/info-by-outcome (get-in rnf [:r-link :info]) r-outcome))
-  )
+  (:r-value (s/info-by-outcome (get-in rnf [:r-link :info]) r-outcome)))
 
 (defn get-edn-value
   [rnf edn-outcome]
@@ -36,20 +35,23 @@
 
 (defn values-match
   [rnf r-outcome edn-outcome]
-  (println (get-r-value rnf "tx") " == " (get-edn-value rnf :beta-transplant)
-           ": " (not (s/different? (get-r-value rnf r-outcome) (get-edn-value rnf edn-outcome))))
-  (not (s/different? (get-r-value rnf r-outcome) (get-edn-value rnf edn-outcome)))
- )
-
-(deftest kidney-tx-params1
-  (is (values-match (nth s/r-named-factors 1) "tx" "beta-transplant")))
-
-(deftest kidney-tx-params2
-  (is (values-match (nth s/r-named-factors 2) "tx" "beta-transplant")))
-
-(deftest kidney-tx-params3
-  (is (values-match (nth s/r-named-factors 3) "tx" "beta-transplant")))
+  (s/near? (get-r-value rnf r-outcome) (get-edn-value rnf edn-outcome)))
 
 (deftest test-all-kidney-tx
   (doseq [rnf s/r-named-factors]
-    (is (values-match rnf (get-r-value rnf "tx") (get-edn-value rnf :beta-transplant)) (:r-factor rnf))))
+    (let [a (get-r-value rnf "tx")
+          b (get-edn-value rnf :beta-transplant)]
+      (is (values-match rnf a b) (str a " and " b " are different")))))
+
+(deftest test-all-kidney-rem
+  (doseq [rnf s/r-named-factors]
+    (let [a (get-r-value rnf "tx")
+          b (get-edn-value rnf :beta-removal)]
+      (is (values-match rnf a b) (str a " and " b " are different")))))
+
+
+(deftest test-all-kidney-dth
+  (doseq [rnf s/r-named-factors]
+    (let [a (get-r-value rnf "dth")
+          b (get-edn-value rnf :beta-removal)]
+      (is (values-match rnf a b) (str a " and " b " are different")))))

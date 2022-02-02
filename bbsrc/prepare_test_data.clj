@@ -18,7 +18,9 @@
    RUNNING from project folder: 
    bb --file ./bb_scripts/test_prep.clj -g kidney -t graft -c Belfast
                                                                        see <project-folder>/bb.edn
-
+   =======
+   WIP: Automated parameter cross checks run from `bb run-tests` - see bbsrc and bbtest and <project-folder>/test-runner
+   =======
    "
   (:require ;[babashka.classpath :refer [add-classpath]]
    [cheshire.core :as json]
@@ -28,17 +30,16 @@
    [clojure.java.shell :refer [sh]]
    ;[clojure.java.io :as io]
    [clojure.data.csv :as csv]
-   [clojure.tools.cli :refer [parse-opts]]
-   ))
+   [clojure.tools.cli :refer [parse-opts]]))
 
 #_(comment
   ; Requiring bom dynamically works, but messed up in strange way (e.g. Math/abs fails in the repl)
 
-  (def bom-deps '{:deps {clj-bom {:mvn/version "0.1.2"}}})
-  (def cp (-> (sh "clojure" "-Spath" "-Sdeps" (str bom-deps)) :out str/trim))
-  (add-classpath cp)
-  (require '[clj-bom.core :as bom]))
-  
+    (def bom-deps '{:deps {clj-bom {:mvn/version "0.1.2"}}})
+    (def cp (-> (sh "clojure" "-Spath" "-Sdeps" (str bom-deps)) :out str/trim))
+    (add-classpath cp)
+    (require '[clj-bom.core :as bom]))
+
 
 ;;(println *command-line-args*)
 
@@ -65,30 +66,41 @@
 
 (def options (:options (parse-opts *command-line-args* cli-options)))
 
+;(def my-atom (atom 100))
+;@my-atom
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
 (def times (mapv :time-index
-                (-> (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn")))
-                    ((keyword (:organ options)))
-                    :tools
-                    ((keyword (:tool options)))
-                    :table
-                    :labels)))
+                 (-> (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn")))
+                     ((keyword (:organ options)))
+                     :tools
+                     ((keyword (:tool options)))
+                     :table
+                     :labels)))
 
 
 (defn near-zero? "What counts as zero?" [x] (and (number? x) (< (if (neg? x) (- x) x) 1e-8)))
-(defn different? "Are two reals different?" [a b] (when (and (number? a) (number? b)) 
-                                               (not (near-zero? (- a b)))))
+(defn different? "Are two reals different?" [a b] (when (and (number? a) (number? b))
+                                                    (not (near-zero? (- a b)))))
+(defn near? "Are two reals nearly identical?" [a b] (when (and (number? a) (number? b))
+                                                      (near-zero? (- a b))))
 #_(comment
     (near-zero? -1e-9)
-    (near-zero? 1e9))
+    (near-zero? 1e9)
+
+    (near? 0 1)
+    (near? 0.000000001 0)
+    (near? 0.000000001 0)
+    (near? nil 0)
+    (near? nil nil))
+
 
 
 ;;;
 ;; Look into the r_model_test folders for R test data
 ;;;
-(defn csv-data->maps 
+(defn csv-data->maps
   "csv column vectors to row maps"
   [csv-data]
   (map zipmap
@@ -106,7 +118,7 @@
     [(map str/trim names) (map edn/read-string values)]))
 
 (def param-map (apply zipmap params))
-(comment 
+(comment
   (pprint param-map))
 
 (defn valid-r-tool-address
@@ -148,15 +160,14 @@
   ;{:pre [(valid-r-tool-address tool-address)]}
   (keys (tool-bundle tool-address)))
 #_(comment
-  (tool-bundle-keys options)
-  )
+    (tool-bundle-keys options))
 
 
 (defn parse-r-name
   "Extract relevant fields from an r-name read in from params.csv.
    There are a few awkward cases in the data here"
   [r-name]
-  
+
   (let [parts (str/split r-name #"_")
         p1 (first parts)
         pn (next parts)
@@ -177,10 +188,9 @@
   (parse-r-name "tx_prev_thor_1")
   (parse-r-name "rem_pred_1_14")
   (str/index-of "tx_in_hosp_2" "in_hosp")
-  (str/index-of "dth_rage_4" "in-hosp")
-  )
+  (str/index-of "dth_rage_4" "in-hosp"))
 
-  
+
 ;;;;
 ;;; R summaries
 ;;;;
@@ -198,8 +208,7 @@
               ["tx" "rem" "dth"]
               ["tx" "rem"])))))
 #_(comment
-  (pprint (r-factor-value {:r-factor "rage", :r-level "3"}))
-  )
+    (pprint (r-factor-value {:r-factor "rage", :r-level "3"})))
 
 
 (defn r-factor-info
@@ -278,13 +287,11 @@
     (map-of-vs->v-of-maps inputs)))
 
 (comment
-  (pprint (raw-factors options))
-  )
+  (pprint (raw-factors options)))
 
 (defn info-by-outcome
   [info outcome]
-  (first (filter #(= (:r-outcome %) outcome) info))
-  )
+  (first (filter #(= (:r-outcome %) outcome) info)))
 ;;;
 ;; EDN data summaries
 ;;
@@ -297,29 +304,27 @@
             (map stripped-factor))))
 
 (comment
-  (pprint r-named-factors)
-  )
+  (pprint r-named-factors))
 
 ;(different? nil 1)
 
 #_(comment
-  (defn test-parameter-values
-    "Move this to a proper test framework?"
-    [r-outcome edn-outcome]
-    (testing (str (:organ options) ":" (:tool options) ": " edn-outcome "/" r-outcome))
-    (map
-     (fn [rnf]
-       (let [a (get rnf edn-outcome)
-             b (:r-value (info-by-outcome (get-in rnf [:r-link :info]) r-outcome))]
-         (is (not (different? a b)) (str "Mismatch for " (:factor rnf) " " (:level rnf) " " r-outcome " " a " /= " b))))
-     r-named-factors))
+    (defn test-parameter-values
+      "Move this to a proper test framework?"
+      [r-outcome edn-outcome]
+      (testing (str (:organ options) ":" (:tool options) ": " edn-outcome "/" r-outcome))
+      (map
+       (fn [rnf]
+         (let [a (get rnf edn-outcome)
+               b (:r-value (info-by-outcome (get-in rnf [:r-link :info]) r-outcome))]
+           (is (not (different? a b)) (str "Mismatch for " (:factor rnf) " " (:level rnf) " " r-outcome " " a " /= " b))))
+       r-named-factors))
 
 
-  (t/run-tests)
+    (t/run-tests)
 
-  (comment
-    (test-parameter-values "tx" :beta-transplant))
-  )
+    (comment
+      (test-parameter-values "tx" :beta-transplant)))
 
 
 (defn clj-info-by-clj-factor
@@ -329,8 +334,7 @@
 
 (comment
   (pprint  (first (clj-info-by-clj-factor)))
-  (pprint (:age (clj-info-by-clj-factor)))
-  )
+  (pprint (:age (clj-info-by-clj-factor))))
 
 (defn distinct-clj-factors
   []
@@ -347,17 +351,17 @@
   (last (filter (fn [r-info] (not (near-zero? (:r-value r-info)))) rf-info)))
 
 #_(defn r-test-for-clj-factor
-  [fkey]
-  (let [cinfo (get (clj-info-by-clj-factor) fkey)
-        rinfo (get (r-info-by-clj-name) (name fkey))]
-    {:clj fkey
-     :rfactor rinfo
-     :cfactor cinfo}))
+    [fkey]
+    (let [cinfo (get (clj-info-by-clj-factor) fkey)
+          rinfo (get (r-info-by-clj-name) (name fkey))]
+      {:clj fkey
+       :rfactor rinfo
+       :cfactor cinfo}))
 
 
 #_(clojure.pprint/pprint
- {:times times
-  :factors (mapv r-test-for-clj-factor (distinct-clj-factors))})
+   {:times times
+    :factors (mapv r-test-for-clj-factor (distinct-clj-factors))})
 
 ;;;
 ;; Generate R test configurations
@@ -383,93 +387,92 @@
 ;;             :test     nil}]}
 
 
- #_(defn assemble
-     "Assemble the test_configuration data ready for export."
-     []
-     (let [cm clj-factor-map
-           z (zero-r-factors)
-           t (test-r-factors)]
-       {:times times
-        :factors (->> (keys clj-factor-map)
-                      (map (fn [k]
-                             (let [f (cm k)]
-                               {:clj k
-                                :rname (:r-name (k clj-factor-map))
-                                :r f
-                                :clj-test (r-level->clj-level k (str f "_" (get t f)))
-                                :zero (get z f)
-                                :test (get t f)}))))}))
+#_(defn assemble
+    "Assemble the test_configuration data ready for export."
+    []
+    (let [cm clj-factor-map
+          z (zero-r-factors)
+          t (test-r-factors)]
+      {:times times
+       :factors (->> (keys clj-factor-map)
+                     (map (fn [k]
+                            (let [f (cm k)]
+                              {:clj k
+                               :rname (:r-name (k clj-factor-map))
+                               :r f
+                               :clj-test (r-level->clj-level k (str f "_" (get t f)))
+                               :zero (get z f)
+                               :test (get t f)}))))}))
 
- #_(comment
-   (println (base-dir options))
+#_(comment
+    (println (base-dir options))
 
-   params
-   param-map
-   (get param-map "rage_1")
-   (parse-r-name "rem_rage_pf")
-   (map parse-r-name (first params))
+    params
+    param-map
+    (get param-map "rage_1")
+    (parse-r-name "rem_rage_pf")
+    (map parse-r-name (first params))
 
-   (r-factor-info)
-   (clojure.pprint/pprint
-    (r-factor-info))
+    (r-factor-info)
+    (clojure.pprint/pprint
+     (r-factor-info))
 
-   (clojure.pprint/pprint (map r-factor-value (r-factor-info)))
-   (clojure.pprint/pprint (r-info-by-clj-name))
-   (clojure.pprint/pprint (clj-info-by-clj-factor))
-
-
-   (clojure.pprint/pprint (clj-factors))
-
-   (clojure.pprint/pprint (assemble))
-   (str/split "rem@sens_1" #"_")
-
-   options
-   (tool-bundle-keys options)
-   (valid-r-tool-address options)
+    (clojure.pprint/pprint (map r-factor-value (r-factor-info)))
+    (clojure.pprint/pprint (r-info-by-clj-name))
+    (clojure.pprint/pprint (clj-info-by-clj-factor))
 
 
-   (def inputs-key (nth (tool-bundle-keys options) 2))
-   (def bundle (tool-bundle options))
-   (def inputs (bundle inputs-key))
-   (def factors (map-of-vs->v-of-maps inputs))
-   (clojure.pprint/pprint factors)
+    (clojure.pprint/pprint (clj-factors))
 
-   (def r-name "Tx_age_3")
+    (clojure.pprint/pprint (assemble))
+    (str/split "rem@sens_1" #"_")
 
-
-
-   (def surv (str base-dir file-sep "surv.csv"))
-
-   (defn from-edn [edn-file]
-     (-> edn-file
-         slurp
-         edn/read-string
-         json/generate-string))
-
-   (def s (json/parse-string (json/generate-string {:a 1 :c {:b [4 5 6]}}) true))
-   s
-
-   (defn to-json
-     [edn-file json-file]
-     (spit json-file (from-edn edn-file)))
+    options
+    (tool-bundle-keys options)
+    (valid-r-tool-address options)
 
 
-   (let [[edn-file json-file] (if (= *file* (System/getProperty "babashka.file"))
-                                *command-line-args*
-                                ["bb.edn" "bb.json"])]
+    (def inputs-key (nth (tool-bundle-keys options) 2))
+    (def bundle (tool-bundle options))
+    (def inputs (bundle inputs-key))
+    (def factors (map-of-vs->v-of-maps inputs))
+    (clojure.pprint/pprint factors)
+
+    (def r-name "Tx_age_3")
+
+
+
+    (def surv (str base-dir file-sep "surv.csv"))
+
+    (defn from-edn [edn-file]
+      (-> edn-file
+          slurp
+          edn/read-string
+          json/generate-string))
+
+    (def s (json/parse-string (json/generate-string {:a 1 :c {:b [4 5 6]}}) true))
+    s
+
+    (defn to-json
+      [edn-file json-file]
+      (spit json-file (from-edn edn-file)))
+
+
+    (let [[edn-file json-file] (if (= *file* (System/getProperty "babashka.file"))
+                                 *command-line-args*
+                                 ["bb.edn" "bb.json"])]
   ;
-     (println edn-file json-file))
+      (println edn-file json-file))
 
 
-   (comment
-     (sh "pwd")
-     (spit "bb.json" (from-edn "bb.edn"))
-     (from-edn "bb.edn"))
-   (require '[clojure.math :as math])
-   (math/get-exponent 100000)
-   (math/log 100000)
-   (/ 1 10000)
-   )
+    (comment
+      (sh "pwd")
+      (spit "bb.json" (from-edn "bb.edn"))
+      (from-edn "bb.edn"))
+    (require '[clojure.math :as math])
+    (math/get-exponent 100000)
+    (math/log 100000)
+    (/ 1 10000))
 
 
 
@@ -479,118 +482,117 @@
 ;;;;;;;;;;; REMOVE name-num stuff soon
 
 #_(comment
-  (def clj-factors
+    (def clj-factors
    ;[]
-    (->> r-named-factors
-         (group-by :factor)))
+      (->> r-named-factors
+           (group-by :factor)))
 
 
 
-  (defn factor-by-r-name [r-name]
-    (first (get
-            (group-by :r-name r-named-factors)
-            r-name)))
+    (defn factor-by-r-name [r-name]
+      (first (get
+              (group-by :r-name r-named-factors)
+              r-name)))
 
 
 
-  (defn factor-by-key [fkey]
-    (first (get
-            (group-by :factor r-named-factors)
-            fkey)))
+    (defn factor-by-key [fkey]
+      (first (get
+              (group-by :factor r-named-factors)
+              fkey)))
 
 
 
-  (factor-by-r-name "rage@grp_1")
+    (factor-by-r-name "rage@grp_1")
 
 
-  (factor-by-key :tage)
-
-
-
-
-
-  (defn stripped-factor-by-r-name
-    "factor by r-name stripped of fields that are not relevant to tests."
-    [r-name]
-    (let [factor (factor-by-r-name r-name)
-          beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))]
-
-      (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))))
-
-
-
-  (stripped-factor-by-r-name "rage_1")
-
-
-
-  (defn r-name->clj [r-name]
-    (->> (filter (comp some? :r-name) raw-factors)
-         (group-by :r-name)))
-
-
-
-  (def clj-factor-map
-    (into {}
-          (map
-           (fn [fkey]
-             [fkey
-              (->> (clj-factors)
-                   fkey
-                   first
-                   :r-name
-                   name-nums
-                   first)])
-           (keys (clj-factors)))))
-
-
-
-  (defn r-level->clj-level
-    "find the clj-level corresponding to an r-level"
-    [fkey r-level]
-    (->> (filter (fn [f] (= r-level (:r-name f))) (fkey (clj-factors)))
-         first
-         :level))
+    (factor-by-key :tage)
 
 
 
 
-  #_(defn assemble
-      "Assemble the test_configuration data ready for export."
-      []
-      (let [cm clj-factor-map
-            z (zero-r-factors)
-            t (test-r-factors)]
-        {:times times
-         :factors (->> (keys clj-factor-map)
-                       (map (fn [k]
-                              (let [f (cm k)]
-                                {:clj k
-                                 :rname (:r-name (k clj-factor-map))
-                                 :r f
-                                 :clj-test (r-level->clj-level k (str f "_" (get t f)))
-                                 :zero (get z f)
-                                 :test (get t f)}))))}))
+
+    (defn stripped-factor-by-r-name
+      "factor by r-name stripped of fields that are not relevant to tests."
+      [r-name]
+      (let [factor (factor-by-r-name r-name)
+            beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))]
+
+        (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))))
 
 
 
-  (defn export-json
-    [path edn-data]
-    (spit path (json/generate-string edn-data)))
+    (stripped-factor-by-r-name "rage_1")
 
 
 
-  (def export-edn spit)
+    (defn r-name->clj [r-name]
+      (->> (filter (comp some? :r-name) raw-factors)
+           (group-by :r-name)))
+
+
+
+    (def clj-factor-map
+      (into {}
+            (map
+             (fn [fkey]
+               [fkey
+                (->> (clj-factors)
+                     fkey
+                     first
+                     :r-name
+                     name-nums
+                     first)])
+             (keys (clj-factors)))))
+
+
+
+    (defn r-level->clj-level
+      "find the clj-level corresponding to an r-level"
+      [fkey r-level]
+      (->> (filter (fn [f] (= r-level (:r-name f))) (fkey (clj-factors)))
+           first
+           :level))
+
+
+
+
+    #_(defn assemble
+        "Assemble the test_configuration data ready for export."
+        []
+        (let [cm clj-factor-map
+              z (zero-r-factors)
+              t (test-r-factors)]
+          {:times times
+           :factors (->> (keys clj-factor-map)
+                         (map (fn [k]
+                                (let [f (cm k)]
+                                  {:clj k
+                                   :rname (:r-name (k clj-factor-map))
+                                   :r f
+                                   :clj-test (r-level->clj-level k (str f "_" (get t f)))
+                                   :zero (get z f)
+                                   :test (get t f)}))))}))
+
+
+
+    (defn export-json
+      [path edn-data]
+      (spit path (json/generate-string edn-data)))
+
+
+
+    (def export-edn spit)
 
 
 
 ;;;
 ;; main
 ;;;
-  (defn -main [& _args]
-    (println (parse-opts *command-line-args* cli-options))
-    (export-json (str (base-dir options) file-sep "test-configuration.json") (assemble))
-    (export-edn (str (base-dir options) file-sep "test-configuration.edn") (assemble)))
-  )
-  
+    (defn -main [& _args]
+      (println (parse-opts *command-line-args* cli-options))
+      (export-json (str (base-dir options) file-sep "test-configuration.json") (assemble))
+      (export-edn (str (base-dir options) file-sep "test-configuration.edn") (assemble))))
+
 
 

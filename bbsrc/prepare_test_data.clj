@@ -1,6 +1,6 @@
-#!/usr/bin/env bb 
+;#!/usr/bin/env bb 
 
-(ns test-prep
+(ns prepare-test-data
   "Creates the test-configuration.json files needed by each R run. Running the R
    associated with each too then generates a csv of expected results for that organ and tool.
    
@@ -28,7 +28,8 @@
    [clojure.java.shell :refer [sh]]
    ;[clojure.java.io :as io]
    [clojure.data.csv :as csv]
-   [clojure.tools.cli :refer [parse-opts]]))
+   [clojure.tools.cli :refer [parse-opts]]
+   ))
 
 #_(comment
   ; Requiring bom dynamically works, but messed up in strange way (e.g. Math/abs fails in the repl)
@@ -50,10 +51,10 @@
 ;;
 
 (def cli-options [["-c" "--centre CENTRE" "Transplant centre"
-                   :default "Newcastle"
+                   :default "Belfast"
                    :parse-fn str]
                   ["-g" "--organ ORGAN" "Organ name (lung or kidney)"
-                   :default "lung"
+                   :default "kidney"
                    :parse-fn str
                    :validate [#(#{"kidney" "lung"} %) "kidney | lung"]]
                   ["-t" "--tool TOOL" "Tool name (lung: waiting | post-survival), (kidney: waiting | (ld)survival | (ld)graft)"
@@ -74,6 +75,16 @@
                     ((keyword (:tool options)))
                     :table
                     :labels)))
+
+
+(defn near-zero? "What counts as zero?" [x] (and (number? x) (< (if (neg? x) (- x) x) 1e-8)))
+(defn different? "Are two reals different?" [a b] (when (and (number? a) (number? b)) 
+                                               (not (near-zero? (- a b)))))
+#_(comment
+    (near-zero? -1e-9)
+    (near-zero? 1e9))
+
+
 ;;;
 ;; Look into the r_model_test folders for R test data
 ;;;
@@ -140,10 +151,6 @@
   (tool-bundle-keys options)
   )
 
-(defn near-zero? "What counts as zero?" [x] (< (if (neg? x) (- x) x) 1e-8))
-#_(comment
-  (near-zero? -1e-9)
-  (near-zero? 1e9))
 
 (defn parse-r-name
   "Extract relevant fields from an r-name read in from params.csv.
@@ -205,22 +212,25 @@
 (defn r-info-by-clj-r-name
   "r-info maps grouped by the factor in the r-name spreadsheet column EDN.
    This map is NOT created from the EDN, but should be accessible from the r-name column.
+
+   *** THIS FUNCTION MAKES THE LINKING VALUE ***
    "
   []
   (into {}
-        (map (fn [[[fac lev] v]] [(str fac "_" lev) v])
-             (group-by (juxt :r-factor :r-level) #_(fn [info] (str/join "_" (vals (select-keys info [:r-factor :r-level]))))
+        (map (fn [[[fac lev] v]] [(str fac "_" lev) (first v)])
+             (group-by (juxt :r-factor :r-level)
                        (map r-factor-value (r-factor-info))))))
 #_(comment
-    (pprint (get (r-info-by-clj-name) "prev_thor")))
+    (pprint (get (r-info-by-clj-r-name) "prev_thor")))
 
 (comment
   (pprint (r-factor-info))
   (pprint (r-info-by-clj-r-name)))
 
+(def linkup (r-info-by-clj-r-name))
 
 ;;;;
-;; Data from xlsx-sourced EDN files
+;; Now process data from xlsx-sourced EDN files
 ;;;;
 
 (defn map-of-vs->v-of-maps
@@ -249,77 +259,103 @@
          :beta-removal "rem_"
          :beta-transplant "tx_"} bk) rname))
 
-  (defn stripped-factor
-    "factor map stripped of fields that are not relevant to tests."
-    [factor]
-    (let [beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))
-          stripped (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))]
-      (if (> (count beta-keys) 1)
-        (assoc stripped :r-names (mapv
-                                 (fn [bk]
-                                   (add-outcome-prefix (:r-name stripped) bk))
-                                 beta-keys))
-        stripped)))
+(defn stripped-factor
+  "factor map stripped of fields that are not relevant to tests."
+  [factor]
+  (let [beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))
+        stripped (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))]
+    (if (> (count beta-keys) 1)
+      (assoc stripped :r-names (mapv
+                                (fn [bk]
+                                  (add-outcome-prefix (:r-name stripped) bk))
+                                beta-keys))
+      stripped)))
 
+(defn raw-factors [options]
+  (let [inputs-key (nth (tool-bundle-keys options) 2)
+        bundle (tool-bundle options)
+        inputs (bundle inputs-key)]
+    (map-of-vs->v-of-maps inputs)))
 
-  (defn raw-factors [options]
-    (let [inputs-key (nth (tool-bundle-keys options) 2)
-          bundle (tool-bundle options)
-          inputs (bundle inputs-key)]
-      (map-of-vs->v-of-maps inputs)))
+(comment
+  (pprint (raw-factors options))
+  )
 
-
-  (raw-factors options)
-
+(defn info-by-outcome
+  [info outcome]
+  (first (filter #(= (:r-outcome %) outcome) info))
+  )
 ;;;
 ;; EDN data summaries
-;;;
+;;
 
-  (def r-named-factors
-    "Factors that have an R name and level"
-    (->> (filter (comp some? :r-name) (raw-factors options))
-         (map stripped-factor)))
+(def r-named-factors
+  "EDN factors that also have an R name and level, grouped by that r-name.
+     This links R data to edn data for test."
+  (map (fn [m] (assoc m :r-link (linkup (:r-name m))))
+       (->> (filter (comp some? :r-name) (raw-factors options))
+            (map stripped-factor))))
+
+(comment
+  (pprint r-named-factors)
+  )
+
+;(different? nil 1)
+
+#_(comment
+  (defn test-parameter-values
+    "Move this to a proper test framework?"
+    [r-outcome edn-outcome]
+    (testing (str (:organ options) ":" (:tool options) ": " edn-outcome "/" r-outcome))
+    (map
+     (fn [rnf]
+       (let [a (get rnf edn-outcome)
+             b (:r-value (info-by-outcome (get-in rnf [:r-link :info]) r-outcome))]
+         (is (not (different? a b)) (str "Mismatch for " (:factor rnf) " " (:level rnf) " " r-outcome " " a " /= " b))))
+     r-named-factors))
+
+
+  (t/run-tests)
 
   (comment
-    (pprint r-named-factors)
-    )
-
-  (defn clj-info-by-clj-factor
-    []
-    (group-by :factor r-named-factors))
+    (test-parameter-values "tx" :beta-transplant))
+  )
 
 
-  (clj-info-by-clj-factor)
+(defn clj-info-by-clj-factor
+  []
+  (group-by :factor r-named-factors))
 
 
-  (defn distinct-clj-factors
-    []
-    (keys (clj-info-by-clj-factor)))
+(comment
+  (pprint  (first (clj-info-by-clj-factor)))
+  (pprint (:age (clj-info-by-clj-factor)))
+  )
 
-  (defn zero-r-factor
-    "Map of R zero-effect factor-levels"
-    [rf-info]
-    (first (filter (fn [r-info] (near-zero? (:r-value r-info))) rf-info)))
+(defn distinct-clj-factors
+  []
+  (keys (clj-info-by-clj-factor)))
+
+(defn zero-r-factor
+  "Map of R zero-effect factor-levels"
+  [rf-info]
+  (first (filter (fn [r-info] (near-zero? (:r-value r-info))) rf-info)))
+
+(defn test-r-factor
+  "Map of R zero-effect factor-levels"
+  [rf-info]
+  (last (filter (fn [r-info] (not (near-zero? (:r-value r-info)))) rf-info)))
+
+#_(defn r-test-for-clj-factor
+  [fkey]
+  (let [cinfo (get (clj-info-by-clj-factor) fkey)
+        rinfo (get (r-info-by-clj-name) (name fkey))]
+    {:clj fkey
+     :rfactor rinfo
+     :cfactor cinfo}))
 
 
-  (defn test-r-factor
-    "Map of R zero-effect factor-levels"
-    [rf-info]
-    (last (filter (fn [r-info] (not (near-zero? (:r-value r-info)))) rf-info)))
-
-
-
-  (defn r-test-for-clj-factor
-    [fkey]
-    (let [cinfo (get (clj-info-by-clj-factor) fkey)
-          rinfo (get (r-info-by-clj-name) (name fkey))]
-      {:clj fkey
-       ;:zero (zero-r-factor rinfo)
-       :rfactor rinfo
-       :cfactor cinfo}))
-
-
-(clojure.pprint/pprint
+#_(clojure.pprint/pprint
  {:times times
   :factors (mapv r-test-for-clj-factor (distinct-clj-factors))})
 
@@ -364,7 +400,7 @@
                                 :zero (get z f)
                                 :test (get t f)}))))}))
 
- (comment
+ #_(comment
    (println (base-dir options))
 
    params
@@ -442,96 +478,109 @@
 
 ;;;;;;;;;;; REMOVE name-num stuff soon
 
-
- (def clj-factors
+#_(comment
+  (def clj-factors
    ;[]
-   (->> r-named-factors
-        (group-by :factor)))
-
-
- (defn factor-by-r-name [r-name]
-   (first (get
-           (group-by :r-name r-named-factors)
-           r-name)))
-
-
- (defn factor-by-key [fkey]
-   (first (get
-           (group-by :factor r-named-factors)
-           fkey)))
-
-
- (factor-by-r-name "rage@grp_1")
-
- (factor-by-key :tage)
+    (->> r-named-factors
+         (group-by :factor)))
 
 
 
-
- (defn stripped-factor-by-r-name
-   "factor by r-name stripped of fields that are not relevant to tests."
-   [r-name]
-   (let [factor (factor-by-r-name r-name)
-         beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))]
-
-     (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))))
-
-
- (stripped-factor-by-r-name "rage_1")
-
-
- (defn r-name->clj [r-name]
-   (->> (filter (comp some? :r-name) raw-factors)
-        (group-by :r-name)))
-
-
- (def clj-factor-map
-   (into {}
-         (map
-          (fn [fkey]
-            [fkey
-             (->> (clj-factors)
-                  fkey
-                  first
-                  :r-name
-                  name-nums
-                  first)])
-          (keys (clj-factors)))))
-
-
- (defn r-level->clj-level
-   "find the clj-level corresponding to an r-level"
-   [fkey r-level]
-   (->> (filter (fn [f] (= r-level (:r-name f))) (fkey (clj-factors)))
-        first
-        :level))
+  (defn factor-by-r-name [r-name]
+    (first (get
+            (group-by :r-name r-named-factors)
+            r-name)))
 
 
 
- #_(defn assemble
-   "Assemble the test_configuration data ready for export."
-   []
-   (let [cm clj-factor-map
-         z (zero-r-factors)
-         t (test-r-factors)]
-     {:times times
-      :factors (->> (keys clj-factor-map)
-                    (map (fn [k]
-                           (let [f (cm k)]
-                             {:clj k
-                              :rname (:r-name (k clj-factor-map))
-                              :r f
-                              :clj-test (r-level->clj-level k (str f "_" (get t f)))
-                              :zero (get z f)
-                              :test (get t f)}))))}))
+  (defn factor-by-key [fkey]
+    (first (get
+            (group-by :factor r-named-factors)
+            fkey)))
 
 
- (defn export-json
-   [path edn-data]
-   (spit path (json/generate-string edn-data)))
+
+  (factor-by-r-name "rage@grp_1")
 
 
- (def export-edn spit)
+  (factor-by-key :tage)
+
+
+
+
+
+  (defn stripped-factor-by-r-name
+    "factor by r-name stripped of fields that are not relevant to tests."
+    [r-name]
+    (let [factor (factor-by-r-name r-name)
+          beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))]
+
+      (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))))
+
+
+
+  (stripped-factor-by-r-name "rage_1")
+
+
+
+  (defn r-name->clj [r-name]
+    (->> (filter (comp some? :r-name) raw-factors)
+         (group-by :r-name)))
+
+
+
+  (def clj-factor-map
+    (into {}
+          (map
+           (fn [fkey]
+             [fkey
+              (->> (clj-factors)
+                   fkey
+                   first
+                   :r-name
+                   name-nums
+                   first)])
+           (keys (clj-factors)))))
+
+
+
+  (defn r-level->clj-level
+    "find the clj-level corresponding to an r-level"
+    [fkey r-level]
+    (->> (filter (fn [f] (= r-level (:r-name f))) (fkey (clj-factors)))
+         first
+         :level))
+
+
+
+
+  #_(defn assemble
+      "Assemble the test_configuration data ready for export."
+      []
+      (let [cm clj-factor-map
+            z (zero-r-factors)
+            t (test-r-factors)]
+        {:times times
+         :factors (->> (keys clj-factor-map)
+                       (map (fn [k]
+                              (let [f (cm k)]
+                                {:clj k
+                                 :rname (:r-name (k clj-factor-map))
+                                 :r f
+                                 :clj-test (r-level->clj-level k (str f "_" (get t f)))
+                                 :zero (get z f)
+                                 :test (get t f)}))))}))
+
+
+
+  (defn export-json
+    [path edn-data]
+    (spit path (json/generate-string edn-data)))
+
+
+
+  (def export-edn spit)
+
 
 
 ;;;
@@ -541,6 +590,7 @@
     (println (parse-opts *command-line-args* cli-options))
     (export-json (str (base-dir options) file-sep "test-configuration.json") (assemble))
     (export-edn (str (base-dir options) file-sep "test-configuration.edn") (assemble)))
+  )
   
 
 

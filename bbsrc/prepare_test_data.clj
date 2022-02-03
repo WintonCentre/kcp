@@ -66,18 +66,21 @@
 
 (def options (:options (parse-opts *command-line-args* cli-options)))
 
-;(def my-atom (atom 100))
-;@my-atom
-
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
-(def times (mapv :time-index
-                 (-> (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn")))
-                     ((keyword (:organ options)))
-                     :tools
-                     ((keyword (:tool options)))
-                     :table
-                     :labels)))
+(def metadata (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn"))))
+
+(defn get-organ [] (first (:organ-order metadata)))
+
+(defn times
+  [options]
+  (mapv :time-index
+        (-> metadata ;(edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn")))
+            ((keyword (:organ options)))
+            :tools
+            ((keyword (:tool options)))
+            :table
+            :labels)))
 
 
 (defn near-zero? "What counts as zero?" [x] (and (number? x) (< (if (neg? x) (- x) x) 1e-8)))
@@ -112,14 +115,22 @@
 (defn base-dir [{:keys [organ tool]}]
   (str "resources" file-sep "r_model_tests" file-sep organ file-sep tool))
 
-(def params
+#_(def params
   "get params as pair of vectors of r-names and parameter values, skipping the byte order mark"
   (let [[names values] (csv/read-csv (subs (slurp (str (base-dir options) file-sep "params.csv")) 0))]
     [(map str/trim names) (map edn/read-string values)]))
 
-(def param-map (apply zipmap params))
+(defn params
+  "get params as pair of vectors of r-names and parameter values, skipping the byte order mark"
+  [options]
+  (let [[names values] (csv/read-csv (subs (slurp (str (base-dir options) file-sep "params.csv")) 0))]
+    [(map str/trim names) (map edn/read-string values)]))
+
+(defn param-map [options]
+  (apply zipmap (params options)))
+
 (comment
-  (pprint param-map))
+  (pprint (param-map options)))
 
 (defn valid-r-tool-address
   "We limit tool addresses to those that are used in the front-end and also in the NHSBT provided R files
@@ -166,7 +177,7 @@
 (defn parse-r-name
   "Extract relevant fields from an r-name read in from params.csv.
    There are a few awkward cases in the data here"
-  [r-name]
+  [options r-name]
 
   (let [parts (str/split r-name #"_")
         p1 (first parts)
@@ -183,10 +194,10 @@
       :else {:r-factor (first parts)
              :r-level (str/join "_" (next parts))})))
 (comment
-  (parse-r-name "dth_rage_4")
-  (parse-r-name "tx_in_hosp_2")
-  (parse-r-name "tx_prev_thor_1")
-  (parse-r-name "rem_pred_1_14")
+  (parse-r-name options "dth_rage_4")
+  (parse-r-name options "tx_in_hosp_2")
+  (parse-r-name options "tx_prev_thor_1")
+  (parse-r-name options "rem_pred_1_14")
   (str/index-of "tx_in_hosp_2" "in_hosp")
   (str/index-of "dth_rage_4" "in-hosp"))
 
@@ -195,7 +206,7 @@
 ;;; R summaries
 ;;;;
 (defn r-factor-value
-  [info]
+  [options info]
   (if (= (:tool options) "waiting")
     (assoc info :info
            (mapv
@@ -203,19 +214,19 @@
               (let [r-name (str/join "_" [outcome-code (:r-factor info) (:r-level info)])]
                 {:r-name    r-name
                  :r-outcome outcome-code
-                 :r-value   (get param-map r-name)}))
+                 :r-value   (get (param-map options) r-name)}))
             (if (= (:organ options) "kidney")
               ["tx" "rem" "dth"]
               ["tx" "rem"])))))
 #_(comment
-    (pprint (r-factor-value {:r-factor "rage", :r-level "3"})))
+    (pprint (r-factor-value options {:r-factor "rage", :r-level "3"})))
 
 
 (defn r-factor-info
-  []
-  (map parse-r-name (first params)))
+  [options]
+  (map #(parse-r-name options %) (first (params options))))
 #_(comment
-    (pprint (r-factor-info)))
+    (pprint (r-factor-info options)))
 
 
 (defn r-info-by-clj-r-name
@@ -224,19 +235,19 @@
 
    *** THIS FUNCTION MAKES THE LINKING VALUE ***
    "
-  []
+  [options]
   (into {}
         (map (fn [[[fac lev] v]] [(str fac "_" lev) (first v)])
              (group-by (juxt :r-factor :r-level)
-                       (map r-factor-value (r-factor-info))))))
+                       (map #(r-factor-value options %) (r-factor-info options))))))
 #_(comment
-    (pprint (get (r-info-by-clj-r-name) "prev_thor")))
+    (pprint (get (r-info-by-clj-r-name options) "prev_thor")))
 
 (comment
-  (pprint (r-factor-info))
-  (pprint (r-info-by-clj-r-name)))
+  (pprint (r-factor-info options))
+  (pprint (r-info-by-clj-r-name options)))
 
-(def linkup (r-info-by-clj-r-name))
+(def linkup (r-info-by-clj-r-name options))
 
 ;;;;
 ;; Now process data from xlsx-sourced EDN files
@@ -263,20 +274,20 @@
      
      For kidneys both R and clj use all 3 (death + removal + transplant)."
 
-  [rname bk]
+  [options rname bk]
   (str ({:beta-death (if (= (:organ options) "lung") "rem_" "dth_")
          :beta-removal "rem_"
          :beta-transplant "tx_"} bk) rname))
 
 (defn stripped-factor
   "factor map stripped of fields that are not relevant to tests."
-  [factor]
+  [options factor]
   (let [beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))
         stripped (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))]
     (if (> (count beta-keys) 1)
       (assoc stripped :r-names (mapv
                                 (fn [bk]
-                                  (add-outcome-prefix (:r-name stripped) bk))
+                                  (add-outcome-prefix options (:r-name stripped) bk))
                                 beta-keys))
       stripped)))
 
@@ -292,19 +303,30 @@
 (defn info-by-outcome
   [info outcome]
   (first (filter #(= (:r-outcome %) outcome) info)))
+
+(comment
+  (info-by-outcome
+   [{:r-name "tx_sex_m", :r-outcome "tx", :r-value 27}
+    {:r-name "rem_sex_m", :r-outcome "rem", :r-value 28}
+    {:r-name "dth_sex_m", :r-outcome "dth", :r-value 29}]
+   "rem")
+  )
+
+
 ;;;
 ;; EDN data summaries
 ;;
 
-(def r-named-factors
-  "EDN factors that also have an R name and level, grouped by that r-name.
+(defn r-named-factors
+  "EDN factors that also have an R name and level, grouped by that r-name. 
      This links R data to edn data for test."
-  (map (fn [m] (assoc m :r-link (linkup (:r-name m))))
+  [options]
+  (mapv (fn [m] (assoc m :r-link (linkup (:r-name m))))
        (->> (filter (comp some? :r-name) (raw-factors options))
-            (map stripped-factor))))
+            (map #(stripped-factor options %)))))
 
 (comment
-  (pprint r-named-factors))
+  (pprint (r-named-factors options)))
 
 ;(different? nil 1)
 
@@ -318,7 +340,7 @@
          (let [a (get rnf edn-outcome)
                b (:r-value (info-by-outcome (get-in rnf [:r-link :info]) r-outcome))]
            (is (not (different? a b)) (str "Mismatch for " (:factor rnf) " " (:level rnf) " " r-outcome " " a " /= " b))))
-       r-named-factors))
+       (r-named-factors options)))
 
 
     (t/run-tests)
@@ -328,17 +350,17 @@
 
 
 (defn clj-info-by-clj-factor
-  []
-  (group-by :factor r-named-factors))
+  [options]
+  (group-by :factor (r-named-factors options)))
 
 
 (comment
-  (pprint  (first (clj-info-by-clj-factor)))
-  (pprint (:age (clj-info-by-clj-factor))))
+  (pprint  (first (clj-info-by-clj-factor options)))
+  (pprint (:age (clj-info-by-clj-factor options))))
 
 (defn distinct-clj-factors
   []
-  (keys (clj-info-by-clj-factor)))
+  (keys (clj-info-by-clj-factor options)))
 
 (defn zero-r-factor
   "Map of R zero-effect factor-levels"
@@ -349,19 +371,6 @@
   "Map of R zero-effect factor-levels"
   [rf-info]
   (last (filter (fn [r-info] (not (near-zero? (:r-value r-info)))) rf-info)))
-
-#_(defn r-test-for-clj-factor
-    [fkey]
-    (let [cinfo (get (clj-info-by-clj-factor) fkey)
-          rinfo (get (r-info-by-clj-name) (name fkey))]
-      {:clj fkey
-       :rfactor rinfo
-       :cfactor cinfo}))
-
-
-#_(clojure.pprint/pprint
-   {:times times
-    :factors (mapv r-test-for-clj-factor (distinct-clj-factors))})
 
 ;;;
 ;; Generate R test configurations
@@ -407,19 +416,18 @@
 #_(comment
     (println (base-dir options))
 
-    params
-    param-map
-    (get param-map "rage_1")
-    (parse-r-name "rem_rage_pf")
-    (map parse-r-name (first params))
+    (params options)
+    (param-map options)
+    (get (param-map options) "rage_1")
+    (parse-r-name options "rem_rage_pf")
+    (map #(parse-r-name options %) (first params))
 
-    (r-factor-info)
+    (r-factor-info options)
     (clojure.pprint/pprint
-     (r-factor-info))
+     (r-factor-info options))
 
-    (clojure.pprint/pprint (map r-factor-value (r-factor-info)))
-    (clojure.pprint/pprint (r-info-by-clj-name))
-    (clojure.pprint/pprint (clj-info-by-clj-factor))
+    (clojure.pprint/pprint (map #(r-factor-value options %) (r-factor-info options)))
+    (clojure.pprint/pprint (clj-info-by-clj-factor options))
 
 
     (clojure.pprint/pprint (clj-factors))
@@ -482,9 +490,10 @@
 ;;;;;;;;;;; REMOVE name-num stuff soon
 
 #_(comment
-    (def clj-factors
-   ;[]
+    (defn clj-factors
+    [options]
       (->> r-named-factors
+           options
            (group-by :factor)))
 
 
@@ -527,7 +536,7 @@
 
 
     (defn r-name->clj [r-name]
-      (->> (filter (comp some? :r-name) raw-factors)
+      (->> (filter (comp some? :r-name) (raw-factors options))
            (group-by :r-name)))
 
 

@@ -33,12 +33,14 @@
    [clojure.tools.cli :refer [parse-opts]]))
 
 #_(comment
-  ; Requiring bom dynamically works, but messed up in strange way (e.g. Math/abs fails in the repl)
+  ; clj-bom isn't compiled into babashka unfortubately.
+  ; I think we would need to be make it available in a pod.
 
     (def bom-deps '{:deps {clj-bom {:mvn/version "0.1.2"}}})
     (def cp (-> (sh "clojure" "-Spath" "-Sdeps" (str bom-deps)) :out str/trim))
     (add-classpath cp)
-    (require '[clj-bom.core :as bom]))
+    (require '[clj-bom.core :as bom])
+    )
 
 
 ;;(println *command-line-args*)
@@ -63,14 +65,16 @@
                    :parse-fn str]
                   ["-h" "--help"]])
 
-
-(def options (:options (parse-opts *command-line-args* cli-options)))
+;(def options (:options (parse-opts *command-line-args* cli-options)))
+;(println "Options: " options)
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
 (def metadata (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn"))))
 
 (defn get-organ [] (first (:organ-order metadata)))
+
+
 
 (defn times
   [options]
@@ -195,11 +199,13 @@
              :r-level (str/join "_" (next parts))})))
 (comment
   (parse-r-name options "dth_rage_4")
+  (parse-r-name options "rem_rage_4")
   (parse-r-name options "tx_in_hosp_2")
   (parse-r-name options "tx_prev_thor_1")
   (parse-r-name options "rem_pred_1_14")
   (str/index-of "tx_in_hosp_2" "in_hosp")
   (str/index-of "dth_rage_4" "in-hosp"))
+
 
 
 ;;;;
@@ -219,7 +225,8 @@
               ["tx" "rem" "dth"]
               ["tx" "rem"])))))
 #_(comment
-    (pprint (r-factor-value options {:r-factor "rage", :r-level "3"})))
+    (pprint (r-factor-value options {:r-factor "rage", :r-level "3"}))
+    )
 
 
 (defn r-factor-info
@@ -240,14 +247,17 @@
         (map (fn [[[fac lev] v]] [(str fac "_" lev) (first v)])
              (group-by (juxt :r-factor :r-level)
                        (map #(r-factor-value options %) (r-factor-info options))))))
+
 #_(comment
-    (pprint (get (r-info-by-clj-r-name options) "prev_thor")))
+    (pprint (map #(r-factor-value options %) (r-factor-info options)))
+    (pprint (r-info-by-clj-r-name options))
+    (pprint (keys (r-info-by-clj-r-name options)))
+    (pprint (get (r-info-by-clj-r-name options) "prev_thor_1"))
+    )
 
 (comment
   (pprint (r-factor-info options))
   (pprint (r-info-by-clj-r-name options)))
-
-(def linkup (r-info-by-clj-r-name options))
 
 ;;;;
 ;; Now process data from xlsx-sourced EDN files
@@ -321,12 +331,14 @@
   "EDN factors that also have an R name and level, grouped by that r-name. 
      This links R data to edn data for test."
   [options]
-  (mapv (fn [m] (assoc m :r-link (linkup (:r-name m))))
+  (mapv (fn [m] (assoc m :r-link ((r-info-by-clj-r-name options) (:r-name m))))
        (->> (filter (comp some? :r-name) (raw-factors options))
             (map #(stripped-factor options %)))))
 
 (comment
-  (pprint (r-named-factors options)))
+  (pprint (raw-factors options))
+  (pprint (r-named-factors options))
+  )
 
 ;(different? nil 1)
 
@@ -359,7 +371,7 @@
   (pprint (:age (clj-info-by-clj-factor options))))
 
 (defn distinct-clj-factors
-  []
+  [options]
   (keys (clj-info-by-clj-factor options)))
 
 (defn zero-r-factor

@@ -2,7 +2,7 @@
   "Run this with `bb run-tests`. 
    
    It will test either lung or kidney dependent on the :organ-order selection in metadata.edn
-   [Warning: Don't add BOTH kidney and lung there - it won't work]
+   [Warning: Don't add BOTH kidney and lung there - it won't work.]
    
    Test that EDN parameters deriving from the organ master spreadsheet correspond to the R parameters given by the
    params.CSV file. 

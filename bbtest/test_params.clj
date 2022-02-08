@@ -107,10 +107,8 @@
   (pp/pprint rnf)
   (pp/pprint (map (fn [rnf] (select-keys rnf [:factor :level :r-name])) rnfs))
   (get-r-value rnf "tx")
-  (get outcomes (keyword organ))
-  (let [[clj-outcome r-outcome] (first outcomes)]
-    clj-outcome)
-  (test-all-lung-tx))
+
+  )
 
 #_(deftest test-all-kidney-tx
     (doseq [rnf (s/r-named-factors (first test-options))]

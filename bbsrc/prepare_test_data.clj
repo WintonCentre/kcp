@@ -61,11 +61,11 @@
                    :parse-fn str
                    :validate [#(#{"kidney" "lung"} %) "kidney | lung"]]
                   ["-t" "--tool TOOL" "Tool name (lung: waiting | post-survival), (kidney: waiting | (ld)survival | (ld)graft)"
-                   :default "waiting"
+                   :default "graft"
                    :parse-fn str]
                   ["-h" "--help"]])
 
-;(def options (:options (parse-opts *command-line-args* cli-options)))
+(def options (:options (parse-opts *command-line-args* cli-options)))
 ;(println "Options: " options)
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
@@ -214,6 +214,7 @@
 (defn r-factor-value
   [options info]
   (if (= (:tool options) "waiting")
+    ; waiting has competing outcomes
     (assoc info :info
            (mapv
             (fn [outcome-code]
@@ -223,9 +224,18 @@
                  :r-value   (get (param-map options) r-name)}))
             (if (= (:organ options) "kidney")
               ["tx" "rem" "dth"]
-              ["tx" "rem"])))))
-#_(comment
-    (pprint (r-factor-value options {:r-factor "rage", :r-level "3"}))
+              ["tx" "rem"])))
+    ; all other models have only one outcome which is named "" here
+    (assoc info :info
+           (mapv
+            (fn [outcome-code]
+              (let [r-name (str (:r-factor info) "_" (:r-level info))]
+                {:r-name    r-name
+                 :r-outcome outcome-code
+                 :r-value   (get (param-map options) r-name)}))
+            [""]))))
+(comment
+    (pprint (r-factor-value options {:r-factor "rage", :r-level "3"})) ; in kidney graft context
     )
 
 
@@ -248,12 +258,12 @@
              (group-by (juxt :r-factor :r-level)
                        (map #(r-factor-value options %) (r-factor-info options))))))
 
-#_(comment
-    (pprint (map #(r-factor-value options %) (r-factor-info options)))
-    (pprint (r-info-by-clj-r-name options))
-    (pprint (keys (r-info-by-clj-r-name options)))
-    (pprint (get (r-info-by-clj-r-name options) "prev_thor_1"))
-    )
+(comment
+  (r-factor-info options)
+  (pprint (map #(r-factor-value options %) (r-factor-info options)))
+  (pprint (r-info-by-clj-r-name options))
+  (pprint (keys (r-info-by-clj-r-name options)))
+  (pprint (get (r-info-by-clj-r-name options) "prev_thor_1")))
 
 (comment
   (pprint (r-factor-info options))
@@ -283,7 +293,6 @@
      The clojure code uses :beta-death, and there is no :beta-removal.
      
      For kidneys both R and clj use all 3 (death + removal + transplant)."
-
   [options rname bk]
   (str ({:beta-death (if (= (:organ options) "lung") "rem_" "dth_")
          :beta-removal "rem_"
@@ -293,7 +302,7 @@
   "factor map stripped of fields that are not relevant to tests."
   [options factor]
   (let [beta-keys (filter (fn [k] (str/starts-with? (name k) "beta")) (keys factor))
-        stripped (select-keys factor (concat beta-keys [:factor-name :factor :level :r-name]))]
+        stripped (select-keys factor (concat beta-keys [:factor :level :r-name]))]
     (if (> (count beta-keys) 1)
       (assoc stripped :r-names (mapv
                                 (fn [bk]
@@ -302,6 +311,7 @@
       stripped)))
 
 (defn raw-factors [options]
+  
   (let [inputs-key (nth (tool-bundle-keys options) 2)
         bundle (tool-bundle options)
         inputs (bundle inputs-key)]
@@ -332,34 +342,13 @@
      This links R data to edn data for test."
   [options]
   (mapv (fn [m] (assoc m :r-link ((r-info-by-clj-r-name options) (:r-name m))))
-       (->> (filter (comp some? :r-name) (raw-factors options))
-            (map #(stripped-factor options %)))))
+        (->> (filter (comp some? :r-name) (raw-factors options))
+             (map #(stripped-factor options %)))))
 
 (comment
   (pprint (raw-factors options))
   (pprint (r-named-factors options))
   )
-
-;(different? nil 1)
-
-#_(comment
-    (defn test-parameter-values
-      "Move this to a proper test framework?"
-      [r-outcome edn-outcome]
-      (testing (str (:organ options) ":" (:tool options) ": " edn-outcome "/" r-outcome))
-      (map
-       (fn [rnf]
-         (let [a (get rnf edn-outcome)
-               b (:r-value (info-by-outcome (get-in rnf [:r-link :info]) r-outcome))]
-           (is (not (different? a b)) (str "Mismatch for " (:factor rnf) " " (:level rnf) " " r-outcome " " a " /= " b))))
-       (r-named-factors options)))
-
-
-    (t/run-tests)
-
-    (comment
-      (test-parameter-values "tx" :beta-transplant)))
-
 
 (defn clj-info-by-clj-factor
   [options]
@@ -370,25 +359,26 @@
   (pprint  (first (clj-info-by-clj-factor options)))
   (pprint (:age (clj-info-by-clj-factor options))))
 
-(defn distinct-clj-factors
+(defn level-tests
+  "Return a list of cljs and R test specifications that should generate the
+   same results in both languages. For each factor, pick one zero value and one non-zero effect value."
   [options]
-  (keys (clj-info-by-clj-factor options)))
+  (->> (r-named-factors options)
+       (group-by :r-name)
+       (map (fn [[k v]] [k (first v)]))
+       (into {})))
+(comment
+  ;; todo: why is this nil???
+  (pprint (get (level-tests options) "rage_5"))
+  )
 
-(defn zero-r-factor
-  "Map of R zero-effect factor-levels"
-  [rf-info]
-  (first (filter (fn [r-info] (near-zero? (:r-value r-info))) rf-info)))
 
-(defn test-r-factor
-  "Map of R zero-effect factor-levels"
-  [rf-info]
-  (last (filter (fn [r-info] (not (near-zero? (:r-value r-info)))) rf-info)))
 
 ;;;
 ;; Generate R test configurations
 ;;;
 ;; {:times   [1 3 5]
-;;  :factors [{:clj      :age
+;;  :factors [{:factor   :age
 ;;             :rname    nil
 ;;             :r        "1"
 ;;             :clj-test nil
@@ -407,15 +397,14 @@
 ;;             :zero     nil
 ;;             :test     nil}]}
 
-
 #_(defn assemble
     "Assemble the test_configuration data ready for export."
     []
-    (let [cm clj-factor-map
+    (let [cm 1
           z (zero-r-factors)
           t (test-r-factors)]
       {:times times
-       :factors (->> (keys clj-factor-map)
+       #_#_:factors (->> (keys clj-factor-map)
                      (map (fn [k]
                             (let [f (cm k)]
                               {:clj k
@@ -503,7 +492,7 @@
 
 #_(comment
     (defn clj-factors
-    [options]
+      [options]
       (->> r-named-factors
            options
            (group-by :factor)))
@@ -604,6 +593,7 @@
 
 
     (def export-edn spit)
+    
 
 
 
@@ -613,7 +603,8 @@
     (defn -main [& _args]
       (println (parse-opts *command-line-args* cli-options))
       (export-json (str (base-dir options) file-sep "test-configuration.json") (assemble))
-      (export-edn (str (base-dir options) file-sep "test-configuration.edn") (assemble))))
+      (export-edn (str (base-dir options) file-sep "test-configuration.edn") (assemble)))
+    )
 
 
 

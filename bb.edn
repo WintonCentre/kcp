@@ -36,10 +36,11 @@
          run-tests (shell "bb --file ./test_runner.clj")
          test-prep (do
                      (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t graft -c Belfast")
-                     (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")
-                     (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t survival -c Belfast")
-                     (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t ldgraft -c UK")
-                     (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t ldsurvival -c UK")
-                     (shell "bb --file ./bbsrc/prepare_test_data.clj -g lung -t waiting -c Newcastle")
-                     (shell "bb --file ./bbsrc/prepare_test_data.clj -g lung -t post-transplant -c Newcastle"))
+                     ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")
+                     ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t survival -c Belfast")
+                     ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t ldgraft -c UK")
+                     ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t ldsurvival -c UK")
+                     ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g lung -t waiting -c Newcastle")
+                     ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g lung -t post-transplant -c Newcastle")
+                     )
          sass (shell "sass resources/public/css/styles.scss:resources/public/css/styles.css")}}

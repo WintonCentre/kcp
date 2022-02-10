@@ -1151,7 +1151,7 @@ After 3 years	75  of them to have received a transplant
             :let [label (nth labels i)
                   line (:line label)
                   line (if (sequential? line) (map str line) line)]]
-        [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:h4 line]
+        [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:div {:style {:font-weight "bold" :font-size "1.5em"}} line]
          (for [j (range (count plot-order))
                :let [style ((nth plot-order j) data-styles)
                      long-label (:long-label style)]]

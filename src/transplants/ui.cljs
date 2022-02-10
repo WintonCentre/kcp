@@ -150,17 +150,18 @@ in the routes table."
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
   [{:keys [router subscribe-current-route]}]
-  (let [current-route @(subscribe-current-route)]
+  (let [current-route @(subscribe-current-route)
+        is-full-screen @(rf/subscribe [::subs/is-full-screen])]
     [:div {:style {:display :flex :flex-direction "column-reverse"}}
      (when current-route
        [:div {:style {:margin-top "0px" :padding-top 0}}
         [(-> current-route :data :view)]
-        [footer]])
-     [navbar {:router router
-              :current-route current-route
-              :home-url "/" ;"https://lung-transplants.wintoncentre.uk"
-              :logo "/assets/crest.png"
-              :tool-name "Lung Transplants"}]
+        (when-not is-full-screen [footer])])
+     (when-not is-full-screen [navbar {:router router
+                                       :current-route current-route
+                                       :home-url "/" ;"https://lung-transplants.wintoncentre.uk"
+                                       :logo "/assets/crest.png"
+                                       :tool-name "Lung Transplants"}])
      (bsio/modal #(rf/subscribe [::subs/modal-data]))
      ]))
 

@@ -13,7 +13,7 @@
    [transplants.results :as results]
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
-   [transplants.fullscreen :as fs]
+   ;[transplants.fullscreen :as fs]
    [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
@@ -1013,8 +1013,8 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
                [:section {:style {:margin-top 10}} (:pre-section tool-mdata)])
              [:section
 
-              #_[results/results-panel {:organ organ :centre centre :tool tool}]
-              [fs/full-screen-wrapper
+              [results/results-panel {:organ organ :centre centre :tool tool}]
+              #_[fs/full-screen-wrapper
                results/results-panel {:organ organ :centre centre :tool tool}]
 
 

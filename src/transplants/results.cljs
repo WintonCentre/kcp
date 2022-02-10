@@ -8,6 +8,7 @@
             [transplants.vis2 :as vis]
             [transplants.ui :as ui]
             [transplants.rgb :as rgb]
+            [transplants.fullscreen :as fs]
             ;[shadow.debug :refer [locals ?> ?->]]
             ))
 
@@ -39,10 +40,21 @@
 (comment 
   (def sum-betas '(0 0)))
 
+(defn full-screen-overlay-button
+  "add full screen overlay button"
+  [path]
+  [:div {:style {:z-index 500
+                 :background-color "#fec2"
+                 :padding 0
+                 :position "absolute"
+                 :right 10
+                 :bottom -14}}
+   [fs/full-screen-wrapper path]])
+
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
-  [{:keys [organ centre tool]}]
+  [{:keys [organ centre tool] :as path}]
   (let [day @(rf/subscribe [::subs/test-day])
         {:keys [fmaps outcome-keys
                 base-outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
@@ -63,8 +75,7 @@
              :beta-keys beta-keys
              :cohort-dates @(rf/subscribe [::subs/cohort-dates])
              :inputs (get @(rf/subscribe [::subs/inputs]) organ)
-             :selected-vis @(rf/subscribe [::subs/selected-vis])
-             }
+             :selected-vis @(rf/subscribe [::subs/selected-vis])}
 
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
@@ -90,7 +101,9 @@
         fulfilled-inputs (select-keys inputs required-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
-        overlay (if missing :missing (if unknowns :unknowns nil))]
+        overlay (if missing :missing (if unknowns :unknowns nil))
+        is-full-screen @(rf/subscribe [::subs/is-full-screen])]
+    
     [:div {:style {:background-color "#fff"
                    :border (str "3px solid " (condp = overlay
                                                :missing "rgb(255,0,0)"
@@ -148,10 +161,12 @@
                                  :top 0
                                  :right 0
                                  :bottom 0
-                                 :left 0}}]]
-       nil nil)
-     
-     [:section
+                                 :left 0}}]
+                  [full-screen-overlay-button path]]
+       nil     [full-screen-overlay-button path])
+
+     [:section {:style {:margin (if is-full-screen "10%" "0")
+                        :max-width (if is-full-screen "80%" "100%")}}
       [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                 :active-key (:selected-vis env)
                 :on-select #(rf/dispatch [::events/selected-vis %])}
@@ -165,13 +180,15 @@
         [vis/icon-array env]]
 
        [ui/tab {:event-key "table" :title "Table"}
-        [vis/table env]]
-       
+        [:div {:style {:font-size (if is-full-screen "300%" "100%")}}
+         [vis/table env]]]
+
        [ui/tab {:event-key "text" :title "Text"}
-        [vis/text env]]
-       
+        [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+         [vis/text env]]]
+
        #_[ui/tab {:variant "secondary"
-                :event-key "test" :title "[Test]"}
-        [vis/test-rig (conj env
-                            [:rubric [[:h4 "Test Rig"]]]
-                            [:bar-info nil])]]]]]))
+                  :event-key "test" :title "[Test]"}
+          [vis/test-rig (conj env
+                              [:rubric [[:h4 "Test Rig"]]]
+                              [:bar-info nil])]]]]]))

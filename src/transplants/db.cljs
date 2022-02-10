@@ -1,7 +1,7 @@
 (ns transplants.db)
 
 (def default-db
-  {:window-width 800 #_(.innerWidth js/Window)
+  {:window-width 800
    :guidance :visits
    :guidance-percent 22
    :randomise-icons true

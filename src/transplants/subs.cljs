@@ -48,3 +48,4 @@
 
 (rf/reg-sub ::modal-data (fn [db] (get-in db [:modal-data])))
 
+(rf/reg-sub ::is-full-screen (fn [db] (:is-full-screen db)))

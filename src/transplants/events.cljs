@@ -29,7 +29,8 @@
            :selected-vis "bars"
            :window-width (.-innerWidth js/window)
            :test-day 100
-           :modal-data nil})))
+           :modal-data nil
+           :is-full-screen nil})))
 
 (rf/reg-event-db
  ::update-window-width
@@ -48,6 +49,7 @@
  (fn  
    [db [_ new-match]]
    (assoc db :current-route new-match)))
+
 
 (rf/reg-event-db
  ; active organ
@@ -76,6 +78,14 @@
  (fn  
    [db [_ _]]
    (assoc db :inputs {})))
+
+(rf/reg-event-db
+ ; switch to or from full screen mode 
+ ::set-full-screen
+ (fn
+   [db [_ full]]
+   (assoc db :is-full-screen full)))
+
 
 (rf/reg-event-db
  ; guidance

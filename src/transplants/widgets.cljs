@@ -6,8 +6,7 @@
             ;[transplants.subs :as subs]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]
-            ))
+            [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (defn key->id
   "Convert a namespaced factor key to an id"
@@ -174,7 +173,6 @@
                             :units (:sub-text w)}]
         
         [:div "Check that " (:factor w) " has min, max, and dps parameters"])]]))
-
 
 (comment
   (def value-f (fn [] @(rf/subscribe [:lung/bmi])))

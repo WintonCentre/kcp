@@ -36,6 +36,7 @@
         "react-flow-renderer": "9.6.6",
         "react-overlays": "^5.1.1",
         "react-transition-group": "^4.4.2",
+        "react-request-fullscreen": "^1.1.2",
         "uncontrollable": "^7.2.1"
     },
     "devDependencies": {

@@ -13,9 +13,11 @@
    [transplants.results :as results]
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
+   [transplants.fullscreen :as fs]
    [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
+;;;;;
 (comment
   (rf/dispatch [::events/initialize-db]))
 
@@ -931,18 +933,19 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
           tool-mdata (utils/get-tool-meta mdata organ tool)
-          tcb (bun/get-bundle organ centre tool)]
+          tcb (bun/get-bundle organ centre tool)
+          is-full-screen @(rf/subscribe [::subs/is-full-screen])]
         ;(locals)
       [:div
+       (when-not is-full-screen
+         [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
+          [ui/row
+           [ui/col {:xs 12 :sm 8}
+            [:h1 (:description centre-info)]
+            [:p (:explanation uk-info)]]
+           [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
 
-       [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
-        [ui/row
-         [ui/col {:xs 12 :sm 8}
-          [:h1 (:description centre-info)]
-          [:p (:explanation uk-info)]]
-         [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
-
-        [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
+          [ui/tools-menu tools true organ-name centre-name {:vertical false}]])
 
        (if-let [tool-centre-bundle tcb]
          (let [tcb-fmaps (get tool-centre-bundle :fmaps)
@@ -950,68 +953,73 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
            [ui/row {:style {:margin "0px 10px"}}
             [ui/col {:xs 12}
              [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
-            [ui/col {:xs 12 :md 6
-                     :style {:margin-top 10}}
+            (when-not is-full-screen [ui/col {:xs 12 :md 6
+                                              :style {:margin-top 10}}
 
-             (when-let [input-header (get-in tool-mdata [:inputs :header])]
-               input-header)
-             
-             [:p 
-              [:> bs/Button {:size "sm"
-                             :variant "outline"
-                             :class-name "more"
-                             :title "Factors considered but not included"
-                             :style {:margin-left 0}
-                     ;:style {:cursor "pointer"}
-                             :on-click (fn [_e]
-                                         (rf/dispatch [::events/modal-data
-                                                       {:show true
-                                                        :title "Factors considered but not included"
-                                                        :content (factors-not-included mdata)
+                                      (when-let [input-header (get-in tool-mdata [:inputs :header])]
+                                        input-header)
+
+                                      [:p
+                                       [:> bs/Button {:size "sm"
+                                                      :variant "outline"
+                                                      :class-name "more"
+                                                      :title "Factors considered but not included"
+                                                      :style {:margin-left 0}
+                                                      :on-click (fn [_e]
+                                                                  (rf/dispatch [::events/modal-data
+                                                                                {:show true
+                                                                                 :title "Factors considered but not included"
+                                                                                 :content (factors-not-included mdata)
                                                   ;:content (edn/read-string (:info-box? w))
-                                                        :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
-                                         #_(?-> {:show true
-                                               :title "Factors considered but not included"
-                                               :content (factors-not-included mdata)
-                                               #_(str "Some text for " (:factor-name w))
-                                               :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
-                                              ::radio))}
-               [:span "Show factors considered but not included"]]]
+                                                                                 :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
+                                                                  #_(?-> {:show true
+                                                                          :title "Factors considered but not included"
+                                                                          :content (factors-not-included mdata)
+                                                                          #_(str "Some text for " (:factor-name w))
+                                                                          :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
+                                                                         ::radio))}
+                                        [:span "Show factors considered but not included"]]]
 
-             [:div {:style {:padding "0px 30px 15px 15px"
-                            :height "calc(100vh + 10ex)"
-                            :overflow-y "scroll"}}
+                                      [:div {:style {:padding "0px 30px 15px 15px"
+                                                     :height "calc(100vh + 10ex)"
+                                                     :overflow-y "scroll"}}
 
-              (widg/widget {:type :reset})
+                                       (widg/widget {:type :reset})
 
-              (into [:<>]
-                    (map
-                     (fn [[k w]] ^{:key (:factor w)}
-                       [:div {:style {:margin-top 0
-                                      :margin-bottom -5
-                                      :padding 5
-                                      :display "relative"
-                                      :outline-bottom (when (some? (:boxed w)) boxed-border)
-                                      :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))
-                                        ;:background-color (when (some? (:boxed w)) boxed-fill)
-                                      }}
-                        [:div {:style {:position "relative"
-                                       :padding-right 5}}
-                         (when (= k first-boxed)
-                           [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
-                            [:> bs/Col {:xs 5
-                                        :style {:display "flex" :justify-content "flex-end"}}
-                             [:span {:style {:text-align "right"}}
-                              boxed-text]]])
+                                       (into [:<>]
+                                             (map
+                                              (fn [[k w]] ^{:key (:factor w)}
+                                                [:div {:style {:margin-top 0
+                                                               :margin-bottom -5
+                                                               :padding 5
+                                                               :display "relative"
+                                                               :outline-bottom (when (some? (:boxed w)) boxed-border)
+                                                               :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))
+                                                               }}
+                                                 [:div {:style {:position "relative"
+                                                                :padding-right 5}}
+                                                  (when (= k first-boxed)
+                                                    [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
+                                                     [:> bs/Col {:xs 5
+                                                                 :style {:display "flex" :justify-content "flex-end"}}
+                                                      [:span {:style {:text-align "right"}}
+                                                       boxed-text]]])
+                                                  (widg/widget (assoc w :model tool))]
+                                                 [:div {:style {:height 10}}]])
 
-                         (widg/widget (assoc w :model tool))]
-                        [:div {:style {:height 10}}]])
-
-                     tcb-fmaps))]]
-            [ui/col {:xs 12 :md 6}
-             [:section {:style {:margin-top 10}} (:pre-section tool-mdata)]
+                                              tcb-fmaps))]])
+            [ui/col {:xs 12 :md (if is-full-screen 12 6)}
+             (when-not is-full-screen
+               [:section {:style {:margin-top 10}} (:pre-section tool-mdata)])
              [:section
-              [results/results-panel organ centre tool]
+
+              #_[results/results-panel {:organ organ :centre centre :tool tool}]
+              [fs/full-screen-wrapper
+               results/results-panel {:organ organ :centre centre :tool tool}]
+
+
+
+
               (:rest-of-page tool-mdata)
               #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
                                          [organ :tools tool])]

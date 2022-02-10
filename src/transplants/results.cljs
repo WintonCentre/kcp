@@ -42,7 +42,7 @@
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
-  [organ centre tool]
+  [{:keys [organ centre tool]}]
   (let [day @(rf/subscribe [::subs/test-day])
         {:keys [fmaps outcome-keys
                 base-outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]

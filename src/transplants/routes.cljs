@@ -140,12 +140,15 @@
    routes
    {:data {:coercion rss/coercion}}))
 
+;;to control the use of fragments at compile stage
+(goog-define frag? false)
+
 (defn init-routes! []
   (js/console.log "initializing routes")
   (rfe/start!
    router
    on-navigate
-   {:use-fragment true}))
+   {:use-fragment frag?}))
 
 (comment
   (routes [:lung :kidney]))

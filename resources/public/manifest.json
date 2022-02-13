@@ -1,0 +1,21 @@
+{
+    "short_name": "Kidney Transplants",
+    "name": "Kidney Transplants",
+    "description": "Kidney Transplants",
+    "icons": [{
+            "src": "/assets/logo_kidney_192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/assets/logo_kidney_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "scope": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}

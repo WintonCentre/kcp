@@ -923,8 +923,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
       :kidney [:div
                [:p [:b "Recipient BMI"] " - Tested and not found  to be significant in model"]
                [:p [:b "Creatinine"] " - Although we can get terminal creatinine for donor, we don’t know how many were on filtration in ITU – this would give a falsely low creatinine and be misleading. "]
-               [:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."] 
-               [:p [:b "Remove Donor BMI " [:span {:style {:color "red"}} "???"]] " - Removing factors that have been shown to be significant will make the model less robust."]]
+               [:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."]]
       :else [:div])))
 
 (defn tool-page

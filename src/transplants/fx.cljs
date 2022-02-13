@@ -29,8 +29,14 @@
 (rf/reg-fx
  ::load-organ-centres
  (fn [organs]
-   (doseq [organ organs]
+   ;; We now only ever have ONE organ - so just take the first 
+   (let [organ (first organs)]
      ;(locals)
+     (goog.object.set js/document "title"
+                      (condp = organ
+                        :lung "Lung Transplants"
+                        :kidney "Kidney Transplants"
+                        :else "Metadata Error"))
      (rf/dispatch [:transplants.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))
 
 (comment

@@ -21,9 +21,11 @@
  ; cf. Polylith in the clojure world.
  ;;
 
- ;; :todo: Rename :organs to :domains (?) in the generalised tool.
- ;; Revert to a single organ selector rather than an order for multiple organs and simplify the code....
- :organ-order [:lung] 
+ ;; We originally displayed multiple organs in one tool. Now we don't, but so far have retained a vector of organs
+ ;; to indicate what is shown. To switch the tool between kidney and lung it is only necessary to switch the keyword
+ ;; in the :organ-order vector. 
+
+ :organ-order [:kidney]
 
  ;;
  ; :todo - Check - 
@@ -286,7 +288,7 @@
                                             :y-offset 610
                                             :line ["By the end of year 3"]}]}
                           :page-title ""
-                          :pre-section [:section 
+                          :pre-section [:section
                                         [:h3 "What might happen if you are listed for a transplant?"]
                                         [:p "The displays here show how many people might have a transplant, 
                                              or still be waiting for a transplant 
@@ -298,7 +300,7 @@
                                         [:p "These results are averages.  There are other factors not included here, 
                                              for example, whether or not you have other health conditions that may 
                                              make your result higher or lower."]
-                                        
+
                                         #_[:p "The display shows what happened to people like you in the past
                                               (eg. same blood group, age, disease etc.)."]
                                         #_[:p "It shows how many people might be transplanted over 3 years."]
@@ -952,8 +954,8 @@
                                              [:h3
                                               "How long might your kidney last if it's from a living donor?"]
                                              [:section
-                                              [:p 
-                                               [:b {:style {:color "red"}} 
+                                              [:p
+                                               [:b {:style {:color "red"}}
                                                 [:span.oi.oi-warning {:title "warning" :aria-hidden "true"}]
                                                 "This is National data and not centre specific."]]
                                               [:p "The display shows what happened to people like you in the past

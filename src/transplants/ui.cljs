@@ -10,8 +10,7 @@ the low level ui."
               [transplants.subs :as subs]
               [transplants.numeric-input :as ni]
               [transplants.bsio :as bsio]
-            ;[shadow.debug :refer [?-> ?->> locals]]
-              ))
+              [shadow.debug :refer [?-> ?->> locals]]))
 
 (enable-console-print!)
 
@@ -76,16 +75,17 @@ in the routes table."
         organ-centres @(rf/subscribe [::subs/organ-centres])
         ]
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
-      [:> bs/Navbar {:bg "light" :expand "md" #_#_:fixed "top"
-                     :style {:border-bottom "1px solid black" :opacity "1"}}
+      [:> bs/Navbar {#_#_:bg "dark" :expand "md" #_#_:fixed "top"
+                     :variant "dark"
+                     :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
        [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 37} :alt "Winton Centre"}]]
      ; Site name below 
-       [:> bs/Nav.Link {:style {:font-size "1em"}
+       [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
                         :organ (name organ)
                         :href (href :transplants.views/organ {:organ (name organ)})}
-        [:div {:style {:font-size "2em"}}
+        [:div {:style {:font-size "1.5em"}}
          (if single-organ
-           (str (get-in mdata [single-organ :label]) " Tool")
+           (str (get-in mdata [single-organ :label]) " Transplant Tool")
            "Development Site")]]
        [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
        [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
@@ -127,7 +127,7 @@ in the routes table."
                               :key (name (:key centre))}
 
                              (:name centre)])
-                          centres)))))]]]
+                          (filter #(not= (:name %) "UK") centres))))))]]]
       [loading])))
 
 (comment 
@@ -230,7 +230,7 @@ in the routes table."
                        :mdata mdata))
                     (if include-guidance? tools (remove #(= :guidance %) tools)))
         ]
-    ;(?-> active-tool ::active-tool)
+    (?-> active-tool ::active-tool)
     ;(?-> tools ::tools-menu)
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!

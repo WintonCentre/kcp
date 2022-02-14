@@ -204,6 +204,14 @@ in the routes table."
                                        :tool tool}])}
      label]))
 
+(comment
+  (rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
+                {:organ :kidney
+                 :centre "birm"
+                 :tool :survival
+                 :tab :area}])
+  )
+
 (defn background-link
   "Tool menu prefix rubric."
   [_organ _centre tool]
@@ -237,7 +245,7 @@ in the routes table."
                        :mdata mdata))
                     (if include-guidance? tools (remove #(= :guidance %) tools)))
         ]
-    (?-> active-tool ::active-tool)
+    ;(?-> active-tool ::active-tool)
     ;(?-> tools ::tools-menu)
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!

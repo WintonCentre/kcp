@@ -1090,6 +1090,27 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
                 :organ-name organ-name
                 :centre-name centre-name})))
 
+(defn organ-centre-tool-tab
+  "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
+   for that organ and centre."
+  []
+  (let [route @(rf/subscribe [::subs/current-route])
+        mdata @(rf/subscribe [::subs/mdata])
+        organ-centres @(rf/subscribe [::subs/organ-centres])
+        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        tool-name (if (nil? tool-name) :waiting tool-name)
+        [organ centre tool] (map keyword p-names)
+        tools (utils/get-tools mdata organ)]
+
+    (tool-page {:organ organ
+                :organ-centres organ-centres
+                :centre centre
+                :tool tool
+                :tool-name tool-name
+                :mdata mdata
+                :tools tools
+                :organ-name organ-name
+                :centre-name centre-name})))
 (comment
   (+ 1 1)
   (paths/organ-centre-name-tool :kidney

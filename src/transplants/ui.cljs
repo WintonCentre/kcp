@@ -95,19 +95,26 @@ in the routes table."
                     }
          [:> bs/Nav.Link {:style {:font-size "1.4em"}
                           :event-key :home
-                          :href (href :transplants.views/home)} "Home"]
+                          :href (href :transplants.views/home)
+                          :class-name (when (= :transplants.views/home (get-in route [:data :name])) "active")
+                          } "Home"]
          [:> bs/Nav.Link {:style {:font-size "1.4em"}
                           :event-key :about
-                          :href (href :transplants.views/about)} "About"]
+                          :href (href :transplants.views/about)
+                          :class-name (when (= :transplants.views/about (get-in route [:data :name])) "active")} "About"]
+        
          [:> bs/Nav.Link {:style {:font-size "1.4em"}
                           :event-key :legal
-                          :href (href :transplants.views/legal)} "Legal"]
+                          :href (href :transplants.views/legal)
+                          :class-name (when (= :transplants.views/legal (get-in route [:data :name])) "active")} "Legal"]
          [:> bs/Nav.Link {:style {:font-size "1.4em"}
                           :event-key :pubs
-                          :href (href :transplants.views/pubs)} "Publications"]
+                          :href (href :transplants.views/pubs)
+                          :class-name (when (= :transplants.views/pubs (get-in route [:data :name])) "active")} "Publications"]
          [:> bs/Nav.Link {:style {:font-size "1.4em"}
                           :event-key :tech
-                          :href (href :transplants.views/tech)} "Technical"]
+                          :href (href :transplants.views/tech)
+                          :class-name (when (= :transplants.views/tech (get-in route [:data :name])) "active")} "Technical"]
          (when organ-centres
            (when-let [centres (organ organ-centres)]
              (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]

@@ -169,7 +169,12 @@
                         :max-width (if is-full-screen "80%" "100%")}}
       [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                 :active-key (:selected-vis env)
-                :on-select #(rf/dispatch [::events/selected-vis %])}
+                :on-select #_#(rf/dispatch [::events/selected-vis %])
+                  #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
+                                {:organ :kidney
+                                 :centre "birm"
+                                 :tool :survival
+                                 :tab %}])}
        [ui/tab {:event-key "bars" :title "Bar Chart"}
         [vis/bar-chart env]]
 

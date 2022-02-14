@@ -191,17 +191,19 @@ in the routes table."
   ;(?-> tool ::tool-buttons)
   ;(?-> button-colour ::tool-buttons)
   ;(?-> button-type ::button-type)
-  (let [active (= (name tool) active-tool)]
+  (let [active (= (name tool) active-tool)
+        tab @(rf/subscribe [::subs/selected-vis])]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2
                      :margin-right 0}
              :active active
              :key key
-             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
                                       {:organ organ
                                        :centre centre
-                                       :tool tool}])}
+                                       :tool tool
+                                       :tab (if tab tab :bars)}])}
      label]))
 
 (comment
@@ -209,7 +211,7 @@ in the routes table."
                 {:organ :kidney
                  :centre "birm"
                  :tool :survival
-                 :tab :area}])
+                 :tab "bars"}])
   )
 
 (defn background-link

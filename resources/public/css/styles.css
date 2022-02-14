@@ -201,4 +201,17 @@
   background-color: white;
 }
 
+.home-section {
+  margin-top: 10px;
+}
+.home-section h2 {
+  font-size: 1.6em;
+}
+.home-section h3 {
+  font-size: 1.4em;
+}
+.home-section h4 {
+  font-size: 1.2em;
+}
+
 /*# sourceMappingURL=styles.css.map */

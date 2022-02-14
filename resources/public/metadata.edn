@@ -25,7 +25,7 @@
  ;; to indicate what is shown. To switch the tool between kidney and lung it is only necessary to switch the keyword
  ;; in the :organ-order vector. 
 
- :organ-order [:kidney]
+ :organ-order [:lung]
 
  ;;
  ; :todo - Check - 
@@ -157,14 +157,14 @@
                                             :y-offset 610
                                             :line ["By the end of year 3"]}]}
                           :page-title ""
+                       
                           :pre-section [:section
                                         [:h3 "What might happen if you are listed for a transplant?"]
-                                        [:p "The display shows what happened to people like you in the past
-                                              (eg. people with the same blood group, age, disease etc.)."]
-                                        [:p "It shows how many people might be transplanted over 3 years."]
-                                        [:p "This is an estimate – an average. There are other factors about you that can influence
-                                             these results and make the numbers higher or lower. For example you may have other conditions not included 
-                                             in the tool, or you may encounter other lifestyle factors post transplant."]]
+                                        [:p "The results below shows what happened to people like you in the past 
+                                             (people the same age, disease etc.)."]
+                                        [:p "It is not a prediction of what will happen to you, it is an estimate."]
+                                        [:p "There are other factors about you that can influence these results and make the numbers 
+                                             higher or lower. For example you may have other conditions not included in the tool."]]
                           :post-section [:h5 "Outcomes after listing"]
                           :rest-of-page [:<>
                                          #_[:p "This is an estimate, an average, there are other factors about you that can influence
@@ -290,23 +290,11 @@
                           :page-title ""
                           :pre-section [:section
                                         [:h3 "What might happen if you are listed for a transplant?"]
-                                        [:p "The displays here show how many people might have a transplant, 
-                                             or still be waiting for a transplant 
-                                             or sadly died or been removed from the waiting list. "]
-                                        [:p "We used data from people on the transplant waiting list in the past."
-                                         [:br] "We took all the transplant patients who had the same characteristics 
-                                                as you (same age, blood group, disease and so on) to show 
-                                                " [:i "on average"] ", what happened to them."]
-                                        [:p "These results are averages.  There are other factors not included here, 
-                                             for example, whether or not you have other health conditions that may 
-                                             make your result higher or lower."]
-
-                                        #_[:p "The display shows what happened to people like you in the past
-                                              (eg. same blood group, age, disease etc.)."]
-                                        #_[:p "It shows how many people might be transplanted over 3 years."]
-                                        #_[:p "This is an estimate, an average, there are other factors about you that can influence
-                                              these results and make the numbers higher or lower. eg whether you have other conditions 
-                                              not included in the tool."]]
+                                        [:p "The results below shows what happened to people like you in the past 
+                                             (people the same age, disease etc.)."]
+                                        [:p "It is not a prediction of what will happen to you, it is an estimate."]
+                                        [:p "There are other factors about you that can influence these results and make the numbers 
+                                             higher or lower. For example you may have other conditions not included in the tool."]]
                           :post-section nil
                           :rest-of-page [:<>
                                          #_[:p "This is an estimate, an average, there are other factors about you that can influence

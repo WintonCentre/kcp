@@ -148,11 +148,15 @@ in the routes table."
   "Site footer. 
    todo: Needs to be made configurable."
   []
-  [:div.footer {:style {:width "100%" :height "80px" :background-color "black" :color "white"
+  [:div.footer {:style {:width "100%"  :background-color "black" :color "white"
                 :align-items "center" :justify-content "center"}}
-   [:div {:style {:margin "20px" :display "flex" :flex-direction "row" :align-items "center"}}
+   [:div {:style {:margin "15px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
     [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}] 
-    "Winton Centre"]])
+    [:p [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence. Communication.  
+                     It currently displays models disclosed by NHSBT under a data sharing agreement.  
+                     It was developed with transplant patients and their partners and clinical teams  
+                     at transplant and referral centres in England. "]
+    ]])
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
@@ -191,7 +195,19 @@ in the routes table."
   ;(?-> tool ::tool-buttons)
   ;(?-> button-colour ::tool-buttons)
   ;(?-> button-type ::button-type)
-  (let [active (= (name tool) active-tool)
+  (let [active (= (name tool) active-tool)]
+    [button {:id (str (name organ) "-" (name centre) "-" (name key))
+             :variant (if active button-type (str "outline-" button-type))
+             :style {:margin-bottom 2
+                     :margin-right 0}
+             :active active
+             :key key
+             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+                                      {:organ organ
+                                       :centre centre
+                                       :tool tool}])}
+     label])
+  #_(let [active (= (name tool) active-tool)
         tab @(rf/subscribe [::subs/selected-vis])]
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))

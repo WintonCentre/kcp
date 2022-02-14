@@ -22,22 +22,9 @@
   (rf/dispatch [::events/initialize-db]))
 
 (defn home-section
-  [options & content]
-  (let [base-style {;:background-color "#337777"
-                    :border-radius 5
-               ;:border "5px solid #62e5e5"
-                    :padding "20px 20px 1px 20px"
-               ;:color "#fff"
-                    :margin-bottom 10}]
-    
-    (if (map? options)
-      [:section {:id (:id options)
-                 :style (merge base-style (:style options))}
-       (first content)
-       (into [:<>] (rest content))]
-      [:section {:style base-style}
-       options
-       (into [:<>] content)])))
+  [& content]
+  (into [:section {:class-name "home-section"}]
+        content))
 
 (defn choose-centre-nav
   [mdata]
@@ -65,13 +52,11 @@
 
       [:> bs/Col {:md 6}
        [home-section
-        [:h4 "What does this site do?"]
-        [:p "This is a communication tool to help patients understand risks and benefits of 
-             transplantation and help health care professionals explain these risks and benefits. "]
+        [:h2 "What does this site do?"]
+        [:p "This is a communication tool. It will help patients understand risks and benefit numbers about 
+             transplantation. It will help the transplant team explain these numbers by showing them in graphs and charts. "]
 
-        [:p "The tool takes details about transplant patients and produces results that are personalised to that patient, including
-             what centre they are at.  The results are displayed in the form of graphs and charts which can be printed out. " 
-         [:b "When printing ensure the option to print background graphics has been set in the print dialog."]]
+        [:p "Results can be printed out for patients to take home"]
 
 
         [:p "The tool will calculate:"]
@@ -79,22 +64,47 @@
          [:li "What is my likely waiting time for a transplant?"]
          [:li "How long might I survive after a transplant?"]
          (when (= single-organ :kidney)
-           [:li "How long might the transplant last?"])]]]
+           [:li "How long might the transplant last?"])]]
+
+       [home-section
+        [:h2 "How does it work?"]
+        [:p "The tool takes details about the patient such as age, disease, blood group, treatment 
+             centre and produces results personalised for them."]]
+
+       [home-section
+        [:h2 "The tool will show"]
+        [:ul
+         [:li "What is my likely " [:b "waiting time"] " for a transplant?"]
+         (when (= single-organ :kidney) [:li "How long might " [:b "the transplant last?"]])
+         [:li "How long might " [:b "I survive"] " after a transplant?"]]]
+
+       [home-section
+        [:h2 "Who is this site for?"]
+        [:p "People who are suitable for " (name single-organ) " transplant and who are over 18 years old."]
+        (when (= single-organ :kidney)
+          [:p [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]
+
+       [home-section
+        [:h2 "Where can I find out more?"]
+        [:p "Please go to the " [:a {:href (ui/href :transplants.views/about)} "About page"] " to find out more about the tool."]]]
 
       [:> bs/Col {:md 6}
        [home-section
-        [:h4 "Who is this site for?"]
-        (if (= single-organ = :lung)
-          [:p "The tool is suitable for lung patients who are over 16 years old.
-          This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
-          there is not enough data yet to make a tool for children. "]
-          [:p "The tool is suitable for kidney patients who are over 18 years old.
-          This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
-          there is not enough data yet to make a tool for children. "])]
-
+        [:h2 "Overview"]
+        [:p "The tool uses data from the NHS BT registry."]
+        [:p "It takes the information you enter and shows what happened to people “like you” in the past. "
+         [:b " It is not showing what will happen to you in the future, it is showing what happened to people 
+              like you in the past."]]
+        [:p "The tool cannot take into account everything about you.  For example it does not currently ask 
+             about other health conditions you may have."] 
+        [:p "There are many factors that influences how well a transplant does, for example whether you take 
+             your medications correctly, your diet and whether you exercise.  Sometimes transplants don’t work 
+             and we don’t know why. If you want to know more about the data and the models behind the tool read 
+             the " [:a {:href (ui/href :transplants.views/tech)}  "technical section"] " of this site."]]
        [home-section
-        [:h4 "Where can I find out more?"]
-        [:p "Please go to the " [:a {:href (ui/href :transplants.views/about)} "About page"] " to find out more about the tool."]]]
+        [:h2 "Use the tool offline"]
+        [:p "You need an internet connection to access the tool for the first time."] 
+        [:p "Once you have visited the site, you can access it offline."]]]
 
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
        (choose-centre-nav mdata)]]])
@@ -128,9 +138,8 @@
                     {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
            [ui/col {:md 8 :style {:color "#fff"}}
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
-            [:p [:b "The tool should be used with a transplant doctor, specialist nurse or other healthcare professional.
-If you are a patient and you use this site on your own, discuss the results with your transplant or dialysis team.
-"]]]]]
+            [:p [:b "The tool should be used with a transplant doctor, specialist nurse or other healthcare professional."]] 
+            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your transplant or dialysis team."]]]]]
          (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
          [ui/row
           [ui/col
@@ -964,7 +973,9 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
 
                                       (when-let [input-header (get-in tool-mdata [:inputs :header])]
                                         input-header)
-
+                                      [:p "This tool cannot take into account all the factors about you that might affect the result. 
+                                           We hope to include more in the future. "] 
+                                      [:p "Click below to find out more about those we have considered but are not in the tool."]
                                       [:p
                                        [:> bs/Button {:size "sm"
                                                       :variant "outline"
@@ -1000,8 +1011,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
                                                                :padding 5
                                                                :display "relative"
                                                                :outline-bottom (when (some? (:boxed w)) boxed-border)
-                                                               :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))
-                                                               }}
+                                                               :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
                                                  [:div {:style {:position "relative"
                                                                 :padding-right 5}}
                                                   (when (= k first-boxed)

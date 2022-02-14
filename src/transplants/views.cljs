@@ -199,13 +199,13 @@
       [ui/page (str "Publications")
        [ui/row
         (condp = single-organ
-          :lung [ui/col
+          :lung [:> bs/Col {:md {:span 8 :offset 2}}
                  [:p "Annual Report on Cardiothoracic Transplantation 2019/2020. NHS Blood and Transplant."
                   [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf." :target "_blank"}
                    "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf."] " Published 2020. Accessed 01/03/2021"]
                  [:p
                   "Kourliouros A Hogg R Mehew J et al. Patient outcomes from time of listing for lung transplantation in the UK: are there disease-specific differences? Thorax 2019 ;74:60-68. Breslow N. E. (1972) “Discussion of Professor Cox’s Paper” J. Royal Stat. Soc. B 34 216 –217."]]
-          :kidney [ui/col 
+          :kidney [:> bs/Col {:md {:span 8 :offset 2}}
                    [:p "NHSBT organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ")"]
                    [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
           :else [ui/col [:p "None."]])]]
@@ -259,43 +259,47 @@
 
 (defn kidney-about-content
   []
-  [:> bs/Col
+  [:> bs/Col {:md {:span 8 :offset 2}}
 
-   [:h4 "Overview"]
-   [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Overview"]
+    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
            characteristics, and shows what happened to these people. "
 
-    "For example, how many people 'like you' received a transplant within one year of being listed."]
+     "For example, how many people 'like you' received a transplant within one year of being listed."]
 
-   [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
+    [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
 
-   [:p "It’s important to remember that the tool cannot take into account everything about you, for example, 
+    [:p "It’s important to remember that the tool cannot take into account everything about you, for example, 
         whether you have other health conditions. The tool will ask for some medical information such as blood group, 
         or recent test results. The tool will be less accurate if you don't have all the relevant information."]
 
-   [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication 
+    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication 
         properly, diet and whether you exercise."]
-   [:p "If you want to know more about the models and data behind the tools, please read the "
-    [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
-    "Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
+    [:p "If you want to know more about the models and data behind the tools, please read the "
+     [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
+     "Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
 "]
 
-   [:p "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"]
+    [:p "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"]]
 
 
-   [:h4 "Using the tool offline"]
-   [:p "You need an internet connection to access the tool for the first time, but once you have visited 
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}} 
+    [:h4 "Using the tool offline"]
+    [:p "You need an internet connection to access the tool for the first time, but once you have visited 
          the site once, you can access it offline (just don't close the browser)."]
 
-   [:p "The tool can produce a printout of results for later reference."]
+    [:p "The tool can produce a printout of results for later reference."]]
 
-   [:h4 "Who is this site for?"]
-   [:p "The tool is suitable for kidney patients who are over 18 years old.
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Who is this site for?"]
+    [:p "The tool is suitable for kidney patients who are over 18 years old.
         This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
         there is not enough data yet to make a tool for children. "]
-   [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]
-
-
+    [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]]
 
    [:h4 "Who developed the tool?"]
    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
@@ -303,13 +307,13 @@
    [:p "We wisk to thank all the transplant patients and their partners, 
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]
 
-#_[:div "...going spare"
- [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions. "]
- [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional.
+   #_[:div "...going spare"
+      [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions. "]
+      [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional.
 Data from adult (aged 18 or more) patients only have been used to develop these tools, and they are not suitable for paediatric patients."]
- [:p "The data used to develop this site has been developed patients registered for deceased donor kidney transplants in the UK, or who have received a deceased donor kidney-only transplant in the UK so will not be suitable for patients from other countries." [:span {:style {:color "red"}} " Patients registered on another organ transplant list (e.g. pancreas list) either before, during or after their kidney registration were also not included."] " The results from the tool will therefore not be suitable for those patients who fall outside these inclusion criteria."]
- [:h4 "Who built this tool"]
- [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]]])
+      [:p "The data used to develop this site has been developed patients registered for deceased donor kidney transplants in the UK, or who have received a deceased donor kidney-only transplant in the UK so will not be suitable for patients from other countries." [:span {:style {:color "red"}} " Patients registered on another organ transplant list (e.g. pancreas list) either before, during or after their kidney registration were also not included."] " The results from the tool will therefore not be suitable for those patients who fall outside these inclusion criteria."]
+      [:h4 "Who built this tool"]
+      [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]]])
 
 ;;; Views ;;;
 (defn about-page
@@ -336,7 +340,8 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
 
 (defn maths-section
   []
-  [:<>
+  [:section {:style {:border-bottom "1px #337777 solid"
+                     :margin-bottom  20}}
    [:h3 "Mathematical Section"]
    [:p "A cox proportional hazards model was adopted. This multiplies a baseline cumulative hazard by a 
         constant hazard ratio for each risk factor."]
@@ -366,9 +371,38 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
    [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. "]]
   #_[:p "The waiting times tool requires a " [:a {:href "/competing_risks.pdf" :target "_blank"} "further adjustment for the competing risks."]])
 
-(defn lung-tech-content
+(defn web-development-section
   []
   [:<>
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "The web implementation"]
+    [:p "This tool is a Single Page Application - an SPA. it is a single web page which loads a javascript application that updates the page according
+        to the user's inputs. All data that you enter to the tool is stored in javascript variables in the browser. "]
+    [:p "The application is also a calculator. The javascript code includes
+        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed 
+        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever 
+        you change any input. Once you close the browser window or tab, the data is erased, just like in a calculator."]
+    [:p "The tool is also a Progressive Web App - a PWA - which means that in some ways it behaves like an application you might have downloaded onto your phone
+        from an App Store. Once you load the app from the web-site, it is automatically cached in your browser for future use - offline if need be. You can also install the
+        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name 
+        (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)"]]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "The development stack"]
+    [:p "The tool runs as a javascript application, but it was written in clojurescript and then compiled to javascript. The most important libraries that it uses
+        are ReactJS, Reagent, and Reframe, and we are sincerely greateful to the developers of these codes. The development system wass Shadow-cljs by Thomas Heller, 
+        supported by a number of clojure scripts running under Babashka (by Michel Borkent) and the clojure integrated development system Calva running in VSCode. "]]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "Testing"]
+    [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
+       through the R code, collected the results, and then fed the same inputs into our javascript implementation, and compared the results. "]]])
+
+(defn lung-tech-content
+  []
+  [:section {:style {:border-bottom "1px #337777 solid"
+                     :margin-bottom  20}}
    [:h3 "Model development"]
    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
    [:p "NHSBT statisticians worked closely with transplant clinicians to compile a large list of potential variables (e.g. age, disease group) from the UKTR to test in the models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. survival after transplant). These variables are referred to as ‘risk factors’."]
@@ -436,72 +470,83 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
 
 (defn kidney-tech-content
   []
-  [:<>
-   [:h3 "Model development"]
-   [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
-   [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
-   [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:span {:style {:color "red"}} " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
+  [:> bs/Col {:md {:span 8 :offset 2}}
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "Model development"]
+    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
+    [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
+    [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:b " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
 
-   [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
+    [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
 
-   [:p "This tool has been developed using retrospective registry data. " [:span {:style {:color "red"}} "Therefore, changes to the Kidney Offering Scheme in 2019 are NOT reflected in these models. "]]
+    [:p "This tool has been developed using retrospective registry data. " [:b "Therefore, changes to the Kidney Offering Scheme in 2019 are NOT reflected in these models. "]]
 
-   [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA. "]
+    [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA. "]]
 
-   [:h4 "Waiting Times"]
-   [:p "The dataset used for this model comprised of all adult (aged ≥18 years) first kidney-only registrations (i.e. people joining the transplant waiting list) between 1 January 2010 and 31 December 2015."]
-   [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk’ of. We considered outcome data up to 5 years from listing for all patients in the modelling cohort. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox Regression (Section 3.1)."]
-   [:p "Each patient in the cohort was assigned to 1 of 4 categories:"]
-   [:ol
-    [:li "Patients who were transplanted with either a living or deceased donor transplant"]
-    [:li "Patients who died on the list whilst awaiting transplantation"]
-    [:li "Patients who were removed from the list prior to transplantation. This could occur for a number of reasons including patient choice or a deterioration in health such that a transplant was no longer suitable."]
-    [:li "Patients who were still waiting on the list. Patients who were suspended were classed as still waiting on the list."]]
-   [:p "The covariates used in the model were those which have previously been shown to have an impact on outcome and those which were thought to be clinically significant."]
-   [:p "Following development of the Cox Proportional hazards models, a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model. This algorithm enabled the estimated chances of each of the listed outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%."]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Waiting Times"]
+    [:p "The dataset used for this model comprised of all adult (aged ≥18 years) first kidney-only registrations (i.e. people joining the transplant waiting list) between 1 January 2010 and 31 December 2015."]
+    [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk’ of. We considered outcome data up to 5 years from listing for all patients in the modelling cohort. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox Regression (Section 3.1)."]
+    [:p "Each patient in the cohort was assigned to 1 of 4 categories:"]
+    [:ol
+     [:li "Patients who were transplanted with either a living or deceased donor transplant"]
+     [:li "Patients who died on the list whilst awaiting transplantation"]
+     [:li "Patients who were removed from the list prior to transplantation. This could occur for a number of reasons including patient choice or a deterioration in health such that a transplant was no longer suitable."]
+     [:li "Patients who were still waiting on the list. Patients who were suspended were classed as still waiting on the list."]]
+    [:p "The covariates used in the model were those which have previously been shown to have an impact on outcome and those which were thought to be clinically significant."]
+    [:p "Following development of the Cox Proportional hazards models, a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model. This algorithm enabled the estimated chances of each of the listed outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%."]]
 
-   [:h4 "Patient and graft survival after a deceased donor kidney transplant"]
-   [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
+   [::section {:style {:border-bottom "1px #337777 solid"
+                       :margin-bottom  20}}
+    [:h4 "Patient and graft survival after a deceased donor kidney transplant"]
+    [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
 
-   [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
+    [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
 
-   [:h5 "Five-year deceased donor post-transplant patient survival"]
-   [:p "Post-transplant patient survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant if this was within 5 years of transplantation. The following factors were found to be significant and included in the model; recipient age, recipient ethnicity, waiting time, recipient primary renal disease, donor age, donor hypertension, HLA MM level."]
-   [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.71. "]
+    [:h5 "Five-year deceased donor post-transplant patient survival"]
+    [:p "Post-transplant patient survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant if this was within 5 years of transplantation. The following factors were found to be significant and included in the model; recipient age, recipient ethnicity, waiting time, recipient primary renal disease, donor age, donor hypertension, HLA MM level."]
+    [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.71. "]
 
-   [:h5 "Five-year deceased donor post-transplant graft survival"]
-   [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up.  The following factors were found to be significant and included in the model; recipient age, waiting time, graft number, recipient primary renal disease, donor age, donor BMI, donor hypertension, HLA MM level."]
-   [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.63."]
+    [:h5 "Five-year deceased donor post-transplant graft survival"]
+    [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up.  The following factors were found to be significant and included in the model; recipient age, waiting time, graft number, recipient primary renal disease, donor age, donor BMI, donor hypertension, HLA MM level."]
+    [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.63."]]
 
-   [:h4 "Patient and graft survival after a living donor kidney transplant"]
-   [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2015."]
-   [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
-   [:ul
-    [:li "Donor factors: age, sex, relationship to recipient, BMI, ethnicity, status, hypertension, BMI, height, weight retrieval creatinine."]
-    [:li "Recipient factors: age, sex, ethnicity, diabetic nephropathy as a cause of renal failure, waiting time, dialysis status, matchability, blood group, cold ischaemia time, HLA mismatch and graft number. "]
-    [:li "Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Due to fewer numbers, the transplant centre was not included as a strata and national results have been demonstrated."]]
-   [:h5 "Five-year living donor post-transplant graft survival"]
-   [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up."]
-   [:p "The following factors were found to be significant and included in the model; recipient age, waiting time, matchability, donor age, HLA MM level."]
+   [::section {:style {:border-bottom "1px #337777 solid"
+                       :margin-bottom  20}}
+    [:h4 "Patient and graft survival after a living donor kidney transplant"]
+    [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2015."]
+    [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
+    [:ul
+     [:li "Donor factors: age, sex, relationship to recipient, BMI, ethnicity, status, hypertension, BMI, height, weight retrieval creatinine."]
+     [:li "Recipient factors: age, sex, ethnicity, diabetic nephropathy as a cause of renal failure, waiting time, dialysis status, matchability, blood group, cold ischaemia time, HLA mismatch and graft number. "]
+     [:li "Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Due to fewer numbers, the transplant centre was not included as a strata and national results have been demonstrated."]]
+    [:h5 "Five-year living donor post-transplant graft survival"]
+    [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up."]
+    [:p "The following factors were found to be significant and included in the model; recipient age, waiting time, matchability, donor age, HLA MM level."]]
 
-   [:h4 "Input factors"]
-   [:p "Explanation of donor and recipient input covariates:"]
-   [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
-   [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender."]
-   [:p [:b "Recipient ethnicity"] " - Asian, Black Chinese, Mixed, White, Other."]
-   [:p [:b "Recipient waiting time (years)"] " - Time waiting on deceased donor kidney waiting list until time of transplant (active and suspended).  This can serve as a proxy for ‘time on dialysis’ as most patients are either already on dialysis or due to commence dialysis within 6 months at the time of listing for transplantation."]
-   [:p [:b "Previous Kidney Transplant?"] " - Yes or No"]
-   [:p [:b "Highly sensitised (cRF >85%)"] "- any antibodies in the blood – e.g. as a result of pregnancy or a previous organ transplant."]
-   [:p [:b "Blood group"] " - Patient’s blood group: O, A, B, AB"]
-   [:p [:b "Dialysis at registration"] " - Refers to any form of dialysis (peritoneal or haemodialysis) at the time of listing for transplantation."]
-   [:p [:b "Matchability"] " - Whether due to a range of factors, such as blood group, it will be ‘easy’, ‘moderate’, or ‘difficult’ to find a matching organ.  The ODT provides further details on how this is calculated and a tool for calculating matchability for individual patients: https://www.odt.nhs.uk/transplantation/tools-policies-and-guidance/calculators/ "]
-   [:p [:b "Donor age"] " - The age at which the donor donated their organs."]
-   [:p [:b "Donor BMI"] " - Donor BMI as recorded at the donating hospital site. Calculated as weight (kilograms) divided by height (m" [:sup "2"] ")"]
-   [:p [:b "Donor Hypertension"] " - Whether the donor suffered from high blood pressure as recorded by NHSBT on data collection forms at the time of donation."]
-   [:p [:b "HLA MM level"] " - Human Leukocyte Antigen (HLA) matching level.  HLA are proteins located on the surface of white blood cells and other tissues. When people share the same HLA’s, they are said to be a ‘match’. There are may different types of HLA, and the matching can occur to different degrees, hence the different levels of matching. "]
-   [:p [:b "Transplant Centre"] " - This refers to which of the 23 UK adult kidney transplant centres the patient will be receiving their transplant.  (This is not always the dialysis centre at which they are followed up)."]
+   [::section {:style {:border-bottom "1px #337777 solid"
+                       :margin-bottom  20}}
+    [:h4 "Input factors"]
+    [:p "Explanation of donor and recipient input covariates:"]
+    [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
+    [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender."]
+    [:p [:b "Recipient ethnicity"] " - Asian, Black Chinese, Mixed, White, Other."]
+    [:p [:b "Recipient waiting time (years)"] " - Time waiting on deceased donor kidney waiting list until time of transplant (active and suspended).  This can serve as a proxy for ‘time on dialysis’ as most patients are either already on dialysis or due to commence dialysis within 6 months at the time of listing for transplantation."]
+    [:p [:b "Previous Kidney Transplant?"] " - Yes or No"]
+    [:p [:b "Highly sensitised (cRF >85%)"] "- any antibodies in the blood – e.g. as a result of pregnancy or a previous organ transplant."]
+    [:p [:b "Blood group"] " - Patient’s blood group: O, A, B, AB"]
+    [:p [:b "Dialysis at registration"] " - Refers to any form of dialysis (peritoneal or haemodialysis) at the time of listing for transplantation."]
+    [:p [:b "Matchability"] " - Whether due to a range of factors, such as blood group, it will be ‘easy’, ‘moderate’, or ‘difficult’ to find a matching organ.  The ODT provides further details on how this is calculated and a tool for calculating matchability for individual patients: https://www.odt.nhs.uk/transplantation/tools-policies-and-guidance/calculators/ "]
+    [:p [:b "Donor age"] " - The age at which the donor donated their organs."]
+    [:p [:b "Donor BMI"] " - Donor BMI as recorded at the donating hospital site. Calculated as weight (kilograms) divided by height (m" [:sup "2"] ")"]
+    [:p [:b "Donor Hypertension"] " - Whether the donor suffered from high blood pressure as recorded by NHSBT on data collection forms at the time of donation."]
+    [:p [:b "HLA MM level"] " - Human Leukocyte Antigen (HLA) matching level.  HLA are proteins located on the surface of white blood cells and other tissues. When people share the same HLA’s, they are said to be a ‘match’. There are may different types of HLA, and the matching can occur to different degrees, hence the different levels of matching. "]
+    [:p [:b "Transplant Centre"] " - This refers to which of the 23 UK adult kidney transplant centres the patient will be receiving their transplant.  (This is not always the dialysis centre at which they are followed up)."]]
 
-   (maths-section)])
+   (maths-section)
+   (web-development-section)])
 
 (defn tech-page
   "Display a generic home page. 
@@ -540,7 +585,7 @@ Data from adult (aged 18 or more) patients only have been used to develop these 
     (if mdata
       [ui/page (str " Legal ")
        [ui/row
-        [ui/col
+        [:> bs/Col {:md {:span 8 :offset 2}}
          [:h4 "Disclaimer"]
          [:p "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
 

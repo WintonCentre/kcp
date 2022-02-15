@@ -21,7 +21,7 @@
 
 (comment
   ;;
-  ;; NB These tests have been overtaken by events. NHSBT changed the model again
+  ;; NB These tests have been overtaken by events. The model changed 
   ;;
 
   ;; set up a test case to chase age discrepancy)

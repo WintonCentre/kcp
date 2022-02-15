@@ -42,15 +42,13 @@ in the routes table."
    (rfe/href k params query)))
 
 (comment
-  (href :transplants.views/organ {:organ "kidney"})
-  )
+  (href :transplants.views/organ {:organ "kidney"}))
 
 (defn loading
   "The page is loading"
   []
   [:div {:style {:display "flex" :flex-direction "column" :justify-content "space-around"}}
-   [:h1 "Loading"]]
-  )
+   [:h1 "Loading"]])
 
 (defn get-single-organ
   "extract the single organ or if not single then nil from metadata"
@@ -62,7 +60,6 @@ in the routes table."
       :lung ; till we do that, select lung
       )))
 
-(declare goog.object.set)
 (def oset goog.object.set)
 
 (defn load-favicon
@@ -76,14 +73,12 @@ in the routes table."
             link (js/document.createElement "link")]
         (oset link "rel" "icon")
         (oset link "href" logo)
-        (.appendChild head link)))
-    )) 
+        (.appendChild head link)))))
 
 
 (comment
   (def link (js/document.querySelector "link[rel~='icon']"))
-  (def logo "/assets/logo_kidney_192.png")
-  )
+  (def logo "/assets/logo_kidney_192.png"))
 
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
@@ -97,7 +92,7 @@ in the routes table."
         ; but in production each site will have only a single organ. 
         single-organ (get-single-organ mdata)
         organ-centres @(rf/subscribe [::subs/organ-centres])]
-    
+
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded. If it isn't yet the navbar will rerender.
       (let [logo (str "/assets/logo_" (name single-organ) "_192.png")
             favicon (str "/assets/favicon_" (name single-organ) ".png")]
@@ -164,26 +159,24 @@ in the routes table."
                             (filter #(not= (:name %) "UK") centres))))))]]])
       [loading])))
 
-(comment 
+(comment
   (keys @(rf/subscribe [::subs/organ-centres]))
   @(rf/subscribe [::subs/organ-centre])
   (transplants.ui/href :transplants.views/organ-centres {:organ (name :kidney)
-                                         :centre "card"})
-  )
+                                                         :centre "card"}))
 
 (defn footer
   "Site footer. 
    todo: Needs to be made configurable."
   []
   [:div.footer {:style {:width "100%"  :background-color "black" :color "white"
-                :align-items "center" :justify-content "center"}}
+                        :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "15px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
-    [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}] 
+    [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}]
     [:p [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence. Communication.  
                      It currently displays models disclosed by NHSBT under a data sharing agreement.  
                      It was developed with transplant patients and their partners and clinical teams  
-                     at transplant and referral centres in England. "]
-    ]])
+                     at transplant and referral centres in England. "]]])
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
@@ -197,14 +190,13 @@ in the routes table."
         (when-not is-full-screen [footer])])
      (when-not is-full-screen [navbar {:router router
                                        :current-route current-route}])
-     (bsio/modal #(rf/subscribe [::subs/modal-data]))
-     ]))
+     (bsio/modal #(rf/subscribe [::subs/modal-data]))]))
 
 (defn card-page
   "Render an array of cards"
   [title & children]
   [container {:key 1 :style {:margin-top 40;
-                             :min-height "calc(100vh - 144px"}}  
+                             :min-height "calc(100vh - 144px"}}
    [row
     [col
      (if (> @(rf/subscribe [:transplants.subs/window-width]) 441)
@@ -232,27 +224,26 @@ in the routes table."
                                        :tool tool}])}
      label])
   #_(let [active (= (name tool) active-tool)
-        tab @(rf/subscribe [::subs/selected-vis])]
-    [button {:id (str (name organ) "-" (name centre) "-" (name key))
-             :variant (if active button-type (str "outline-" button-type))
-             :style {:margin-bottom 2
-                     :margin-right 0}
-             :active active
-             :key key
-             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
-                                      {:organ organ
-                                       :centre centre
-                                       :tool tool
-                                       :tab (if tab tab :bars)}])}
-     label]))
+          tab @(rf/subscribe [::subs/selected-vis])]
+      [button {:id (str (name organ) "-" (name centre) "-" (name key))
+               :variant (if active button-type (str "outline-" button-type))
+               :style {:margin-bottom 2
+                       :margin-right 0}
+               :active active
+               :key key
+               :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
+                                        {:organ organ
+                                         :centre centre
+                                         :tool tool
+                                         :tab (if tab tab :bars)}])}
+       label]))
 
 (comment
   (rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
                 {:organ :kidney
                  :centre "birm"
                  :tool :survival
-                 :tab "bars"}])
-  )
+                 :tab "bars"}]))
 
 (defn background-link
   "Tool menu prefix rubric."
@@ -285,13 +276,12 @@ in the routes table."
                        :active-tool active-tool
                        :key (str organ-name "-" tool)
                        :mdata mdata))
-                    (if include-guidance? tools (remove #(= :guidance %) tools)))
-        ]
+                    (if include-guidance? tools (remove #(= :guidance %) tools)))]
     ;(?-> active-tool ::active-tool)
     ;(?-> tools ::tools-menu)
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!
-    [:<> 
+    [:<>
      [row
       [col {:xs 12 :sm 8}
        [:h3 {:style {:padding-right 20}} "Choose a tool:"]
@@ -308,9 +298,7 @@ in the routes table."
         (partition-by :button-type (butlast menu-data)))]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
-       [background-link organ-name centre-name active-tool]
-       ]]])
-       )
+       [background-link organ-name centre-name active-tool]]]]))
 
 
 
@@ -329,17 +317,16 @@ in the routes table."
      ;;
      [:a {:href "#" #_(apply rfe/href link) ; Disable link to an organ/centre home page
           :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                         {:organ organ
-                          :centre centre
-                          :tool (first tools)}])} 
+                                   {:organ organ
+                                    :centre centre
+                                    :tool (first tools)}])}
       hospital]]
-    [tools-menu tools false organ centre {:vertical true}]
-    ]])
+    [tools-menu tools false organ centre {:vertical true}]]])
 
 (defn phone-card
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
   [{:keys [hospital _link organ centre tools]}]
-  
+
   ;(println ::phone "PHONE!!!")
   [:> bs/ListGroup.Item {:action true
                          ;:href (apply rfe/href link)
@@ -386,8 +373,8 @@ in the routes table."
   "A single card describing a centre"
   [_mobile params]
   #_(if mobile
-    [phone-card params]
-    [nav-card params])
+      [phone-card params]
+      [nav-card params])
   ; Always use phone format
   [phone-card params])
 
@@ -439,6 +426,6 @@ in the routes table."
                        ;:on-change identity
                        :read-only true
                        :checked @(rf/subscribe [::subs/randomise-icons])}]
-    [:> bs/Form.Label 
+    [:> bs/Form.Label
      label]]])
 

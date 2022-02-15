@@ -249,13 +249,7 @@
         disclosed by NHSBT under a data sharing agreement."]
    [:p "We wisk to thank all the transplant patients and their partners, 
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
-  #_[:<>
-     [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions."]
-     [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional."]
-     [:p "Only adult (aged ≥16 years) patients have been used to the develop the tool; it is not suitable for paediatric patients due to the small number of patients involved which would not generate robust models. Patients who were not eligible for National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on a paediatric waiting list were not included. Patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration were also not included. The results from the tool will therefore not be suitable for patients from outside the UK or for those patients who fall outside these inclusion criteria."]
-     [:p "This tool has been developed using retrospective registry data (Section 2.2). Changes to the UK Lung Offering Scheme in May 2017 are not reflected in these models and hence results presented will not be meaningful for patients registered on the Urgent or Super-Urgent Lung Offering Scheme. "]
-     [:h4 "Who built this tool"]
-     [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]])
+  )
 
 (defn kidney-about-content
   []
@@ -307,13 +301,7 @@
    [:p "We wisk to thank all the transplant patients and their partners, 
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]
 
-   #_[:div "...going spare"
-      [:p "The tool has been designed to be used by clinicians with patients and their families. It is a communication tool and should not be used by itself to make decisions. "]
-      [:p {:style {:color "red"}} "Patients should use the tool in consultation with a medical professional.
-Data from adult (aged 18 or more) patients only have been used to develop these tools, and they are not suitable for paediatric patients."]
-      [:p "The data used to develop this site has been developed patients registered for deceased donor kidney transplants in the UK, or who have received a deceased donor kidney-only transplant in the UK so will not be suitable for patients from other countries." [:span {:style {:color "red"}} " Patients registered on another organ transplant list (e.g. pancreas list) either before, during or after their kidney registration were also not included."] " The results from the tool will therefore not be suitable for those patients who fall outside these inclusion criteria."]
-      [:h4 "Who built this tool"]
-      [:p "Development of the statistical models was undertaken by the NHS Blood and Transplant (NHSBT) Statistics and Clinical Studies team. This website has been built by the Winton Centre for Risk & Evidence Communication at the University of Cambridge who are funded by a generous donation from the David and Claudia Harding Foundation."]]])
+  ])
 
 ;;; Views ;;;
 (defn about-page

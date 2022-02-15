@@ -137,7 +137,7 @@
   (pprint (param-map options)))
 
 (defn valid-r-tool-address
-  "We limit tool addresses to those that are used in the front-end and also in the NHSBT provided R files
+  "We limit tool addresses to those that are used in the front-end and also in the canonical R files
    Note that the ldxxxx tools are UK wide rather than locally centred"
   [{:keys [centre organ tool]}]
 
@@ -169,7 +169,7 @@
   "Read in a tool bundle as configured in xlsx given the tool address. 
    This assumes you have first run `bb config` to generate the edn text file containing
    the bundle.
-   We limit tool addresses to those that are used in the front-end and also in the NHSBT provided R files
+   We limit tool addresses to those that are used in the front-end and also in the canonical R files
    Note that the ldxxxx tools are UK wide rather than locally centred"
   [tool-address]
   ;{:pre [(valid-r-tool-address tool-address)]}

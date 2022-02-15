@@ -62,6 +62,29 @@ in the routes table."
       :lung ; till we do that, select lung
       )))
 
+(declare goog.object.set)
+(def oset goog.object.set)
+
+(defn load-favicon
+  "Trying to generate <link href=\"/assets/logo_kidney_192.png\" rel=\"icon\"> in header,
+  but favicon should match the organ."
+  [logo]
+  (let [link (js/document.querySelector "link[rel~='icon']")]
+    (if link
+      (oset link "href" logo)
+      (let [head (first (js/document.getElementsByTagName "head"))
+            link (js/document.createElement "link")]
+        (oset link "rel" "icon")
+        (oset link "href" logo)
+        (.appendChild head link)))
+    )) 
+
+
+(comment
+  (def link (js/document.querySelector "link[rel~='icon']"))
+  (def logo "/assets/logo_kidney_192.png")
+  )
+
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
   [{:keys [router current-route]}]
@@ -73,69 +96,72 @@ in the routes table."
         ; organ-order gives us the list of configured organ tools, in-order. In development we may have more than one organ,
         ; but in production each site will have only a single organ. 
         single-organ (get-single-organ mdata)
-        logo (str "/assets/logo_" (name single-organ) "_192.png")
         organ-centres @(rf/subscribe [::subs/organ-centres])]
-    (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
-      [:> bs/Navbar {#_#_:bg "dark" :expand "md" #_#_:fixed "top"
-                     :variant "dark"
-                     :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
-       [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
+    
+    (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded. If it isn't yet the navbar will rerender.
+      (let [logo (str "/assets/logo_" (name single-organ) "_192.png")
+            favicon (str "/assets/favicon_" (name single-organ) ".png")]
+        (load-favicon favicon)
+
+        [:> bs/Navbar {#_#_:bg "dark" :expand "md" #_#_:fixed "top"
+                       :variant "dark"
+                       :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
+         [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
      ; Site name below 
-       [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
-                        :organ (name organ)
-                        :href (href :transplants.views/organ {:organ (name organ)})}
-        [:div {:style {:font-size "1.5em"}}
-         (if single-organ
-           (str (get-in mdata [single-organ :label]) " Transplant Tool")
-           "Development Site")]]
-       [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
-       [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
+         [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
+                          :organ (name organ)
+                          :href (href :transplants.views/organ {:organ (name organ)})}
+          [:div {:style {:font-size "1.5em"}}
+           (if single-organ
+             (str (get-in mdata [single-organ :label]) " Transplant Tool")
+             "Development Site")]]
+         [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
+         [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
 
-        [:> bs/Nav {:active-key (if organ (name organ) "home")
+          [:> bs/Nav {:active-key (if organ (name organ) "home")
                  ;:class "mr-auto" :style {:height "100%" :vertical-align "middle"}
-                    }
-         [:> bs/Nav.Link {:style {:font-size "1.2em"}
-                          :event-key :home
-                          :href (href :transplants.views/home)
-                          :class-name (when (= :transplants.views/home (get-in route [:data :name])) "active")
-                          } "Home"]
-         [:> bs/Nav.Link {:style {:font-size "1.2em"}
-                          :event-key :about
-                          :href (href :transplants.views/about)
-                          :class-name (when (= :transplants.views/about (get-in route [:data :name])) "active")} "About"]
-        
-         [:> bs/Nav.Link {:style {:font-size "1.2em"}
-                          :event-key :legal
-                          :href (href :transplants.views/legal)
-                          :class-name (when (= :transplants.views/legal (get-in route [:data :name])) "active")} "Legal"]
-         [:> bs/Nav.Link {:style {:font-size "1.2em"}
-                          :event-key :pubs
-                          :href (href :transplants.views/pubs)
-                          :class-name (when (= :transplants.views/pubs (get-in route [:data :name])) "active")} "Publications"]
-         [:> bs/Nav.Link {:style {:font-size "1.2em"}
-                          :event-key :tech
-                          :href (href :transplants.views/tech)
-                          :class-name (when (= :transplants.views/tech (get-in route [:data :name])) "active")} "Technical"]
-         (when organ-centres
-           (when-let [centres (organ organ-centres)]
-             (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
-               (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
-                                         :title "Transplant Centres" :id "basic-nav-dropdown"}]
-                     (map (fn [centre]
-                            [:> bs/NavDropdown.Item
-                             {:href (if tool
-                                      (href :transplants.views/organ-centre-tool
-                                            {:organ (name single-organ)
-                                             :centre (name (:key centre))
-                                             :tool (name tool)})
-                                      (href :transplants.views/organ-centre-tool
-                                            {:organ (name single-organ)
-                                             :centre (name (:key centre))
-                                             :tool "waiting"}))
-                              :key (name (:key centre))}
+                      }
+           [:> bs/Nav.Link {:style {:font-size "1.2em"}
+                            :event-key :home
+                            :href (href :transplants.views/home)
+                            :class-name (when (= :transplants.views/home (get-in route [:data :name])) "active")} "Home"]
+           [:> bs/Nav.Link {:style {:font-size "1.2em"}
+                            :event-key :about
+                            :href (href :transplants.views/about)
+                            :class-name (when (= :transplants.views/about (get-in route [:data :name])) "active")} "About"]
 
-                             (:name centre)])
-                          (filter #(not= (:name %) "UK") centres))))))]]]
+           [:> bs/Nav.Link {:style {:font-size "1.2em"}
+                            :event-key :legal
+                            :href (href :transplants.views/legal)
+                            :class-name (when (= :transplants.views/legal (get-in route [:data :name])) "active")} "Legal"]
+           [:> bs/Nav.Link {:style {:font-size "1.2em"}
+                            :event-key :pubs
+                            :href (href :transplants.views/pubs)
+                            :class-name (when (= :transplants.views/pubs (get-in route [:data :name])) "active")} "Publications"]
+           [:> bs/Nav.Link {:style {:font-size "1.2em"}
+                            :event-key :tech
+                            :href (href :transplants.views/tech)
+                            :class-name (when (= :transplants.views/tech (get-in route [:data :name])) "active")} "Technical"]
+           (when organ-centres
+             (when-let [centres (organ organ-centres)]
+               (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
+                 (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
+                                           :title "Transplant Centres" :id "basic-nav-dropdown"}]
+                       (map (fn [centre]
+                              [:> bs/NavDropdown.Item
+                               {:href (if tool
+                                        (href :transplants.views/organ-centre-tool
+                                              {:organ (name single-organ)
+                                               :centre (name (:key centre))
+                                               :tool (name tool)})
+                                        (href :transplants.views/organ-centre-tool
+                                              {:organ (name single-organ)
+                                               :centre (name (:key centre))
+                                               :tool "waiting"}))
+                                :key (name (:key centre))}
+
+                               (:name centre)])
+                            (filter #(not= (:name %) "UK") centres))))))]]])
       [loading])))
 
 (comment 

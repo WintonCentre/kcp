@@ -25,6 +25,7 @@
  :builds
  {:app {:target     :browser
         :dev {:closure-defines {transplants.routes/frag? true}}
+        :closure-defines {transplants.routes/frag? true}}
         :output-dir "resources/public/js"
         :asset-path "/js"
         ;:devtools {:preloads [re-frame-flow.preload]}

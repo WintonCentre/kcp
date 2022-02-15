@@ -63,6 +63,7 @@ function precache() {
             '/legal',
             '/pubs',
             '/tech',
+            '/js/app.js',
             '/kidney/belf/waiting',
             '/kidney/birm/waiting',
             '/kidney/bris/waiting',

@@ -25,7 +25,7 @@
  ;; to indicate what is shown. To switch the tool between kidney and lung it is only necessary to switch the keyword
  ;; in the :organ-order vector. 
 
- :organ-order [:kidney]
+ :organ-order [:lung]
 
  ;;
  ; :todo - Check - 

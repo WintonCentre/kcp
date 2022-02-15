@@ -64,21 +64,22 @@ in the routes table."
 
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
-  [{:keys [home-url logo]}]
+  [{:keys [router current-route]}]
   (let [route @(rf/subscribe [::subs/current-route])
         organ (get-in route [:path-params :organ]) ; this is nil until it has been selected
+        home-url "/"
         mdata  @(rf/subscribe [::subs/mdata])
 
         ; organ-order gives us the list of configured organ tools, in-order. In development we may have more than one organ,
         ; but in production each site will have only a single organ. 
         single-organ (get-single-organ mdata)
-        organ-centres @(rf/subscribe [::subs/organ-centres])
-        ]
+        logo (str "/assets/logo_" (name single-organ) "_192.png")
+        organ-centres @(rf/subscribe [::subs/organ-centres])]
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded
       [:> bs/Navbar {#_#_:bg "dark" :expand "md" #_#_:fixed "top"
                      :variant "dark"
                      :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
-       [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 37} :alt "Winton Centre"}]]
+       [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
      ; Site name below 
        [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
                         :organ (name organ)
@@ -88,37 +89,37 @@ in the routes table."
            (str (get-in mdata [single-organ :label]) " Transplant Tool")
            "Development Site")]]
        [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
-       [:> bs/Navbar.Collapse {:id "basic-navbar-nav" :style {:margin-left 70}}
+       [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
 
         [:> bs/Nav {:active-key (if organ (name organ) "home")
                  ;:class "mr-auto" :style {:height "100%" :vertical-align "middle"}
                     }
-         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+         [:> bs/Nav.Link {:style {:font-size "1.2em"}
                           :event-key :home
                           :href (href :transplants.views/home)
                           :class-name (when (= :transplants.views/home (get-in route [:data :name])) "active")
                           } "Home"]
-         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+         [:> bs/Nav.Link {:style {:font-size "1.2em"}
                           :event-key :about
                           :href (href :transplants.views/about)
                           :class-name (when (= :transplants.views/about (get-in route [:data :name])) "active")} "About"]
         
-         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+         [:> bs/Nav.Link {:style {:font-size "1.2em"}
                           :event-key :legal
                           :href (href :transplants.views/legal)
                           :class-name (when (= :transplants.views/legal (get-in route [:data :name])) "active")} "Legal"]
-         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+         [:> bs/Nav.Link {:style {:font-size "1.2em"}
                           :event-key :pubs
                           :href (href :transplants.views/pubs)
                           :class-name (when (= :transplants.views/pubs (get-in route [:data :name])) "active")} "Publications"]
-         [:> bs/Nav.Link {:style {:font-size "1.4em"}
+         [:> bs/Nav.Link {:style {:font-size "1.2em"}
                           :event-key :tech
                           :href (href :transplants.views/tech)
                           :class-name (when (= :transplants.views/tech (get-in route [:data :name])) "active")} "Technical"]
          (when organ-centres
            (when-let [centres (organ organ-centres)]
              (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
-               (into [:> bs/NavDropdown {:style {:font-size "1.4em"}
+               (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
                                          :title "Transplant Centres" :id "basic-nav-dropdown"}]
                      (map (fn [centre]
                             [:> bs/NavDropdown.Item
@@ -169,10 +170,7 @@ in the routes table."
         [(-> current-route :data :view)]
         (when-not is-full-screen [footer])])
      (when-not is-full-screen [navbar {:router router
-                                       :current-route current-route
-                                       :home-url "/" ;"https://lung-transplants.wintoncentre.uk"
-                                       :logo "/assets/crest.png"
-                                       :tool-name "Lung Transplants"}])
+                                       :current-route current-route}])
      (bsio/modal #(rf/subscribe [::subs/modal-data]))
      ]))
 

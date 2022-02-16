@@ -172,7 +172,7 @@ in the routes table."
   [:div.footer {:style {:width "100%"  :background-color "black" :color "white"
                         :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "15px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
-    [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}]
+    [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}]
     [:p [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence. Communication.  
                      It currently displays models disclosed by NHSBT under a data sharing agreement.  
                      It was developed with transplant patients and their partners and clinical teams  

@@ -7,7 +7,7 @@
 (defn underscore
   "replace special chars in file paths with underscore"
   [s]
-  (string/replace (if (keyword? s) (name s) s) #"-|\s+|'|\." "_"))
+  (string/replace (if (keyword? s) (name s) s) #"-|\s+|'|’|\." "_"))
 ; (underscore "St George's") => "St_George_s"
 
 

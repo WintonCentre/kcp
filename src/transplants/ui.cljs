@@ -298,6 +298,7 @@ in the routes table."
         (partition-by :button-type (butlast menu-data)))]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
+       [:p "Things you might discuss during a consultation"]
        [background-link organ-name centre-name active-tool]]]]))
 
 

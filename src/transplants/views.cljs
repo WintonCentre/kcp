@@ -56,15 +56,7 @@
         [:p "This is a communication tool. It will help patients understand risks and benefit numbers about 
              transplantation. It will help the transplant team explain these numbers by showing them in graphs and charts. "]
 
-        [:p "Results can be printed out for patients to take home"]
-
-
-        [:p "The tool will calculate:"]
-        [:ul
-         [:li "What is my likely waiting time for a transplant?"]
-         [:li "How long might I survive after a transplant?"]
-         (when (= single-organ :kidney)
-           [:li "How long might the transplant last?"])]]
+        [:p "Results can be printed out for patients to take home"]]
 
        [home-section
         [:h2 "How does it work?"]
@@ -82,11 +74,7 @@
         [:h2 "Who is this site for?"]
         [:p "People who are suitable for " (name single-organ) " transplant and who are over 18 years old."]
         (when (= single-organ :kidney)
-          [:p [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]
-
-       [home-section
-        [:h2 "Where can I find out more?"]
-        [:p "Please go to the " [:a {:href (ui/href :transplants.views/about)} "About page"] " to find out more about the tool."]]]
+          [:p [:span {:style {:color "red"}} [ui/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]]
 
       [:> bs/Col {:md 6}
        [home-section
@@ -96,15 +84,16 @@
          [:b " It is not showing what will happen to you in the future, it is showing what happened to people 
               like you in the past."]]
         [:p "The tool cannot take into account everything about you.  For example it does not currently ask 
-             about other health conditions you may have."] 
+             about other health conditions you may have."]
         [:p "There are many factors that influences how well a transplant does, for example whether you take 
              your medications correctly, your diet and whether you exercise.  Sometimes transplants don’t work 
-             and we don’t know why. If you want to know more about the data and the models behind the tool read 
+             and we don’t know why."] 
+        [:p " If you want to know more about the data and the models behind the tool read 
              the " [:a {:href (ui/href :transplants.views/tech)}  "technical section"] " of this site."]]
        [home-section
         [:h2 "Use the tool offline"]
         [:p "You need an internet connection to access the tool for the first time."] 
-        [:p "Once you have visited the site, you can access it offline."]]]
+        [:p "Provided you have visited the site once, you can revisit it from the same browser even if you are offline."]]]
 
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
        (choose-centre-nav mdata)]]])
@@ -276,7 +265,7 @@
      "Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
 "]
 
-    [:p "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"]]
+    [:p [:span {:style {:color "red"}} [ui/open-icon "warning"]] "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"]]
 
 
    [:section {:style {:border-bottom "1px #337777 solid"
@@ -911,7 +900,7 @@
                                                 :label (:medications guidances)}]
                            [useful-info-button {:active (= :graft-failure selected)
                                                 :event [::events/guidance :graft-failure]
-                                    
+
                                                 :label (:graft-failure guidances)}]]]
 
        (= organ :lung) [ui/col {:md 4}
@@ -937,11 +926,19 @@
                                               :label (:window guidances)}]]])
      [ui/col {:md 8}
       [:div {:style {:margin-top 40}}
-       (show-guidance {:info-key @(rf/subscribe [::subs/guidance])})]]]))
+       (show-guidance {:info-key @(rf/subscribe [::subs/guidance])})
+       [:> bs/Row 
+        [:> bs/Col {:md {:span 5}
+                    :style {:border "3px solid #336677"
+                            :border-radius 3
+                            :padding-top 20}}
+         [:p [:b [:span {:style {:color "red"}} (ui/open-icon "wrench")] " UNDER CONSTRUCTION!"]]
+         [:p "Please tell us what you would like to see here."]
+         [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")] [:a {:href "mailto:Leila.finikarides@maths.cam.ac.uk?subject=Useful%20Information%20Feedback"} " Email us"]]]]]]]]))
 
 
 
-(comment
+  (comment
     (def organ "kidney")
     (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
     (paths/organ-centre-name-tool organ
@@ -1006,37 +1003,15 @@
             [ui/col {:xs 12}
              [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
             (when-not is-full-screen [ui/col {:xs 12 :md 6
-                                              :style {:margin-top 10}}
+                                              :style {:margin-top 10
+                                                      #_#_:height "calc(100vh + 7ex)"
+                                                      #_#_:overflow-y "scroll"}}
 
                                       (when-let [input-header (get-in tool-mdata [:inputs :header])]
                                         input-header)
-                                      [:p "This tool cannot take into account all the factors about you that might affect the result. 
-                                           We hope to include more in the future. "] 
-                                      [:p "Click below to find out more about those we have considered but are not in the tool."]
-                                      [:p
-                                       [:> bs/Button {:size "sm"
-                                                      :variant "outline"
-                                                      :class-name "more"
-                                                      :title "Factors considered but not included"
-                                                      :style {:margin-left 0}
-                                                      :on-click (fn [_e]
-                                                                  (rf/dispatch [::events/modal-data
-                                                                                {:show true
-                                                                                 :title "Factors considered but not included"
-                                                                                 :content (factors-not-included mdata)
-                                                  ;:content (edn/read-string (:info-box? w))
-                                                                                 :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
-                                                                  #_(?-> {:show true
-                                                                          :title "Factors considered but not included"
-                                                                          :content (factors-not-included mdata)
-                                                                          #_(str "Some text for " (:factor-name w))
-                                                                          :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
-                                                                         ::radio))}
-                                        [:span "Show factors considered but not included"]]]
+                                      
 
-                                      [:div {:style {:padding "0px 30px 15px 15px"
-                                                     :height "calc(100vh + 10ex)"
-                                                     :overflow-y "scroll"}}
+                                      [:div {:style {:padding "0px 30px 15px 15px"}}
 
                                        (widg/widget {:type :reset})
 
@@ -1060,7 +1035,31 @@
                                                   (widg/widget (assoc w :model tool))]
                                                  [:div {:style {:height 10}}]])
 
-                                              tcb-fmaps))]])
+                                              tcb-fmaps))]
+                                              [:<>
+                                               [:p "This tool cannot take into account all the factors about you that might affect the result. 
+                                           We hope to include more in the future. "]
+                                               [:p "Click below to find out more about those we have considered but are not in the tool."]
+                                               [:p
+                                                [:> bs/Button {:size "sm"
+                                                               :variant "outline"
+                                                               :class-name "more"
+                                                               :title "Factors considered but not included"
+                                                               :style {:margin-left 0}
+                                                               :on-click (fn [_e]
+                                                                           (rf/dispatch [::events/modal-data
+                                                                                         {:show true
+                                                                                          :title "Factors considered but not included"
+                                                                                          :content (factors-not-included mdata)
+                                                  ;:content (edn/read-string (:info-box? w))
+                                                                                          :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
+                                                                           #_(?-> {:show true
+                                                                                   :title "Factors considered but not included"
+                                                                                   :content (factors-not-included mdata)
+                                                                                   #_(str "Some text for " (:factor-name w))
+                                                                                   :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
+                                                                                  ::radio))}
+                                                 [:span "Show factors considered but not included"]]]]])
             [ui/col {:xs 12 :md (if is-full-screen 12 6)}
              (when-not is-full-screen
                [:section {:style {:margin-top 10}} (:pre-section tool-mdata)])
@@ -1068,15 +1067,13 @@
 
               [results/results-panel {:organ organ :centre centre :tool tool}]
               #_[fs/full-screen-wrapper
-               results/results-panel {:organ organ :centre centre :tool tool}]
+                 results/results-panel {:organ organ :centre centre :tool tool}]
 
 
 
 
-              (:rest-of-page tool-mdata)
-              #_(let [tool-mdata (get-in @(rf/subscribe [::subs/mdata])
-                                         [organ :tools tool])]
-                  (:rest-of-page tool-mdata))]]])
+              (:rest-of-page tool-mdata)]]])
+         
          (if (= tool :guidance)
            [guidance organ]
            (let [path (paths/organ-centre-name-tool organ-name

@@ -171,9 +171,10 @@
                 :active-key (:selected-vis env)
                 :on-select #_#(rf/dispatch [::events/selected-vis %])
                   #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
-                                {:organ :kidney
-                                 :centre "birm"
-                                 :tool :survival
+                                 (assoc path :tab %)
+                                #_{:organ :kidney
+                                 :centre centre
+                                 :tool tool
                                  :tab %}])}
        [ui/tab {:event-key "bars" :title "Bar Chart"}
         [vis/bar-chart env]]

@@ -1,6 +1,7 @@
 /assets/*       /assets/:splat
 /css/*          /css/:splat
 /js/*           /js/:splat
+/*/*.*          /*/*.*
 # /intro          /index.html     200!
 # /data           /index.html     200!
 # /faqs           /index.html     200!

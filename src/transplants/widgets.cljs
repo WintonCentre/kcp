@@ -71,7 +71,9 @@
   [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
    [:> bs/Col {:xs label-width}]
    [:> bs/Col {:xs widget-width}
-    (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})]])
+    [:span
+     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})
+     (bsio/print-button)]]])
 
 (defn radio
   [{:keys [factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]

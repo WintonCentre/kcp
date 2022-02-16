@@ -39,6 +39,17 @@
   color: white;
 }
 
+.btn-danger {
+  background-color: red;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-danger:hover {
+  color: white;
+}
+
 .btn-outline-primary {
   background-color: rgba(51, 102, 119, 0.4);
   border: 4px solid #ffffff66;

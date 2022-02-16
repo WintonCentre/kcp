@@ -386,15 +386,7 @@ in the routes table."
     [:> bs/ListGroup]
     [:> bs/CardDeck]))
 
-(defn open-icon
-  "wrapper for access open-icon access"
-  ([name]
-   (open-icon nil name))
-  ([style name]
-   [:span (assoc {:class (str "oi oi-" name)
-                  :title name
-                  :aria-hidden "true"}
-                 :style style)]))
+(def open-icon bs/open-icon)
 
 ; radio buttons allow fast selection between options
 (defn test-day-selector

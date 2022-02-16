@@ -8,6 +8,15 @@ where we can work on defining a common interface. "
 
 (def missing-color "#ff0000")
 
+(defn open-icon
+  "wrapper for access open-icon access"
+  ([name]
+   (open-icon nil name))
+  ([style name]
+   [:span (assoc {:class (str "oi oi-" name)
+                  :title name
+                  :aria-hidden "true"}
+                 :style style)]))
 (comment
 
   (defn example
@@ -135,6 +144,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                  :id "reset"
                  :style {:margin-bottom 10}
                  :on-click on-click} "Reset all"])
+(defn print-button
+  []
+  [:> bs/Button {:variant "primary" ;"secondary"
+                 :id "print-button"
+                 :style {:margin-bottom 10}
+                 :on-click #(js/print)} [:span (open-icon "print") " Print results"]])
 
 (comment
   ; white border when there is a value

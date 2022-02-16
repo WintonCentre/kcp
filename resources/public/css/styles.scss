@@ -47,6 +47,18 @@ $primary: #336677;
     }
 }
 
+.btn-danger {
+    background-color: red;
+    border-radius: 20px;
+    //font-weight: bold !important;
+    font-size: 1.2rem;
+    color: white;
+    margin-right: 25px;
+    &:hover {
+        color: white;
+    }
+}
+
 // Tool variant colours
 $header: #337777;
 $waiting: #4866CB;

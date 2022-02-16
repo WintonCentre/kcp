@@ -336,12 +336,12 @@ function precache() {
             '/kidney/edn/Sheffield/tools.txt',
             '/kidney/edn/Sheffield/waiting.txt',
 
-            // '/kidney/edn/St_George\'s.txt',
-            // '/kidney/edn/St_George\'s/centres.txt',
-            // '/kidney/edn/St_George\'s/graft.txt',
-            // '/kidney/edn/St_George\'s/survival.txt',
-            // '/kidney/edn/St_George\'s/tools.txt',
-            // '/kidney/edn/St_George\'s/waiting.txt',
+            '/kidney/edn/St_George_s.txt',
+            '/kidney/edn/St_George_s/centres.txt',
+            '/kidney/edn/St_George_s/graft.txt',
+            '/kidney/edn/St_George_s/survival.txt',
+            '/kidney/edn/St_George_s/tools.txt',
+            '/kidney/edn/St_George_s/waiting.txt',
 
             '/kidney/edn/The_Royal_Free.txt',
             '/kidney/edn/The_Royal_Free/centres.txt',

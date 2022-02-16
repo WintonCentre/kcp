@@ -94,7 +94,7 @@ in the routes table."
         organ-centres @(rf/subscribe [::subs/organ-centres])]
 
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded. If it isn't yet the navbar will rerender.
-      (let [logo (str "/assets/logo_" (name single-organ) "_192.png")
+      (let [logo (str "/assets/crest.png")
             favicon (str "/assets/favicon_" (name single-organ) ".png")]
         (load-favicon favicon)
 

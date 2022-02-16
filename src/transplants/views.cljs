@@ -199,13 +199,13 @@
       [ui/page (str "Publications")
        [ui/row
         (condp = single-organ
-          :lung [:> bs/Col {:md {:span 8 :offset 2}}
+          :lung [:> bs/Col
                  [:p "Annual Report on Cardiothoracic Transplantation 2019/2020. NHS Blood and Transplant."
                   [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf." :target "_blank"}
                    "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf."] " Published 2020. Accessed 01/03/2021"]
                  [:p
                   "Kourliouros A Hogg R Mehew J et al. Patient outcomes from time of listing for lung transplantation in the UK: are there disease-specific differences? Thorax 2019 ;74:60-68. Breslow N. E. (1972) “Discussion of Professor Cox’s Paper” J. Royal Stat. Soc. B 34 216 –217."]]
-          :kidney [:> bs/Col {:md {:span 8 :offset 2}}
+          :kidney [:> bs/Col
                    [:p "NHSBT organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ")"]
                    [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
           :else [ui/col [:p "None."]])]]
@@ -253,7 +253,7 @@
 
 (defn kidney-about-content
   []
-  [:> bs/Col {:md {:span 8 :offset 2}}
+  [:<>
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
@@ -316,8 +316,14 @@
     ;(locals)
 
     (if mdata
-      [ui/page (str " About the " (string/capitalize (name single-organ)) " tool")
-       [ui/row
+      [ui/page (str "About the " (string/capitalize (name single-organ)) " tool")
+       (condp = single-organ
+         :lung
+         [lung-about-content]
+         :kidney
+         [kidney-about-content]
+         :else [:div])
+       #_[ui/row
         (condp = single-organ
           :lung [ui/col
                  [lung-about-content]]
@@ -458,7 +464,7 @@
 
 (defn kidney-tech-content
   []
-  [:> bs/Col {:md {:span 8 :offset 2}}
+  [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h3 "Model development"]
@@ -548,13 +554,11 @@
     ;(locals)
 
     (if mdata
-      [ui/page (str " Technical Details for the " (string/capitalize (name single-organ)) " tool")
+      [ui/page (str "Technical Details for the " (string/capitalize (name single-organ)) " tool")
        [ui/row
         (condp = single-organ
-          :lung [ui/col
-                 [lung-tech-content]]
-          :kidney [ui/col
-                   [kidney-tech-content]]
+          :lung [lung-tech-content]
+          :kidney [kidney-tech-content]
           :else [:div])]]
       [ui/loading])))
 
@@ -573,7 +577,7 @@
     (if mdata
       [ui/page (str " Legal ")
        [ui/row
-        [:> bs/Col {:md {:span 8 :offset 2}}
+        [:> bs/Col
          [:h4 "Disclaimer"]
          [:p "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
 

@@ -346,7 +346,7 @@ in the routes table."
                        :max-width 2000 ;todo: adjust for side margins
                        :margin-bottom 20}}
     [row
-     [col
+     [:> bs/Col {:md {:span 8 :offset 2}}
       [:h1 {:style {:margin-top 20 :font-size "2em"}} title]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 

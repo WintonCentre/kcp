@@ -6,7 +6,7 @@
 
 (defn prefix
   [organ]
-  (str (name organ) slash "edn" slash))
+  (str slash (name organ) slash "edn" slash))
 
 
 (def metadata-path (str slash "metadata.edn"))

@@ -30,8 +30,8 @@
         :asset-path "/js"
         ;:devtools {:preloads [re-frame-flow.preload]}
         :compiler-options {:optimizations  :advanced
-                           :pseudo-names true
-                           :pretty-print true
+                           ;:pseudo-names true
+                           ;:pretty-print true
                            :output-wrapper false}
         :modules {:app {:init-fn transplants.core/init}}}
 

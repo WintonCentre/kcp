@@ -941,7 +941,10 @@
                             :padding-top 20}}
          [:p [:b [:span {:style {:color "red"}} (ui/open-icon "wrench")] " UNDER CONSTRUCTION!"]]
          [:p "Please tell us what you would like to see here."]
-         [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")] [:a {:href "mailto:Leila.finikarides@maths.cam.ac.uk?subject=Useful%20Information%20Feedback"} " Email us"]]]]]]]]))
+         [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")]
+                           [:a {:href (str "mailto:" (if (= organ :lung) "lung" "kidney") "transplants@statslab.cam.ac.uk?subject=Useful%20Information%20Feedback")} " Email us"]
+
+              #_[:a {:href "mailto:Leila.finikarides@maths.cam.ac.uk?subject=Useful%20Information%20Feedback"} " Email us"]]]]]]]]))
 
 
 

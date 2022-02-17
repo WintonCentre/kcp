@@ -386,7 +386,7 @@ in the routes table."
     [:> bs/ListGroup]
     [:> bs/CardDeck]))
 
-(def open-icon bs/open-icon)
+(def open-icon bsio/open-icon)
 
 ; radio buttons allow fast selection between options
 (defn test-day-selector

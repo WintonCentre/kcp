@@ -3,9 +3,6 @@
             ;[shadow.debug :refer [?->]]
             ))
 
-;; Define this in shadow build :closure-defines to select just one organ
-(goog-define ORGAN "")
-
 (defn filled-in?
   "Does a field contain something?"
   [field]
@@ -61,14 +58,14 @@
 (def month (/ year 12))
 (def week 7)
 
-(defn day->week 
+(defn day->week
   [d] (js/Math.ceil (/ d week)))
 (defn day->month
   [d] (js/Math.ceil (/ d month)))
 (defn day->quarter
   [d] (js/Math.ceil (/ d quarter)))
 
-                  
+
 (defn day-in?
   "Given an x and an accessor function for day in x, discover whether the day is within given period of days"
   [get-day period]
@@ -165,13 +162,13 @@
        ))
 
 #_(defn baseline-cif-outcome-keys
-  "extract the outcome-keys used in a raw baseline-cifs table, eliminating the cif- prefix"
-  [baseline-cifs]
-  (->> baseline-cifs
-       first
-       keys
-       (map name)
-       (filter #(string/starts-with? % "cif"))
+    "extract the outcome-keys used in a raw baseline-cifs table, eliminating the cif- prefix"
+    [baseline-cifs]
+    (->> baseline-cifs
+         first
+         keys
+         (map name)
+         (filter #(string/starts-with? % "cif"))
        ;(map #(subs % 4))
-       (map keyword)))
+         (map keyword)))
 

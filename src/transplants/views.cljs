@@ -3,6 +3,7 @@
    [clojure.string :as string]
    [re-frame.core :as rf]
    ["react-bootstrap" :as bs]
+   [transplants.bsio :as bsio]
    [transplants.bundles :as bun]
    [transplants.utils :as utils]
    [transplants.subs :as subs]
@@ -25,6 +26,11 @@
   [& content]
   (into [:section {:class-name "home-section"}]
         content))
+
+(comment
+  
+  
+  )
 
 (defn choose-centre-nav
   [mdata]
@@ -74,7 +80,7 @@
         [:h2 "Who is this site for?"]
         [:p "People who are suitable for " (name single-organ) " transplant and who are over 18 years old."]
         (when (= single-organ :kidney)
-          [:p [:span {:style {:color "red"}} [ui/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]]
+          [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]]
 
       [:> bs/Col {:md 6}
        [home-section

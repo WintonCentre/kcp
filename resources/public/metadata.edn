@@ -299,7 +299,7 @@
                           :rest-of-page [:section
                                          [:p "We’re only showing up to 5 years because after that period, we can’t be sure about the data, 
                                               other factors come into play such as other health conditions. The data becomes too unreliable 
-                                              after 5 years. Your doctor can talk to you about this in more detail
+                                              after 3 years. Your doctor can talk to you about this in more detail
 "]]}
 
                 :post-transplant {:button-type "survival"

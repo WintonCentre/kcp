@@ -134,7 +134,8 @@
            [ui/col {:md 8 :style {:color "#fff"}}
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
             [:p [:b "The tool should be used with a transplant doctor, specialist nurse or other healthcare professional."]] 
-            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your transplant or dialysis team."]]]]]
+            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your transplant" 
+                 (if (= organ :kidney) " or dialysis" "") " team."]]]]]
          (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
          [ui/row
           [ui/col

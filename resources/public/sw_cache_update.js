@@ -27,16 +27,37 @@ self.addEventListener('install', function(evt) {
 //     evt.waitUntil(update(evt.request));
 // });
 
+// self.addEventListener('fetch', event => {
+//     // Prevent the default, and handle the request ourselves.
+//     event.respondWith(async function() {
+//         // Try to get the response from a cache.
+//         const cachedResponse = await caches.match(event.request);
+//         // Return it if we found one.
+//         if (cachedResponse) return cachedResponse;
+//         // If we didn't find a match in the cache, use the network.
+//         return fetch(event.request);
+//     }());
+// });
+
 self.addEventListener('fetch', event => {
     // Prevent the default, and handle the request ourselves.
     event.respondWith(async function() {
-        // Try to get the response from a cache.
+        // Try to get the response from a cache, caching a fallback one as well
+        // console.log('Testing the cached response.');
         const cachedResponse = await caches.match(event.request);
         // Return it if we found one.
         if (cachedResponse) return cachedResponse;
-        // If we didn't find a match in the cache, use the network.
-        return fetch(event.request);
-    }());
+        // If we didn't find a match in the cache, use the network and catch errors (but not 4xx or 5xx valid errors)
+        // console.log('Testing the network.');
+        try {
+            const networkResponse = await fetch(event.request);
+            if (networkResponse) return networkResponse;
+        } catch (error) {
+            // console.log('No cache and network makes an error, redirecting to index.html...', error);
+            const cachedFallback = await caches.match('index.html');
+            return cachedFallback;
+        }
+    }())
 });
 
 // different fetch

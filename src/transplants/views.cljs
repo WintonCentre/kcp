@@ -589,7 +589,7 @@
               system, and it is erased once you close the application window. "] 
          [:p "If you print or save pages containing user entered data then you are responsible 
               for protecting the data in those copies."]
-         [:p "No cookies are colllected"]]]]
+         [:p "No cookies are collected."]]]]
       [ui/loading])))
 
 ;;

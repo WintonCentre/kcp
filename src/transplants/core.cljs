@@ -28,7 +28,9 @@
    everything gets updated nicely."
   []
   (rf/clear-subscription-cache!)
+
   (routes/init-routes!) ;; Reset routes on figwheel reload
+
   (rd/render [err-boundary
               [ui/root-component {:router routes/router
                                   :subscribe-current-route #(rf/subscribe [::subs/current-route])}]]

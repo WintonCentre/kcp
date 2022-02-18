@@ -210,7 +210,7 @@
 
 (defn lung-about-content
   []
-  [:> bs/Col
+  [:<>
    [:h4 "Overview"]
    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
            characteristics, and shows what happened to these people. "
@@ -392,7 +392,7 @@
 
 (defn lung-tech-content
   []
-  [:section {:style {:border-bottom "1px #337777 solid"
+  [ui/col #_{:style {:border-bottom "1px #337777 solid"
                      :margin-bottom  20}}
    [:h3 "Model development"]
    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
@@ -401,61 +401,67 @@
    [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
    [:p "Patient primary disease is recorded on the UKTR and the following groupings were used for the analysis: COPD (encompassing alpha-1-antitrypsin deficiency and emphysema), cystic fibrosis (CF, also encompassing patients with bronchitectasis) and pulmonary fibrosis (PF, encompassing all fibrotic lung diseases). All other lung diseases were grouped under the category ‘other’."]
    [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA"]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "Datasets used"]
+    [:p "All data used to develop the lung models behind the Lung-RCT were obtained from the UKTR held by NHSBT as of 14 May 2016. The patient cohort comprised all adult (aged ≥16 years) first lung-only registrations (i.e. people joining the transplant waiting list) between 1 January 2004 and 31 March 2014. Patients who met any of the following exclusion criteria were not studied: patients registered for a heart-lung block or other multiorgan transplant; patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration; patients registered outside the UK or not entitled to ’National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on paediatric lists."]
+    [:p "This dataset was used to build the ‘what might happen to me from point of transplant’ models. In order to build the ‘survival after transplant’ model, we used the subset of patients from this dataset who had been transplanted as at time of data extraction (14 May 2016). "]]
 
-   [:h3 "Datasets used"]
-   [:p "All data used to develop the lung models behind the Lung-RCT were obtained from the UKTR held by NHSBT as of 14 May 2016. The patient cohort comprised all adult (aged ≥16 years) first lung-only registrations (i.e. people joining the transplant waiting list) between 1 January 2004 and 31 March 2014. Patients who met any of the following exclusion criteria were not studied: patients registered for a heart-lung block or other multiorgan transplant; patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration; patients registered outside the UK or not entitled to ’National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on paediatric lists."]
-   [:p "This dataset was used to build the ‘what might happen to me from point of transplant’ models. In order to build the ‘survival after transplant’ model, we used the subset of patients from this dataset who had been transplanted as at time of data extraction (14 May 2016). "]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "What might happen to me from time of listing?"]
+    [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk of’. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox regression (see the Mathematical Section below). Because the event of transplant would prevent the event of death on the list/removal from the list from happening, and vice-versa, these Cox Regression models were cause-specific Cox proportional hazard models. When modelling time to transplant, for example, a patient who died on the list at time t would be ‘censored’ at time t and still considered in the time to transplant modelling cohort but whose time of transplant was ‘unknown’. When modelling time to death on the list/removal from the list, the same patient data would be used but there would be no censoring and instead the patient would experience the event of interest at time t. "]
+    [:p "For the purposes of the Lung-RCT, the death on the list data has been combined with removal from the list as 1) there were few removals and 2) for lung patients, removal from the list is often sadly due to a deterioration in the patient’s condition. We also made further changes to these models by 1) capping outcome data up to 3 years from listing for all patients in the modelling cohort and 2) removing any risk factors that were no longer statistically significant in both the time to transplant model and the time to death on the list/removal from the list model (p>0.05) and 3) turning all continuous variables into categorical variables. This resulted in two models, one for time to transplant and one for time to death on the list/removal from the list. "]
+    [:p "However, to adjust for the fact that the cause-specific Cox proportional hazards model patient-specific estimates would be biased (because once a patient experienced one of the competing events at time t, they would no longer be eligible for any other event), a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model (Mathematical Section). This algorithm enabled the estimated chances of each of the following outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%:"]
+    [:ol
+     [:li "Transplant"]
+     [:li "Death on the list or removal from the list"]
+     [:li "Alive and still waiting on the list"]]
+    [:p "The parameter estimates for each of the risk factors in the time to transplant model and the time to death on the list/removal from the list model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Although the two models were developed separately, any risk factor that was found to be significantly influential for one model was retained in the other model in order to keep the same risk factors in all models (although parameter estimates would be different). Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                               :margin-bottom  20}}
+    [:h3 "Patient survival after a deceased donor lung transplant "]
+    [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see Kourliouros et al (2019). However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
+    [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
 
-   [:h3 "What might happen to me from time of listing?"]
-   [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk of’. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox regression (see the Mathematical Section below). Because the event of transplant would prevent the event of death on the list/removal from the list from happening, and vice-versa, these Cox Regression models were cause-specific Cox proportional hazard models. When modelling time to transplant, for example, a patient who died on the list at time t would be ‘censored’ at time t and still considered in the time to transplant modelling cohort but whose time of transplant was ‘unknown’. When modelling time to death on the list/removal from the list, the same patient data would be used but there would be no censoring and instead the patient would experience the event of interest at time t. "]
-   [:p "For the purposes of the Lung-RCT, the death on the list data has been combined with removal from the list as 1) there were few removals and 2) for lung patients, removal from the list is often sadly due to a deterioration in the patient’s condition. We also made further changes to these models by 1) capping outcome data up to 3 years from listing for all patients in the modelling cohort and 2) removing any risk factors that were no longer statistically significant in both the time to transplant model and the time to death on the list/removal from the list model (p>0.05) and 3) turning all continuous variables into categorical variables. This resulted in two models, one for time to transplant and one for time to death on the list/removal from the list. "]
-   [:p "However, to adjust for the fact that the cause-specific Cox proportional hazards model patient-specific estimates would be biased (because once a patient experienced one of the competing events at time t, they would no longer be eligible for any other event), a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model (Mathematical Section). This algorithm enabled the estimated chances of each of the following outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%:"]
-   [:ol
-    [:li "Transplant"]
-    [:li "Death on the list or removal from the list"]
-    [:li "Alive and still waiting on the list"]]
-   [:p "The parameter estimates for each of the risk factors in the time to transplant model and the time to death on the list/removal from the list model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Although the two models were developed separately, any risk factor that was found to be significantly influential for one model was retained in the other model in order to keep the same risk factors in all models (although parameter estimates would be different). Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
-
-   [:h3 "Patient survival after a deceased donor lung transplant "]
-   [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see Kourliouros et al (2019). However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
-   [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
-
-   [:h3 "Input factors"]
-   [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender"]
-   [:p [:b "Blood group"] " - O, A, B or AB"]
-   [:p [:b "Lung primary disease group"]
-    [:br] "Cystic Fibrosis (CF): Patients registered on to the lung waiting list with Primary Disease recorded as either ‘Cystic Fibrosis’ or ‘Bronchitectasis’"
-    [:br] "Pulmonary fibrosis (PF): Patients registered on to the lung waiting list with Primary Disease recorded as ‘Fibrosing Lung Disease’" [:br] "Chronic obstructive pulmonary disease (COPD): Patients registered on to the lung waiting list with Primary Disease recorded as either ‘alpha-1-antitrypsin deficiency’ or ‘emphysema’"
-    [:br] "Other: Patients registered on to the lung waiting list with Primary Disease not listed under any of the above categories."]
-   [:p [:b "Previous thoracotomy"] " - Has the patient (at time of registration) undergone any previous thoracotomy procedures (yes/no)?"]
-   [:p [:b "In hospital at registration"] " - Is the patient in hospital at the time of registration (yes/no)?"]
-   [:p [:b "Age at registration"] " - Age at time of registration onto the lung transplant waiting list in complete years (e.g. 51 years and 9 months recorded as 51 years)"]
-   [:p [:b "BMI at registration"] " - Patient Body Mass Index at time of registration calculated as (weight (kg)) / height(m" [:sup 2] ")"]
-   [:p [:b "NYHA Class at registration"] " - New York Heart Association Classification (NYHA) Class defined as:"]
-   [:ol
-    [:li "Class I - No symptoms and no limitation in ordinary physical activity, e.g. shortness of breath when walking, climbing stairs etc."]
-    [:li "Class II - Mild symptoms (mild shortness of breath and/or angina) and slight limitation during ordinary activity."]
-    [:li "Class III - Marked limitation in activity due to symptoms, even during less-than-ordinary activity, e.g. walking short distances (20–100 m). Comfortable only at rest."]
-    [:li "Class IV - Severe limitations. Experiences symptoms even while at rest. Mostly bedbound patients."]]
-   [:p [:b "Daily dose of prednisolone at registration"] " - Recorded in mg and categorised as follows:"
-    [:br] "0 (no dosage administered)"
-    [:br] "less than 15mg: dose administered"
-    [:br] "15mg or more: dose administered greater or equal to 15mg"]
-   [:p [:b "Forced vital capacity (FVC) at registration"] " - Lung function as Forced Vital Capacity recorded in litres"]
-   [:p [:b "Recipient bilirubin at registration"] " - Measured in µmol/l"]
-   [:p [:b "Recipient cholesterol at registration"] " - Measured in mmol/l"]
-   [:p [:b "Centre"] " - This refers to which of the 5 UK adult lung transplant centres the patient will be receiving their transplant."]
-   [:p [:b "Patient age at transplant"] " - Age in complete years (e.g. 51 years and 9 months recorded as 51 years)"]
-   [:p [:b "Transplant type"] " - Single or bilateral lung transplant received"]
-   [:p [:b "Donor to recipient (patient) calculated Total Lung Capacity (TLC) mismatch"] " - Mismatch = recipient calculated TLC – donor calculated TLC"
-    [:br] "Where calculated TLC is"
-    [:br] "If male, TLC = 7.99 * (height(cm) / 100) - 7.08"
-    [:br] "If female, TLC = 6.6*(height(cm) / 100) - 5.79"]
-   [:p [:b "Donor CMV status"] " - Is donor Cytomegalovirus positive or negative"]
-   [:p [:b "Donor smoking status"] " - Is the donor a current or past cigarette smoker (yes/no)?"]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                               :margin-bottom  20}}
+    [:h3 "Input factors"]
+    [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender"]
+    [:p [:b "Blood group"] " - O, A, B or AB"]
+    [:p [:b "Lung primary disease group"]
+     [:br] "Cystic Fibrosis (CF): Patients registered on to the lung waiting list with Primary Disease recorded as either ‘Cystic Fibrosis’ or ‘Bronchitectasis’"
+     [:br] "Pulmonary fibrosis (PF): Patients registered on to the lung waiting list with Primary Disease recorded as ‘Fibrosing Lung Disease’" [:br] "Chronic obstructive pulmonary disease (COPD): Patients registered on to the lung waiting list with Primary Disease recorded as either ‘alpha-1-antitrypsin deficiency’ or ‘emphysema’"
+     [:br] "Other: Patients registered on to the lung waiting list with Primary Disease not listed under any of the above categories."]
+    [:p [:b "Previous thoracotomy"] " - Has the patient (at time of registration) undergone any previous thoracotomy procedures (yes/no)?"]
+    [:p [:b "In hospital at registration"] " - Is the patient in hospital at the time of registration (yes/no)?"]
+    [:p [:b "Age at registration"] " - Age at time of registration onto the lung transplant waiting list in complete years (e.g. 51 years and 9 months recorded as 51 years)"]
+    [:p [:b "BMI at registration"] " - Patient Body Mass Index at time of registration calculated as (weight (kg)) / height(m" [:sup 2] ")"]
+    [:p [:b "NYHA Class at registration"] " - New York Heart Association Classification (NYHA) Class defined as:"]
+    [:ol
+     [:li "Class I - No symptoms and no limitation in ordinary physical activity, e.g. shortness of breath when walking, climbing stairs etc."]
+     [:li "Class II - Mild symptoms (mild shortness of breath and/or angina) and slight limitation during ordinary activity."]
+     [:li "Class III - Marked limitation in activity due to symptoms, even during less-than-ordinary activity, e.g. walking short distances (20–100 m). Comfortable only at rest."]
+     [:li "Class IV - Severe limitations. Experiences symptoms even while at rest. Mostly bedbound patients."]]
+    [:p [:b "Daily dose of prednisolone at registration"] " - Recorded in mg and categorised as follows:"
+     [:br] "0 (no dosage administered)"
+     [:br] "less than 15mg: dose administered"
+     [:br] "15mg or more: dose administered greater or equal to 15mg"]
+    [:p [:b "Forced vital capacity (FVC) at registration"] " - Lung function as Forced Vital Capacity recorded in litres"]
+    [:p [:b "Recipient bilirubin at registration"] " - Measured in µmol/l"]
+    [:p [:b "Recipient cholesterol at registration"] " - Measured in mmol/l"]
+    [:p [:b "Centre"] " - This refers to which of the 5 UK adult lung transplant centres the patient will be receiving their transplant."]
+    [:p [:b "Patient age at transplant"] " - Age in complete years (e.g. 51 years and 9 months recorded as 51 years)"]
+    [:p [:b "Transplant type"] " - Single or bilateral lung transplant received"]
+    [:p [:b "Donor to recipient (patient) calculated Total Lung Capacity (TLC) mismatch"] " - Mismatch = recipient calculated TLC – donor calculated TLC"
+     [:br] "Where calculated TLC is"
+     [:br] "If male, TLC = 7.99 * (height(cm) / 100) - 7.08"
+     [:br] "If female, TLC = 6.6*(height(cm) / 100) - 5.79"]
+    [:p [:b "Donor CMV status"] " - Is donor Cytomegalovirus positive or negative"]
+    [:p [:b "Donor smoking status"] " - Is the donor a current or past cigarette smoker (yes/no)?"]]
 
    (maths-section)
-   ])
+   (web-development-section)])
 
 
 

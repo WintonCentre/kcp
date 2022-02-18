@@ -244,7 +244,7 @@
    [:h4 "Who developed the tool?"]
    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
         disclosed by NHSBT under a data sharing agreement."]
-   [:p "We wisk to thank all the transplant patients and their partners, 
+   [:p "We wish to thank all the transplant patients and their partners, 
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
   )
 
@@ -295,7 +295,7 @@
    [:h4 "Who developed the tool?"]
    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
         disclosed by NHSBT under a data sharing agreement."]
-   [:p "We wisk to thank all the transplant patients and their partners, 
+   [:p "We wish to thank all the transplant patients and their partners, 
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]
 
   ])
@@ -381,7 +381,14 @@
                       :margin-bottom  20}}
     [:h3 "Testing"]
     [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
-       through the R code, collected the results, and then fed the same inputs into our javascript implementation, and compared the results. "]]])
+       through the R code, collected the results, and then fed the same inputs into our javascript implementation, and compared the results. "]]
+
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "Browser Compatibilty"]
+    [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
+    [:p "It does not currently support any version of Internet Explorer."]]])
+
 
 (defn lung-tech-content
   []
@@ -573,9 +580,10 @@
 
          [:h4 "Cookies and Privacy Notice"]
          [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
-              system, and it is erased once you close the application window. "]
-         [:p "No cookies are colllected"]
-         ]]]
+              system, and it is erased once you close the application window. "] 
+         [:p "If you print or save pages containing user entered data then you are responsible 
+              for protecting the data in those copies."]
+         [:p "No cookies are colllected"]]]]
       [ui/loading])))
 
 ;;

@@ -227,6 +227,11 @@
    [db [_ selection]]
    (assoc db :selected-vis selection)))
 
+(rf/reg-event-db
+ ::missing-inputs
+ (fn
+   [db [_ missing-inputs]]
+   (assoc db :missing-inputs missing-inputs)))
 
 ;;;
 ;; Load data sequences

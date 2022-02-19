@@ -144,12 +144,16 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                  :id "reset"
                  :style {:margin-bottom 10}
                  :on-click on-click} "Reset all"])
+
+
+
 (defn print-button
-  []
+  [{:keys [on-click]}]
   [:> bs/Button {:variant "primary" ;"secondary"
                  :id "print-button"
                  :style {:margin-bottom 10}
-                 :on-click #(js/print)} [:span (open-icon "print") " Print results"]])
+                 :on-click on-click} 
+   [:span (open-icon "print") " Print or Save"]])
 
 (comment
   ; white border when there is a value
@@ -170,18 +174,22 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
 
 
 (defn modal
-  "A modal dialog box"
+  "A modal dialog box. 
+   There is only one - so this gets called just once from the root component. We control it via db :modal-data - see available operations
+   in https://react-bootstrap.github.io/components/modal/#modal-props. Not yet a reusable 
+   component as ony the parts we use are configured - and actually we don't use cancel yet."
   [data-f]
   ;(locals)
-  (let [{:keys [title content cancel save ok] :as data} @(data-f)]
+  (let [{:keys [title content cancel print-save save ok] :as data} @(data-f)]
     (when data
-      [:> bs/Modal {:show true :on-hide ok}
+      [:> bs/Modal {:show true :on-hide cancel}
        [:> bs/Modal.Header {:close-button true}
         [:> bs/Modal.Title title]]
        [:> bs/Modal.Body content]
        [:> bs/Modal.Footer
         (when cancel [:> bs/Button {:variant "secondary" :on-click cancel}
                       "Cancel"])
-        (if save
-          [:> bs/Button {:variant "primary" :on-click save} "Save"]
-          [:> bs/Button {:variant "primary" :on-click ok} "OK"])]])))
+        (cond
+          save [:> bs/Button {:variant "primary" :on-click save} "Save"]
+          ok [:> bs/Button {:variant "primary" :on-click ok} "OK"]
+          print-save [:> bs/Button {:variant "primary" :on-click print-save} "Print or Save"])]])))

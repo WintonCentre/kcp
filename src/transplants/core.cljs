@@ -27,9 +27,13 @@
    shadow-cljs to call mount-root after a hot-reload and clear the subsciption cache so
    everything gets updated nicely."
   []
+  (js/console.log "checkpoint mount-root 1")
   (rf/clear-subscription-cache!)
 
+  (js/console.log "checkpoint mount-root 2")
+  
   (routes/init-routes!) ;; Reset routes on figwheel reload
+  (js/console.log "checkpoint mount-root 3")
 
   (rd/render [err-boundary
               [ui/root-component {:router routes/router
@@ -73,7 +77,7 @@
 
   (rf/dispatch-sync [::events/load-metadata [paths/metadata-path [:metadata]]])
 
-   (js/console.log "checkpoint 2")
+  (js/console.log "checkpoint 2")
 
   ;;; Removing the following two lines as they hard-coded lung and kidney organs into the tool
   ;;; Instead, we obtain the organ list by reading in the metadata file above.
@@ -81,15 +85,14 @@
   ;;(rf/dispatch [::events/load-and-transpose [(paths/centres-path :kidney) [:organ-centres :kidney]]])
 
   (.addEventListener js/window "resize" on-window-resize)
-   (js/console.log "checkpoint 3")
+  (js/console.log "checkpoint 3")
 
   (dev-setup)
- (js/console.log "checkpoint 4")
+  (js/console.log "checkpoint 4")
 
   (mount-root)
-  
-   (js/console.log "checkpoint 5")
-) 
+
+  (js/console.log "checkpoint 5")) 
 
 ; Not needed for shadow-cljs where init is declared as a module entry point
 ;(defonce start-up (do (init) true))

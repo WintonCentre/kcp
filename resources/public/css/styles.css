@@ -225,4 +225,15 @@
   font-size: 1.2em;
 }
 
+.print-modal h1 {
+  font-size: 1.8rem;
+}
+
+.modal-footer button.btn.btn-secondary {
+  border: 3px solid grey;
+  border-radius: 25px;
+  background-color: #fff;
+  color: #000;
+}
+
 /*# sourceMappingURL=styles.css.map */

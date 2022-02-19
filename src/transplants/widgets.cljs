@@ -3,7 +3,7 @@
             [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
             [transplants.bsio :as bsio]
-            ;[transplants.subs :as subs]
+            [transplants.subs :as subs]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
             [shadow.debug :refer [locals ?> ?-> ?->>]]))
@@ -62,18 +62,58 @@
   nil)
 
 (def mb 0)
-(def label-width "label column grid-size" 5)
-(def widget-width "Widget column grid-size" 7)
+(def label-width "label column grid-size" 6)
+(def widget-width "Widget column grid-size" 6)
+
+(def print-modal-content
+  "What to say in the print modal"
+  [:<>
+   [:section {:class-name "print-modal"}
+    [:h1 "Print"]
+    [:p "Press OK and the Print dialogue box will appear. Be sure to " 
+     [:b "enable the option which prints background graphics."]]
+    [:h1 "Save to PDF"]
+    [:p "If you prefer an electronic copy, press OK and select \"Save to PDF\" in the Print dialogue. Again, be sure to "
+         [:b "enable the option which prints background graphics."]]
+    ]
+  ])
+
+(defn print-or-save-button
+  [_e]
+  (rf/dispatch [::events/modal-data
+                {:show true
+                 :title "Print or Save to PDF"
+                 :content print-modal-content
+                                                  ;:content (edn/read-string (:info-box? w))
+                 :ok (fn [_e]
+                       (rf/dispatch [::events/modal-data false])
+                       ;"delay the print dialog so it doesn't screen capture this modal.
+                       ; todo: Is there a better event we can hang the js/print on? 
+                       (js/setTimeout js/print, 200))
+                 :cancel (fn [_e]
+                           (rf/dispatch [::events/modal-data false]))
+                 :onHide (fn [_e]
+                           (rf/dispatch [::events/modal-data false]))
+                 }]))
+
 
 (defmethod widget :reset
   [_w]
   #_(widget-layout (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])}))
+  
   [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
    [:> bs/Col {:xs label-width}]
    [:> bs/Col {:xs widget-width}
     [:span
      (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})
-     (bsio/print-button)]]])
+     #_(print-or-save-button)
+     (when-not @(rf/subscribe [::subs/missing-inputs])
+       (bsio/print-button {:on-click print-or-save-button}))]]])
+
+(defn print-or-save
+  []
+  (when-not @(rf/subscribe [::subs/missing-inputs])
+    (bsio/print-button {:on-click print-or-save-button})))
 
 (defn radio
   [{:keys [factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]

@@ -103,7 +103,7 @@
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
-    
+    (rf/dispatch [::events/missing-inputs missing])
     [:div {:style {:background-color "#fff"
                    :border (str "3px solid " (condp = overlay
                                                :missing "rgb(255,0,0)"

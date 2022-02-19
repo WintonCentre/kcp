@@ -1029,7 +1029,7 @@
                                         input-header)
                                       
 
-                                      [:div {:style {:padding "0px 30px 15px 15px"}}
+                                      [:div {:style {:padding "0px 0px 15px 15px"}}
 
                                        (widg/widget {:type :reset})
 
@@ -1038,6 +1038,7 @@
                                               (fn [[k w]] ^{:key (:factor w)}
                                                 [:div {:style {:margin-top 0
                                                                :margin-bottom -5
+                                                               :margin-left -15
                                                                :padding 5
                                                                :display "relative"
                                                                :outline-bottom (when (some? (:boxed w)) boxed-border)
@@ -1046,7 +1047,7 @@
                                                                 :padding-right 5}}
                                                   (when (= k first-boxed)
                                                     [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
-                                                     [:> bs/Col {:xs 5
+                                                     [:> bs/Col {:xs 6
                                                                  :style {:display "flex" :justify-content "flex-end"}}
                                                       [:span {:style {:text-align "right"}}
                                                        boxed-text]]])
@@ -1060,8 +1061,8 @@
                                                [:p "Click below to find out more about those we have considered but are not in the tool."]
                                                [:p
                                                 [:> bs/Button {:size "sm"
-                                                               :variant "outline"
-                                                               :class-name "more"
+                                                               :variant "primary"
+                                                               ;:class-name "more"
                                                                :title "Factors considered but not included"
                                                                :style {:margin-left 0}
                                                                :on-click (fn [_e]
@@ -1087,10 +1088,10 @@
               #_[fs/full-screen-wrapper
                  results/results-panel {:organ organ :centre centre :tool tool}]
 
-
-
-
-              (:rest-of-page tool-mdata)]]])
+              
+              (:rest-of-page tool-mdata)]
+              [widg/print-or-save]
+             ]])
          
          (if (= tool :guidance)
            [guidance organ]

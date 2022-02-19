@@ -15,7 +15,7 @@
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
    ;[transplants.fullscreen :as fs]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;;;;
@@ -115,11 +115,10 @@
   (let [mdata @(rf/subscribe [::subs/mdata])
         route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])
-        ]
+        organ (get-in route [:path-params :organ])]
     ;(locals)
     (js/console.log "checkpoint 6 home-page")
-    (when mdata
+    (if mdata
       (if-let [organ (or single-organ organ)]
         (do (js/console.log "checkpoint 7 got mdata")
             [ui/decorated-page
@@ -140,9 +139,8 @@
              (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
              [ui/row
               [ui/col
-               [:<> (leila-text mdata)]]]])
-        [ui/loading]))
-    ))
+               [:<> (leila-text mdata)]]]]))
+      [ui/loading])))
 
 
 (defn organ-home
@@ -190,7 +188,7 @@
         #_#_route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
         #_#_organ (get-in route [:path-params :organ])]
-    (locals)
+    ;(locals)
 
     (if mdata
       [ui/page (str "Publications")

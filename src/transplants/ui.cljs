@@ -69,7 +69,7 @@ in the routes table."
   (let [link (js/document.querySelector "link[rel~='icon']")]
     (if link
       (oset link "href" logo)
-      (let [head (first (js/document.getElementsByTagName "head"))
+      (let [head (.item (js/document.getElementsByTagName "head") 0) ;; Must use .item to index into an HTMLCollection
             link (js/document.createElement "link")]
         (oset link "rel" "icon")
         (oset link "href" logo)
@@ -191,6 +191,8 @@ in the routes table."
      (when-not is-full-screen [navbar {:router router
                                        :current-route current-route}])
      (bsio/modal #(rf/subscribe [::subs/modal-data]))]))
+
+
 
 (defn card-page
   "Render an array of cards"

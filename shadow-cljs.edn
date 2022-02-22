@@ -32,7 +32,8 @@
         :compiler-options {:optimizations  :advanced
                            ;:pseudo-names true
                            ;:pretty-print true
-                           :output-wrapper false}
+                           :output-wrapper false
+                           :output-feature-set :es5}
         :modules {:app {:init-fn transplants.core/init}}}
 
   #_#_:lung {:target     :browser

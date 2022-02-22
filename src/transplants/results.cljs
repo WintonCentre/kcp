@@ -170,12 +170,8 @@
       [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                 :active-key (:selected-vis env)
                 :on-select #_#(rf/dispatch [::events/selected-vis %])
-                  #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
-                                 (assoc path :tab %)
-                                #_{:organ :kidney
-                                 :centre centre
-                                 :tool tool
-                                 :tab %}])}
+                #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
+                               (assoc path :tab %)])}
        [ui/tab {:event-key "bars" :title "Bar Chart"}
         [vis/bar-chart env]]
 

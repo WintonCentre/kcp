@@ -73,11 +73,11 @@
 
   (rf/dispatch-sync [::events/initialize-db])
 
-  (js/console.log "checkpoint 1")
+  #_(js/console.log "checkpoint 1")
 
   (rf/dispatch-sync [::events/load-metadata [paths/metadata-path [:metadata]]])
 
-  (js/console.log "checkpoint 2")
+  #_(js/console.log "checkpoint 2")
 
   ;;; Removing the following two lines as they hard-coded lung and kidney organs into the tool
   ;;; Instead, we obtain the organ list by reading in the metadata file above.
@@ -85,14 +85,14 @@
   ;;(rf/dispatch [::events/load-and-transpose [(paths/centres-path :kidney) [:organ-centres :kidney]]])
 
   (.addEventListener js/window "resize" on-window-resize)
-  (js/console.log "checkpoint 3")
+  #_(js/console.log "checkpoint 3")
 
   (dev-setup)
-  (js/console.log "checkpoint 4")
+  #_(js/console.log "checkpoint 4")
 
   (mount-root)
 
-  (js/console.log "checkpoint 5")) 
+  #_(js/console.log "checkpoint 5")) 
 
 ; Not needed for shadow-cljs where init is declared as a module entry point
 ;(defonce start-up (do (init) true))

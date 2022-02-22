@@ -180,9 +180,9 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    component as ony the parts we use are configured - and actually we don't use cancel yet."
   [data-f]
   ;(locals)
-  (let [{:keys [title content cancel print-save save ok] :as data} @(data-f)]
+  (let [{:keys [title content cancel onHide print-save save ok] :as data} @(data-f)]
     (when data
-      [:> bs/Modal {:show true :on-hide cancel}
+      [:> bs/Modal {:show true :on-hide onHide}
        [:> bs/Modal.Header {:close-button true}
         [:> bs/Modal.Title title]]
        [:> bs/Modal.Body content]

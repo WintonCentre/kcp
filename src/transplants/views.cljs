@@ -825,7 +825,7 @@
                             :flex-wrap "wrap"}}
         [:div {:style {:display :flex
                        :flex-direction "row"
-                       :width 115
+                       :width 140
                        :justify-content "space-between"
                        :margin-bottom 5
                        :margin-right 5}}
@@ -837,7 +837,7 @@
                         :disabled (= 100 percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent 1])} "+ 1"]]
         [:div {:style {:display :flex
-                       :width 115
+                       :width 140
                        :justify-content "space-between"
                        :margin-bottom 5
                        :margin-right 5}}
@@ -940,15 +940,18 @@
      [ui/col {:md 8}
       [:div {:style {:margin-top 40}}
        (show-guidance {:info-key @(rf/subscribe [::subs/guidance])})
-       [:> bs/Row 
+       [:> bs/Row
         [:> bs/Col {:md {:span 5}
                     :style {:border "3px solid #336677"
                             :border-radius 3
-                            :padding-top 20}}
+                            :padding-top 20
+                            :margin-left 15
+                            :margin-right 10
+                            :margin-top 30}}
          [:p [:b [:span {:style {:color "red"}} (ui/open-icon "wrench")] " UNDER CONSTRUCTION!"]]
          [:p "Please tell us what you would like to see here."]
          [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")]
-                           [:a {:href (str "mailto:" (if (= organ :lung) "lung" "kidney") "transplants@statslab.cam.ac.uk?subject=Useful%20Information%20Feedback")} " Email us"]
+              [:a {:href (str "mailto:" (if (= organ :lung) "lung" "kidney") "transplants@statslab.cam.ac.uk?subject=Useful%20Information%20Feedback")} " Email us"]
 
               #_[:a {:href "mailto:Leila.finikarides@maths.cam.ac.uk?subject=Useful%20Information%20Feedback"} " Email us"]]]]]]]]))
 
@@ -1068,6 +1071,8 @@
                                                                                          {:show true
                                                                                           :title "Factors considered but not included"
                                                                                           :content (factors-not-included mdata)
+                                                                                          :onHide (fn [_e]
+                                                                                                    (rf/dispatch [::events/modal-data false]))
                                                   ;:content (edn/read-string (:info-box? w))
                                                                                           :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
                                                                            #_(?-> {:show true

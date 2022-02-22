@@ -115,6 +115,11 @@
   (when-not @(rf/subscribe [::subs/missing-inputs])
     (bsio/print-button {:on-click print-or-save-button})))
 
+(defn hide-handler
+  "Hide a modal"
+  [_e]
+  (rf/dispatch [::events/modal-data false]))
+
 (defn radio
   [{:keys [factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
@@ -142,12 +147,14 @@
                                                   :title (get info-box :title (:factor-name w))
                                                   :content (get info-box :content info-box)
                                                   ;:content (edn/read-string (:info-box? w))
-                                                  :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
+                                                  :onHide hide-handler
+                                                  :ok hide-handler}])
                                    (?-> {:show true
                                          :title (get info-box :title (:factor-name w))
                                          :content (get info-box :content info-box)
                                          #_(str "Some text for " (:factor-name w))
-                                         :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
+                                         :onHide hide-handler
+                                         :ok hide-handler}
                                         ::radio))}
          [:span "?"]])]
 

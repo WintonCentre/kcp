@@ -153,7 +153,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                  :id "print-button"
                  :style {:margin-bottom 10}
                  :on-click on-click} 
-   [:span (open-icon "print") " Print or Save"]])
+   [:span (open-icon "print") " Print, Copy or Save"]])
 
 (comment
   ; white border when there is a value
@@ -177,19 +177,32 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
   "A modal dialog box. 
    There is only one - so this gets called just once from the root component. We control it via db :modal-data - see available operations
    in https://react-bootstrap.github.io/components/modal/#modal-props. Not yet a reusable 
-   component as ony the parts we use are configured - and actually we don't use cancel yet."
+   component as ony the parts we use are configured.
+   To cancel the dialogue use the top-right close button."
   [data-f]
   ;(locals)
-  (let [{:keys [title content cancel onHide print-save save ok] :as data} @(data-f)]
+  (let [{:keys [title content cancel onHide print copy save ok paste width] :as data} @(data-f)]
+    
     (when data
-      [:> bs/Modal {:show true :on-hide onHide}
+      [:> bs/Modal {:show true :on-hide onHide
+                    :style {:width "Vw"}}
        [:> bs/Modal.Header {:close-button true}
         [:> bs/Modal.Title title]]
-       [:> bs/Modal.Body content]
+       [:> bs/Modal.Body [:div { :id "snap-display"} content]]
        [:> bs/Modal.Footer
-        (when cancel [:> bs/Button {:variant "secondary" :on-click cancel}
-                      "Cancel"])
-        (cond
-          save [:> bs/Button {:variant "primary" :on-click save} "Save"]
-          ok [:> bs/Button {:variant "primary" :on-click ok} "OK"]
-          print-save [:> bs/Button {:variant "primary" :on-click print-save} "Print or Save"])]])))
+        (when paste (do (js/setTimeout (fn []
+                                         (paste (js/document.querySelector "#snap-display"))
+                                         (let [el (js/document.querySelector ".modal-dialog")
+                                               style (.-style el)]
+                                           (goog.object.set style "max-width" "none")
+                                           (goog.object.set style "margin-left" "-17px")
+                                           )), 200)
+                        nil))
+        (when copy [:> bs/Button {:variant "primary" :on-click copy}
+                    "Copy"])
+        (when print [:> bs/Button {:variant "primary" :on-click print}
+                     "Print"])
+        (when save [:> bs/Button {:variant "primary" :on-click save}
+                    "Save"])
+        (when ok [:> bs/Button {:variant "primary" :on-click ok}
+                  "OK"])]])))

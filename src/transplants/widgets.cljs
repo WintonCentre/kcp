@@ -6,6 +6,7 @@
             [transplants.subs :as subs]
             [transplants.events :as events]
             [transplants.numeric-input :as num]
+            [transplants.copy-image :as snap]
             [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (defn key->id
@@ -69,56 +70,78 @@
   "What to say in the print modal"
   [:<>
    [:section {:class-name "print-modal"}
+    [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
+         using another browser if these features are important to you."]
     [:h1 "Print"]
-    [:p "Press OK and the Print dialogue box will appear. Be sure to " 
-     [:b "enable the option which prints background graphics."]]
+    [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
+     [:b "enable the option which prints background graphics. "] "This option is not available in Internet Explorer."]
+    [:h1 "Copy"]
+    [:p "The " [:b "Copy"] " button displays a screenshot of the application inside a yellow border which is there to remind you this is not the live page.
+         You may save and print this image using the usual browser controls. If printing you may wish to adjust the browser window
+         width for optimum print results."]
+    [:p "The copy feature does not work well in Internet Explorer."]
     [:h1 "Save to PDF"]
-    [:p "If you prefer an electronic copy, press OK and select \"Save to PDF\" in the Print dialogue. Again, be sure to "
-         [:b "enable the option which prints background graphics."]]
-    ]
-  ])
-
-(defn print-or-save-button
-  [_e]
-  (rf/dispatch [::events/modal-data
-                {:show true
-                 :title "Print or Save to PDF"
-                 :content print-modal-content
-                                                  ;:content (edn/read-string (:info-box? w))
-                 :ok (fn [_e]
-                       (rf/dispatch [::events/modal-data false])
-                       ;"delay the print dialog so it doesn't screen capture this modal.
-                       ; todo: Is there a better event we can hang the js/print on? 
-                       (js/setTimeout js/print, 200))
-                 :cancel (fn [_e]
-                           (rf/dispatch [::events/modal-data false]))
-                 :onHide (fn [_e]
-                           (rf/dispatch [::events/modal-data false]))
-                 }]))
-
-
-(defmethod widget :reset
-  [_w]
-  #_(widget-layout (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])}))
-  
-  [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
-   [:> bs/Col {:xs label-width}]
-   [:> bs/Col {:xs widget-width}
-    [:span
-     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})
-     #_(print-or-save-button)
-     (when-not @(rf/subscribe [::subs/missing-inputs])
-       (bsio/print-button {:on-click print-or-save-button}))]]])
-
-(defn print-or-save
-  []
-  (when-not @(rf/subscribe [::subs/missing-inputs])
-    (bsio/print-button {:on-click print-or-save-button})))
+    [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue. Again, be sure to "
+     [:b "enable the option which prints background graphics."]]]])
 
 (defn hide-handler
   "Hide a modal"
   [_e]
   (rf/dispatch [::events/modal-data false]))
+
+(defn show-canvas-modal
+  "Pop up a large modal ready to display the canvas on it"
+  [canvas]
+  (let [ctx (.getContext canvas "2d")]
+    (goog.object.set canvas "style" "border: 20px solid yellow"))
+
+  (rf/dispatch [::events/modal-data
+                {:show true
+                 :title nil
+                 :width "500px"
+                 :content [:div {:id "snap"}]
+                 :paste (partial snap/show-screen-shot canvas)
+                 :cancel hide-handler
+                 :onHide hide-handler}]))
+  
+
+(defn print-or-save-modal
+  "Main Print, Copy or Save modal popup"
+  [_e]
+  (rf/dispatch [::events/modal-data
+                {:show true
+                 :title "Print, Copy or Save to PDF"
+                 :content print-modal-content
+                ; :ok hide-handler
+                 :print (fn [_e]
+                          (hide-handler _e)
+                       ; delay the print dialog so it doesn't screen capture this modal.
+                       ; todo: Is there a better event we can hang the js/print on? 
+                          (js/setTimeout js/print, 200))
+                 :copy (fn [_e]
+                        ; Add screen capture logic here 
+                         (hide-handler _e)
+                         (js/setTimeout (fn [_e]
+                                          (snap/take-screen-shot
+                                           {:from-element (js/document.querySelector "#capture")
+                                            :done show-canvas-modal}))), 200)
+                 :onHide hide-handler}]))
+
+
+(defmethod widget :reset
+  [_w]
+  [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
+   [:> bs/Col {:xs label-width}]
+   [:> bs/Col {:xs widget-width}
+    [:span
+     (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})
+     (when-not @(rf/subscribe [::subs/missing-inputs])
+       (bsio/print-button {:on-click print-or-save-modal}))]]])
+
+(defn print-or-save
+  []
+  (when-not @(rf/subscribe [::subs/missing-inputs])
+    (bsio/print-button {:on-click print-or-save-modal})))
 
 (defn radio
   [{:keys [factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]

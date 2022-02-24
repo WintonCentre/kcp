@@ -1,28 +1,43 @@
-(ns transplants.copy-image)
+(ns transplants.copy-image
+  "Screen capture related code."
+  (:require ["html2canvas" :as h2c]
+            ["promise-polyfill" :refer [Promise]]))
+
+;; This uses js promises, so for IE11 we need also
+;; https://www.npmjs.com/package/promise-polyfill
+;;
+
+;; See Also
+;; html2canvas.js
+;; FileSave.js
 
 
-(def image-node (js/document.getElementById "visual"))
+(defn take-screen-shot
+  "Take a screen-shot of from-element into a canvas.
+   When taken, call done, passing the canvas as a parameter"
+  [{:keys [from-element done]}]
+  (-> (h2c from-element)
+      (.then done)))
 
-(.-offsetHeight image-node)
-(.-offsetWidth image-node)
-(.-offsetTop image-node)
-(.-offsetLeft image-node)
+(defn show-screen-shot
+  "Fisplay a canvas by appending it to to-element"
+  [canvas to-element]
+  (.appendChild to-element canvas))
 
-(def w (.-offsetWidth image-node))
-(def h (.-offsetHeight image-node))
-(def clone (.-outerHTML image-node))
-(def blob (js/Blob. #js [clone]))
 
-(def url (or (.-URL js/window) (.-webkitURL js/window) js/window))
-#_url
-(def blob-url (.createObjectURL url blob))
 
-(def the-canvas (js/document.getElementById "the-visual"))
-(goog.object.set the-canvas "width" w)
-(goog.object.set the-canvas "height" h)
-(def context (.getContext the-canvas "2d"))
-(def image (Image. w h))
+(comment
+  (defn take-screen-shot
+  [{:keys [from-element to-element]}]
+  (.then (h2c from-element)
+         (fn [canvas]
+           (.append to-element canvas))))
 
-#_(.drawImage context image 0 0 w h)
+  (let [capture (js/document.querySelector "#screen-shot")]
+    (.then (h2c (js/document.querySelector "#app"))
+           (fn [canvas]
+             (.append capture canvas))))
+
+  )
 
 

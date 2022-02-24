@@ -1004,7 +1004,7 @@
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])]
         ;(locals)
-      [:div
+      [:div {:id "capture"}
        (when-not is-full-screen
          [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
           [ui/row
@@ -1061,9 +1061,8 @@
                                            We hope to include more in the future. "]
                                                [:p "Click below to find out more about those we have considered but are not in the tool."]
                                                [:p
-                                                [:> bs/Button {:size "sm"
+                                                [:> bs/Button {:size "md"
                                                                :variant "primary"
-                                                               ;:class-name "more"
                                                                :title "Factors considered but not included"
                                                                :style {:margin-left 0}
                                                                :on-click (fn [_e]
@@ -1071,16 +1070,9 @@
                                                                                          {:show true
                                                                                           :title "Factors considered but not included"
                                                                                           :content (factors-not-included mdata)
-                                                                                          :onHide (fn [_e]
-                                                                                                    (rf/dispatch [::events/modal-data false]))
-                                                  ;:content (edn/read-string (:info-box? w))
-                                                                                          :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}])
-                                                                           #_(?-> {:show true
-                                                                                   :title "Factors considered but not included"
-                                                                                   :content (factors-not-included mdata)
-                                                                                   #_(str "Some text for " (:factor-name w))
-                                                                                   :ok (fn [_e] (rf/dispatch [::events/modal-data false]))}
-                                                                                  ::radio))}
+                                                                                          :onHide widg/hide-handler
+                                                                                          :ok widg/hide-handler
+                                                                                          }]))}
                                                  [:span "Show factors considered but not included"]]]]])
             [ui/col {:xs 12 :md (if is-full-screen 12 6)}
              (when-not is-full-screen

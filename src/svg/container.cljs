@@ -91,6 +91,7 @@
      [:svg {:style    {:position "absolute"
                        :top      0
                        :left     0}
+            :id "visual"
             :view-box (str " 0 0 " (:width outer) " " (:height outer))}
 
       [:g {:key       0

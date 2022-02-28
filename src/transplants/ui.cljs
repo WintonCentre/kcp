@@ -156,7 +156,21 @@ in the routes table."
                                 :key (name (:key centre))}
 
                                (:name centre)])
-                            (filter #(not= (:name %) "UK") centres))))))]]])
+                            (filter #(not= (:name %) "UK") centres))))))]
+          [:> bs/Nav {:class "ml-auto" :style {:height "100%" :vertical-align "middle"}}
+           [:> bs/Button {:href (clojure.string/replace (str "mailto:"
+                                                             (name single-organ)
+                                                             "transplants@statslab.cam.ac.uk"
+                                                             "?subject="
+                                                             (name single-organ) " transplants tool"
+                                                             "&body=Please give us your feedback here. "
+                                                             "If you would like a reply please say so. "
+                                                             "If you are reporting a technical issue then it’s always useful to tell us "
+                                                             "the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system "
+                                                             "(e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot "
+                                                             "of the problem.")
+                                                        " " "%20")
+                          :variant "info"} " ✉️ Feedback"]]]])
       [loading])))
 
 (comment

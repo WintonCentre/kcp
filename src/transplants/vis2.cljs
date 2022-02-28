@@ -8,6 +8,7 @@
             [transplants.utils :as utils]
             [transplants.rgb :as rgb]
             [clojure.string :as str :refer [replace]]
+            [goog.color :as col]
             [svg.space :refer [space]]
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
@@ -1111,14 +1112,21 @@
      [:tbody
       (for [j (range (count plot-order))
             :let [style ((nth plot-order j) data-styles)
-                  long-label (:long-label style)]]
+                  long-label (:long-label style)
+                  fill (col/hexToRgb (:fill style))]]
         [:tr {:key (str "c-" j) :style style}
          ;[:th outcome]
          (for [i years
                :let [label (nth labels i)
                      time-index (:time-index label)
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
-           [:td {:key (str "r-" i)} (str (nth int-fs j) "%") " " long-label])])]]))
+           [:td {:key (str "r-" i)
+                 :style {:margin 0 :padding 0}}
+            [:div {:style {:margin 0 :padding 15
+                           :background-image (str "url(" (apply utils/fill-data-url fill) ")")
+                           :background-repeat "repeat"
+                           :height "100%"}}
+             (str (nth int-fs j) "%") " " long-label]])])]]))
 
 (defn text-render
   "If we took an example of 100 transplant patients, who input the same information as you into the tool, we would expect:
@@ -1136,16 +1144,6 @@ After 3 years	75  of them to have received a transplant
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     [:div {:style {:margin-top 20}}
-     #_[:div
-        [:div
-         (for [i years
-               :let [label (nth labels i)
-                     line (:line label)
-                     line (if (sequential? line) (map str line) line)]]
-           [:div {:style {:border-bottom "3px solid #666"
-                          #_#_:color "#fff"
-                          #_#_:background-color "#888"}
-                  :key (str "y-" i)} line])]]
      [:div
       (for [i years
             :let [label (nth labels i)

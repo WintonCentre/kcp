@@ -281,27 +281,6 @@
     (spit (log-path organ) (relative-path sheet-path) :append true)
     (spit sheet-path sheet)))
 
-#_(defn export-all-edn-bundles
-  "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
-  []
-  (spit "edn-paths.txt" "// files to precache\n")
-  (doseq [organ [:lung :kidney]
-          sheet [:tools :centres]]
-    
-    (write-sheet organ sheet))
-
-  (doseq [organ [:lung :kidney]
-          :let [centres (get-centres organ)]
-          centre centres]
-
-    (write-edn-bundle organ centre)
-    (doseq [tool-key (keys (get-bundle organ))]
-      ;(println ::organ organ :centre centre :tool-key tool-key)
-
-      (write-edn-bundle organ
-                        (if (contains? #{:ldgraft :ldsurvival} tool-key) "UK" centre)
-                        tool-key))))
-
 (defn export-all-edn-bundles
   "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
   []

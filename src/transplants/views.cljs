@@ -580,14 +580,24 @@
        [ui/row
         [:> bs/Col
          [:h4 "Disclaimer"]
-         [:p "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry.  However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
+         [:p "You MUST read the information below before using the tool."]
+         [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry. However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
+         [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not intended as a substitute for professional medical advice and counselling. This tool is a reference guide only and cannot replace standard clinical counselling. Please read the referenced papers for the study derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
+         [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the disclaimer above or private study or non-commercial research with this notice intact."]
+         [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or otherwise exploit this tool or any content within in whole or in part for any other purposes without the prior written consent of the University of Cambridge, the authors and NHSBT."]
+         [:p "The authors and the University of Cambridge do not accept any liability for any errors in the model prediction or outcomes. See also the University’s standard terms at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions."]]
+         [:p "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
+         [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]
 
          [:h4 "Cookies and Privacy Notice"]
+         [:p "All cookies " [:u "are disabled"] " on this website."]
          [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
-              system, and it is erased once you close the application window. "] 
+              system, and it is erased once you close the application window. "]
+         [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://fr.matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
+         [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://fr.matomo.org/privacy-policy/"} " their website."]]
          [:p "If you print or save pages containing user entered data then you are responsible 
               for protecting the data in those copies."]
-         [:p "No cookies are collected."]]]]
+         [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
       [ui/loading])))
 
 ;;

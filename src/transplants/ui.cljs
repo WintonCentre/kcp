@@ -156,7 +156,21 @@ in the routes table."
                                 :key (name (:key centre))}
 
                                (:name centre)])
-                            (filter #(not= (:name %) "UK") centres))))))]]])
+                            (filter #(not= (:name %) "UK") centres))))))]
+          [:> bs/Nav {:class "ml-auto" :style {:height "100%" :vertical-align "middle"}}
+           [:> bs/Button {:href (clojure.string/replace (str "mailto:"
+                                                             (name single-organ)
+                                                             "transplants@statslab.cam.ac.uk"
+                                                             "?subject="
+                                                             (name single-organ) " transplants tool"
+                                                             "&body=Please give us your feedback here. "
+                                                             "If you would like a reply please say so. "
+                                                             "If you are reporting a technical issue then it’s always useful to tell us "
+                                                             "the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system "
+                                                             "(e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot "
+                                                             "of the problem.")
+                                                        " " "%20")
+                          :variant "info"} " ✉️ Feedback"]]]])
       [loading])))
 
 (comment
@@ -173,7 +187,7 @@ in the routes table."
                         :align-items "center" :justify-content "center"}}
    [:div {:style {:margin "15px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
     [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}]
-    [:p [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence. Communication.  
+    [:p [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence Communication.  
                      It currently displays models disclosed by NHSBT under a data sharing agreement.  
                      It was developed with transplant patients and their partners and clinical teams  
                      at transplant and referral centres in England. "]]])

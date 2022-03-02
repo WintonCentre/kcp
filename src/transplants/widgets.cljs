@@ -92,13 +92,15 @@
 (defn show-canvas-modal
   "Pop up a large modal ready to display the canvas on it"
   [canvas]
-  (.getContext canvas "2d")
-  (goog.object.set canvas "style" "width 500px; padding 100px")
+  ;(.getContext canvas "2d")
+  (goog.object.set canvas "style" "max-width: 70%; margin-left: 15%")
+
   (rf/dispatch [::events/modal-data
                 {:show true
                  :title nil
-                 ;:width "500px"
-                 :content [:div {:id "snap"}]
+                 :width "500px"
+                 :content [:div {:id "snap"
+                                 :style {:margin-left "15%"}} "Use your browser controls to copy the image below"]
                  :paste (partial snap/show-screen-shot canvas)
                  :cancel hide-handler
                  :onHide hide-handler}]))

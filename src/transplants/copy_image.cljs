@@ -20,9 +20,9 @@
       (.then done)))
 
 (defn show-screen-shot
-  "Fisplay a canvas by appending it to to-element"
+  "Display a canvas by appending it to to-element"
   [canvas to-element]
-  (.appendChild to-element canvas))
+  (.appendChild to-element canvas)) 
 
 
 

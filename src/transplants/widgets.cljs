@@ -92,13 +92,12 @@
 (defn show-canvas-modal
   "Pop up a large modal ready to display the canvas on it"
   [canvas]
-  (let [ctx (.getContext canvas "2d")]
-    (goog.object.set canvas "style" "border: 20px solid yellow"))
-
+  (.getContext canvas "2d")
+  (goog.object.set canvas "style" "width 500px; padding 100px")
   (rf/dispatch [::events/modal-data
                 {:show true
                  :title nil
-                 :width "500px"
+                 ;:width "500px"
                  :content [:div {:id "snap"}]
                  :paste (partial snap/show-screen-shot canvas)
                  :cancel hide-handler

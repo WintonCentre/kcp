@@ -58,3 +58,7 @@ resources/r_model_tests/kidney/graft/surv.html
 edn-paths-lung.txt
 .gitignore
 edn-paths-kidney.txt
+resources/precache_paths_kidney.txt
+resources/precache_paths_lung.txt
+resources/precache_paths_kidney.edn
+resources/precache_paths_lung.edn

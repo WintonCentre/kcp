@@ -1,5 +1,8 @@
 {:source-paths ["src" "test"]
 
+ ;;
+ ;; We should split cljs and clj dependencies up to avoid any cross talk.
+ ;;
  :dependencies
  [;[com.cognitect/transit-js "0.8.867"]
   [reagent               "1.1.0"]

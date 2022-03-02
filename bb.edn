@@ -1,8 +1,8 @@
 ;;
 ;; similar in function to the `npm run` tasks initially, but written in clojure
 ;;
-{:paths ["bb_scripts"]
- :deps {}
+{:paths ["bb_scripts" "resources"]
+ :deps  {}
  :tasks {:requires ([babashka.fs :as fs]
                     [clojure.string :as string])
          ;:init (defn env [s] (System/getenv s))
@@ -34,6 +34,8 @@
          share-xlsx (shell "bb -f bb_scripts/upload_xlsx.clj") ;; publish .xslx files to dropbox
          lint-subs (shell "bb -f bb_scripts/re_frame_subscriptions.clj")
          run-tests (shell "bb --file ./test_runner.clj")
+         lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
+         kidney (shell "bb --file ./bbsrc/organ-switch.clj --classpath bbsrc:resources -g kidney")
          test-prep (do
                      (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t graft -c Belfast")
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")

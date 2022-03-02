@@ -319,7 +319,7 @@
 (defn export-all-edn-bundles
   "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
   []
-  (doseq [organ [:lung :kidney]]
+  #_(doseq [organ [:lung :kidney]]
     (spit (log-path organ) ""))
 
   (doseq [organ [:lung :kidney]

@@ -33,8 +33,8 @@
    [clojure.tools.cli :refer [parse-opts]]))
 
 #_(comment
-  ; clj-bom isn't compiled into babashka unfortubately.
-  ; I think we would need to be make it available in a pod.
+  ; clj-bom isn't compiled into babashka unfortunately.
+  ; I think we would need to make it available in a pod.
 
     (def bom-deps '{:deps {clj-bom {:mvn/version "0.1.2"}}})
     (def cp (-> (sh "clojure" "-Spath" "-Sdeps" (str bom-deps)) :out str/trim))
@@ -70,6 +70,7 @@
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
+;; Run `bb lung` or `bb kidney`  first
 (def metadata (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn"))))
 
 (defn get-organ [] (first (:organ-order metadata)))
@@ -92,15 +93,29 @@
                                                     (not (near-zero? (- a b)))))
 (defn near? "Are two reals nearly identical?" [a b] (when (and (number? a) (number? b))
                                                       (near-zero? (- a b))))
-#_(comment
-    (near-zero? -1e-9)
-    (near-zero? 1e9)
+(comment
+  (times {:centre "Belfast", :organ "kidney", :tool "graft"})
+  ;; => [1 3 5]
 
-    (near? 0 1)
-    (near? 0.000000001 0)
-    (near? 0.000000001 0)
-    (near? nil 0)
-    (near? nil nil))
+  (near-zero? -1e-9)
+  ;; => true
+
+  (near-zero? 1e9)
+  ;; => false
+
+  (near? 0.000000001 0)
+  ;; => true
+
+  (near? 0.00000001 0)
+  ;; => false
+
+  (near? nil 0)
+  ;; => nil
+
+  (near? nil nil)
+  ;; => nil
+
+  )
 
 
 
@@ -118,11 +133,6 @@
 
 (defn base-dir [{:keys [organ tool]}]
   (str "resources" file-sep "r_model_tests" file-sep organ file-sep tool))
-
-#_(def params
-  "get params as pair of vectors of r-names and parameter values, skipping the byte order mark"
-  (let [[names values] (csv/read-csv (subs (slurp (str (base-dir options) file-sep "params.csv")) 0))]
-    [(map str/trim names) (map edn/read-string values)]))
 
 (defn params
   "get params as pair of vectors of r-names and parameter values, skipping the byte order mark"
@@ -198,7 +208,9 @@
       :else {:r-factor (first parts)
              :r-level (str/join "_" (next parts))})))
 (comment
+  (def options {:centre "Belfast", :organ "kidney", :tool "waiting"})
   (parse-r-name options "dth_rage_4")
+  (parse-r-name options "tx_sex_1")
   (parse-r-name options "rem_rage_4")
   (parse-r-name options "tx_in_hosp_2")
   (parse-r-name options "tx_prev_thor_1")

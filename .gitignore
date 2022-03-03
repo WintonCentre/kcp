@@ -65,3 +65,5 @@ resources/precache_paths_lung.edn
 resources/public/index.html
 .gitignore
 .gitignore
+resources/public/metadata.edn
+resources/public/sw_cache_update.js

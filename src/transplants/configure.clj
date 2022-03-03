@@ -284,7 +284,8 @@
                        "/css/open-iconic-bootstrap.min.css"
                        "/css/foo.css"
                        "/fonts/open-iconic.ttf"
-                       "/fonts/open-iconic.woff"])
+                       "/fonts/open-iconic.woff"
+])
 
 (defn write-edn-bundle
   "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres.
@@ -319,12 +320,13 @@
 (defn export-all-edn-bundles
   "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
   []
-  #_(doseq [organ [:lung :kidney]]
-    (spit (log-path organ) ""))
 
   (doseq [organ [:lung :kidney]
           sheet [:tools :centres]
           :let [precache (atom precache-common)]]
+    
+    ;; Add in the tools.txt files that are otherwise missed for some reason
+    (swap! precache conj (str "/" (name organ) "/edn/tools.txt"))
 
     (write-sheet precache organ sheet)
 
@@ -336,6 +338,7 @@
       ;(println ::organ organ :centre centre :tool-key tool-key)
 
           (write-edn-bundle precache organ
+                            ;; todo - this isn't a generalised test for the special case handling for all-centre models
                             (if (contains? #{:ldgraft :ldsurvival} tool-key) "UK" centre)
                             tool-key))))
     (spit (precache-paths organ) (pr-str @precache)))

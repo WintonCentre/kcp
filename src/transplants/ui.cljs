@@ -98,7 +98,7 @@ in the routes table."
             favicon (str "/assets/favicon_" (name single-organ) ".png")]
         (load-favicon favicon)
 
-        [:> bs/Navbar {#_#_:bg "dark" :expand "md" #_#_:fixed "top"
+        [:> bs/Navbar {#_#_:bg "dark" :expand "lg" #_#_:fixed "top"
                        :variant "dark"
                        :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
          [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
@@ -157,7 +157,9 @@ in the routes table."
 
                                (:name centre)])
                             (filter #(not= (:name %) "UK") centres))))))]
-          [:> bs/Nav {:class "ml-auto" :style {:height "100%" :vertical-align "middle"}}
+          [:> bs/Nav {:class "ml-auto" 
+                      :style {:height "100%" :vertical-align "middle"}
+                      }
            [:> bs/Button {:href (clojure.string/replace (str "mailto:"
                                                              (name single-organ)
                                                              "transplants@statslab.cam.ac.uk"
@@ -170,7 +172,9 @@ in the routes table."
                                                              "(e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot "
                                                              "of the problem.")
                                                         " " "%20")
-                          :variant "info"} " ✉️ Feedback"]]]])
+                          :variant "info"
+                          #_#_:class "ml-auto"
+                          } " ✉️ Feedback"]]]])
       [loading])))
 
 (comment

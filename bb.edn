@@ -35,7 +35,7 @@
          lint-subs (shell "bb -f bb_scripts/re_frame_subscriptions.clj")
          run-tests (shell "bb --file ./test_runner.clj")
          lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
-         kidney (shell "bb --file ./bbsrc/organ-switch.clj --classpath bbsrc:resources -g kidney")
+         kidney (shell "bb --file ./bbsrc/organ-switch.clj -g kidney")
          test-prep (do
                      (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t graft -c Belfast")
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")

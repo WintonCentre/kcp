@@ -62,3 +62,6 @@ resources/precache_paths_kidney.txt
 resources/precache_paths_lung.txt
 resources/precache_paths_kidney.edn
 resources/precache_paths_lung.edn
+resources/public/index.html
+.gitignore
+.gitignore

@@ -67,3 +67,4 @@ resources/public/index.html
 .gitignore
 resources/public/metadata.edn
 resources/public/sw_cache_update.js
+bbsrc/etaoin.clj

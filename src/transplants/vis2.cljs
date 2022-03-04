@@ -1122,7 +1122,10 @@
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)
                  :style {:margin 0 :padding 0}}
-            [:div {:style {:margin 0 :padding 15
+            [:div {:id (str "index-" i) 
+                   :data-year time-index
+                   :data-value (nth int-fs j)
+                   :style {:margin 0 :padding 15
                            :background-image (str "url(" (apply utils/fill-data-url fill) ")")
                            :background-repeat "repeat"
                            :height "100%"}}

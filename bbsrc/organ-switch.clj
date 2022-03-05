@@ -1,28 +1,14 @@
 #!/usr/bin/env bb --classpath resources
 
 (ns organ-switch
-  "Switches the repo between ranspant organs - kidney or lung.
+  "Switches the repo between transplant organs - kidney or lung.
    
    It does this by 
-   1) writing :organ-order
-   
-   Before running this tool, ensure that you have renamed the R tool folder, the
-   R file, and the CSV files it needs.
-   
-   For example, LD graft incoming files (e.g. doc/Sally/kidney 31.03.21) should be copied into
-   resources/r_model_tests/kidney/ldgraft and given simpler names.
-   
-   The tool folders needed are listed in resources/r_model_tests, and each folder should
-   contain adjcox.R (the adjcox model), surv.csv (survival baseline), params.csv (log hazard ratios).
+   1) Generating metadata,ed with the correct :organ-order
+   2) Generating sw_cache_update.js with the correct precache files
+   3) Generating index.html with the correct matomo site-id
 
-   surv.Rmd should be the same in all directories.
-
-   RUNNING from project folder: 
-   bb --file ./bb_scripts/test_prep.clj -g kidney -t graft -c Belfast
-                                                                       see <project-folder>/bb.edn
-   =======
-   WIP: Automated parameter cross checks run from `bb run-tests` - see bbsrc and bbtest and <project-folder>/test-runner
-   =======
+   All these resources/public files are generated from templates in resources.
    "
   (:require 
    [clojure.pprint :refer [pprint]]

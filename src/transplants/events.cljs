@@ -227,6 +227,14 @@
    [db [_ selection]]
    (assoc db :selected-vis selection)))
 
+
+(rf/reg-event-db
+ ::selected-inputs-vis
+ (fn
+   [db [_ selection]]
+   (assoc db :selected-vis selection)))
+
+
 (rf/reg-event-db
  ::missing-inputs
  (fn

@@ -1109,7 +1109,7 @@
                        #_#_:color "#fff"
                        #_#_:background-color "#888"}
                :key (str "y-" i)} line])]]
-     [:tbody
+     [:tbody#result-table
       (for [j (range (count plot-order))
             :let [style ((nth plot-order j) data-styles)
                   long-label (:long-label style)
@@ -1122,7 +1122,7 @@
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)
                  :style {:margin 0 :padding 0}}
-            [:div {:id (str "index-" i) 
+            [:div {:id (str (name (plot-order j)) "-" i) 
                    :data-year time-index
                    :data-value (nth int-fs j)
                    :style {:margin 0 :padding 15

@@ -109,7 +109,23 @@
                                   (tap> {:tab  tab
                                          :params params})
                                   (rf/dispatch [::events/selected-vis tab])))
-                       :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]])
+                       :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}
+       [""]
+       ["/:inputs"
+        {:name ::views/organ-centre-tool-tab-inputs
+         :view views/organ-centre-tool-tab-inputs
+         :link-text "organ-centre-tool-tab-inputs"
+         :controllers [{:parameters {:path [:organ :centre :tool :tab :inputs]}
+                        :start (fn [params]
+                                 (let [_tool (keyword (get-in params [:path :tool]))
+                                       tab (keyword (get-in params [:path :tab]))
+                                       inputs (keyword (get-in params [:path :inputs]))]
+                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
+                                   (tap> {:tab  tab
+                                          :inputs inputs
+                                          :params params})
+                                   (rf/dispatch [::events/selected-inputs-vis inputs tab])))
+                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
 
 
 (comment

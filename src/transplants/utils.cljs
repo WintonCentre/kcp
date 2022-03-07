@@ -1,6 +1,7 @@
 (ns transplants.utils
   (:require [clojure.string :as str]
             [clojure.edn :as edn]
+            [clojure.set :as set]
             ;[shadow.debug :refer [?->]]
             ))
 
@@ -190,9 +191,75 @@
 ;;;
 ;; url encoder decoders translating between db inputs map and URL parameter formats
 ;;;
-(defn inputs-encoder
-  "returns a string containing the inputs encoded for the URL"
-  [inputs-map]
+(defn make-lookups
+  "make bidirectional lookup table from abbreviations read in from metadata :appreviations"
+  [abbreviations]
+  (let [shortener   (into {} (mapcat
+                              (fn [[long-factor-k [short-factor-k levels]]]
+                                #_long-factor-k
+                                (mapv
+                                 (fn [[long-level short-level]]
+                                   [[long-factor-k long-level] [short-factor-k short-level]])
+                                 levels))
+                              abbreviations))]
+    
+    shortener))
+
+(defn db-to-URI
+  "compress a db inputs map (excluding the wrapping organ) into a URI parameter string"
+  [lookups m]
+  (str/join (mapcat lookups m)))
+
+(defn URI-to-db
+  "expand a URI parameter string into a db inputs map"
+  [ilookups s]
+  (into {} (map ilookups (into {} (map vec (partition 2 2 s))))))
+
+(comment
+  (def test-data {:blood-group ["B" {:O "o"
+                                     :A "a"
+                                     :B "b"
+                                     :AB "ab"}]
+                  :wait ["W" {:<=1 "1"
+                              :<=3 "3"
+                              :<=5 "5"
+                              :<=7 "7"
+                              :>7 "8"}]
+                  :donor-ht ["h" {:yes "y"
+                                  :no "n"
+                                  :unknown "u"}]
+                  :hla-mismatch ["l" {:1 "1"
+                                      :2 "2"
+                                      :3 "3"
+                                      :4 "4"
+                                      :unknown "u"}]})
+
+  (def lookups (make-lookups test-data))
+  (def ilookups (set/map-invert lookups))
+  (db-to-URI lookups {:blood-group :B :hla-mismatch :3})
+  ;; => "Bbl3"
+
+  (URI-to-db ilookups "Bbl3")
+  ;; => {:blood-group :B, :hla-mismatch :3}
+
+  (db-to-URI lookups {:blood-group :B :hla-mismatch :3 :donor-ht :unknown :wait :<=5})
+  ;; => "Bbl3huW5"
+  
+  (URI-to-db ilookups (db-to-URI lookups {:blood-group :B :hla-mismatch :3 :donor-ht :unknown :wait :<=5}))
+  ;; => {:blood-group :B, :hla-mismatch :3, :donor-ht :unknown, :wait :<=5}
+
+  )
+
+#_(defn shorten-stored-inputs
+  "Given inputs from the database, returns a string containing the inputs encoded for the URL"
+  [organ inputs-map]
+  (let [inputs (if-let [ins (organ inputs-map)] ins inputs-map)]
+    (into )
+    (map
+     (fn [[factor-k level-k :as long-keys]]
+       (shorten long-keys)
+       ) 
+     inputs))
   (pr-str inputs-map))
 
 (defn inputs-decoder

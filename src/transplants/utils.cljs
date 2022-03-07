@@ -1,5 +1,6 @@
 (ns transplants.utils
   (:require [clojure.string :as str]
+            [clojure.edn :as edn]
             ;[shadow.debug :refer [?->]]
             ))
 
@@ -183,4 +184,19 @@
 
 (comment
   (fill-data-url 255 128 50)
+  )
+
+
+;;;
+;; url encoder decoders translating between db inputs map and URL parameter formats
+;;;
+(defn inputs-encoder
+  "returns a string containing the inputs encoded for the URL"
+  [inputs-map]
+  (pr-str inputs-map))
+
+(defn inputs-decoder
+  "decodes inputs from the url string format"
+  [inputs-string]
+  (edn/read-string inputs-string)
   )

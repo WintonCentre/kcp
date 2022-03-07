@@ -1007,6 +1007,7 @@
 
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name]}]
+  #_(?-> {:tab tab :path-inputs path-inputs} ::tab-path-inputs)
   (when (and organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
@@ -1109,7 +1110,7 @@
        [ui/row
         [ui/col {:class-name "d-none d-md-block"}]]])))
 
-(defn organ-centre
+#_(defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre. I think we no longer use this component because we always set the tool to 
    the first available one for the organ, so we never display a page without a known tool.
@@ -1136,7 +1137,7 @@
     ))
 
 
-(defn organ-centre-tool
+#_(defn organ-centre-tool
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
   []
@@ -1158,7 +1159,7 @@
                 :organ-name organ-name
                 :centre-name centre-name})))
 
-(defn organ-centre-tool-tab
+#_(defn organ-centre-tool-tab
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
    for that organ and centre."
   []
@@ -1187,10 +1188,12 @@
   (let [route @(rf/subscribe [::subs/current-route])
         mdata @(rf/subscribe [::subs/mdata])
         organ-centres @(rf/subscribe [::subs/organ-centres])
-        [organ-name centre-name tool-name :as p-names] (utils/path-names (:path-params route))
+        path-params (:path-params route)
+        [organ-name centre-name tool-name :as p-names] (utils/path-names path-params)
         tool-name (if (nil? tool-name) :waiting tool-name)
         [organ centre tool] (map keyword p-names)
-        tools (utils/get-tools mdata organ)]
+        tools (utils/get-tools mdata organ)
+        ]
 
     (tool-page {:organ organ
                 :organ-centres organ-centres

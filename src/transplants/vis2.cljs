@@ -13,7 +13,7 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [medley.core :as medl]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 ;;
@@ -1196,7 +1196,6 @@ After 3 years	75  of them to have received a transplant
 
 (defn test-render
   [organ tool inputs year-series plot-order]
-  (locals)
   #_(let [labels (get-in tool-mdata [:table :labels])
           years (range (count labels))]
       [:div {:style {:margin-top 20}}
@@ -1219,7 +1218,6 @@ After 3 years	75  of them to have received a transplant
 (defn text
   "a text results view"
   [{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
-  (?-> env ::text)
 
   (let [sample-days (map
                      utils/year->day

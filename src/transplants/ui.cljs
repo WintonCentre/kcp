@@ -10,7 +10,8 @@ the low level ui."
               [transplants.subs :as subs]
               [transplants.numeric-input :as ni]
               [transplants.bsio :as bsio]
-              [shadow.debug :refer [?-> ?->> locals]]))
+              ;[shadow.debug :refer [?-> ?->> locals]]
+              ))
 
 (enable-console-print!)
 
@@ -139,20 +140,20 @@ in the routes table."
                             :class-name (when (= :transplants.views/tech (get-in route [:data :name])) "active")} "Technical"]
            (when organ-centres
              (when-let [centres (organ organ-centres)]
-               (let [tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])]
+               (let [path-params (:path-params @(rf/subscribe [::subs/current-route]))
+                     tool (path-params :tool)
+                     tab (path-params :tab)
+                     inputs (path-params :inputs)]
                  (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
                                            :title "Transplant Centres" :id "basic-nav-dropdown"}]
                        (map (fn [centre]
                               [:> bs/NavDropdown.Item
-                               {:href (if tool
-                                        (href :transplants.views/organ-centre-tool
-                                              {:organ (name single-organ)
-                                               :centre (name (:key centre))
-                                               :tool (name tool)})
-                                        (href :transplants.views/organ-centre-tool
-                                              {:organ (name single-organ)
-                                               :centre (name (:key centre))
-                                               :tool "waiting"}))
+                               {:href (href :transplants.views/organ-centre-tool-tab-inputs
+                                            {:organ (name single-organ)
+                                             :centre (name (:key centre))
+                                             :tool (if tool (name tool) "waiting")
+                                             :tab (if tab tab "bars")
+                                             :inputs (if inputs inputs {})})
                                 :key (name (:key centre))}
 
                                (:name centre)])
@@ -238,32 +239,23 @@ in the routes table."
                      :margin-right 0}
              :active active
              :key key
-             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
+             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
                                       {:organ organ
                                        :centre centre
-                                       :tool tool}])}
-     label])
-  #_(let [active (= (name tool) active-tool)
-          tab @(rf/subscribe [::subs/selected-vis])]
-      [button {:id (str (name organ) "-" (name centre) "-" (name key))
-               :variant (if active button-type (str "outline-" button-type))
-               :style {:margin-bottom 2
-                       :margin-right 0}
-               :active active
-               :key key
-               :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
-                                        {:organ organ
-                                         :centre centre
-                                         :tool tool
-                                         :tab (if tab tab :bars)}])}
-       label]))
+                                       :tool tool
+                                       :tab @(rf/subscribe [::subs/selected-vis])
+                                       :inputs ((keyword organ) @(rf/subscribe [::subs/inputs]))}])}
+     label]))
 
 (comment
-  (rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
+  (rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
                 {:organ :kidney
                  :centre "birm"
                  :tool :survival
-                 :tab "bars"}]))
+                 :tab "bars"
+                 :inputs {}}])
+
+  )
 
 (defn background-link
   "Tool menu prefix rubric."
@@ -326,36 +318,51 @@ in the routes table."
 (defn nav-card
   "Render a desktop compatible card containing hospital-local links to tools"
   [{:keys [#_img-src organ centre hospital _link width tools]}]
-  [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
-   [:> bs/Card.Body {:style {:display "flex"
-                             :flex-direction "column"
-                             :justify-content "space-around"
-                             :padding-top 20}}
-    [:> bs/Card.Title {:style {:font-size "1.2 rem"}}
+  (let [tab (if-let [selected-vis @(rf/subscribe [::subs/selected-vis])]
+              selected-vis
+              "bars")
+        inputs (if-let [stored-inputs @(rf/subscribe [::subs/inputs])]
+                 stored-inputs
+                 {(keyword organ) {}})]
+    [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
+     [:> bs/Card.Body {:style {:display "flex"
+                               :flex-direction "column"
+                               :justify-content "space-around"
+                               :padding-top 20}}
+      [:> bs/Card.Title {:style {:font-size "1.2 rem"}}
      ;;
      ;; Note that clicking on a title now routes you to the first tool rather than to an
      ;; organ/centre home page.
      ;;
-     [:a {:href "#" #_(apply rfe/href link) ; Disable link to an organ/centre home page
-          :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                   {:organ organ
-                                    :centre centre
-                                    :tool (first tools)}])}
-      hospital]]
-    [tools-menu tools false organ centre {:vertical true}]]])
+       [:a {:href "#" #_(apply rfe/href link) ; Disable link to an organ/centre home page
+            :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+                                     {:organ organ
+                                      :centre centre
+                                      :tool (first tools)
+                                      :tab tab
+                                      :inputs inputs}])}
+        hospital]]
+      [tools-menu tools false organ centre {:vertical true}]]]))
 
 (defn phone-card
   "Render a mobile compatible card - actually a list item - containing hospital-local links to tools"
   [{:keys [hospital _link organ centre tools]}]
-
+  (let [tab (if-let [selected-vis @(rf/subscribe [::subs/selected-vis])]
+              selected-vis
+              "bars")
+        inputs (if-let [stored-inputs @(rf/subscribe [::subs/inputs])]
+                 stored-inputs
+                 {(keyword organ) {}})]
   ;(println ::phone "PHONE!!!")
-  [:> bs/ListGroup.Item {:action true
+    [:> bs/ListGroup.Item {:action true
                          ;:href (apply rfe/href link)
-                         :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool
-                                                  {:organ organ
-                                                   :centre centre
-                                                   :tool (first tools)}])}
-   hospital])
+                           :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+                                                    {:organ organ
+                                                     :centre centre
+                                                     :tool (first tools)
+                                                     :tab tab
+                                                     :inputs inputs #_path-inputs}])}
+     hospital]))
 
 (defn page
   "A generic page component, rendering a title and the page's children"

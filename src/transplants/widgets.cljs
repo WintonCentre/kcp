@@ -7,7 +7,8 @@
             [transplants.events :as events]
             [transplants.numeric-input :as num]
             [transplants.copy-image :as snap]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]))
+            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            ))
 
 (defn key->id
   "Convert a namespaced factor key to an id"
@@ -173,7 +174,7 @@
                                                   ;:content (edn/read-string (:info-box? w))
                                                   :onHide hide-handler
                                                   :ok hide-handler}])
-                                   (?-> {:show true
+                                   #_(?-> {:show true
                                          :title (get info-box :title (:factor-name w))
                                          :content (get info-box :content info-box)
                                          #_(str "Some text for " (:factor-name w))

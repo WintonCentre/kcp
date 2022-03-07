@@ -1,5 +1,6 @@
 (ns transplants.routes
   (:require
+   [clojure.edn :as edn]
    [re-frame.core :as rf]
    [reitit.core :as r]
    [reitit.coercion.spec :as rss]
@@ -81,7 +82,7 @@
                              :stop  (fn [_params] (js/console.log (str "Leaving " :organ " Home")))}]}
     [""] ; required to make [":organ"] a leaf route
     ["/:centre" {:name ::views/organ-centre
-                 :view views/organ-centre
+                 :view views/organ-centre-tool-tab-inputs
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
                                 :start (fn [params]
@@ -89,7 +90,7 @@
                                 :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :centre])))}]}
      [""] ; required to make [":organ/:centre"] a leaf route
      ["/:tool" {:name ::views/organ-centre-tool
-                :view views/organ-centre-tool
+                :view views/organ-centre-tool-tab-inputs
                 :link-text "organ-centre-tool"
                 :controllers [{:parameters {:path [:organ :centre :tool]}
                                :start (fn [params]
@@ -99,15 +100,13 @@
       [""] ; required to make [":organ/:centre/:tool"] a leaf route
       ["/:tab" ; 
        {:name ::views/organ-centre-tool-tab
-        :view views/organ-centre-tool-tab
+        :view views/organ-centre-tool-tab-inputs
         :link-text "organ-centre-tool-tab"
         :controllers [{:parameters {:path [:organ :centre :tool :tab]}
                        :start (fn [params]
                                 (let [_tool (keyword (get-in params [:path :tool]))
                                       tab (keyword (get-in params [:path :tab]))]
                                   (js/console.log "Entering organ-centre-tool-tab: " params)
-                                  (tap> {:tab  tab
-                                         :params params})
                                   (rf/dispatch [::events/selected-vis tab])))
                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}
        [""]
@@ -116,15 +115,21 @@
          :view views/organ-centre-tool-tab-inputs
          :link-text "organ-centre-tool-tab-inputs"
          :controllers [{:parameters {:path [:organ :centre :tool :tab :inputs]}
-                        :start (fn [params]
-                                 (let [_tool (keyword (get-in params [:path :tool]))
-                                       tab (keyword (get-in params [:path :tab]))
-                                       inputs (keyword (get-in params [:path :inputs]))]
+                        :start  (fn [params]
+                                 (let [tab (keyword (get-in params [:path :tab]))
+                                       organ (keyword (get-in params [:path :organ]))
+                                       ;;todo move and validate the following
+                                       inputs (-> (get-in params [:path :inputs])
+                                                  (js/decodeURI)
+                                                  (edn/read-string))]
                                    (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
-                                   (tap> {:tab  tab
-                                          :inputs inputs
-                                          :params params})
-                                   (rf/dispatch [::events/selected-inputs-vis inputs tab])))
+                                   ;(js/console.log "tab" tab)()
+                                   ;(js/console.log "organ" organ)
+                                   ;(js/console.log "inputs" inputs)
+                                   (if (map? inputs)
+                                     (rf/dispatch [::events/selected-inputs-vis organ inputs tab])
+                                     (rf/dispatch [::events/selected-vis tab])
+                                     )))
                         :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
 
 

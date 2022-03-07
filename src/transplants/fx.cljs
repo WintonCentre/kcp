@@ -1,8 +1,9 @@
 (ns transplants.fx
-  (:require [re-frame.core :as rf]
+  (:require [clojure.edn :as edn]
+            [re-frame.core :as rf]
             [reitit.frontend.easy :as rfe]
             [transplants.paths :as paths]
-            ;[shadow.debug :refer [?-> locals]]
+            ; :refer [?-> locals]]
             ))
 
 
@@ -38,17 +39,6 @@
                         :kidney "Kidney Transplants"
                         :else "Metadata Error"))
      (rf/dispatch [:transplants.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))
-
-(comment
-  ; from predict code
-  #_(defn get-dictionary
-      "read dictionary ops from a url.
-  USED IN PRODUCTION DICTIONARY LOAD"
-      ([url {:keys [on-error handler]}]
-       (GET url {:error-handler file-error                      ;on-error
-                 :handler       handler
-                 :format        :transit                        ;:transit
-                 }))))
   
 (defn reg-factor
   "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause a console warning
@@ -59,7 +49,42 @@
   [organ-k factor-k]
   (let [ref-k (keyword (name organ-k) (name factor-k))]
     (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
-    (rf/reg-event-db ref-k (fn [db [_ v]] (assoc-in db [:inputs organ-k factor-k] v)))))
+    ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation 
+    ;; in order to make inputs appear in the URL.
+    (rf/reg-event-db ref-k (fn [db [_ v]]
+                             ;; re-route to the URL with the newly changed input
+                             #_(?-> [v (-> db
+                                         :current-route
+                                         :path-params
+                                         :inputs)] ::current-route)
+
+                             (let [path (-> db :current-route :path-params)
+                                   path-inputs (:inputs path)]
+                               (if path-inputs
+                                 (do
+                                   #_(?-> path ::path)
+                                   #_(?-> (-> path-inputs
+                                            js/decodeURI
+                                            edn/read-string
+                                            (assoc factor-k v)
+                                            pr-str
+                                            js/encodeURI) ::assoc-inputs)
+                                   (rf/dispatch [:transplants.events/navigate
+                                                 :transplants.views/organ-centre-tool-tab-inputs
+                                                 (assoc path
+                                                        :tab (:tab path)
+                                                        :inputs (-> path-inputs
+                                                                    js/decodeURI
+                                                                    edn/read-string
+                                                                    (assoc factor-k v)
+                                                                    pr-str
+                                                                    js/encodeURI))])
+                                   (assoc-in db [:inputs organ-k factor-k] v))
+                                 
+
+                             ;; EDIT-ME: Should we navigate to a new URL instead here?
+
+                                 (assoc-in db [:inputs organ-k factor-k] v)))))))
 
 (defn reg-factors
   "Function which registers all organ factors given in a seq of factor maps"

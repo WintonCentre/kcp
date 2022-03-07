@@ -229,10 +229,14 @@
 
 
 (rf/reg-event-db
+ ;; Takes inputs and the view seection from the route, and enters them in the db
  ::selected-inputs-vis
  (fn
-   [db [_ selection]]
-   (assoc db :selected-vis selection)))
+   [db [_ organ inputs selection]]
+   (assoc db 
+          :selected-vis selection
+          :inputs {organ inputs}
+          )))
 
 
 (rf/reg-event-db

@@ -109,6 +109,7 @@
                   [:F F] ;; is this needed ?
                   )
         inputs (:inputs env)
+        ;_ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
@@ -184,8 +185,11 @@
        [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                  :active-key (:selected-vis env)
                  :on-select #_#(rf/dispatch [::events/selected-vis %])
-                 #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab
-                                (assoc path :tab %)])}
+                 #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+                                (assoc path 
+                                       :tab %
+                                       :inputs (-> (pr-str inputs) (js/encodeURI))
+                                       )])}
         [ui/tab {:event-key "bars" :title "Bar Chart"}
          [vis/bar-chart env]]
 

@@ -111,35 +111,32 @@
   "Display a generic home page. 
    Minimally, navigation from here to an organ home page."
   []
-  ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
         route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
         organ (get-in route [:path-params :organ])]
     ;(locals)
-    (js/console.log "checkpoint 6 home-page")
     (if mdata
       (if-let [organ (or single-organ organ)]
-        (do (js/console.log "checkpoint 7 got mdata")
-            [ui/decorated-page
-             [:div {:style {:width "calc(100% + 30px)"
-                            :background-color "#337777"; "#E0E0E8"
-                            :margin-left "-15px"
-                            :padding "15px"}}
-              [ui/row
-               [ui/col {:md 4}
-                [:img (if (= organ :lung)
-                        {:src "/assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
-                        {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
-               [ui/col {:md 8 :style {:color "#fff"}}
-                [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
-                [:p [:b "The tool should be used with a transplant doctor, specialist nurse or other healthcare professional."]]
-                [:p [:b "If you are a patient and you use this site on your own, discuss the results with your transplant"
-                     (if (= organ :kidney) " or dialysis" "") " team."]]]]]
-             (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
-             [ui/row
-              [ui/col
-               [:<> (leila-text mdata)]]]]))
+        [ui/decorated-page
+         [:div {:style {:width "calc(100% + 30px)"
+                        :background-color "#337777"; "#E0E0E8"
+                        :margin-left "-15px"
+                        :padding "15px"}}
+          [ui/row
+           [ui/col {:md 4}
+            [:img (if (= organ :lung)
+                    {:src "/assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
+                    {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
+           [ui/col {:md 8 :style {:color "#fff"}}
+            [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
+            [:p [:b "The tool should be used with a transplant doctor, specialist nurse or other healthcare professional."]]
+            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your transplant"
+                 (if (= organ :kidney) " or dialysis" "") " team."]]]]]
+         (str (string/capitalize (name single-organ)) " Transplants: Understanding the Numbers")
+         [ui/row
+          [ui/col
+           [:<> (leila-text mdata)]]]])
       [ui/loading])))
 
 

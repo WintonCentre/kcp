@@ -79,7 +79,6 @@
                 (if (> val-2 nmax)                          ; no; is it too big?
                   (str (num-to-str val-2) ":" val-2)        ; yes, return good and bad values, in colon separated string
                   val-2))]
-    #_(js/console.log "out-value " value)
     (if (js/isNaN value)                                    ; Case when user has deleted value using backspace.
       nmin #_" :0"                                                 ; and there is no input there.
       val-3                                                 ; Otherwise return
@@ -95,19 +94,13 @@
 
 (defn handle-inc [value on-change nmin nmax dps increment] ; 
   (let [v (validate-input value nmin nmax increment)]
-    ;(js/console.log (str "handle-inc: value " value " inc " increment))
-    ;(js/console.log (str "handle-inc: v " v))
     (on-change (num-to-str v dps))))
 
 
 (defn handle-typed-input [value-f nmin nmax dps on-change e]
   (let [value (.. (-> e .-target) -value)]
-    ;(js/console.log (str "hti: value-f " (value-f) " value " value))
     (if (re-matches #"\s*\d*\.?\d*\s*" value)               ; todo: should this be d+ rather than d*?
       (when (not=  value (value-f))
-        ;(js/console.log (str "hti old: " (value-f) " new " value " valid " (validate-input (str-to-num value) nmin nmax 0)))
-        ;(js/console.log (str "hti old: " (value-f) " new " value " -> " (num-to-str (validate-input (str-to-num value) nmin nmax 0))))
-
         (on-change (if (not= (str-to-num value) (str-to-num (value-f)))
                      (num-to-str (validate-input (str-to-num value) nmin nmax 0) dps)
                      value)))

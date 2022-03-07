@@ -123,9 +123,6 @@
                                                   (js/decodeURI)
                                                   (edn/read-string))]
                                    (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
-                                   ;(js/console.log "tab" tab)()
-                                   ;(js/console.log "organ" organ)
-                                   ;(js/console.log "inputs" inputs)
                                    (if (map? inputs)
                                      (rf/dispatch [::events/selected-inputs-vis organ inputs tab])
                                      (rf/dispatch [::events/selected-vis tab])
@@ -165,7 +162,6 @@
 (goog-define frag? false)
 
 (defn init-routes! []
-  (js/console.log "initializing routes")
   (rfe/start!
    router
    on-navigate

@@ -27,14 +27,8 @@
    shadow-cljs to call mount-root after a hot-reload and clear the subsciption cache so
    everything gets updated nicely."
   []
-  (js/console.log "checkpoint mount-root 1")
   (rf/clear-subscription-cache!)
-
-  (js/console.log "checkpoint mount-root 2")
-  
   (routes/init-routes!) ;; Reset routes on figwheel reload
-  (js/console.log "checkpoint mount-root 3")
-
   (rd/render [err-boundary
               [ui/root-component {:router routes/router
                                   :subscribe-current-route #(rf/subscribe [::subs/current-route])}]]
@@ -68,16 +62,10 @@
   (try
     (-> (. js/navigator.serviceWorker (register "/sw_cache_update.js"))
         (.then (fn [] (js/console.log "service worker registered"))))
-
     (catch js/Object err (js/console.error "Failed to register service worker" err)))
 
   (rf/dispatch-sync [::events/initialize-db])
-
-  #_(js/console.log "checkpoint 1")
-
   (rf/dispatch-sync [::events/load-metadata [paths/metadata-path [:metadata]]])
-
-  #_(js/console.log "checkpoint 2")
 
   ;;; Removing the following two lines as they hard-coded lung and kidney organs into the tool
   ;;; Instead, we obtain the organ list by reading in the metadata file above.
@@ -85,14 +73,8 @@
   ;;(rf/dispatch [::events/load-and-transpose [(paths/centres-path :kidney) [:organ-centres :kidney]]])
 
   (.addEventListener js/window "resize" on-window-resize)
-  #_(js/console.log "checkpoint 3")
-
   (dev-setup)
-  #_(js/console.log "checkpoint 4")
-
-  (mount-root)
-
-  #_(js/console.log "checkpoint 5")) 
+  (mount-root)) 
 
 ; Not needed for shadow-cljs where init is declared as a module entry point
 ;(defonce start-up (do (init) true))
@@ -100,13 +82,13 @@
 (defn ^:export lung-init
   "Entry point for the lung app"
   []
-  (js/console.log "LUNG")
+  ;(js/console.log "LUNG")
   (init)
   )
 
 (defn ^:export kidney_init
   "Entry point for the kidney app"
   []
-  (js/console.log "KIDNEY")
+  ;(js/console.log "KIDNEY")
   (init)
   )

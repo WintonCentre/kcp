@@ -258,7 +258,6 @@
                beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
            [factor level-key (if beta beta 0)])
       (catch :default _e
-        ;(js/console.log "error " (pr-str factor))
         [factor nil 0]))
 
     ; Simple categorical levels.

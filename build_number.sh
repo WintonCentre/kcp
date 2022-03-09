@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 echo "===============Adding build number============="
 BUILD_SEARCH="v-0.0-0.00-0-hash"
-GIT_DESCRIBE=$(git describe)
+GIT_DESCRIBE=$(git describe --tags)
 
 echo ${BUILD_SEARCH}
 echo ${GIT_DESCRIBE}

@@ -185,17 +185,31 @@ in the routes table."
                                                          :centre "card"}))
 
 (defn footer
-  "Site footer. 
+  "Site footer
    todo: Needs to be made configurable."
   []
-  [:div.footer {:style {:width "100%"  :background-color "black" :color "white"
-                        :align-items "center" :justify-content "center"}}
-   [:div {:style {:margin "15px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
-    [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}]
-    [:p [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence Communication.  
+  [:> bs/Container {:fluid "fluid"
+                    :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
+                            :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
+   [:> bs/Row
+    [:div {:style {:margin "10px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
+     [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 20} :alt "University of Cambridge Crest"}]
+     [:p {:style {:margin "0"}} [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence Communication.  
                      It currently displays models disclosed by NHSBT under a data sharing agreement.  
                      It was developed with transplant patients and their partners and clinical teams  
-                     at transplant and referral centres in England. "]]])
+                     at transplant and referral centres in England. "]]]
+   [:> bs/Row {:style {:background-color "black"}}
+    [:div {:style {:font-size "12px" :color "#9E9E9E" :font-family "Helvetica Neue"
+                   :margin "10px auto" :display "flex" :flex-direction "row"}}
+     [:p {:style {:margin "0"}}
+      (str "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved | ")
+      [:a {:style {:color "inherit"} :on-click #(rf/dispatch [::events/navigate :transplants.views/legal]) :href "javascript:void(0)"} "Privacy & Data Protection"]
+      " | "
+      [:a {:style {:color "inherit"} :on-click #(rf/dispatch [::events/navigate :transplants.views/legal]) :href "javascript:void(0)"} "Disclaimer"]]]]
+   [:> bs/Row {:style {:background-color "black"}}
+    [:div {:style {:font-size "12px" :color "#9E9E9E" :font-family "Helvetica Neue"
+                   :margin "auto" :padding "0" :display "flex" :flex-direction "row" :align-items "top"}}
+     [:p "v-0.0-0.00-0-hash"]]]])
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"

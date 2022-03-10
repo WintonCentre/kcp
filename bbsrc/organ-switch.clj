@@ -88,6 +88,12 @@
        (str/replace #"\['setSiteId', 'n'\]" (str "['setSiteId', '" (get matomo-site-id organ) "']")))
    (spit "resources/public/index.html")))
 
+(defn set-manifest
+  [organ]
+  (->>
+   (-> (slurp "resources/public/manifest_template.json")
+       (str/replace #"kidney" organ))
+   (spit "resources/public/manifest.json")))
 
 (defn -main [& _args]
   (let [options (parse-opts *command-line-args* cli-options)

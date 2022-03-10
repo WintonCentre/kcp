@@ -2,8 +2,10 @@
   (:require [clojure.edn :as edn]
             [re-frame.core :as rf]
             [reitit.frontend.easy :as rfe]
+            [transplants.subs :as subs]
             [transplants.paths :as paths]
-            ; :refer [?-> locals]]
+            [transplants.shortener :as shorts]
+            [shadow.debug :refer [?-> locals]]
             ))
 
 
@@ -49,42 +51,87 @@
   [organ-k factor-k]
   (let [ref-k (keyword (name organ-k) (name factor-k))]
     (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
+
+    (rf/reg-event-fx ref-k (fn [{:keys [db]} [_ v]]
+                             ;; re-route to the URL with the newly changed input
+                             ;(?-> (-> db :mdata :ilookups) ::metadata)
+                             
+                             (let [path (-> db :current-route :path-params)
+                                   path-inputs (:inputs path)
+                                   lookups (-> db :mdata :lookups)
+                                   ilookups (-> db :mdata :ilookups)]
+
+                               (if (and path-inputs lookups ilookups)
+                                 (do
+                                   (?-> (-> db :inputs) ::db-inputs)
+                                   (?-> (as-> path-inputs x
+                                          (shorts/URI-to-db ilookups x)
+                                                                    ;js/decodeURI
+                                                                    ;edn/read-string
+                                          (assoc x factor-k v)
+                                                                    ;pr-str x
+                                          (shorts/db-to-URI lookups x)
+                                                                    ;js/encodeURI x
+                                          )::new-inputs)
+                                   {:fx [:dispatch [:transplants.events/navigate
+                                                    :transplants.views/organ-centre-tool-tab-inputs
+                                                    (assoc path
+                                                           :tab (:tab path)
+                                                           :inputs (as-> path-inputs x
+                                                                     (shorts/URI-to-db ilookups x)
+                                                                    ;js/decodeURI
+                                                                    ;edn/read-string
+                                                                     (assoc x factor-k v)
+                                                                    ;pr-str x
+                                                                     (shorts/db-to-URI lookups x)
+                                                                    ;js/encodeURI x
+                                                                     ))]]
+                                    #_#_:db (assoc-in db [:inputs organ-k factor-k] v)}))
+
+                               {:db (assoc-in db [:inputs organ-k factor-k] v)})))
+    
+    #_(rf/reg-event-db ref-k (fn [db [_ v]]
     ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation 
     ;; in order to make inputs appear in the URL.
-    (rf/reg-event-db ref-k (fn [db [_ v]]
                              ;; re-route to the URL with the newly changed input
-                             #_(?-> [v (-> db
-                                         :current-route
-                                         :path-params
-                                         :inputs)] ::current-route)
+                             ;(?-> (-> db :mdata :ilookups) ::metadata)
 
-                             (let [path (-> db :current-route :path-params)
-                                   path-inputs (:inputs path)]
-                               (if path-inputs
-                                 (do
-                                   #_(?-> path ::path)
-                                   #_(?-> (-> path-inputs
-                                            js/decodeURI
-                                            edn/read-string
-                                            (assoc factor-k v)
-                                            pr-str
-                                            js/encodeURI) ::assoc-inputs)
+                               (let [path (-> db :current-route :path-params)
+                                     path-inputs (:inputs path)
+                                     lookups (-> db :mdata :lookups)
+                                     ilookups (-> db :mdata :ilookups)]
+
+                                 (when (and path-inputs lookups ilookups)
+                                   (?-> (-> db :inputs) ::db-inputs)
+                                   (?-> (as-> path-inputs x
+                                          (shorts/URI-to-db ilookups x)
+                                                                    ;js/decodeURI
+                                                                    ;edn/read-string
+                                          (assoc x factor-k v)
+                                                                    ;pr-str x
+                                          (shorts/db-to-URI lookups x)
+                                                                    ;js/encodeURI x
+                                          )::new-inputs)
                                    (rf/dispatch [:transplants.events/navigate
                                                  :transplants.views/organ-centre-tool-tab-inputs
                                                  (assoc path
                                                         :tab (:tab path)
-                                                        :inputs (-> path-inputs
-                                                                    js/decodeURI
-                                                                    edn/read-string
-                                                                    (assoc factor-k v)
-                                                                    pr-str
-                                                                    js/encodeURI))])
-                                   (assoc-in db [:inputs organ-k factor-k] v))
-                                 
+                                                        :inputs (as-> path-inputs x
+                                                                  (shorts/URI-to-db ilookups x)
+                                                                    ;js/decodeURI
+                                                                    ;edn/read-string
+                                                                  (assoc x factor-k v)
+                                                                    ;pr-str x
+                                                                  (shorts/db-to-URI lookups x)
+                                                                    ;js/encodeURI x
+                                                                  ))])
+
+                                   #_(assoc-in db [:inputs organ-k factor-k] v))
+
 
                              ;; EDIT-ME: Should we navigate to a new URL instead here?
 
-                                 (assoc-in db [:inputs organ-k factor-k] v)))))))
+                                 (assoc-in db [:inputs organ-k factor-k] v))))))
 
 (defn reg-factors
   "Function which registers all organ factors given in a seq of factor maps"

@@ -22,7 +22,7 @@
    WIP: Automated parameter cross checks run from `bb run-tests` - see bbsrc and bbtest and <project-folder>/test-runner
    =======
    "
-  (:require ;[babashka.classpath :refer [add-classpath]]
+  (:require
    [cheshire.core :as json]
    [clojure.pprint :refer [pprint]]
    [clojure.edn :as edn]

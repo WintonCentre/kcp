@@ -72,12 +72,19 @@
    [db [_ ocs]]
    (assoc db :organ-centres ocs)))
 
-(rf/reg-event-db
+(rf/reg-event-fx
+ ; reset inputs
+ ::reset-inputs
+ (fn
+   [{:keys [db]} [_ _]]
+   {:db (assoc db :inputs nil)}))
+
+#_(rf/reg-event-db
  ; reset inputs
  ::reset-inputs
  (fn  
    [db [_ _]]
-   (assoc db :inputs {})))
+   (assoc db :inputs nil)))
 
 (rf/reg-event-db
  ; switch to or from full screen mode 

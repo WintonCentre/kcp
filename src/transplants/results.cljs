@@ -10,7 +10,8 @@
             [transplants.ui :as ui]
             [transplants.rgb :as rgb]
             [transplants.fullscreen :as fs]
-            ;[shadow.debug :refer [locals ?> ?->]]
+            [transplants.shortener :as shorts]
+            [shadow.debug :refer [locals ?> ?->]]
             ))
 
 #_(comment
@@ -68,6 +69,7 @@
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
   [{:keys [organ centre tool] :as path}]
   (let [day @(rf/subscribe [::subs/test-day])
+        mdata @(rf/subscribe [::subs/mdata])
         {:keys [fmaps outcome-keys
                 base-outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
          :as bundle} (bun/get-bundle organ centre tool)
@@ -109,7 +111,7 @@
                   [:F F] ;; is this needed ?
                   )
         inputs (:inputs env)
-        ;_ (?-> inputs ::inputs)
+        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
@@ -186,10 +188,9 @@
                  :active-key (:selected-vis env)
                  :on-select #_#(rf/dispatch [::events/selected-vis %])
                  #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
-                                (assoc path 
+                                (assoc path
                                        :tab %
-                                       :inputs (-> (pr-str inputs) (js/encodeURI))
-                                       )])}
+                                       :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
         [ui/tab {:event-key "bars" :title "Bar Chart"}
          [vis/bar-chart env]]
 

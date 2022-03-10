@@ -153,7 +153,7 @@ in the routes table."
                                              :centre (name (:key centre))
                                              :tool (if tool (name tool) "waiting")
                                              :tab (if tab tab "bars")
-                                             :inputs (if inputs inputs {})})
+                                             :inputs (if inputs inputs "")})
                                 :key (name (:key centre))}
 
                                (:name centre)])
@@ -267,7 +267,7 @@ in the routes table."
                  :centre "birm"
                  :tool :survival
                  :tab "bars"
-                 :inputs {}}])
+                 :inputs ""}])
 
   )
 
@@ -366,7 +366,7 @@ in the routes table."
               "bars")
         inputs (if-let [stored-inputs @(rf/subscribe [::subs/inputs])]
                  stored-inputs
-                 {(keyword organ) {}})]
+                 {(keyword organ) ""})]
   ;(println ::phone "PHONE!!!")
     [:> bs/ListGroup.Item {:action true
                          ;:href (apply rfe/href link)

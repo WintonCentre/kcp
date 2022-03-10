@@ -32,6 +32,8 @@
                    :default "kidney"
                    :parse-fn str
                    :validate [#(#{"kidney" "lung"} %) "kidney | lung"]]
+                  ["-d" "--data" "Generate test data"
+                   :default false]
                   ["-h" "--help"]])
 
 (def matomo-site-id
@@ -88,6 +90,15 @@
        (str/replace #"\['setSiteId', 'n'\]" (str "['setSiteId', '" (get matomo-site-id organ) "']")))
    (spit "resources/public/index.html")))
 
+<<<<<<< HEAD
+(defn set-manifest
+  [organ]
+  (->>
+   (-> (slurp "resources/public/manifest_template.json")
+       (str/replace #"kidney" organ))
+   (spit "resources/public/manifest.json")))
+=======
+>>>>>>> c54b53a7292b08829ccea25273435858e996d305
 
 (defn -main [& _args]
   (let [options (parse-opts *command-line-args* cli-options)

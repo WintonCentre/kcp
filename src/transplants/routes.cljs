@@ -12,11 +12,17 @@
    [transplants.views :as views]
    [transplants.subs :as subs]
    [transplants.paths :as paths]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   [transplants.shortener :as shorts]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                        Nav Nav.Link]]))
-(comment
-  (paths/centres-path :lung))
+;; (comment
+;;   (paths/centres-path :lung)
+;;   (def mdata @(rf/subscribe [::subs/mdata]))
+;;   (def lookups (:lookups mdata))
+;;   (shorts/db-to-URI lookups {})
+;;   (js/encodeURI {})
+;;   )
 
 (def routes
   "Reitit nested route syntax can be tricky. Only the leaves are valid.
@@ -82,7 +88,7 @@
                              :stop  (fn [_params] (js/console.log (str "Leaving " :organ " Home")))}]}
     [""] ; required to make [":organ"] a leaf route
     ["/:centre" {:name ::views/organ-centre
-                 :view views/organ-centre-tool-tab-inputs
+                 :view views/organ-centre
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
                                 :start (fn [params]
@@ -90,7 +96,7 @@
                                 :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :centre])))}]}
      [""] ; required to make [":organ/:centre"] a leaf route
      ["/:tool" {:name ::views/organ-centre-tool
-                :view views/organ-centre-tool-tab-inputs
+                :view views/organ-centre-tool
                 :link-text "organ-centre-tool"
                 :controllers [{:parameters {:path [:organ :centre :tool]}
                                :start (fn [params]
@@ -100,7 +106,7 @@
       [""] ; required to make [":organ/:centre/:tool"] a leaf route
       ["/:tab" ; 
        {:name ::views/organ-centre-tool-tab
-        :view views/organ-centre-tool-tab-inputs
+        :view views/organ-centre-tool-tab
         :link-text "organ-centre-tool-tab"
         :controllers [{:parameters {:path [:organ :centre :tool :tab]}
                        :start (fn [params]
@@ -116,22 +122,25 @@
          :link-text "organ-centre-tool-tab-inputs"
          :controllers [{:parameters {:path [:organ :centre :tool :tab :inputs]}
                         :start  (fn [params]
-                                 (let [tab (keyword (get-in params [:path :tab]))
-                                       organ (keyword (get-in params [:path :organ]))
+                                  (?-> "point tab-inputs"  ::check-inputs)
+                                  (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
+                                  (let [tab (keyword (get-in params [:path :tab]))
+                                        organ (keyword (get-in params [:path :organ]))
                                        ;;todo move and validate the following
-                                       inputs (-> (get-in params [:path :inputs])
-                                                  (js/decodeURI)
-                                                  (edn/read-string))]
-                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
-                                   (if (map? inputs)
-                                     (rf/dispatch [::events/selected-inputs-vis organ inputs tab])
-                                     (rf/dispatch [::events/selected-vis tab])
-                                     )))
+                                        ilookups (:ilookups @(rf/subscribe [::subs/mdata]))
+                                        inputs (shorts/URI-to-db ilookups (get-in params [:path :inputs]))]
+                                    (?-> ilookups ::ilookups)
+                                    (?-> (get-in params [:path :inputs]) ::path-inputs)
+                                    (?-> inputs ::inputs)
+                                    (if (map? inputs)
+                                      (rf/dispatch [::events/selected-inputs-vis organ inputs tab])
+                                      (rf/dispatch [::events/selected-vis tab]))))
                         :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
 
 
 (comment
   (paths/tools-path :lung)
+  
 
   (def m [[[:a 1] [:b 2]] [[:a 3] [:b 4]]])
   m

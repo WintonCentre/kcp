@@ -12,13 +12,13 @@
    
    See test-data below for an example abbreviations form."
   [abbreviations]
-  (into (mapcat
-         (fn [[long-factor-k [short-factor-k levels]]]
-           (mapv
-            (fn [[long-level short-level]]
-              [[long-factor-k long-level] (str short-factor-k short-level)])
-            levels))
-         abbreviations)))
+  (into {} (mapcat
+            (fn [[long-factor-k [short-factor-k levels]]]
+              (mapv
+               (fn [[long-level short-level]]
+                 [[long-factor-k long-level] (str short-factor-k short-level)])
+               levels))
+            abbreviations)))
 
 (defn invert-lookups
   [lookups]

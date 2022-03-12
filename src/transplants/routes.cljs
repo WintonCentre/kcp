@@ -16,13 +16,15 @@
    [shadow.debug :refer [locals ?> ?-> ?->>]]
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                        Nav Nav.Link]]))
-;; (comment
-;;   (paths/centres-path :lung)
-;;   (def mdata @(rf/subscribe [::subs/mdata]))
-;;   (def lookups (:lookups mdata))
-;;   (shorts/db-to-URI lookups {})
-;;   (js/encodeURI {})
-;;   )
+(comment
+  (paths/centres-path :kidney)
+  (def mdata @(rf/subscribe [::subs/mdata]))
+  (def lookups (:lookups mdata))
+  (def ilookups (:ilookups mdata))
+  (shorts/db-to-URI lookups {:kidney {}})
+  (shorts/URI-to-db ilookups "")
+  (js/encodeURI {:kidney {}})
+  )
 
 (def routes
   "Reitit nested route syntax can be tricky. Only the leaves are valid.
@@ -126,7 +128,6 @@
                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
                                   (let [tab (keyword (get-in params [:path :tab]))
                                         organ (keyword (get-in params [:path :organ]))
-                                       ;;todo move and validate the following
                                         ilookups (:ilookups @(rf/subscribe [::subs/mdata]))
                                         inputs (shorts/URI-to-db ilookups (get-in params [:path :inputs]))]
                                     (?-> ilookups ::ilookups)
@@ -157,6 +158,7 @@
 
 (defn on-navigate [new-match]
   (let [old-match (rf/subscribe [::subs/current-route])]
+    (locals)
     (when new-match
       (let [cs (rfc/apply-controllers (:controllers @old-match) new-match)
             m  (assoc new-match :controllers cs)]

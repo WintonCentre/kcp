@@ -1,7 +1,8 @@
 (ns transplants.ui
   "This should become the high level ui interface and should have all ns references factored out into 
 the low level ui."
-  (:require   [reagent.core :as rc]
+  (:require   [clojure.string :as str]
+              [reagent.core :as rc]
               [reitit.frontend.easy :as rfe]
               ["react-bootstrap" :as bs]
               [re-frame.core :as rf]
@@ -10,7 +11,8 @@ the low level ui."
               [transplants.subs :as subs]
               [transplants.numeric-input :as ni]
               [transplants.bsio :as bsio]
-              ;[shadow.debug :refer [?-> ?->> locals]]
+              [transplants.shortener :as shorts]
+              [shadow.debug :refer [?-> ?->> locals]]
               ))
 
 (enable-console-print!)
@@ -141,6 +143,7 @@ in the routes table."
            (when organ-centres
              (when-let [centres (organ organ-centres)]
                (let [path-params (:path-params @(rf/subscribe [::subs/current-route]))
+                     _ (?-> path-params ::path-params)
                      tool (path-params :tool)
                      tab (path-params :tab)
                      inputs (path-params :inputs)]
@@ -161,7 +164,7 @@ in the routes table."
           [:> bs/Nav {:class "ml-auto" 
                       :style {:height "100%" :vertical-align "middle"}
                       }
-           [:> bs/Button {:href (clojure.string/replace (str "mailto:"
+           [:> bs/Button {:href (str/replace (str "mailto:"
                                                              (name single-organ)
                                                              "transplants@statslab.cam.ac.uk"
                                                              "?subject="
@@ -255,7 +258,12 @@ in the routes table."
   ;(?-> tool ::tool-buttons)
   ;(?-> button-colour ::tool-buttons)
   ;(?-> button-type ::button-type)
-  (let [active (= (name tool) active-tool)]
+  (let [active (= (name tool) active-tool)
+        tab @(rf/subscribe [::subs/selected-vis])
+        mdata @(rf/subscribe [::subs/mdata])
+        ilookups (:ilookups mdata)
+        inputs (shorts/db-to-URI ilookups @(rf/subscribe [::subs/inputs]))]
+    (locals)
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2
@@ -266,8 +274,8 @@ in the routes table."
                                       {:organ organ
                                        :centre centre
                                        :tool tool
-                                       :tab @(rf/subscribe [::subs/selected-vis])
-                                       :inputs ((keyword organ) @(rf/subscribe [::subs/inputs]))}])}
+                                       :tab tab
+                                       :inputs inputs}])}
      label]))
 
 (comment
@@ -344,9 +352,10 @@ in the routes table."
   (let [tab (if-let [selected-vis @(rf/subscribe [::subs/selected-vis])]
               selected-vis
               "bars")
-        inputs (if-let [stored-inputs @(rf/subscribe [::subs/inputs])]
-                 stored-inputs
-                 {(keyword organ) {}})]
+        mdata @(rf/subscribe [::subs/mdata])
+        ilookups (:ilookups mdata)
+        inputs (shorts/db-to-URI ilookups @(rf/subscribe [::subs/inputs]))]
+    (?-> inputs ::nav-card-inputs)
     [:> bs/Card {:style {:max-width width :min-width width :margin-bottom 10 :box-shadow "1px 1px #888888"}}
      [:> bs/Card.Body {:style {:display "flex"
                                :flex-direction "column"
@@ -373,10 +382,10 @@ in the routes table."
   (let [tab (if-let [selected-vis @(rf/subscribe [::subs/selected-vis])]
               selected-vis
               "bars")
-        inputs (if-let [stored-inputs @(rf/subscribe [::subs/inputs])]
-                 stored-inputs
-                 {(keyword organ) ""})]
-  ;(println ::phone "PHONE!!!")
+        mdata @(rf/subscribe [::subs/mdata])
+        ilookups (:ilookups mdata)
+        inputs (shorts/db-to-URI ilookups @(rf/subscribe [::subs/inputs]))]
+    (?-> inputs ::phone-card-inputs)
     [:> bs/ListGroup.Item {:action true
                          ;:href (apply rfe/href link)
                            :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs

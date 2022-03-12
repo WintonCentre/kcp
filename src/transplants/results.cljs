@@ -88,7 +88,7 @@
              :timed-outcome-keys timed-outcome-keys
              :beta-keys beta-keys
              :cohort-dates @(rf/subscribe [::subs/cohort-dates])
-             :inputs (get @(rf/subscribe [::subs/inputs]) organ)
+             :inputs @(rf/subscribe [::subs/inputs])
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
 
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.

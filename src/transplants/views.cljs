@@ -15,7 +15,7 @@
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
    ;[transplants.fullscreen :as fs]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;;;;
@@ -1003,15 +1003,15 @@
       :else [:div])))
 
 (defn tool-page
-  [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name]}]
-  #_(?-> {:tab tab :path-inputs path-inputs} ::tab-path-inputs)
+  [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name :as params]}]
+  (?-> params ::params)
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
           tool-mdata (utils/get-tool-meta mdata organ tool)
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])]
-        ;(locals)
+        (locals)
       [:div {:id "capture"}
        (when-not is-full-screen
          [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}

@@ -13,7 +13,7 @@
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;; Events ;;;
@@ -40,7 +40,7 @@
 (rf/reg-event-fx
  ::navigate
  (fn  
-   [{:keys [_db]} [_ route params query]]
+   [{:keys [_ db]} [_ route params query]]
    ;; See `navigate` effect in routes.cljs
    {::fx/navigate! [route params query]}))
 
@@ -77,14 +77,22 @@
  ::reset-inputs
  (fn
    [{:keys [db]} [_ _]]
-   {:db (assoc db :inputs nil)}))
+   ;(?-> (:current-route db) ::current-route )
+   (let [path-params (-> (get-in db [:current-route :path-params])
+                         (assoc :inputs "-"))]
+     ;(?-> path-params ::path-params)
+     {::fx/navigate! [:transplants.views/organ-centre-tool-tab-inputs path-params]})))
+#_(comment
+   (assoc path
+          :tab %
+          :inputs (shorts/db-to-URI (:lookups mdata) inputs)))
 
 #_(rf/reg-event-db
  ; reset inputs
  ::reset-inputs
  (fn  
    [db [_ _]]
-   (assoc db :inputs nil)))
+   (assoc db :inputs {})))
 
 (rf/reg-event-db
  ; switch to or from full screen mode 
@@ -239,10 +247,9 @@
  ::selected-inputs-vis
  (fn
    [db [_ organ inputs selection]]
-   (assoc db 
+   (assoc db
           :selected-vis selection
-          :inputs {organ inputs}
-          )))
+          :inputs inputs)))
 
 
 (rf/reg-event-db

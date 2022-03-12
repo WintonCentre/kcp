@@ -19,7 +19,8 @@
 (rf/reg-fx
  ::navigate!
  (fn [[k params query]]
-   (println "NAVIGATE!" k params query)
+   ;(js/console.log "NAVIGATE!" k params query)
+   (?-> [k params query] ::navigate!)
    (rfe/push-state k params query)))
 
 
@@ -66,29 +67,21 @@
                                    (?-> (-> db :inputs) ::db-inputs)
                                    (?-> (as-> path-inputs x
                                           (shorts/URI-to-db ilookups x)
-                                                                    ;js/decodeURI
-                                                                    ;edn/read-string
                                           (assoc x factor-k v)
-                                                                    ;pr-str x
-                                          (shorts/db-to-URI lookups x)
-                                                                    ;js/encodeURI x
-                                          )::new-inputs)
+                                          (shorts/db-to-URI lookups x)) ::new-inputs)
                                    {:fx [:dispatch [:transplants.events/navigate
                                                     :transplants.views/organ-centre-tool-tab-inputs
                                                     (assoc path
                                                            :tab (:tab path)
                                                            :inputs (as-> path-inputs x
                                                                      (shorts/URI-to-db ilookups x)
-                                                                    ;js/decodeURI
-                                                                    ;edn/read-string
                                                                      (assoc x factor-k v)
-                                                                    ;pr-str x
-                                                                     (shorts/db-to-URI lookups x)
-                                                                    ;js/encodeURI x
-                                                                     ))]]
-                                    #_#_:db (assoc-in db [:inputs organ-k factor-k] v)}))
+                                                                     (shorts/db-to-URI lookups x)))]]
+                                    #_#_:db (assoc-in db [:inputs organ-k factor-k] v)})
 
-                               {:db (assoc-in db [:inputs organ-k factor-k] v)})))
+                                 {:db (assoc-in db [:inputs factor-k] v)}
+                                 #_{:db (assoc-in db [:inputs organ-k factor-k] v)})
+                               )))
     
     #_(rf/reg-event-db ref-k (fn [db [_ v]]
     ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation 
@@ -136,6 +129,7 @@
 (defn reg-factors
   "Function which registers all organ factors given in a seq of factor maps"
   [[organ fmaps]]
+  (?-> "reg-factors" ::reg-factors)
   (doseq [fmap fmaps]
     (reg-factor organ (:factor fmap))))
 

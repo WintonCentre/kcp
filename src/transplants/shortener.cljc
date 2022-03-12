@@ -28,7 +28,10 @@
   "Compress a db inputs map into a URI parameter string.
    There are no characters in the string that require special URL encoding."
   [lookups m]
-  (str/join (mapcat lookups m)))
+  (condp = m
+    nil "-"
+    {} "-"
+    (str/join (mapcat lookups m))))
 
 ;; (comment
 ;;   "A2SfBaDyEaMeGrdpsn"
@@ -42,7 +45,10 @@
 (defn URI-to-db
   "Expand a URI compressed input parameter string into a db inputs map"
   [ilookups s]
-  (into {} (map ilookups (mapv #(str/join "" %) (partition 2 2 s)))))
+  (condp = s
+    "" {}
+    "-" {}
+    (into {} (map ilookups (mapv #(str/join "" %) (partition 2 2 s))))))
 
 (comment
   (def test-data {:blood-group ["B" {:O "o"
@@ -65,10 +71,28 @@
 
   (def lookups (make-lookups test-data))    ; forward lookup table
   (def ilookups (rel/map-invert lookups))   ; backwards lookup table
+  (db-to-URI lookups {})
+  ;; => "-"
+
+  (db-to-URI lookups nil)
+  ;; => "-"
+  
   (db-to-URI lookups {:blood-group :B :hla-mismatch :3})
+  (db-to-URI lookups {})
   ;; => "Bbl3"
 
   (URI-to-db ilookups "Bbl3")
+  ;; => {:blood-group :B, :hla-mismatch :3}
+
+  (URI-to-db ilookups "-")
+  ;; => {}
+
+  (URI-to-db ilookups "")
+  ;; => {}
+
+  (URI-to-db ilookups nil)
+  ;; => {}
+
   ;; => {:blood-group :B, :hla-mismatch :3}
 
   (db-to-URI lookups {:blood-group :B :hla-mismatch :3 :donor-ht :unknown :wait :<=5})

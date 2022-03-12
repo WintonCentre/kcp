@@ -42,6 +42,7 @@
  (fn  
    [{:keys [_ db]} [_ route params query]]
    ;; See `navigate` effect in routes.cljs
+   (?-> "navigating!!" ::navigate)
    {::fx/navigate! [route params query]}))
 
 (rf/reg-event-db

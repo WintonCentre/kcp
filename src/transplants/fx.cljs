@@ -52,37 +52,45 @@
   [organ-k factor-k]
   (let [ref-k (keyword (name organ-k) (name factor-k))]
     (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
-
-    (rf/reg-event-fx ref-k (fn [{:keys [db]} [_ v]]
+    (rf/reg-event-db ref-k (fn [db [_ v]]
+    ;(rf/reg-event-fx ref-k (fn [{:keys [db]} [_ v]]
                              ;; re-route to the URL with the newly changed input
                              ;(?-> (-> db :mdata :ilookups) ::metadata)
-                             
+
                              (let [path (-> db :current-route :path-params)
                                    path-inputs (:inputs path)
                                    lookups (-> db :mdata :lookups)
                                    ilookups (-> db :mdata :ilookups)]
 
-                               (if (and path-inputs lookups ilookups)
-                                 (do
-                                   (?-> (-> db :inputs) ::db-inputs)
-                                   (?-> (as-> path-inputs x
-                                          (shorts/URI-to-db ilookups x)
-                                          (assoc x factor-k v)
-                                          (shorts/db-to-URI lookups x)) ::new-inputs)
-                                   {:fx [:dispatch [:transplants.events/navigate
-                                                    :transplants.views/organ-centre-tool-tab-inputs
-                                                    (assoc path
-                                                           :tab (:tab path)
-                                                           :inputs (as-> path-inputs x
-                                                                     (shorts/URI-to-db ilookups x)
-                                                                     (assoc x factor-k v)
-                                                                     (shorts/db-to-URI lookups x)))]]
-                                    #_#_:db (assoc-in db [:inputs organ-k factor-k] v)})
 
-                                 {:db (assoc-in db [:inputs factor-k] v)}
-                                 #_{:db (assoc-in db [:inputs organ-k factor-k] v)})
-                               )))
-    
+                               (if (and path-inputs lookups ilookups)
+                                 (let [inputs (as-> path-inputs x
+                                                (shorts/URI-to-db ilookups x)
+                                                (assoc x factor-k v)
+                                                (shorts/db-to-URI lookups x))]
+                                   (?-> (:inputs db) ::db-inputs-1)
+                                   (?-> inputs ::db-inputs-2)
+                                   (?-> path-inputs ::path-inputs)
+                                   (?-> (assoc path
+                                               :tab (:tab path)
+                                               :inputs inputs) ::new-path)
+                                   (?-> [factor-k v] ::factor-level)
+                                   (rf/dispatch [:transplants.events/navigate
+                                                 :transplants.views/organ-centre-tool-tab-inputs
+                                                 (assoc path
+                                                        :tab (:tab path)
+                                                        :inputs inputs)])
+                                   (assoc-in db [:inputs factor-k] v)
+                                   #_{:fx [[:dispatch [:transplants.events/navigate
+                                                       :transplants.views/organ-centre-tool-tab-inputs
+                                                       (assoc path
+                                                              :tab (:tab path)
+                                                              :inputs inputs)]]]
+                                      :db (assoc-in db [:inputs factor-k] v)}))
+
+                               (assoc-in db [:inputs factor-k] v)
+                               #_{:db (assoc-in db [:inputs factor-k] v)})))
+
     #_(rf/reg-event-db ref-k (fn [db [_ v]]
     ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation 
     ;; in order to make inputs appear in the URL.

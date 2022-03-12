@@ -263,7 +263,7 @@ in the routes table."
         mdata @(rf/subscribe [::subs/mdata])
         ilookups (:ilookups mdata)
         inputs (shorts/db-to-URI ilookups @(rf/subscribe [::subs/inputs]))]
-    (locals)
+    ;(locals)
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2

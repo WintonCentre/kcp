@@ -324,6 +324,8 @@ in the routes table."
     ;(?-> tools ::tools-menu)
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!
+    
+    (locals)
     [:<>
      [row
       [col {:xs 12 :sm 8}
@@ -332,13 +334,14 @@ in the routes table."
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
     ;; Even better would be to configure the break points as what makes sense will be very application
     ;; specific.
-       (map-indexed
-        (fn [i group]
-          [:div {:key i}
-           (->> group
-                (map tool-buttons)
-                (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])
-        (partition-by :button-type (butlast menu-data)))]
+       (doall
+        (map-indexed
+         (fn [i group]
+           [:div {:key i}
+            (->> group
+                 (map tool-buttons)
+                 (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)]))])
+         (partition-by :button-type (butlast menu-data))))]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
        [:p "Things you might discuss during a consultation"]

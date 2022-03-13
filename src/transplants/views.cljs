@@ -1003,7 +1003,7 @@
       :else [:div])))
 
 (defn tool-page
-  [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name :as params]}]
+  [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
   (?-> params ::params)
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
@@ -1186,12 +1186,28 @@
         mdata @(rf/subscribe [::subs/mdata])
         organ-centres @(rf/subscribe [::subs/organ-centres])
         path-params (:path-params route)
+        path-inputs (:inputs path-params)
+        tab (:tab path-params)
         [organ-name centre-name tool-name :as p-names] (utils/path-names path-params)
         tool-name (if (nil? tool-name) :waiting tool-name)
         [organ centre tool] (map keyword p-names)
         tools (utils/get-tools mdata organ)
+;; either DISPATCH selected-inputs-vis or set db:inputs here?
         ]
+    (?-> {:route route
+          :path-inputs path-inputs
+          :organ organ
+          :organ-centres organ-centres
+          :centre centre
+          :tool tool
+          :tool-name tool-name
+          :mdata mdata
+          :tools tools
+          :organ-name organ-name
+          :centre-name centre-name} ::param-check)
+    (rf/dispatch [::events/selected-inputs-vis path-inputs tab])
 
+    ;;organ organ-centres centre tool tool-name mdata tools organ-name centre-name :as params
     [tool-page {:organ organ
                 :organ-centres organ-centres
                 :centre centre

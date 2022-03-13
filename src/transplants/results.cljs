@@ -186,11 +186,10 @@
                          :max-width (if is-full-screen "80%" "100%")}}
        [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                  :active-key (:selected-vis env)
-                 :on-select #_#(rf/dispatch [::events/selected-vis %])
-                 #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
-                                (assoc path
-                                       :tab %
-                                       :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
+                 :on-select #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+                                           (assoc path
+                                                  :tab %
+                                                  :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
         [ui/tab {:event-key "bars" :title "Bar Chart"}
          [vis/bar-chart env]]
 

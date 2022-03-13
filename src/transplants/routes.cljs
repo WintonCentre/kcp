@@ -113,9 +113,10 @@
         :controllers [{:parameters {:path [:organ :centre :tool :tab]}
                        :start (fn [params]
                                 (let [_tool (keyword (get-in params [:path :tool]))
-                                      tab (keyword (get-in params [:path :tab]))]
+                                      tab (keyword (get-in params [:path :tab]))
+                                      path-inputs (get-in params [:path :inputs])]
                                   (js/console.log "Entering organ-centre-tool-tab: " params)
-                                  (rf/dispatch [::events/selected-vis tab])))
+                                  (rf/dispatch [::events/selected-inputs-vis path-inputs tab])))
                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}
        [""]
        ["/:inputs"
@@ -124,10 +125,10 @@
          :link-text "organ-centre-tool-tab-inputs"
          :controllers [{:parameters {:path [:organ :centre :tool :tab :inputs]}
                         :start  (fn [params]
-                                  (?-> "point tab-inputs"  ::check-inputs)
+                                  (?-> "path-inputs"  ::path-inputs)
                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
                                   (let [tab (keyword (get-in params [:path :tab]))
-                                        organ (keyword (get-in params [:path :organ]))
+                                        ;; organ (keyword (get-in params [:path :organ]))
                                         path-inputs (get-in params [:path :inputs])]
 
                                         ;; ilookups (:ilookups @(rf/subscribe [::subs/mdata]))
@@ -139,7 +140,7 @@
                                     ;(?-> (get-in params [:path :inputs]) ::path-inputs)
                                     ;(?-> inputs ::inputs)
                                     ;(if (map? inputs)
-                                    (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
+                                    (rf/dispatch [::events/selected-inputs-vis path-inputs tab])
                                        #_(if (not= path-inputs "-")
                                          (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
                                          (rf/dispatch [::events/selected-vis tab]))))

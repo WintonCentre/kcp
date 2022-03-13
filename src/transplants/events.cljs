@@ -245,10 +245,10 @@
 
 
 (rf/reg-event-db
- ;; Takes inputs and the view seection from the route, and enters them in the db
+ ;; Takes inputs and the view selection from the route, and enters them in the db
  ::selected-inputs-vis
  (fn
-   [db [_ organ path-inputs selection]]
+   [db [_ path-inputs selection]]
    (let [ilookups (get-in db [:mdata :ilookups])
          _ (?-> ilookups ::ilookups)
          inputs (if ilookups

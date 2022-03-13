@@ -51,7 +51,7 @@
    Subscriptions access input values by the factor key."
   [organ-k factor-k]
   (let [ref-k (keyword (name organ-k) (name factor-k))]
-    (rf/reg-sub ref-k (fn [db] (get-in db [:inputs organ-k factor-k])))
+    (rf/reg-sub ref-k (fn [db] (get-in db [:inputs factor-k])))
     (rf/reg-event-db ref-k (fn [db [_ v]]
     ;(rf/reg-event-fx ref-k (fn [{:keys [db]} [_ v]]
                              ;; re-route to the URL with the newly changed input
@@ -81,6 +81,9 @@
                                                         :tab (:tab path)
                                                         :inputs inputs)])
                                    (assoc-in db [:inputs factor-k] v)
+
+                                   ; We should be doing this in a reg-event-fx rather than a reg-event-db, 
+                                   ; but it fails. Why?
                                    #_{:fx [[:dispatch [:transplants.events/navigate
                                                        :transplants.views/organ-centre-tool-tab-inputs
                                                        (assoc path

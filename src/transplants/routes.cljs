@@ -128,14 +128,21 @@
                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
                                   (let [tab (keyword (get-in params [:path :tab]))
                                         organ (keyword (get-in params [:path :organ]))
-                                        ilookups (:ilookups @(rf/subscribe [::subs/mdata]))
-                                        inputs (shorts/URI-to-db ilookups (get-in params [:path :inputs]))]
-                                    (?-> ilookups ::ilookups)
-                                    (?-> (get-in params [:path :inputs]) ::path-inputs)
-                                    (?-> inputs ::inputs)
-                                    (if (map? inputs)
-                                      (rf/dispatch [::events/selected-inputs-vis organ inputs tab])
-                                      (rf/dispatch [::events/selected-vis tab]))))
+                                        path-inputs (get-in params [:path :inputs])]
+
+                                        ;; ilookups (:ilookups @(rf/subscribe [::subs/mdata]))
+                                        ;; inputs (if ilookups 
+                                        ;;          (shorts/URI-to-db ilookups (get-in params [:path :inputs]))
+                                        ;;          {})
+
+                                    ;(?-> ilookups ::ilookups)
+                                    ;(?-> (get-in params [:path :inputs]) ::path-inputs)
+                                    ;(?-> inputs ::inputs)
+                                    ;(if (map? inputs)
+                                    (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
+                                       #_(if (not= path-inputs "-")
+                                         (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
+                                         (rf/dispatch [::events/selected-vis tab]))))
                         :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
 
 

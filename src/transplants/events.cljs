@@ -8,6 +8,7 @@
    [transplants.db :as init-db]
    [transplants.factors :as fac]
    ;[transplants.paths :as paths]
+   [transplants.shortener :as shorts]
    [transplants.model :as model]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
@@ -244,6 +245,20 @@
 
 
 (rf/reg-event-db
+ ;; Takes inputs and the view seection from the route, and enters them in the db
+ ::selected-inputs-vis
+ (fn
+   [db [_ organ path-inputs selection]]
+   (let [ilookups (get-in db [:mdata :ilookups])
+         _ (?-> ilookups ::ilookups)
+         inputs (if ilookups
+                  (shorts/URI-to-db ilookups path-inputs)
+                  {})]
+     (assoc db
+            :selected-vis selection
+            :inputs inputs))))
+
+#_(rf/reg-event-db
  ;; Takes inputs and the view seection from the route, and enters them in the db
  ::selected-inputs-vis
  (fn

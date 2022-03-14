@@ -192,8 +192,7 @@ in the routes table."
    todo: Needs to be made configurable."
   []
   #_[:div "footer"]
-  [:> bs/Container {:class-name "footer"
-                    :fluid "fluid"
+  [:> bs/Container {:fluid "fluid"
                     :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
                             :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
    

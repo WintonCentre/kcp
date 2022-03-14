@@ -19,9 +19,14 @@
 (rf/reg-fx
  ::navigate!
  (fn [[k params query]]
-   ;(js/console.log "NAVIGATE!" k params query)
-   (?-> [k params query] ::navigate!)
-   (rfe/push-state k params query)))
+   (js/console.log "NAVIGATE!" k params query)
+   (let [params (assoc params
+                       :tool (get params :tool "waiting")
+                       :tab (get params :tab "bars")
+                       :inputs (get params :inputs "-"))]
+     
+     (?-> [k params query] ::navigate!)
+     (rfe/push-state k params query))))
 
 
 ;; Loading edn files from the database

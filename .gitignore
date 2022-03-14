@@ -65,3 +65,4 @@ resources/public/index.html
 resources/public/metadata.edn
 resources/public/sw_cache_update.js
 bbsrc/etaoin.clj
+resources/public/manifest.json

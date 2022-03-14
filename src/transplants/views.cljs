@@ -356,6 +356,41 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h3 "The web implementation"]
+    [:p "This tool is a Single Page Application - an SPA. It is a single web page which loads a Javascript application that updates the page according
+        to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser. "]
+    [:p "The application is also a calculator. The Javascript code includes
+        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed 
+        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever 
+        you change any input. Once you close the browser window or tab, the data is erased, just like in a calculator."]
+    [:p "The tool is also a Progressive Web App - a PWA - which means that in some ways it behaves like an application you might have downloaded onto your phone
+        from an App Store. Once you load the app from the website, it is automatically cached in your browser for future use - offline if need be. You can also install the
+        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name 
+        (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)."]]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "The development stack"]
+    [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript. The most important libraries that it uses
+        are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the developers of these codes. The development system used Shadow-cljs (by Thomas Heller), 
+        supported by a number of Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "Testing"]
+    [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
+       through the R code, collected the results, and then fed the same inputs into our Javascript implementation, and compared the results. "]]
+
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "Browser Compatibility"]
+    [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
+    [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
+    [:p "It does not currently support any other version of Internet Explorer."]]])
+
+#_(defn web-development-section
+  []
+  [:<>
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3 "The web implementation"]
     [:p "This tool is a Single Page Application - an SPA. it is a single web page which loads a javascript application that updates the page according
         to the user's inputs. All data that you enter to the tool is stored in javascript variables in the browser. "]
     [:p "The application is also a calculator. The javascript code includes
@@ -1069,7 +1104,8 @@
                                            We hope to include more in the future. "]
                                                [:p "Click below to find out more about those we have considered but are not in the tool."]
                                                [:p
-                                                [:> bs/Button {:size "md"
+                                                [:> bs/Button {:id "factors-considered"
+                                                               :size "md"
                                                                :variant "primary"
                                                                :title "Factors considered but not included"
                                                                :style {:margin-left 0}
@@ -1079,8 +1115,7 @@
                                                                                           :title "Factors considered but not included"
                                                                                           :content (factors-not-included mdata)
                                                                                           :onHide widg/hide-handler
-                                                                                          :ok widg/hide-handler
-                                                                                          }]))}
+                                                                                          :ok widg/hide-handler}]))}
                                                  [:span "Show factors considered but not included"]]]]])
             [ui/col {:xs 12 :md (if is-full-screen 12 6)}
              (when-not is-full-screen

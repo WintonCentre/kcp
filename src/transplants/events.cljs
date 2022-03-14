@@ -103,6 +103,16 @@
    [db [_ full]]
    (assoc db :is-full-screen full)))
 
+(rf/reg-event-fx
+ ; switch tool
+ ::switch-tool
+ (fn
+   [{:keys [db]} [_ tool]]
+   ;(?-> (:current-route db) ::current-route )
+   (let [path-params (-> (get-in db [:current-route :path-params])
+                         (assoc :tool (keyword tool)))]
+     ;(?-> path-params ::path-params)
+     {::fx/navigate! [:transplants.views/organ-centre-tool-tab-inputs path-params]})))
 
 (rf/reg-event-db
  ; guidance

@@ -156,7 +156,7 @@ in the routes table."
                                              :centre (name (:key centre))
                                              :tool (if tool (name tool) "waiting")
                                              :tab (if tab tab "bars")
-                                             :inputs (if inputs inputs "")})
+                                             :inputs (if inputs inputs "-")})
                                 :key (name (:key centre))}
 
                                (:name centre)])
@@ -227,6 +227,7 @@ in the routes table."
   "The root of the component tree which is mounted on the main app html element"
   [{:keys [router subscribe-current-route]}]
   (let [current-route @(subscribe-current-route)
+        path (:path current-route)
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
     [:div {:style {:display :flex :flex-direction "column-reverse"}}
      (when current-route
@@ -262,20 +263,22 @@ in the routes table."
         tab @(rf/subscribe [::subs/selected-vis])
         mdata @(rf/subscribe [::subs/mdata])
         ilookups (:ilookups mdata)
+        ;; TODO: check this
+        _ (?-> @(rf/subscribe [::subs/inputs]) ::db-inputs)
         inputs (shorts/db-to-URI ilookups @(rf/subscribe [::subs/inputs]))]
-    ;(locals)
+    (locals)
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2
                      :margin-right 0}
              :active active
              :key key
-             :on-click #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+             :on-click #(rf/dispatch [::events/switch-tool tool]#_[::events/navigate :transplants.views/organ-centre-tool-tab-inputs
                                       {:organ organ
                                        :centre centre
                                        :tool tool
                                        :tab tab
-                                       :inputs inputs}])}
+                                       :inputs (if inputs inputs "-")}])}
      label]))
 
 (comment

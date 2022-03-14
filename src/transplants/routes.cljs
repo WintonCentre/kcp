@@ -114,7 +114,7 @@
                        :start (fn [params]
                                 (let [_tool (keyword (get-in params [:path :tool]))
                                       tab (keyword (get-in params [:path :tab]))
-                                      path-inputs (get-in params [:path :inputs])]
+                                      path-inputs (get-in params [:path :inputs] "-")]
                                   (js/console.log "Entering organ-centre-tool-tab: " params)
                                   (rf/dispatch [::events/selected-inputs-vis path-inputs tab])))
                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}
@@ -129,7 +129,7 @@
                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
                                   (let [tab (keyword (get-in params [:path :tab]))
                                         ;; organ (keyword (get-in params [:path :organ]))
-                                        path-inputs (get-in params [:path :inputs])]
+                                        path-inputs (get-in params [:path :inputs] "-")]
 
                                         ;; ilookups (:ilookups @(rf/subscribe [::subs/mdata]))
                                         ;; inputs (if ilookups 

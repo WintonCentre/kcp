@@ -108,10 +108,17 @@
  ::switch-tool
  (fn
    [{:keys [db]} [_ tool]]
-   ;(?-> (:current-route db) ::current-route )
    (let [path-params (-> (get-in db [:current-route :path-params])
-                         (assoc :tool (keyword tool)))]
-     ;(?-> path-params ::path-params)
+                         (assoc :tool (name tool)))]
+     {::fx/navigate! [:transplants.views/organ-centre-tool-tab-inputs path-params]})))
+
+(rf/reg-event-fx
+ ; switch centre
+ ::switch-centre
+ (fn
+   [{:keys [db]} [_ centre]]
+   (let [path-params (-> (get-in db [:current-route :path-params])
+                         (assoc :centre (name centre)))]
      {::fx/navigate! [:transplants.views/organ-centre-tool-tab-inputs path-params]})))
 
 (rf/reg-event-db

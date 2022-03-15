@@ -30,7 +30,7 @@
                                     :rage_3 "3"
                                     :rage_4 "4"
                                     :rage_5 "5"}]
-                        :fvc ["F" {:fvc_1 "1"
+                        :fvc ["f" {:fvc_1 "1"
                                    :fvc_2 "2"
                                    :fvc_3 "3"
                                    :fvc_4 "4"}]

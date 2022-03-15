@@ -77,9 +77,9 @@
     [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
      [:b "enable the option which prints background graphics. "] "This option is not available in Internet Explorer."]
     [:h1 "Copy"]
-    [:p "The " [:b "Copy"] " button displays a screenshot of the application inside a yellow border which is there to remind you this is not the live page.
-         You may save and print this image using the usual browser controls. If printing you may wish to adjust the browser window
-         width for optimum print results."]
+    [:p "The " [:b "Copy"] " button displays a small screenshot which can be
+         saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for
+         best results."]
     [:p "The copy feature does not work well in Internet Explorer."]
     [:h1 "Save to PDF"]
     [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue. Again, be sure to "

@@ -50,7 +50,7 @@
 
 (defn set-metadata
   "Read in template metadata, and poke in the :organ-order and the URL shortener lookup maps,
-   and write result to metadata.edn"
+   and write result to metadata.txt"
   [organ]
   (let [organ-k (keyword organ)
         lookups (get-organ-lookups organ-k)
@@ -61,7 +61,7 @@
              :organ-order [organ-k] ; we only ever have one now
              :lookups lookups     ; db -> URI compressor map
              :ilookups ilookups)  ; URI -> db expander map
-      (spit "resources/public/metadata.edn" x)))
+      (spit "resources/public/metadata.txt" x)))
   )
 
 (defn set-sw-cache

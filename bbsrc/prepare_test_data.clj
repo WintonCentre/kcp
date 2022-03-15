@@ -71,7 +71,7 @@
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
 ;; Run `bb lung` or `bb kidney`  first
-(def metadata (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn"))))
+(def metadata (edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.txt"))))
 
 (defn get-organ [] (first (:organ-order metadata)))
 
@@ -80,7 +80,7 @@
 (defn times
   [options]
   (mapv :time-index
-        (-> metadata ;(edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.edn")))
+        (-> metadata ;(edn/read-string (slurp (str "resources" file-sep "public" file-sep "metadata.txt")))
             ((keyword (:organ options)))
             :tools
             ((keyword (:tool options)))

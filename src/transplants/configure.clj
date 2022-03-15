@@ -11,7 +11,7 @@
 
   (:require
    [aero.core :as aero]
-   [dk.ative.docjure.spreadsheet :as xls]
+   [dk.ative.docjure.spreadsheet :as xls] ;; This dependency prevents us from using babashka
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.stacktrace :as stack]
@@ -275,7 +275,7 @@
                        "/js/app.js"
                        "/competing_risks.pdf"
                        "/index.html"
-                       "/metadata.edn"
+                       "/metadata.txt"
                        "/object-assign-auto-min.js"
                        "/manifest.json"
                        "/assets/crest.png"

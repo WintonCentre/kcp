@@ -192,19 +192,21 @@ in the routes table."
    todo: Needs to be made configurable."
   []
   #_[:div "footer"]
-  [:> bs/Container {:fluid "fluid"
-                    :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
-                            :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
-   
-   [:div {:style {:padding "10px 20px 10px 10px" :display "flex" :flex-direction "row" :align-items "top"}}
-    [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
-    [:p {:style {:margin "0"}} [:b "This"] " tool was developed by the Winton Centre for Risk and Evidence Communication.  
+  ;[:> bs/Container {:fluid "fluid"
+  ;                  :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
+  ;                          :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
+   [:div
+    [:div {:style {:padding "20px 20px 5px 15px" :display "flex" :background-color "#1A4554" :color  "#DDD" :flex-direction "column" :align-items "center"}}
+     [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
+      [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
+       [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
+       [:p {:style {:text-align "center"}} "This tool was developed by the Winton Centre for Risk and Evidence Communication.  
                      It currently displays models disclosed by NHSBT under a data sharing agreement.  
                      It was developed with transplant patients and their partners and clinical teams  
-                     at transplant and referral centres in England. "]]
-   [:div {:style {:background-color "black" :margin  " -15px"}}
-    [:div {:style {:margin "15px 15px" :font-size "12px" :color "#9E9E9E"
-                   #_#_:margin "10px auto" :display "flex" :flex-direction "column" :justify-content "space-between" :align-items "center"}}
+                     at transplant and referral centres in England. "]]]]
+    ;[:div {:style {:background-color "black" :margin  " -15px"}}]
+    [:div {:style {:padding 10 :font-size "12px" :color "#9E9E9E" :background-color "black"
+                   :display "flex" :flex-direction "column" :justify-content "center" :align-items "center"}}
       ;;
       ;; todo: We do not have any mechanism as yet to scroll to a position within a page so these two links
       ;; both go to Legal at the current scroll point. 
@@ -212,7 +214,7 @@ in the routes table."
       ;; See Predict for a Rum solution of this problem - it would have to be ported to a reagent type 3
       ;; component.
       ;;
-     [:p {:style {:margin 0 :padding "10px 0px 0px 0px"}}
+     [:div {:style {:text-align "center"}}
       "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved | "
       ;; Can't use javascript hrefs in react - if they worked they would reload the page and lose state. 
       ;; Use reitit generated hrefs instead.
@@ -221,7 +223,7 @@ in the routes table."
       " | "
       [:a {:style {:color "inherit"}
            :href (href :transplants.views/legal)} "Disclaimer"]]
-     [:p {:style {:margin 10}} "v-0.0-0.00-0-hash"]]]])
+     [:div "v-0.0-0.00-0-hash"]]])
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"

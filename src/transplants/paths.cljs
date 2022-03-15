@@ -9,7 +9,7 @@
   (str slash (name organ) slash "edn" slash))
 
 
-(def metadata-path (str slash "metadata.edn"))
+(def metadata-path (str slash "metadata.txt"))
 
 (defn tools-path
   [organ]

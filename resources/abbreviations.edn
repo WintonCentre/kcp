@@ -34,12 +34,16 @@
                                    :fvc_2 "2"
                                    :fvc_3 "3"
                                    :fvc_4 "4"}]
+                        :fvcreg ["F" {:fvc_grp_1 "1"
+                                      :fvc_grp_2 "2"
+                                      :fvc_grp_3 "3"
+                                      :fvc_grp_4 "4"}]
                         :bmi ["M" {:bmi_1 "1"
                                    :bmi_2 "2"
                                    :bmi_3 "3"}]
-                        :cmv ["C" {:negative "n"
-                                   :positive "p"
-                                   :unknown "u"}]
+                        :donor-cmv ["C" {:negative "n"
+                                         :positive "p"
+                                         :unknown "u"}]
                         :donor-smokes ["K" {:no "n"
                                             :yes "y"
                                             :unknown "u"}]

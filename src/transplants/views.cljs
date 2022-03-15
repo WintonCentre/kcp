@@ -158,7 +158,7 @@
        (if-not centres
          [:div "loading /" organ " centres"]
          (if-not mdata
-           [:div "Loading /metadata.edn"]
+           [:div "Loading /metadata.txt"]
            (let [centres (sort-by :description ((keyword organ) centres))
                  centres (filter #(utils/filled-in? (:description %)) centres)
                  tools (utils/get-tools mdata organ)

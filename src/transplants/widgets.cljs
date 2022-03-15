@@ -117,12 +117,14 @@
   (rf/dispatch [::events/modal-data
                 {:show true
                  :width "700px"
-                 :on-show #(js/setTimeout (fn [_e]
+                 :on-entered ;#(js/setTimeout 
+                            (fn [_e]
                                             (js/QRCode.
                                              (js/document.getElementById "qrcode")
                                              #js {:text (.-href js/document.location)
                                                   :width 128
-                                                  :height 128})) 500)
+                                                  :height 128})) 
+                           ; 500)
                  :title "Print, Copy or Save to PDF"
                  :content print-modal-content
                 ; :ok hide-handler

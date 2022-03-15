@@ -181,9 +181,9 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    To cancel the dialogue use the top-right close button."
   [data-f]
   ;(locals)
-  (let [{:keys [title content cancel onHide print copy save ok paste width on-show] :as data} @(data-f)]
+  (let [{:keys [title content cancel onHide print copy save ok paste width on-entered] :as data} @(data-f)]
     (when data
-      [:> bs/Modal {:show true :on-hide onHide :on-show on-show
+      [:> bs/Modal {:show true :on-hide onHide :on-entered on-entered
                     :style {:width "Vw"}}
        [:> bs/Modal.Header {:close-button true}
         [:> bs/Modal.Title title]]

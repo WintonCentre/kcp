@@ -69,21 +69,26 @@
 
 (def print-modal-content
   "What to say in the print modal"
-  [:<>
-   [:section {:class-name "print-modal"}
-    [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
+  (let [URI (.-href js/document.location)]
+    [:<>
+     [:section {:class-name "print-modal"}
+      [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
          using another browser if these features are important to you."]
-    [:h1 "Print"]
-    [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
-     [:b "enable the option which prints background graphics. "] "This option is not available in Internet Explorer."]
-    [:h1 "Copy"]
-    [:p "The " [:b "Copy"] " button displays a small screenshot which can be
+      [:h1 "Print"]
+      [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
+       [:b "enable the option which prints background graphics. "] "This option is not available in Internet Explorer."]
+      [:h1 "Copy"]
+      [:p "The " [:b "Copy"] " button displays a small screenshot which can be
          saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for
          best results."]
-    [:p "The copy feature does not work well in Internet Explorer."]
-    [:h1 "Save to PDF"]
-    [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue. Again, be sure to "
-     [:b "enable the option which prints background graphics."]]]])
+      [:p "The copy feature does not work well in Internet Explorer."]
+      [:h1 "Save to PDF"]
+      [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue. Again, be sure to "
+       [:b "enable the option which prints background graphics."]]
+      [:h1 "QRCode"]
+      [:p {:style {:font-size "12px"}} URI]
+      [:div#qrcode]
+      ]]))
 
 (defn hide-handler
   "Hide a modal"
@@ -99,7 +104,6 @@
   (rf/dispatch [::events/modal-data
                 {:show true
                  :title nil
-                 :width "500px"
                  :content [:div {:id "snap"
                                  :style {:margin-left "15%"}} "Use your browser controls to copy the image below"]
                  :paste (partial snap/show-screen-shot canvas)
@@ -112,6 +116,13 @@
   [_e]
   (rf/dispatch [::events/modal-data
                 {:show true
+                 :width "700px"
+                 :on-show #(js/setTimeout (fn [_e]
+                                            (js/QRCode.
+                                             (js/document.getElementById "qrcode")
+                                             #js {:text (.-href js/document.location)
+                                                  :width 128
+                                                  :height 128})) 500)
                  :title "Print, Copy or Save to PDF"
                  :content print-modal-content
                 ; :ok hide-handler
@@ -126,7 +137,7 @@
                          (js/setTimeout (fn [_e]
                                           (snap/take-screen-shot
                                            {:from-element (js/document.querySelector "#capture")
-                                            :done show-canvas-modal}))), 200)
+                                            :done show-canvas-modal})) 200))
                  :onHide hide-handler}]))
 
 

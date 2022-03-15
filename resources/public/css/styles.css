@@ -30,7 +30,7 @@
 
 .btn-primary {
   background-color: #336677;
-  border-radius: 20px;
+  border-radius: 16px;
   font-size: 1.2rem;
   color: white;
   margin-right: 25px;
@@ -41,7 +41,7 @@
 
 .btn-danger {
   background-color: red;
-  border-radius: 20px;
+  border-radius: 16px;
   font-size: 1.2rem;
   color: white;
   margin-right: 25px;
@@ -53,7 +53,7 @@
 .btn-outline-primary {
   background-color: rgba(51, 102, 119, 0.4);
   border: 4px solid #ffffff66;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: #fff;
   margin-right: 25px;
@@ -66,7 +66,7 @@
 .btn-waiting {
   background-color: #4866CB;
   border: 4px solid #fff;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: white;
   margin-right: 25px;
@@ -78,7 +78,7 @@
 .btn-outline-waiting {
   background-color: rgba(72, 102, 203, 0.4);
   border: 4px solid #ffffff66;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: #fff;
   margin-right: 25px;
@@ -91,7 +91,7 @@
 .btn-survival {
   background-color: #00979c;
   border: 4px solid #fff;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: white;
   margin-right: 25px;
@@ -103,7 +103,7 @@
 .btn-outline-survival {
   background-color: rgba(0, 151, 156, 0.4);
   border: 4px solid #ffffff66;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: #fff;
   margin-right: 25px;
@@ -116,7 +116,7 @@
 .btn-graft {
   background-color: #0491d8;
   border: 4px solid #fff;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: white;
   margin-right: 25px;
@@ -128,7 +128,7 @@
 .btn-outline-graft {
   background-color: rgba(4, 145, 216, 0.4);
   border: 4px solid #ffffff66;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: #fff;
   margin-right: 25px;
@@ -141,7 +141,7 @@
 .btn-usefulinfo {
   background-color: #0c282c;
   border: 4px solid #fff;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: white;
   margin-right: 25px;
@@ -153,7 +153,7 @@
 .btn-outline-usefulinfo {
   background-color: rgba(12, 40, 44, 0.4);
   border: 4px solid #ffffff66;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 1.2rem;
   color: #fff;
   margin-right: 25px;

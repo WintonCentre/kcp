@@ -181,22 +181,20 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    To cancel the dialogue use the top-right close button."
   [data-f]
   ;(locals)
-  (let [{:keys [title content cancel onHide print copy save ok paste width] :as data} @(data-f)]
-    
+  (let [{:keys [title content cancel onHide print copy save ok paste width on-show] :as data} @(data-f)]
     (when data
-      [:> bs/Modal {:show true :on-hide onHide
+      [:> bs/Modal {:show true :on-hide onHide :on-show on-show
                     :style {:width "Vw"}}
        [:> bs/Modal.Header {:close-button true}
         [:> bs/Modal.Title title]]
-       [:> bs/Modal.Body [:div { :id "snap-display"} content]]
+       [:> bs/Modal.Body [:div {:id "snap-display"} content]]
        [:> bs/Modal.Footer
         (when paste (do (js/setTimeout (fn []
                                          (paste (js/document.querySelector "#snap-display"))
                                          (let [el (js/document.querySelector ".modal-dialog")
                                                style (.-style el)]
                                            (goog.object.set style "max-width" "none")
-                                           (goog.object.set style "margin-left" "-17px")
-                                           )), 200)
+                                           (goog.object.set style "margin-left" "-17px"))), 200)
                         nil))
         (when copy [:> bs/Button {:variant "primary" :on-click copy}
                     "Copy"])

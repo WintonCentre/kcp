@@ -87,7 +87,8 @@
        [:b "enable the option which prints background graphics."]]
       [:h1 "QRCode"]
       [:p {:style {:font-size "12px"}} URI]
-      [:div#qrcode]
+      [:div#qrcode {:style {:display "flex" :flex-direction "column" :justify-content "top" :align-items "center" :margin-bottom 10}}]
+      [:p "Use a QRCode reader on your mobile to view your inputs there."]
       ]]))
 
 (defn hide-handler

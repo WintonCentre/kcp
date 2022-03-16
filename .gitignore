@@ -57,10 +57,6 @@ resources/r_model_tests/kidney/graft/surv.html
 **/test-configuration.*
 edn-paths-lung.txt
 edn-paths-kidney.txt
-resources/precache_paths_kidney.txt
-resources/precache_paths_lung.txt
-resources/precache_paths_kidney.edn
-resources/precache_paths_lung.edn
 resources/public/index.html
 resources/public/metadata.edn
 resources/public/sw_cache_update.js

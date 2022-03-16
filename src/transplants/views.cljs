@@ -1114,7 +1114,7 @@
                                                                                          {:show true
                                                                                           :title "Factors considered but not included"
                                                                                           :content (factors-not-included mdata)
-                                                                                          :onHide widg/hide-handler
+                                                                                          :on-hide widg/hide-handler
                                                                                           :ok widg/hide-handler}]))}
                                                  [:span "Show factors considered but not included"]]]]])
             [ui/col {:xs 12 :md (if is-full-screen 12 6)}

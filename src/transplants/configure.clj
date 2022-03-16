@@ -277,6 +277,7 @@
                        "/index.html"
                        "/metadata.txt"
                        "/object-assign-auto-min.js"
+                       "/qrcode.min.js"
                        "/manifest.json"
                        "/assets/crest.png"
                        "/assets/The Window.png"

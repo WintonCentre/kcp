@@ -94,7 +94,7 @@
 (defn hide-handler
   "Hide a modal"
   [_e]
-  (rf/dispatch [::events/modal-data false]))
+  (rf/dispatch [::events/modal-data nil]))
 
 (defn show-canvas-modal
   "Pop up a large modal ready to display the canvas on it"
@@ -109,7 +109,7 @@
                                  :style {:margin-left "15%"}} "Use your browser controls to copy the image below"]
                  :paste (partial snap/show-screen-shot canvas)
                  :cancel hide-handler
-                 :onHide hide-handler}]))
+                 :on-hide hide-handler}]))
   
 
 (defn print-or-save-modal
@@ -118,14 +118,14 @@
   (rf/dispatch [::events/modal-data
                 {:show true
                  :width "700px"
-                 :on-entered #(js/setTimeout
-                               (fn [_e]
-                                 (js/QRCode.
-                                  (js/document.getElementById "qrcode")
-                                  #js {:text (.-href js/document.location)
-                                       :width 128
-                                       :height 128}))
-                               500)
+                 :on-show #(js/setTimeout
+                            (fn [_e]
+                              (js/QRCode.
+                               (js/document.getElementById "qrcode")
+                               #js {:text (.-href js/document.location)
+                                    :width 128
+                                    :height 128}))
+                            500)
                  :title "Print, Copy or Save to PDF"
                  :content print-modal-content
                 ; :ok hide-handler
@@ -141,7 +141,7 @@
                                           (snap/take-screen-shot
                                            {:from-element (js/document.querySelector "#capture")
                                             :done show-canvas-modal})) 200))
-                 :onHide hide-handler}]))
+                 :on-hide hide-handler}]))
 
 
 (defmethod widget :reset
@@ -186,13 +186,13 @@
                                                   :title (get info-box :title (:factor-name w))
                                                   :content (get info-box :content info-box)
                                                   ;:content (edn/read-string (:info-box? w))
-                                                  :onHide hide-handler
+                                                  :on-hide hide-handler
                                                   :ok hide-handler}])
                                    #_(?-> {:show true
                                          :title (get info-box :title (:factor-name w))
                                          :content (get info-box :content info-box)
                                          #_(str "Some text for " (:factor-name w))
-                                         :onHide hide-handler
+                                         :on-hide hide-handler
                                          :ok hide-handler}
                                         ::radio))}
          [:span "?"]])]

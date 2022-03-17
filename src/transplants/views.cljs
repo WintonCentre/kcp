@@ -78,7 +78,8 @@
 
        [home-section
         [:h2 "Who is this site for?"]
-        [:p "People who are suitable for " (name single-organ) " transplant and who are over 18 years old."]
+        [:p "People who are suitable for " (name single-organ) " transplant and who are over " 
+         (if (= single-organ :kidney) "18" "16") " years old."]
         (when (= single-organ :kidney)
           [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]]
 

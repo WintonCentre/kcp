@@ -74,10 +74,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                    (= lev (:optional (first (filter #(= (:level %) :unknown) buttons))))))]
      (into [:> bs/ToggleButtonGroup
             {:type "radio"
-             :id id
-             ;:inline "true"
-             ;:size "sm"
-             ;:vertical vertical 
+             :id id 
              :name id
              :value value
              :on-change on-change
@@ -195,8 +192,8 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                          (paste (js/document.querySelector "#snap-display"))
                                          (let [el (js/document.querySelector ".modal-dialog")
                                                style (.-style el)]
-                                           (goog.object.set style "max-width" "none")
-                                           (goog.object.set style "margin-left" "-17px"))), 200)
+                                           (goog.object.set style "max-width" "85%")
+                                           )), 200)
                         nil))
         (when copy [:> bs/Button {:variant "primary" :on-click copy}
                     "Copy"])

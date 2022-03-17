@@ -10,7 +10,7 @@
    Unfortunately we don't have a clean way of reading CSV byte order marks in babashka so watch out for issues 
    occurring in the first byte of params.csv.
    
-   Change organ by editing the first line of resources/public/metadata_template.edn and running `bb <organ>".
+   Change organ by editing the first line of resources/public/metadata_template.edn and running `bb <organ>"
 
   (:require
    [clojure.test :as t :refer [is deftest testing]]

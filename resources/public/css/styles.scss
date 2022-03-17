@@ -190,3 +190,7 @@ $removed-darker: #DBCDB1;
     background-color: #fff;
     color: #000;
 }
+
+.btn-group-toggle>.btn input[type=radio] {
+    display: none;
+}

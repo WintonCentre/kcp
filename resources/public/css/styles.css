@@ -236,4 +236,8 @@
   color: #000;
 }
 
+.btn-group-toggle > .btn input[type=radio] {
+  display: none;
+}
+
 /*# sourceMappingURL=styles.css.map */

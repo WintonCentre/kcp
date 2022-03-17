@@ -100,16 +100,21 @@
   "Pop up a large modal ready to display the canvas on it"
   [canvas]
   ;(.getContext canvas "2d")
-  (goog.object.set canvas "style" "max-width: 70%; margin-left: 15%")
+  (goog.object.set canvas "style" "max-width: 90%; margin-left: 5%")
 
   (rf/dispatch [::events/modal-data
                 {:show true
                  :title nil
                  :content [:div {:id "snap"
-                                 :style {:margin-left "15%"}} "Use your browser controls to copy the image below"]
+                                 :style {:margin-bottom 15
+                                         :text-align "center"
+                                         :font-size "120%"}}
+                           [:b [:i "Use the context menu (try right-click or control-click on the image below) to copy or save"]]]
                  :paste (partial snap/show-screen-shot canvas)
                  :cancel hide-handler
-                 :on-hide hide-handler}]))
+                 :on-hide hide-handler
+                 :ok hide-handler
+                 }]))
   
 
 (defn print-or-save-modal

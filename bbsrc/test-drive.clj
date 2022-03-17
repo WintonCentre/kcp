@@ -60,10 +60,10 @@
                    :default "kidney"
                    :parse-fn str
                    :validate [#(#{"kidney" "lung" "local"} %) "kidney | lung | local"]]
-                  ["-d" "--driver driver" "gecko for FF, or chrome for chrome)"
-                   :default "chrome"
+                  ["-d" "--driver driver" "ff for Firefox geckodriver, chrome, safari, edge)"
+                   :default "safari"
                    :parse-fn str
-                   :validate [#(#{"gecko" "chrome"} %) "gecko | chrome"]]
+                   :validate [#(#{"ff" "chrome" "safari" "edge"} %) "gecko | chrome | safari | edge"]]
                   ["-h" "--help"]])
 
 (defn -main [& _args]
@@ -76,8 +76,6 @@
         (println "site " site)
         (println "driver " driver)
         #_(System/exit 0)))))
-  
-    
 
 (-main)
 
@@ -96,6 +94,10 @@
   ;; => "https://localhost:3000/"
   )
 
+
+;;
+;; Following code from etaoin 
+;;
 
 #_(def driver (eta/firefox))  ;; here, a Firefox window should appear
 (def driver (eta/chrome)) ;; or a chrome window

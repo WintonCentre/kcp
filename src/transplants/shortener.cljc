@@ -31,7 +31,9 @@
   (condp = m
     nil "-"
     {} "-"
-    (str/join (mapcat lookups m))))
+    (if lookups
+      (str/join (mapcat lookups m))
+      "-")))
 
 ;; (comment
 ;;   "A2SfBaDyEaMeGrdpsn"

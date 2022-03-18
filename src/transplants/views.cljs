@@ -171,7 +171,8 @@
                                  :centre (:key centre)
                                  :hospital (:description centre)
                                  :width 200
-                                 :tools tools}])]
+                                 :tools tools
+                                 :mdata mdata}])]
              (into (ui/centre-card-deck mobile)
                    (map centre-card centres)))))]))
 
@@ -1223,6 +1224,7 @@
         organ-centres @(rf/subscribe [::subs/organ-centres])
         path-params (:path-params route)
         path-inputs (:inputs path-params)
+        ;db-inputs @(rf/subscribe [::subs/inputs])
         tab (:tab path-params)
         [organ-name centre-name tool-name :as p-names] (utils/path-names path-params)
         tool-name (if (nil? tool-name) :waiting tool-name)
@@ -1230,7 +1232,8 @@
         tools (utils/get-tools mdata organ)
 ;; either DISPATCH selected-inputs-vis or set db:inputs here?
         ]
-    (?-> {:route route
+    #_(?-> {:route route
+          :db-inputs db-inputs
           :path-inputs path-inputs
           :organ organ
           :organ-centres organ-centres

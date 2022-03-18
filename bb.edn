@@ -6,7 +6,15 @@
  :tasks {:requires ([babashka.fs :as fs]
                     [clojure.string :as string])
          ;:init (defn env [s] (System/getenv s))
-         :enter (println "Entering:" (:name (current-task)))
+         ;;:enter (println "Entering:" (:name (current-task)))
+
+         ;; This is so we can log tasks running in parallel
+         :init (def log (Object.))
+         :enter (locking log
+                  (println (str (:name (current-task))
+                                ":")
+                           (java.util.Date.)))
+         
          print-env (println (env (first *command-line-args*)))
          tex (shell "pandoc doc/competing_risks.tex -o resources/public/competing_risks.pdf")
          install (shell "npm install")
@@ -36,9 +44,22 @@
          run-tests (shell "bb --file ./test_runner.clj")
          lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
          kidney (shell "bb --file ./bbsrc/organ-switch.clj -g kidney")
-         test-kidney (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")
-         test-lung (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s lung")
-         test-local (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s local")
+         
+         chrome-kidney (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")
+         chrome-lung (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s lung")
+         chrome-local (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s local")
+
+         ff-kidney (shell "bb --file ./bbsrc/test-drive.clj -d ff -s kidney")
+         ff-lung (shell "bb --file ./bbsrc/test-drive.clj -d ff -s lung")
+         ff-local (shell "bb --file ./bbsrc/test-drive.clj -d ff -s local")
+
+         ;; The safari etaoin tasks throw on quitting Safari
+         safari-kidney (shell "bb --file ./bbsrc/test-drive.clj -d safari -s kidney")
+         safari-lung (shell "bb --file ./bbsrc/test-drive.clj -d safari -s lung")
+         safari-local (shell "bb --file ./bbsrc/test-drive.clj -d safari -s local")
+         multi-local {:doc "local e2e tests in parallel on multiple browsers"
+                  :task (run '-multi-local {:parallel true})}
+         -multi-local {:depends [chrome-local ff-local #_safari-local]}
          test-prep (do
                      (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t graft -c Belfast")
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")

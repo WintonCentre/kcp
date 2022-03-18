@@ -1,6 +1,10 @@
 (ns test-drive
-  "Test drive the site using etaoin. You will need to download, install, and configure the relevant 
-   browser driver for etaoin to connect to."
+  "Babashka code to test drive the site using etaoin. 
+   
+   You will need to download, install, and configure the relevant 
+   browser driver for the browser you want to test. Safaridriver is pre-installed on OSX. Firefox needs
+   geckodriver. Drivers are closely tied to browser versions so do check you have the correct one installed.
+   "
   (:require [clojure.pprint :refer [pprint]]
             [clojure.edn :as edn]
             [clojure.set :as rel]
@@ -9,6 +13,7 @@
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]
             [babashka.classpath :refer [add-classpath]]
+            [clojure.test :as t :refer [deftest testing is are]]
             [babashka.pods :as pods]))
 
 (pods/load-pod 'org.babashka/etaoin "0.1.0")
@@ -23,63 +28,120 @@
 
 (def organ "kidney")
 
-(defn site
+
+(def drivers
+  {"chrome" eta/chrome
+   "ff" eta/firefox
+   "safari" eta/safari
+   "edge" eta/edge})
+
+(defn get-site
   "Return a site address, defaulting to the local site if the id isn't known"
-  [site-id]
+  [site-name]
   (get
-   {:kidney "kidney.transplants.wintoncentre.uk/"
-    :lung "lung.transplants.wintoncentre.uk/"
-    :local "localhost:3000/"}
-   (keyword site-id)
+   {"kidney" "kidney.transplants.wintoncentre.uk/"
+    "lung" "lung.transplants.wintoncentre.uk/"
+    "local" "localhost:3000/"}
+   site-name
    "localhost:3000/"))
 
-(defn credentials
-  "get credentials in URI form"
-  [username password]
-  (when (and username password)
-    (str username ":" password "@")))
+(defn env [s] (java.lang.System/getenv s))
 
 (defn uri
-  "Return a URI for a site"
-  [{:keys [site-name username password]}]
-  (str "https://" (credentials username password) (site site-name)))
+  "Return a URI for a site. Get credentials from T_USER and T_PWD environment variables."
+  [site-name]
+  (if (= site-name "local")
+    (str (get-site site-name))
+    (str "https://" (env "T_USER") ":" (env "T_PWD") "@" (get-site site-name))))
 
-(defn env [s] (java.lang.System/getenv s))
+
+
 
 (defn usage
   "Usage message"
   ([] (usage nil))
   ([err-msg]
    (when err-msg (println err-msg))
-   (println "Usage placeholder")))
+   (println "See bb.edn for examples such as\n
+             bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")))
+
+(defn invoked-by-command-line?
+  "See https://book.babashka.org/_/recipes.html#main_file. Useful if we are in a REPL we don't
+   want Load and Eval File to run and then exit immediately."
+  []
+  (= (System/getProperty "babashka.file") *file*))
+
+;;;
+;; Define tests here
+;;;
+(declare driver)
+(declare site)
+
+(deftest test2
+  (eta/go driver site))
+
+(defn use-driver
+  [driver-id site-id]
+  (t/use-fixtures :once
+    (fn [f]
+      (def driver ((get drivers driver-id)))
+      (def site (uri site-id))
+      (f)
+      (eta/quit driver))))
+
+
 
 ;;;
 ;; main
 ;;;
-(def cli-options [["-s" "--site site-id" "lung or kidney or local)"
+(def cli-options [["-s" "--site-id site-id" "lung or kidney or local"
                    :default "kidney"
                    :parse-fn str
                    :validate [#(#{"kidney" "lung" "local"} %) "kidney | lung | local"]]
-                  ["-d" "--driver driver" "ff for Firefox geckodriver, chrome, safari, edge)"
-                   :default "safari"
+                  ["-d" "--driver-id driver-id" "ff for Firefox geckodriver, chrome, safari, edge"
+                   :default "chrome"
                    :parse-fn str
                    :validate [#(#{"ff" "chrome" "safari" "edge"} %) "gecko | chrome | safari | edge"]]
                   ["-h" "--help"]])
 
 (defn -main [& _args]
-  (let [{:keys [options errors]} (parse-opts *command-line-args* cli-options)]
-    (if errors
+  (let [parsed-options (parse-opts *command-line-args* cli-options)]
+    ;(println "parsed-options: " parsed-options)
+    (if-let [errors (:errors parsed-options)]
       (let [msg (str "Encountered one or more errors: " (str/join ", " errors))]
         (usage msg)
         (System/exit 1))
-      (let [{:keys [site driver]} options]
-        (println "site " site)
-        (println "driver " driver)
-        #_(System/exit 0)))))
+      (let [{:keys [site-id driver-id]} (:options parsed-options)]
+        (println "site-id: " site-id)
+        (println "Testing: " (get-site site-id) " in " driver-id)
+        (use-driver driver-id site-id)
+        (t/run-tests)
 
-(-main)
+        (when (invoked-by-command-line?)
+          (System/exit 0))))))
+
+(when (invoked-by-command-line?)
+  (try
+    (-main)
+    (catch Exception e (.getMessage e))))
+
 
 (comment
+
+  (uri "kidney")
+  ;; => "https://winton:development55@kidney.transplants.wintoncentre.uk/"
+
+  ;; fixture generators
+  (use-driver "chrome" "kidney")
+  ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x56fff7e0 "sci.impl.fns$fun$arity_1__7325@56fff7e0"])}}
+
+  (use-driver "ff" "local")
+  ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x63a24a3c "sci.impl.fns$fun$arity_1__7325@63a24a3c"])}}
+
+  (use-driver "safari" "local")
+
+  (t/run-tests)
+
   (usage)
 
   (env "HOME")
@@ -95,40 +157,58 @@
   )
 
 
-;;
-;; Following code from etaoin 
-;;
 
-#_(def driver (eta/firefox))  ;; here, a Firefox window should appear
-(def driver (eta/chrome)) ;; or a chrome window
+(comment
+;;
+;; Following code copied from etaoin example.clj
+;;
+  #_(def driver (eta/firefox))
+    ;; here, a Firefox window should appear
+  (def driver (eta/chrome))
+   ;; or a chrome window
 ;(def driver (eta/firefox-headless))
 
 ;; let's perform a quick Wiki session
-(eta/go driver "https://winton:development55@kidney.transplants.wintoncentre.uk/")
-(eta/wait-visible driver [{:id :simpleSearch} {:tag :input :name :search}])
+  (eta/go driver "https://winton:development55@kidney.transplants.wintoncentre.uk/")
+
+  (eta/wait-visible driver [{:id :simpleSearch} {:tag :input :name :search}])
+
 
 ;; search for something
-(eta/fill driver {:tag :input :name :search} "Clojure programming language")
-(eta/fill driver {:tag :input :name :search} k/enter)
-(eta/wait-visible driver {:class :mw-search-results})
+  (eta/fill driver {:tag :input :name :search} "Clojure programming language")
+
+  (eta/fill driver {:tag :input :name :search} k/enter)
+
+  (eta/wait-visible driver {:class :mw-search-results})
+
 
 ;; I'm sure the first link is what I was looking for
-(eta/click driver [{:class :mw-search-results} {:class :mw-search-result-heading} {:tag :a}])
-(eta/wait-visible driver {:id :firstHeading})
+  (eta/click driver [{:class :mw-search-results} {:class :mw-search-result-heading} {:tag :a}])
+
+  (eta/wait-visible driver {:id :firstHeading})
+
 
 ;; let's ensure
-(prn (eta/get-url driver)) ;; "https://en.wikipedia.org/wiki/Clojure"
+  (prn (eta/get-url driver))
+   ;; "https://en.wikipedia.org/wiki/Clojure"
 
-(prn (eta/get-title driver)) ;; "Clojure - Wikipedia"
+  (prn (eta/get-title driver))
+   ;; "Clojure - Wikipedia"
 
-(prn (eta/has-text? driver "Clojure")) ;; true
+  (prn (eta/has-text? driver "Clojure"))
+   ;; true
 
 ;; navigate on history
-(eta/back driver)
-(eta/forward driver)
-(eta/refresh driver)
-(prn (eta/get-title driver)) ;; "Clojure - Wikipedia"
+  (eta/back driver)
+
+  (eta/forward driver)
+
+  (eta/refresh driver)
+
+  (prn (eta/get-title driver))
+   ;; "Clojure - Wikipedia"
 
 ;; stops Firefox and HTTP server
-(eta/quit driver)
-nil
+  (eta/quit driver)
+
+  nil)

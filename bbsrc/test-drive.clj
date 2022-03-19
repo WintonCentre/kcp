@@ -19,15 +19,20 @@
 (pods/load-pod 'org.babashka/etaoin "0.1.0")
 
 (require '[pod.babashka.etaoin :as eta]
+         '[pod.babashka.etaoin.query :as q]
          '[pod.babashka.etaoin.keys :as k])
 
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
 (add-classpath "bbsrc:src:resources")
 ;(require '[transplants.shortener :as short]) ; gain access to the .cljc 
 
+(defn env [s] (java.lang.System/getenv s))
 
-(def organ "kidney")
-
+(defn invoked-by-command-line?
+  "See https://book.babashka.org/_/recipes.html#main_file. 
+  If false we are probably in a REPL."
+  []
+  (= (System/getProperty "babashka.file") *file*))
 
 (def drivers
   {"chrome" eta/chrome
@@ -35,6 +40,11 @@
    "safari" eta/safari
    "edge" eta/edge})
 
+;;;
+;; Following block isn't so useful in babashka as it turns out. The etaoin pod doesn't yet support
+;; scrolling, so a fixture for uri wrpping by multiple deftests isn't so useful. This code would
+;; make more sense in clojure+etaoin on the JVM. So leaving it for now
+;;;
 (defn get-site
   "Return a site address, defaulting to the local site if the id isn't known"
   [site-name]
@@ -45,7 +55,6 @@
    site-name
    "localhost:3000/"))
 
-(defn env [s] (java.lang.System/getenv s))
 
 (defn uri
   "Return a URI for a site. Get credentials from T_USER and T_PWD environment variables."
@@ -54,9 +63,38 @@
     (str (get-site site-name))
     (str "https://" (env "T_USER") ":" (env "T_PWD") "@" (get-site site-name))))
 
+;; global vars needed in the fixture. 
+(def driver "chrome") 
+(def site (uri "kidney"))
+
+(deftest test
+  (testing "Tool page loading"
+    
+    (eta/wait-visible driver "//*[@id=\"app\"]/div/nav/a[2]")
+    (eta/click driver "//*[@id=\"app\"]/div/nav/a[2]")
+    (eta/wait-visible driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
+    (eta/click driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
+    ;; Add an assertion
+    ))
+
+(defn use-driver
+  [driver-id site-id]
+  (with-redefs [driver (get drivers driver-id)
+                site (uri site-id)]
+    (t/use-fixtures :once
+      (fn [f]
+        (eta/go driver site)
+        (f)
+        (eta/quit driver)))))
+
+(comment
+  (-main)
+  0)
 
 
-
+;;;
+;; main
+;;;
 (defn usage
   "Usage message"
   ([] (usage nil))
@@ -65,35 +103,6 @@
    (println "See bb.edn for examples such as\n
              bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")))
 
-(defn invoked-by-command-line?
-  "See https://book.babashka.org/_/recipes.html#main_file. Useful if we are in a REPL we don't
-   want Load and Eval File to run and then exit immediately."
-  []
-  (= (System/getProperty "babashka.file") *file*))
-
-;;;
-;; Define tests here
-;;;
-(declare driver)
-(declare site)
-
-(deftest test2
-  (eta/go driver site))
-
-(defn use-driver
-  [driver-id site-id]
-  (t/use-fixtures :once
-    (fn [f]
-      (def driver ((get drivers driver-id)))
-      (def site (uri site-id))
-      (f)
-      (eta/quit driver))))
-
-
-
-;;;
-;; main
-;;;
 (def cli-options [["-s" "--site-id site-id" "lung or kidney or local"
                    :default "kidney"
                    :parse-fn str
@@ -111,7 +120,7 @@
       (let [msg (str "Encountered one or more errors: " (str/join ", " errors))]
         (usage msg)
         (System/exit 1))
-      (let [{:keys [site-id driver-id]} (:options parsed-options)]
+      (let [{:keys [driver-id site-id]} (:options parsed-options)]
         (println "site-id: " site-id)
         (println "Testing: " (get-site site-id) " in " driver-id)
         (use-driver driver-id site-id)

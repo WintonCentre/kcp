@@ -67,7 +67,7 @@
                                            :chol_grp_3 "3"
                                            :chol_grp_4 "4"
                                            :unknown "u"}]}
-                 :kidney {;;waiting 
+                 :kidney {;;waiting
                           :sex ["S" {:male "m"
                                      :female "f"}]
                           :age ["A" {:18+ "2"

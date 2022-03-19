@@ -67,7 +67,7 @@
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
-  [{:keys [organ centre tool] :as path}]
+  [{:keys [organ centre tool bare] :as path}]
   (let [day @(rf/subscribe [::subs/test-day])
         mdata @(rf/subscribe [::subs/mdata])
         {:keys [fmaps outcome-keys
@@ -121,94 +121,96 @@
     (rf/dispatch [::events/missing-inputs missing])
     [:<>
      ;[screen-shot]
-     [:div {:style {:background-color "#fff"
-                    :border (str "3px solid " (condp = overlay
-                                                :missing "rgb(255,0,0)"
-                                                :unknowns "teal"
-                                                nil "#CCC"))
-                    :border-radius 5
-                    :margin-top 30
-                    :margin-bottom 20
-                    :padding "20px 5px 5px 15px"
-                    :position "relative"}}
-      (condp = overlay
-        :missing [:<>
-                  [:div {:style {:z-index 1000
-                                 :color "rgb(255,0,0)"
-                                 :border "3px solid rgb(255,0,0)"
-                                 :border-radius 5
-                                 :background-color "#fff"
-                                 :padding "2px 5px"
-                                 :position "absolute"
-                                 :top "-20px"
-                                 :right "20px"}}
-                   "Warning: some inputs are missing"]
-                  [:div {:style {:z-index 500
-                                 :background-color rgb/theme
-                                 :padding 0
-                                 :position "absolute"
-                                 :top 0
-                                 :right 0
-                                 :bottom 0
-                                 :left 0
-                                 :display "flex"
-                                 :align-items "center"
-                                 :justify-content "center"}}
-                   [:h2 {:flex "auto"
-                         :style {:color "#fff"
-                                 :text-align "center"
-                                 :width 400}}
-                    "Results will appear here once all inputs have been entered."]]]
-        :unknowns [:<>
-                   [:div {:style {:z-index 1000
-                                  :color "teal"
-                                  :border "3px solid teal"
-                                  :border-radius 5
-                                  :background-color "#fec"
-                                  :padding "2px 5px"
-                                  :position "absolute"
-                                  :top "-20px"
-                                  :right "20px"}}
-                    "Average values were used for some inputs"]
-                   [:div {:style {:z-index 500
-                                  :background-color "#fec2"
-                                  :padding 0
-                                  :position "absolute"
-                                  :pointer-events "none" ; to allow click through
-                                  :top 0
-                                  :right 0
-                                  :bottom 0
-                                  :left 0}}]
-                   [full-screen-overlay-button path]]
-        nil     [full-screen-overlay-button path])
+     (if bare
+       [vis/test-gen env]
+       [:<>
+        [:div {:style {:background-color "#fff"
+                       :border (str "3px solid " (condp = overlay
+                                                   :missing "rgb(255,0,0)"
+                                                   :unknowns "teal"
+                                                   nil "#CCC"))
+                       :border-radius 5
+                       :margin-top 30
+                       :margin-bottom 20
+                       :padding "20px 5px 5px 15px"
+                       :position "relative"}}
+         (condp = overlay
+           :missing [:<>
+                     [:div {:style {:z-index 1000
+                                    :color "rgb(255,0,0)"
+                                    :border "3px solid rgb(255,0,0)"
+                                    :border-radius 5
+                                    :background-color "#fff"
+                                    :padding "2px 5px"
+                                    :position "absolute"
+                                    :top "-20px"
+                                    :right "20px"}}
+                      "Warning: some inputs are missing"]
+                     [:div {:style {:z-index 500
+                                    :background-color rgb/theme
+                                    :padding 0
+                                    :position "absolute"
+                                    :top 0
+                                    :right 0
+                                    :bottom 0
+                                    :left 0
+                                    :display "flex"
+                                    :align-items "center"
+                                    :justify-content "center"}}
+                      [:h2 {:flex "auto"
+                            :style {:color "#fff"
+                                    :text-align "center"
+                                    :width 400}}
+                       "Results will appear here once all inputs have been entered."]]]
+           :unknowns [:<>
+                      [:div {:style {:z-index 1000
+                                     :color "teal"
+                                     :border "3px solid teal"
+                                     :border-radius 5
+                                     :background-color "#fec"
+                                     :padding "2px 5px"
+                                     :position "absolute"
+                                     :top "-20px"
+                                     :right "20px"}}
+                       "Average values were used for some inputs"]
+                      [:div {:style {:z-index 500
+                                     :background-color "#fec2"
+                                     :padding 0
+                                     :position "absolute"
+                                     :pointer-events "none" ; to allow click through
+                                     :top 0
+                                     :right 0
+                                     :bottom 0
+                                     :left 0}}]
+                      [full-screen-overlay-button path]]
+           nil     [full-screen-overlay-button path])
 
-      [:section {:style {:margin (if is-full-screen "10%" "0")
-                         :max-width (if is-full-screen "80%" "100%")}}
-       [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
-                 :active-key (:selected-vis env)
-                 :on-select #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
-                                           (assoc path
-                                                  :tab %
-                                                  :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
-        [ui/tab {:event-key "bars" :title "Bar Chart"}
-         [vis/bar-chart env]]
+      ;; Place test-data near top for etaoin bababshka-pod
 
-        [ui/tab {:event-key "area" :title "Area Chart"}
-         [vis/area-chart env]]
 
-        [ui/tab {:event-key "icons" :title "Icon Array"}
-         [vis/icon-array env]]
+         [:section {:style {:margin (if is-full-screen "10%" "0")
+                            :max-width (if is-full-screen "80%" "100%")}}
+          [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
+                    :active-key (:selected-vis env)
+                    :on-select #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+                                              (assoc path
+                                                     :tab %
+                                                     :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
+           [ui/tab {:event-key "bars" :title "Bar Chart"}
+            [vis/bar-chart env]]
 
-        [ui/tab {:event-key "table" :title "Table"}
-         [:div {:style {:font-size (if is-full-screen "300%" "100%")}}
-          [vis/table env]]]
+           [ui/tab {:event-key "area" :title "Area Chart"}
+            [vis/area-chart env]]
 
-        [ui/tab {:event-key "text" :title "Text"}
-         [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-          [vis/text env]]]
+           [ui/tab {:event-key "icons" :title "Icon Array"}
+            [vis/icon-array env]]
 
-        #_[ui/tab {:variant "secondary"
-                   :event-key "test" :title "[Test]"}
-           [vis/test-rig (conj env
-                               [:rubric [[:h4 "Test Rig"]]]
-                               [:bar-info nil])]]]]]]))
+           [ui/tab {:event-key "table" :title "Table"}
+            [:div {:style {:font-size (if is-full-screen "300%" "100%")}}
+             [vis/table env]]]
+
+           [ui/tab {:event-key "text" :title "Text"}
+            [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+             [vis/text env]]]
+
+           ]]]])]))

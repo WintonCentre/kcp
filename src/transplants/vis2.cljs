@@ -1195,25 +1195,21 @@ After 3 years	75  of them to have received a transplant
 
 
 (defn test-render
-  [organ tool inputs year-series plot-order]
-  #_(let [labels (get-in tool-mdata [:table :labels])
-          years (range (count labels))]
-      [:div {:style {:margin-top 20}}
-
-       [:div
-        (for [i years
-              :let [label (nth labels i)
-                    line (:line label)
-                    line (if (sequential? line) (map str line) line)]]
-          [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:h4 line]
-           (for [j (range (count plot-order))
-                 :let [style ((nth plot-order j) data-styles)
-                       long-label (:long-label style)]]
-             [:div {:key (str "c-" j)}
-              (let [label (nth labels i)
-                    time-index (:time-index label)
-                    [_ {:keys [int-fs]}] (nth year-series time-index)]
-                [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
+  [year-series plot-order tool-mdata]
+  (let [labels (get-in tool-mdata [:table :labels])
+        years (range (count labels))]
+    (mapv
+     (fn [i]
+       (let [label (nth labels i)
+             time-index (:time-index label)]
+         (into {}
+               (cons [:year time-index]
+                     (map
+                      (fn [j]
+                        (let [[_ {:keys [int-fs]}] (nth year-series time-index)]
+                          [(nth plot-order j) (nth int-fs j)]))
+                      (range (count plot-order)))))))
+     years)))
 
 (defn text
   "a text results view"
@@ -1225,6 +1221,7 @@ After 3 years	75  of them to have received a transplant
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
+        plot-order (:plot-order tool-mdata)
 
         ;; Table plots need to have positive items at the start; negative (like death) at the end.
         ;; for survival curves the :residual component is positive farmed, so bring 
@@ -1241,36 +1238,20 @@ After 3 years	75  of them to have received a transplant
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
     ;(locals)
     [:section
-     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
-     (test-render organ tool inputs fs-by-year-in-plot-order plot-order*)
-     #_(:post-section tool-mdata)]))
+     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)]))
 
 
 
 (defn test-gen
-  "send a test data structure to tap for comparison against an R structure"
-  [{:keys [organ tool base-outcome-keys s0 F inputs] :as env}]
+  "send a test data structure for comparison against an R structure"
+  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
   (let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
-        #_#_data-styles (get tool-mdata :outcomes)
-
-        ;; Table plots need to have positive items at the start; negative (like death) at the end.
-        ;; for survival curves the :residual component is positive farmed, so bring 
-        ;; this to the start.
-        ;;
-        ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
-        ;; rather than at the tool level.
-        plot-order* (as-> (:plot-order tool-mdata) x
-                      (move-to-start x :residual)
-                      (move-to-end x :removal)
-                      (move-to-end x :death))
-
-        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-    ;(locals)
-    [:section
-     (test-render organ tool inputs fs-by-year-in-plot-order plot-order*)
-     #_(:post-section tool-mdata)]))
+        plot-order (:plot-order tool-mdata)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+    [:section {:id "uri-result"}
+     (pr-str {:uri (.-href js/document.location)
+              :result (test-render fs-by-year-in-plot-order plot-order tool-mdata)})]))

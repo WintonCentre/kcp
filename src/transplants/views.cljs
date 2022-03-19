@@ -1047,11 +1047,12 @@
           uk-info (utils/get-centre-info organ-centres organ :uk)
           tool-mdata (utils/get-tool-meta mdata organ tool)
           tcb (bun/get-bundle organ centre tool)
-          is-full-screen @(rf/subscribe [::subs/is-full-screen])]
+          is-full-screen @(rf/subscribe [::subs/is-full-screen])
+          tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
         (locals)
       [:div {:id "capture"}
        (when-not is-full-screen
-         [:div {:style {:width "100%" :background-color rgb/theme #_"#0072BA" :padding 20 :color "white"}}
+         [:div {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
           [ui/row
            [ui/col {:xs 12 :sm 8}
             [:h1 (:description centre-info)]
@@ -1059,6 +1060,11 @@
            [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
 
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]])
+       
+       (when (= tab "test")
+         [results/results-panel {:organ organ :centre centre :tool tool :bare true}]
+         )
+
 
        (if-let [tool-centre-bundle tcb]
          (let [tcb-fmaps (get tool-centre-bundle :fmaps)
@@ -1066,73 +1072,75 @@
            [ui/row {:style {:margin "0px 10px"}}
             [ui/col {:xs 12}
              [:h3 {:style {:margin-top 10}} (:page-title tool-mdata)]]
-            (when-not is-full-screen [ui/col {:xs 12 :md 6
-                                              :style {:margin-top 10
-                                                      #_#_:height "calc(100vh + 7ex)"
-                                                      #_#_:overflow-y "scroll"}}
 
-                                      (when-let [input-header (get-in tool-mdata [:inputs :header])]
-                                        input-header)
-                                      
+            ;;;
+            ;; Inputs panel
+            ;;;
+            (when-not is-full-screen
+              [ui/col {:xs 12 :md 6
+                       :style {:margin-top 10}}
 
-                                      [:div {:style {:padding "0px 0px 15px 15px"}}
+               (when-let [input-header (get-in tool-mdata [:inputs :header])]
+                 input-header)
 
-                                       (widg/widget {:type :reset})
+               [:div {:style {:padding "0px 0px 15px 15px"}}
+                (widg/widget {:type :reset})
 
-                                       (into [:<>]
-                                             (map
-                                              (fn [[k w]] ^{:key (:factor w)}
-                                                [:div {:style {:margin-top 0
-                                                               :margin-bottom -5
-                                                               :margin-left -15
-                                                               :padding 5
-                                                               :display "relative"
-                                                               :outline-bottom (when (some? (:boxed w)) boxed-border)
-                                                               :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
-                                                 [:div {:style {:position "relative"
-                                                                :padding-right 5}}
-                                                  (when (= k first-boxed)
-                                                    [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
-                                                     [:> bs/Col {:xs 6
-                                                                 :style {:display "flex" :justify-content "flex-end"}}
-                                                      [:span {:style {:text-align "right"}}
-                                                       boxed-text]]])
-                                                  (widg/widget (assoc w :model tool))]
-                                                 [:div {:style {:height 10}}]])
+                (into [:<>]
+                      (map
+                       (fn [[k w]] ^{:key (:factor w)}
+                         [:div {:style {:margin-top 0
+                                        :margin-bottom -5
+                                        :margin-left -15
+                                        :padding 5
+                                        :display "relative"
+                                        :outline-bottom (when (some? (:boxed w)) boxed-border)
+                                        :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
+                          [:div {:style {:position "relative"
+                                         :padding-right 5}}
+                           (when (= k first-boxed)
+                             [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
+                              [:> bs/Col {:xs 6
+                                          :style {:display "flex" :justify-content "flex-end"}}
+                               [:span {:style {:text-align "right"}}
+                                boxed-text]]])
+                           (widg/widget (assoc w :model tool))]
+                          [:div {:style {:height 10}}]])
 
-                                              tcb-fmaps))]
-                                              [:<>
-                                               [:p "This tool cannot take into account all the factors about you that might affect the result. 
+                       tcb-fmaps))]
+               [:<>
+                [:p "This tool cannot take into account all the factors about you that might affect the result. 
                                            We hope to include more in the future. "]
-                                               [:p "Click below to find out more about those we have considered but are not in the tool."]
-                                               [:p
-                                                [:> bs/Button {:id "factors-considered"
-                                                               :size "md"
-                                                               :variant "primary"
-                                                               :title "Factors considered but not included"
-                                                               :style {:margin-left 0}
-                                                               :on-click (fn [_e]
-                                                                           (rf/dispatch [::events/modal-data
-                                                                                         {:show true
-                                                                                          :title "Factors considered but not included"
-                                                                                          :content (factors-not-included mdata)
-                                                                                          :on-hide widg/hide-handler
-                                                                                          :ok widg/hide-handler}]))}
-                                                 [:span "Show factors considered but not included"]]]]])
+                [:p "Click below to find out more about those we have considered but are not in the tool."]
+                [:p
+                 [:> bs/Button {:id "factors-considered"
+                                :size "md"
+                                :variant "primary"
+                                :title "Factors considered but not included"
+                                :style {:margin-left 0}
+                                :on-click (fn [_e]
+                                            (rf/dispatch [::events/modal-data
+                                                          {:show true
+                                                           :title "Factors considered but not included"
+                                                           :content (factors-not-included mdata)
+                                                           :on-hide widg/hide-handler
+                                                           :ok widg/hide-handler}]))}
+                  [:span "Show factors considered but not included"]]]]])
+
+            ;;;
+            ;; Results Panel
+            ;;;
             [ui/col {:xs 12 :md (if is-full-screen 12 6)}
              (when-not is-full-screen
+               [:section {:id "test-results"}]
                [:section {:style {:margin-top 10}} (:pre-section tool-mdata)])
              [:section
 
               [results/results-panel {:organ organ :centre centre :tool tool}]
-              #_[fs/full-screen-wrapper
-                 results/results-panel {:organ organ :centre centre :tool tool}]
 
-              
               (:rest-of-page tool-mdata)]
-              [widg/print-or-save]
-             ]])
-         
+             [widg/print-or-save]]])
+
          (if (= tool :guidance)
            [guidance organ]
            (let [path (paths/organ-centre-name-tool organ-name

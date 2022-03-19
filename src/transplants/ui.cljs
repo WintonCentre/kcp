@@ -101,13 +101,14 @@ in the routes table."
             favicon (str "/assets/favicon_" (name single-organ) ".png")]
         (load-favicon favicon)
 
-        [:> bs/Navbar {#_#_:bg "dark" :expand "lg" #_#_:fixed "top"
+        [:> bs/Navbar {#_#_:bg "dark" :expand "lg" 
                        :variant "dark"
+                       :collapse-on-select true
                        :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
          [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
      ; Site name below 
          [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
-                          :organ (name organ)
+                          ;:organ (name organ)
                           :href (href :transplants.views/organ {:organ (name organ)})}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
@@ -116,9 +117,7 @@ in the routes table."
          [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
          [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
 
-          [:> bs/Nav {:active-key (if organ (name organ) "home")
-                 ;:class "mr-auto" :style {:height "100%" :vertical-align "middle"}
-                      }
+          [:> bs/Nav {:active-key (if organ (name organ) "home")}
            [:> bs/Nav.Link {:style {:font-size "1.2em"}
                             :event-key :home
                             :href (href :transplants.views/home)
@@ -376,7 +375,7 @@ in the routes table."
                        :margin-bottom 20}}
     [row
      [:> bs/Col {:md {:span 8 :offset 2}}
-      [:h1 {:style {:margin-top 20 :font-size "2em"}} title]
+      [:h1 {:style {:margin-top 0 :font-size "2em"}} title]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 
 (defn decorated-page

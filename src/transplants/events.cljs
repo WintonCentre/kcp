@@ -40,10 +40,9 @@
 
 (rf/reg-event-fx
  ::navigate
- (fn  
+ (fn
    [{:keys [_ db]} [_ route params query]]
    ;; See `navigate` effect in routes.cljs
-   (?-> "navigating!!" ::navigate)
    {::fx/navigate! [route params query]}))
 
 (rf/reg-event-db
@@ -267,7 +266,6 @@
  (fn
    [db [_ path-inputs selection]]
    (let [ilookups (get-in db [:mdata :ilookups])
-         _ (?-> ilookups ::ilookups)
          inputs (if ilookups
                   (shorts/URI-to-db ilookups path-inputs)
                   {})]

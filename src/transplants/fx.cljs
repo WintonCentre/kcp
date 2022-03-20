@@ -19,13 +19,13 @@
 (rf/reg-fx
  ::navigate!
  (fn [[k params query]]
-   (js/console.log "NAVIGATE!" k params query)
+   ;(js/console.log "NAVIGATE!" k params query)
    (let [params (assoc params
                        :tool (get params :tool "waiting")
                        :tab (get params :tab "bars")
                        :inputs (get params :inputs "-"))]
      
-     (?-> [k params query] ::navigate!)
+;     (?-> [k params query] ::navigate!)
      (rfe/push-state k params query))))
 
 
@@ -73,13 +73,7 @@
                                                 (shorts/URI-to-db ilookups x)
                                                 (assoc x factor-k v)
                                                 (shorts/db-to-URI lookups x))]
-                                   (?-> (:inputs db) ::db-inputs-1)
-                                   (?-> inputs ::db-inputs-2)
-                                   (?-> path-inputs ::path-inputs)
-                                   (?-> (assoc path
-                                               :tab (:tab path)
-                                               :inputs inputs) ::new-path)
-                                   (?-> [factor-k v] ::factor-level)
+
                                    (rf/dispatch [:transplants.events/navigate
                                                  :transplants.views/organ-centre-tool-tab-inputs
                                                  (assoc path
@@ -145,7 +139,7 @@
 (defn reg-factors
   "Function which registers all organ factors given in a seq of factor maps"
   [[organ fmaps]]
-  (?-> "reg-factors" ::reg-factors)
+;  (?-> "reg-factors" ::reg-factors)
   (doseq [fmap fmaps]
     (reg-factor organ (:factor fmap))))
 

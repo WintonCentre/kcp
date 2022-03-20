@@ -91,6 +91,8 @@
              :inputs @(rf/subscribe [::subs/inputs])
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
 
+;        _ (?-> env ::env)
+                     
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
         s0 all-S0
@@ -111,106 +113,112 @@
                   [:F F] ;; is this needed ?
                   )
         inputs (:inputs env)
-        _ (?-> inputs ::inputs)
+;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
-    (rf/dispatch [::events/missing-inputs missing])
-    [:<>
+    (when (:S0 env)
+      [:<>
+       (rf/dispatch [::events/missing-inputs missing])
      ;[screen-shot]
-     (if bare
-       [vis/test-gen env]
-       [:<>
-        [:div {:style {:background-color "#fff"
-                       :border (str "3px solid " (condp = overlay
-                                                   :missing "rgb(255,0,0)"
-                                                   :unknowns "teal"
-                                                   nil "#CCC"))
-                       :border-radius 5
-                       :margin-top 30
-                       :margin-bottom 20
-                       :padding "20px 5px 5px 15px"
-                       :position "relative"}}
-         (condp = overlay
-           :missing [:<>
-                     [:div {:style {:z-index 1000
-                                    :color "rgb(255,0,0)"
-                                    :border "3px solid rgb(255,0,0)"
-                                    :border-radius 5
-                                    :background-color "#fff"
-                                    :padding "2px 5px"
-                                    :position "absolute"
-                                    :top "-20px"
-                                    :right "20px"}}
-                      "Warning: some inputs are missing"]
-                     [:div {:style {:z-index 500
-                                    :background-color rgb/theme
-                                    :padding 0
-                                    :position "absolute"
-                                    :top 0
-                                    :right 0
-                                    :bottom 0
-                                    :left 0
-                                    :display "flex"
-                                    :align-items "center"
-                                    :justify-content "center"}}
-                      [:h2 {:flex "auto"
-                            :style {:color "#fff"
-                                    :text-align "center"
-                                    :width 400}}
-                       "Results will appear here once all inputs have been entered."]]]
-           :unknowns [:<>
-                      [:div {:style {:z-index 1000
-                                     :color "teal"
-                                     :border "3px solid teal"
-                                     :border-radius 5
-                                     :background-color "#fec"
-                                     :padding "2px 5px"
-                                     :position "absolute"
-                                     :top "-20px"
-                                     :right "20px"}}
-                       "Average values were used for some inputs"]
-                      [:div {:style {:z-index 500
-                                     :background-color "#fec2"
-                                     :padding 0
-                                     :position "absolute"
-                                     :pointer-events "none" ; to allow click through
-                                     :top 0
-                                     :right 0
-                                     :bottom 0
-                                     :left 0}}]
-                      [full-screen-overlay-button path]]
-           nil     [full-screen-overlay-button path])
+       (if bare
+         [:<>
+          [:p
+           "Run model from URI and return result as EDN"]
+          [:div [vis/test-gen env]]]
+         [:<>
+          [:div {:style {:background-color "#fff"
+                         :border (str "3px solid " (condp = overlay
+                                                     :missing "rgb(255,0,0)"
+                                                     :unknowns "teal"
+                                                     nil "#CCC"))
+                         :border-radius 5
+                         :margin-top 30
+                         :margin-bottom 20
+                         :padding "20px 5px 5px 15px"
+                         :position "relative"}}
+           (condp = overlay
+             :missing [:<>
+                       [:div {:style {:z-index 1000
+                                      :color "rgb(255,0,0)"
+                                      :border "3px solid rgb(255,0,0)"
+                                      :border-radius 5
+                                      :background-color "#fff"
+                                      :padding "2px 5px"
+                                      :position "absolute"
+                                      :top "-20px"
+                                      :right "20px"}}
+                        "Warning: some inputs are missing"]
+                       [:div {:style {:z-index 500
+                                      :background-color rgb/theme
+                                      :padding 0
+                                      :position "absolute"
+                                      :top 0
+                                      :right 0
+                                      :bottom 0
+                                      :left 0
+                                      :display "flex"
+                                      :align-items "center"
+                                      :justify-content "center"}}
+                        [:h2 {:flex "auto"
+                              :style {:color "#fff"
+                                      :text-align "center"
+                                      :width 400}}
+                         "Results will appear here once all inputs have been entered."]]]
+             :unknowns [:<>
+                        [:div {:style {:z-index 1000
+                                       :color "teal"
+                                       :border "3px solid teal"
+                                       :border-radius 5
+                                       :background-color "#fec"
+                                       :padding "2px 5px"
+                                       :position "absolute"
+                                       :top "-20px"
+                                       :right "20px"}}
+                         "Average values were used for some inputs"]
+                        [:div {:style {:z-index 500
+                                       :background-color "#fec2"
+                                       :padding 0
+                                       :position "absolute"
+                                       :pointer-events "none" ; to allow click through
+                                       :top 0
+                                       :right 0
+                                       :bottom 0
+                                       :left 0}}]
+                        [full-screen-overlay-button path]]
+             nil     [full-screen-overlay-button path])
 
       ;; Place test-data near top for etaoin bababshka-pod
 
 
-         [:section {:style {:margin (if is-full-screen "10%" "0")
-                            :max-width (if is-full-screen "80%" "100%")}}
-          [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
-                    :active-key (:selected-vis env)
-                    :on-select #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
-                                              (assoc path
-                                                     :tab %
-                                                     :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
-           [ui/tab {:event-key "bars" :title "Bar Chart"}
-            [vis/bar-chart env]]
+           [:section {:style {:margin (if is-full-screen "10%" "0")
+                              :max-width (if is-full-screen "80%" "100%")}}
+            [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
+                      :active-key (:selected-vis env)
+                      :on-select #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
+                                                (assoc path
+                                                       :tab %
+                                                       :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
+             [ui/tab {:event-key "bars" :title "Bar Chart"}
+              [vis/bar-chart env]]
 
-           [ui/tab {:event-key "area" :title "Area Chart"}
-            [vis/area-chart env]]
+             [ui/tab {:event-key "area" :title "Area Chart"}
+              [vis/area-chart env]]
 
-           [ui/tab {:event-key "icons" :title "Icon Array"}
-            [vis/icon-array env]]
+             [ui/tab {:event-key "icons" :title "Icon Array"}
+              [vis/icon-array env]]
 
-           [ui/tab {:event-key "table" :title "Table"}
-            [:div {:style {:font-size (if is-full-screen "300%" "100%")}}
-             [vis/table env]]]
+             [ui/tab {:event-key "table" :title "Table"}
+              [:div {:style {:font-size (if is-full-screen "300%" "100%")}}
+               [vis/table env]]]
 
-           [ui/tab {:event-key "text" :title "Text"}
-            [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-             [vis/text env]]]
+             [ui/tab {:event-key "text" :title "Text"}
+              [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+               [vis/text env]]]
 
-           ]]]])]))
+             [ui/tab {:event-key "test" :title "Test"}
+              [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+               [vis/test-gen env]]]]]]])])))

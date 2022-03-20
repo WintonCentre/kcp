@@ -142,22 +142,20 @@ in the routes table."
            (when organ-centres
              (when-let [centres (organ organ-centres)]
                (let [path-params (:path-params @(rf/subscribe [::subs/current-route]))
-                     _ (?-> path-params ::path-params)
                      tool (path-params :tool)
-                     tab (path-params :tab)
-                     inputs (path-params :inputs)]
-                 (when inputs (?-> inputs ::INPUTS))
+                     tab (if-let [t (path-params :tab)] t "bars")
+                     inputs (if-let [i (path-params :inputs)] i "-")]
+                 
                  (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
                                            :title "Transplant Centres" :id "basic-nav-dropdown"}]
                        (map (fn [centre]
                               [:> bs/NavDropdown.Item
-                               {:href (href :transplants.views/organ-centre-tool ;-tab-inputs
+                               {:href (href :transplants.views/organ-centre-tool-tab-inputs ;-tab-inputs
                                             {:organ (name single-organ)
                                              :centre (name (:key centre))
                                              :tool (if tool (name tool) "waiting")
-                                             #_#_#_#_:tab (if tab tab "bars")
-                                             :inputs (if inputs inputs "-")
-                                             })
+                                             :tab tab
+                                             :inputs inputs})
                                 :key (name (:key centre))}
 
                                (:name centre)])
@@ -263,7 +261,7 @@ in the routes table."
   ;(?-> button-colour ::tool-buttons)
   ;(?-> button-type ::button-type)
   (let [active (= (name tool) active-tool)]
-    (locals)
+;    (locals)
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2
@@ -320,7 +318,7 @@ in the routes table."
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!
     
-    (locals)
+;    (locals)
     [:<>
      [row
       [col {:xs 12 :sm 8}

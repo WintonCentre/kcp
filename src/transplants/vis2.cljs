@@ -13,8 +13,7 @@
             [svg.container :as svgc]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [medley.core :as medl]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
-            ))
+            [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 ;;
 ;; Plot data prep utilities
@@ -561,8 +560,8 @@
   (medl/deep-merge (get-in env [:mdata organ :tools :default])
                    (get-in env [:mdata organ :tools tool]))
 
-  ;; One other issue to sort out here is that we've used organs names and tool names as keys into the
-  ;; configuration. It would be better if the confguartion were free to specify the domains (like :lung) and the
+  ;; TODO: One other issue to sort out here is that we've used organ names and tool names as keys into the
+  ;; configuration. It would be better if the configuration were free to specify the domains (like :lung) and the
   ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
   )
 
@@ -1122,7 +1121,7 @@
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)
                  :style {:margin 0 :padding 0}}
-            [:div {:id (str (name (plot-order j)) "-" i) 
+            [:div {:id (str (name (plot-order j)) "-" i)
                    :data-year time-index
                    :data-value (nth int-fs j)
                    :style {:margin 0 :padding 15
@@ -1195,21 +1194,28 @@ After 3 years	75  of them to have received a transplant
 
 
 (defn test-render
-  [year-series plot-order tool-mdata]
+  [year-series tool-mdata plot-order]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-    (mapv
-     (fn [i]
-       (let [label (nth labels i)
-             time-index (:time-index label)]
-         (into {}
-               (cons [:year time-index]
-                     (map
-                      (fn [j]
-                        (let [[_ {:keys [int-fs]}] (nth year-series time-index)]
-                          [(nth plot-order j) (nth int-fs j)]))
-                      (range (count plot-order)))))))
-     years)))
+    ;(?->> ::years years)
+    ;(?->> ::plot-order plot-order)
+    ;(?->> ::labels labels)
+    ;(?->> ::year-series year-series)
+    [:section {:id "uri-result"}
+     (pr-str
+      {:uri (.-href js/document.location)
+       :result (mapv
+                (fn [i]
+                  (let [label (nth labels i)
+                        time-index (:time-index label)]
+                    (assoc (into {}
+                                 (map
+                                  (fn [j]
+                                    (let [[_ {:keys [int-fs]}] (nth year-series time-index)]
+                                      [(nth plot-order j) (nth int-fs j)]))
+                                  (range (count plot-order))))
+                           :year time-index)))
+                (range (count years)))})]))
 
 (defn text
   "a text results view"
@@ -1251,7 +1257,11 @@ After 3 years	75  of them to have received a transplant
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         plot-order (:plot-order tool-mdata)
+        #_#_plot-order* (as-> (:plot-order tool-mdata) x
+                          (move-to-start x :residual)
+                          (move-to-end x :removal)
+                          (move-to-end x :death))
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-    [:section {:id "uri-result"}
-     (pr-str {:uri (.-href js/document.location)
-              :result (test-render fs-by-year-in-plot-order plot-order tool-mdata)})]))
+    (when tool-mdata
+       ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
+      [test-render fs-by-year-in-plot-order tool-mdata plot-order])))

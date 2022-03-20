@@ -125,7 +125,7 @@
          :link-text "organ-centre-tool-tab-inputs"
          :controllers [{:parameters {:path [:organ :centre :tool :tab :inputs]}
                         :start  (fn [params]
-                                  (?-> "path-inputs"  ::path-inputs)
+ ;                                 (?-> "path-inputs"  ::path-inputs)
                                   (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
                                   (let [tab (keyword (get-in params [:path :tab]))
                                         ;; organ (keyword (get-in params [:path :organ]))
@@ -166,7 +166,7 @@
 
 (defn on-navigate [new-match]
   (let [old-match (rf/subscribe [::subs/current-route])]
-    (locals)
+;    (locals)
     (when new-match
       (let [cs (rfc/apply-controllers (:controllers @old-match) new-match)
             m  (assoc new-match :controllers cs)]

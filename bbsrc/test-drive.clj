@@ -1,9 +1,19 @@
 (ns test-drive
-  "Babashka code to test drive the site using etaoin. 
+  "Babashka code to test drive the site model using etaoin. 
    
    You will need to download, install, and configure the relevant 
    browser driver for the browser you want to test. Safaridriver is pre-installed on OSX. Firefox needs
    geckodriver. Drivers are closely tied to browser versions so do check you have the correct one installed.
+
+   The main site is instrumented so it can generate results from uris that contain inputs like this:
+   https//kidney.transplants.wintoncentre.uk/kidney/belf/survival/test/huA2SfBaDyl1EbMeGrdysnW1a2
+   where the selected visualisation is 'test'. 
+   
+   The trailing alphabet soup encodes the inputs.
+
+   We use etaoin to load a browser driver with those inputs, and to read off the site results. 
+   
+   We also need to poke those same inputs into the R code, generate its results and then compare.
    "
   (:require [clojure.pprint :refer [pprint]]
             [clojure.edn :as edn]

@@ -1041,7 +1041,7 @@
 
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
-  (?-> params ::params)
+;  (?-> params ::params)
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
@@ -1049,7 +1049,7 @@
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])
           tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
-        (locals)
+;        (locals)
       [:div {:id "capture"}
        (when-not is-full-screen
          [:div {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
@@ -1212,7 +1212,7 @@
         tool-name (if (nil? tool-name) :waiting tool-name)
         [organ centre tool] (map keyword p-names)
         tools (utils/get-tools mdata organ)]
-    (js/console.log "views 1170 path-params" (:path-params route) )
+    ;(js/console.log "views 1170 path-params" (:path-params route) )
     (tool-page {:organ organ
                 :organ-centres organ-centres
                 :centre centre

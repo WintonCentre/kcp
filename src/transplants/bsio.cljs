@@ -186,7 +186,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                     :style {:width "Vw"}}
        [:> bs/Modal.Header {:close-button true}
         [:> bs/Modal.Title title]]
-       [:> bs/Modal.Body [:div {:id "snap-display"} content]]
+       [:> bs/Modal.Body [:div {:id "snap-display"} (content)]]
        [:> bs/Modal.Footer
         (when paste (do (js/setTimeout (fn []
                                          (paste (js/document.querySelector "#snap-display"))

@@ -2,7 +2,7 @@
 
 (ns prepare-test-data
   "Creates the test-configuration.json files needed by each R run. Running the R
-   associated with each too then generates a csv of expected results for that organ and tool.
+   associated with each tool then generates a csv of expected results for that organ and tool.
    
    Before running this tool, ensure that you have renamed the R tool folder, the
    R file, and the CSV files it needs.

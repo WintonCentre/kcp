@@ -23,12 +23,13 @@
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]
             [babashka.classpath :refer [add-classpath]]
-            [clojure.test :as t :refer [deftest testing is are]]
+            ;[clojure.test :as t :refer [deftest testing is are]]
             [babashka.pods :as pods]))
 
 (pods/load-pod 'org.babashka/etaoin "0.1.0")
 
-(require '[pod.babashka.etaoin :as eta]
+(require '[clojure.test :as t :refer [deftest testing is]]
+         '[pod.babashka.etaoin :as eta]
          '[pod.babashka.etaoin.query :as q]
          '[pod.babashka.etaoin.keys :as k])
 
@@ -65,41 +66,78 @@
    site-name
    "localhost:3000/"))
 
-
 (defn uri
-  "Return a URI for a site. Get credentials from T_USER and T_PWD environment variables."
-  [site-name]
-  (if (= site-name "local")
-    (str (get-site site-name))
-    (str "https://" (env "T_USER") ":" (env "T_PWD") "@" (get-site site-name))))
+  "Return a URI to test. Get credentials from T_USER and T_PWD environment variables.
+   site-id as used in 'sites' lookup
+   The organ should be 'lung' or 'kidney' as a string
+   centre should be a short centre code from centres.txt
+   tool should be a string
+   inputs should already be in URI string form - like A2SmBoDyEaMeGfdysn
+   "
+  [site-id organ tool inputs]
+  (str
+   (if (= site-id "local")
+     (str (get-site site-id))
+     (str "https://" (env "T_USER") ":" (env "T_PWD") "@" (get-site site-id)))
+   "/"
+   organ
+   "/"
+   tool
+   "/test/"
+   inputs))
+
+(comment
+  
+  )
 
 ;; global vars needed in the fixture. 
-(def driver "chrome") 
-(def site (uri "kidney"))
+;(def driver "chrome") 
+;(def site (uri "kidney"))
 
-(deftest test
-  (testing "Tool page loading"
-    
-    (eta/wait-visible driver "//*[@id=\"app\"]/div/nav/a[2]")
-    (eta/click driver "//*[@id=\"app\"]/div/nav/a[2]")
-    (eta/wait-visible driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
-    (eta/click driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
-    ;; Add an assertion
-    ))
+(declare driver)
+(declare sites [])
+(def sites ["kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn"
+            "kidney.transplants.wintoncentre.uk/kidney/camb/waiting/test/A2SmBoDyEaMeGfdysn"])
+(declare site )
 
-(defn use-driver
-  [driver-id site-id]
-  (with-redefs [driver (get drivers driver-id)
-                site (uri site-id)]
-    (t/use-fixtures :once
-      (fn [f]
-        (eta/go driver site)
-        (f)
-        (eta/quit driver)))))
+(deftest tester
+  (testing "Tool loads and executes"
+    (eta/go driver site)
+    (eta/wait-visible driver {:id "uri-result"})
+      (is (eta/exists? driver {:id "uri-result"}) "uri-result")
+    (eta/quit driver)))
+
+
+#_(defn use-driver
+    "I had trouble getting this working, but I think that was due to chromedriver issues. geckodriver maybe works"
+    [driver-id uri]
+    (with-redefs [driver ((get drivers driver-id))]
+    ;(def driver ((get drivers driver-id)))
+      (t/use-fixtures :each
+        (fn [f]
+          (eta/go driver uri)
+          (f)
+          (eta/quit driver)))))
+
+
+
+(defn collect-results
+  "Plan:
+   1. Select test points?
+   2. Convert test points to URI codes
+   3. Construct URIs
+   4. Call driver to optain results
+   5. Write results"
+  []
+)
 
 (comment
   (-main)
-  0)
+  (def driver-id "chrome")
+  (def d (eta/chrome))
+  (eta/go d "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
+  0
+  )
 
 
 ;;;
@@ -125,15 +163,19 @@
 
 (defn -main [& _args]
   (let [parsed-options (parse-opts *command-line-args* cli-options)]
-    ;(println "parsed-options: " parsed-options)
+    (println "parsed-options: " parsed-options)
     (if-let [errors (:errors parsed-options)]
       (let [msg (str "Encountered one or more errors: " (str/join ", " errors))]
         (usage msg)
         (System/exit 1))
       (let [{:keys [driver-id site-id]} (:options parsed-options)]
-        (println "site-id: " site-id)
-        (println "Testing: " (get-site site-id) " in " driver-id)
-        (use-driver driver-id site-id)
+        ;;
+        ;; I should be using var or with-redefs rather than def here
+        ;;
+        (def driver ((get drivers driver-id)))
+        (def site (sites 0))
+        (println "site: " site)
+        (println "Testing: " site " in " driver-id)
         (t/run-tests)
 
         (when (invoked-by-command-line?)
@@ -146,18 +188,33 @@
 
 
 (comment
+  
+
+  (def driver ((get drivers "chrome")))
+
+  (eta/go driver "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
+  (eta/wait-visible driver {:id "uri-result"})
+  (eta/get-element-text driver {:id "uri-result"})
+
+  (eta/wait-visible driver "//*[@id=\"app\"]/div/nav/a[2]")
+  (eta/click driver "//*[@id=\"app\"]/div/nav/a[2]")
+  (eta/wait-visible driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
+  (eta/click driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
+
+
 
   (uri "kidney")
-  ;; => "https://winton:development55@kidney.transplants.wintoncentre.uk/"
 
   ;; fixture generators
-  (use-driver "chrome" "kidney")
+  ;; (use-driver "chrome" "kidney")
   ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x56fff7e0 "sci.impl.fns$fun$arity_1__7325@56fff7e0"])}}
 
-  (use-driver "ff" "local")
+  ;; (use-driver "ff" "local")
   ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x63a24a3c "sci.impl.fns$fun$arity_1__7325@63a24a3c"])}}
 
-  (use-driver "safari" "local")
+  ;; (use-driver "safari" "local")
+
+  ((get drivers "chrome"))
 
   (t/run-tests)
 

@@ -67,8 +67,9 @@
 (def label-width "label column grid-size" 6)
 (def widget-width "Widget column grid-size" 6)
 
-(def print-modal-content
+(defn print-modal-content
   "What to say in the print modal"
+  []
   (let [URI (.-href js/document.location)]
     [:<>
      [:section {:class-name "print-modal"}
@@ -86,7 +87,7 @@
       [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue. Again, be sure to "
        [:b "enable the option which prints background graphics."]]
       [:h1 "QRCode"]
-      [:p {:style {:font-size "12px"}} URI]
+      [:p:#docuri {:style {:font-size (js/Math.round (/ 920 (count URI)))}} URI]
       [:div#qrcode {:style {:display "flex" :flex-direction "column" :justify-content "top" :align-items "center" :margin-bottom 10}}]
       [:p "Use a QRCode reader on your mobile to view your inputs there."]
       ]]))

@@ -88,7 +88,6 @@
        [:b "enable the option which prints background graphics."]]
       [:h1 "QRCode"]
       [:p#docuri {:style {:width 466
-                          :overflow-x "wrap"
                           :word-break "break-word"}} URI]
       [:div#qrcode {:style {:display "flex" :flex-direction "column" :justify-content "top" :align-items "center" :margin-bottom 10}}]
       [:p "Use a QRCode reader on your mobile to view your inputs there."]

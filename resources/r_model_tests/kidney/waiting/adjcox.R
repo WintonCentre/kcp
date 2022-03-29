@@ -1,4 +1,9 @@
 ## Adjusted capH will be - log(tx_surv) * exp(XB) ##
+survdata <- read.csv("surv.csv")
+param <- read.csv("params.csv")
+attach(survdata)
+attach(param)
+
 
 adjcox <- function(cent = "Belfast", sex = 1, rethnic_grp=1, diabetes=2, hsp_reg=1, rbg_new=1, dial_reg=1, matchpts_grp = 1, reg_age10 = 4, graft_no_new = 0) {
   

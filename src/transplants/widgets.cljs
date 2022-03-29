@@ -134,7 +134,7 @@
                                     :height 128}))
                             500)
                  :title "Print, Copy or Save to PDF"
-                 :content print-modal-content
+                 :content (print-modal-content)
                 ; :ok hide-handler
                  :print (fn [_e]
                           (hide-handler _e)

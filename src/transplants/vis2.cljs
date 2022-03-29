@@ -1194,7 +1194,7 @@ After 3 years	75  of them to have received a transplant
 
 
 (defn test-render
-  [year-series tool-mdata plot-order]
+  [year-series tool-mdata plot-order fulfilled-inputs]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     ;(?->> ::years years)
@@ -1215,7 +1215,8 @@ After 3 years	75  of them to have received a transplant
                                       [(nth plot-order j) (nth int-fs j)]))
                                   (range (count plot-order))))
                            :year time-index)))
-                (range (count years)))})]))
+                (range (count years)))
+       :clj-inputs fulfilled-inputs})]))
 
 (defn text
   "a text results view"
@@ -1250,7 +1251,7 @@ After 3 years	75  of them to have received a transplant
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F fulfilled-inputs] :as env}]
   (let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
@@ -1264,4 +1265,4 @@ After 3 years	75  of them to have received a transplant
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
     (when tool-mdata
        ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
-      [test-render fs-by-year-in-plot-order tool-mdata plot-order])))
+      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs])))

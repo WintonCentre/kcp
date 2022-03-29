@@ -33,6 +33,8 @@
          '[pod.babashka.etaoin.query :as q]
          '[pod.babashka.etaoin.keys :as k])
 
+(def file-sep (java.lang.System/getProperty "file.separator"))
+
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
 (add-classpath "bbsrc:src:resources")
 ;(require '[transplants.shortener :as short]) ; gain access to the .cljc 
@@ -100,26 +102,31 @@
             "kidney.transplants.wintoncentre.uk/kidney/camb/waiting/test/A2SmBoDyEaMeGfdysn"])
 (declare site )
 
-(deftest tester
-  (testing "Tool loads and executes"
-    (eta/go driver site)
-    (eta/wait-visible driver {:id "uri-result"})
-      (is (eta/exists? driver {:id "uri-result"}) "uri-result")
-    (eta/quit driver)))
+;;;
+;; This lot later....
+;; (deftest tester
+;;   (testing "Tool loads and executes"
+;;     (eta/go driver site)
+;;     (eta/wait-visible driver {:id "uri-result"})
+;;       (is (eta/exists? driver {:id "uri-result"}) "uri-result")
+;;     (eta/quit driver)))
 
 
-#_(defn use-driver
-    "I had trouble getting this working, but I think that was due to chromedriver issues. geckodriver maybe works"
-    [driver-id uri]
-    (with-redefs [driver ((get drivers driver-id))]
-    ;(def driver ((get drivers driver-id)))
-      (t/use-fixtures :each
-        (fn [f]
-          (eta/go driver uri)
-          (f)
-          (eta/quit driver)))))
+;; (defn use-driver
+;;     "I had trouble getting this working, but I think that was due to chromedriver issues. geckodriver appears to be better"
+;;     [driver-id uri]
+;;     (with-redefs [driver ((get drivers driver-id))]
+;;     ;(def driver ((get drivers driver-id)))
+;;       (t/use-fixtures :each
+;;         (fn [f]
+;;           (eta/go driver uri)
+;;           (f)
+;;           (eta/quit driver)))))
+;;;
 
 
+;; Run `bb lung` or `bb kidney`  first
+(def metadata (edn/read-string (slurp (io/resource (str "public" file-sep "metadata.txt")))))
 
 (defn collect-results
   "Plan:
@@ -232,59 +239,3 @@
   ;; => "https://localhost:3000/"
   )
 
-
-
-(comment
-;;
-;; Following code copied from etaoin example.clj
-;;
-  #_(def driver (eta/firefox))
-    ;; here, a Firefox window should appear
-  (def driver (eta/chrome))
-   ;; or a chrome window
-;(def driver (eta/firefox-headless))
-
-;; let's perform a quick Wiki session
-  (eta/go driver "https://winton:development55@kidney.transplants.wintoncentre.uk/")
-
-  (eta/wait-visible driver [{:id :simpleSearch} {:tag :input :name :search}])
-
-
-;; search for something
-  (eta/fill driver {:tag :input :name :search} "Clojure programming language")
-
-  (eta/fill driver {:tag :input :name :search} k/enter)
-
-  (eta/wait-visible driver {:class :mw-search-results})
-
-
-;; I'm sure the first link is what I was looking for
-  (eta/click driver [{:class :mw-search-results} {:class :mw-search-result-heading} {:tag :a}])
-
-  (eta/wait-visible driver {:id :firstHeading})
-
-
-;; let's ensure
-  (prn (eta/get-url driver))
-   ;; "https://en.wikipedia.org/wiki/Clojure"
-
-  (prn (eta/get-title driver))
-   ;; "Clojure - Wikipedia"
-
-  (prn (eta/has-text? driver "Clojure"))
-   ;; true
-
-;; navigate on history
-  (eta/back driver)
-
-  (eta/forward driver)
-
-  (eta/refresh driver)
-
-  (prn (eta/get-title driver))
-   ;; "Clojure - Wikipedia"
-
-;; stops Firefox and HTTP server
-  (eta/quit driver)
-
-  nil)

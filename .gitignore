@@ -65,3 +65,4 @@ resources/public/manifest.json
 resources/public/metadata.txt
 resources/precache_paths_kidney.edn
 resources/precache_paths_lung.edn
+nbb/playwright_tests.cljs

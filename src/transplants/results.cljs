@@ -116,6 +116,7 @@
 ;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
+        _ (?-> fulfilled-inputs ::fulfilled-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
@@ -128,7 +129,7 @@
          [:<>
           [:p
            "Run model from URI and return result as EDN"]
-          [:div [vis/test-gen env]]]
+          [:div [vis/test-gen (assoc env :fulfilled-inputs fulfilled-inputs)]]]
          [:<>
           [:div {:style {:background-color "#fff"
                          :border (str "3px solid " (condp = overlay
@@ -195,7 +196,8 @@
 
 
            [:section {:style {:margin (if is-full-screen "10%" "0")
-                              :max-width (if is-full-screen "80%" "100%")}}
+                              :max-width (if is-full-screen "80%" "100%")
+                              :display (when (=  (:selected-vis env) "test") "none")}}
             [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                       :active-key (:selected-vis env)
                       :on-select #(rf/dispatch [::events/navigate :transplants.views/organ-centre-tool-tab-inputs
@@ -219,6 +221,7 @@
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/text env]]]
 
-             [ui/tab {:event-key "test" :title "Test"}
+             ;; we normally don't want the test tab to be displayed
+             #_[ui/tab {:event-key "test" :title "Test"}
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/test-gen env]]]]]]])])))

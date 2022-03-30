@@ -31,7 +31,9 @@
 (require '[clojure.test :as t :refer [deftest testing is]]
          '[pod.babashka.etaoin :as eta]
          '[pod.babashka.etaoin.query :as q]
-         '[pod.babashka.etaoin.keys :as k])
+         '[pod.babashka.etaoin.keys :as k]
+         '[prepare-test-data :as prep])
+
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
@@ -88,19 +90,18 @@
    "/test/"
    inputs))
 
-(comment
-  
-  )
 
-;; global vars needed in the fixture. 
-;(def driver "chrome") 
-;(def site (uri "kidney"))
+
 
 (declare driver)
 (declare sites [])
 (def sites ["kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn"
             "kidney.transplants.wintoncentre.uk/kidney/camb/waiting/test/A2SmBoDyEaMeGfdysn"])
-(declare site )
+(declare site)
+
+;; global vars needed in the fixture. 
+;(def driver "chrome") 
+;(def site (uri "kidney"))
 
 ;;;
 ;; This lot later....
@@ -127,7 +128,21 @@
 
 ;; Run `bb lung` or `bb kidney`  first
 (def metadata (edn/read-string (slurp (io/resource (str "public" file-sep "metadata.txt")))))
+(def organ-k (-> metadata :organ-order first))
+(def tools (-> metadata organ-k :tool-order))
+(def vis "test")
+(def waiting (-> metadata :kidney :tools :waiting keys))
+(def parameters (-> metadata :lookups))
 
+(def m-keys (-> metadata organ-k keys))
+(defn selected-data-points
+  []
+  (let [organ-k (-> metadata :organ-order first)]
+    {:organ (-> metadata organ-k)
+     :tools (-> metadata)}))
+
+(defn urls-to-test
+  [centre tool])
 (defn collect-results
   "Plan:
    1. Select test points?
@@ -135,17 +150,50 @@
    3. Construct URIs
    4. Call driver to optain results
    5. Write results"
-  []
-)
+  [])
+
 
 (comment
   (-main)
   (def driver-id "chrome")
   (def d (eta/chrome))
   (eta/go d "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
+
+  (def options {:centre "Belfast", :organ "kidney", :tool "waiting"})
+  ;; => #'test-drive/options
+
+  (keys (prep/clj-info-by-clj-factor options))
+
+  (def info (prep/clj-info-by-clj-factor options))
+
+  (keys info)
+  ;; => (:age :sex :blood-group :dialysis :ethnicity :matchability :graft :diabetes :sensitised)
+  
+  (map keys (:ethnicity info))
+  ;; => ((:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link))
+
+  (map :factor (:ethnicity info))
+  ;; => (:ethnicity :ethnicity :ethnicity :ethnicity :ethnicity :ethnicity)
+
+  (map :level (:ethnicity info))
+  ;; => (:asian :black :chinese :mixed :white :other)
+
+  (map :r-name (:ethnicity info))
+  ;; => ("eth_nonwhite" "eth_nonwhite" "eth_nonwhite" "eth_nonwhite" "eth_white" "eth_nonwhite")
+
+  (map :r-names (:ethnicity info))
+  ;; => (["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_white" "dth_eth_white" "rem_eth_white"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"])
+
+  (map :r-link (:ethnicity info))
+  ;; => (nil nil nil nil nil nil)
+
+  ;; => (nil nil nil nil nil nil)
+
+  ;; => (:asian :black :chinese :mixed :white :other)
+
+  (map keys (:ethnicity info))
   0
   )
-
 
 ;;;
 ;; main
@@ -195,7 +243,7 @@
 
 
 (comment
-  
+
 
   (def driver ((get drivers "chrome")))
 

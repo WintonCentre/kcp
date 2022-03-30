@@ -13,7 +13,5 @@ R sources
 ---------
 The final R code provided by NHSBT is in doc/Sally. To simplify testing code, we have copied these files to separate tool folders in the resources/r_model_tests folder and renamed them according to their function. The tool folder paths correspond to their paths within the cljs tool as specified in resources/metadata.edn under [:lung :tool-order] and [:kidney :tool-order]
 
-Test configuration
-------------------
-Since the same data is labelled differently in R and cljs we need to add a label lookup table somewhere, and we have chosen to place this on the clojure side, in a column in the
+
 

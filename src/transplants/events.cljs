@@ -221,7 +221,7 @@
         ;; Otherwise, use SO for a reduced data optimised calculation
         S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
                             %2) (model/sample-from S0+))]
-    ;(?-> tool-inputs ::tool-inputs)
+    (?-> tool-inputs ::tool-inputs)
     ;(locals)
     {:db ;(assoc db :oct-bundle tool-centre-bundle)
      (assoc-in db data-path

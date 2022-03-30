@@ -1194,7 +1194,7 @@ After 3 years	75  of them to have received a transplant
 
 
 (defn test-render
-  [year-series tool-mdata plot-order fulfilled-inputs]
+  [year-series tool-mdata plot-order fulfilled-inputs r-params]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     ;(?->> ::years years)
@@ -1216,7 +1216,8 @@ After 3 years	75  of them to have received a transplant
                                   (range (count plot-order))))
                            :year time-index)))
                 (range (count years)))
-       :clj-inputs fulfilled-inputs})]))
+       :clj-inputs fulfilled-inputs
+       :r-inputs r-params})]))
 
 (defn text
   "a text results view"
@@ -1251,7 +1252,7 @@ After 3 years	75  of them to have received a transplant
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"
-  [{:keys [organ tool base-outcome-keys s0 F fulfilled-inputs] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F fulfilled-inputs fmaps] :as env}]
   (let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
@@ -1262,7 +1263,12 @@ After 3 years	75  of them to have received a transplant
                           (move-to-start x :residual)
                           (move-to-end x :removal)
                           (move-to-end x :death))
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
+        r-params (map (fn [[k v]]
+                     (-> fmaps k :levels v :r-name)) fulfilled-inputs)
+       ]
+    (?-> fmaps ::fmaps)
+    (?-> r-params ::r-params)
     (when tool-mdata
        ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
-      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs])))
+      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params])))

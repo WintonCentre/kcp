@@ -273,9 +273,11 @@
 (comment
   (r-factor-info options)
   (pprint (map #(r-factor-value options %) (r-factor-info options)))
-  (pprint (r-info-by-clj-r-name options))
+  (pprint (r-info-by-clj-r-name options)
+          ;; => {"hla_2" {:r-factor "hla", :r-level "2", :info [{:r-name "hla_2", :r-outcome "", :r-value -0.00426}]}, "rage_6" {:r-factor "rage", :r-level "6", :info [{:r-name "rage_6", :r-outcome "", :r-value -0.10022}]}, "diabetes_1" {:r-factor "diabetes", :r-level "1", :info [{:r-name "diabetes_1", :r-outcome "", :r-value 0}]}, "dage_2" {:r-factor "dage", :r-level "2", :info [{:r-name "dage_2", :r-outcome "", :r-value -0.31482}]}, "rage_2" {:r-factor "rage", :r-level "2", :info [{:r-name "rage_2", :r-outcome "", :r-value 0.29385}]}, "wait_4" {:r-factor "wait", :r-level "4", :info [{:r-name "wait_4", :r-outcome "", :r-value 0.45953}]}, "graft_2" {:r-factor "graft", :r-level "2", :info [{:r-name "graft_2", :r-outcome "", :r-value 0.22099}]}, "wait_1" {:r-factor "wait", :r-level "1", :info [{:r-name "wait_1", :r-outcome "", :r-value 0}]}, "dhtn_2" {:r-factor "dhtn", :r-level "2", :info [{:r-name "dhtn_2", :r-outcome "", :r-value 0}]}, "wait_5" {:r-factor "wait", :r-level "5", :info [{:r-name "wait_5", :r-outcome "", :r-value 0.83033}]}, "dage_6" {:r-factor "dage", :r-level "6", :info [{:r-name "dage_6", :r-outcome "", :r-value 0.5792}]}, "dbmi_1" {:r-factor "dbmi", :r-level "1", :info [{:r-name "dbmi_1", :r-outcome "", :r-value -0.04701}]}, "diabetes_0" {:r-factor "diabetes", :r-level "0", :info [{:r-name "diabetes_0", :r-outcome "", :r-value -0.3411}]}, "graft_1" {:r-factor "graft", :r-level "1", :info [{:r-name "graft_1", :r-outcome "", :r-value 0}]}, "dage_1" {:r-factor "dage", :r-level "1", :info [{:r-name "dage_1", :r-outcome "", :r-value -0.52485}]}, "dage_4" {:r-factor "dage", :r-level "4", :info [{:r-name "dage_4", :r-outcome "", :r-value 0}]}, "hla_1" {:r-factor "hla", :r-level "1", :info [{:r-name "hla_1", :r-outcome "", :r-value 0}]}, "dbmi_2" {:r-factor "dbmi", :r-level "2", :info [{:r-name "dbmi_2", :r-outcome "", :r-value 0}]}, "﻿rage_1" {:r-factor "﻿rage", :r-level "1", :info [{:r-name "﻿rage_1", :r-outcome "", :r-value 0.84483}]}, "rage_5" {:r-factor "rage", :r-level "5", :info [{:r-name "rage_5", :r-outcome "", :r-value -0.14067}]}, "dage_5" {:r-factor "dage", :r-level "5", :info [{:r-name "dage_5", :r-outcome "", :r-value 0.42198}]}, "wait_2" {:r-factor "wait", :r-level "2", :info [{:r-name "wait_2", :r-outcome "", :r-value 0.21323}]}, "dage_3" {:r-factor "dage", :r-level "3", :info [{:r-name "dage_3", :r-outcome "", :r-value -0.17204}]}, "hla_4" {:r-factor "hla", :r-level "4", :info [{:r-name "hla_4", :r-outcome "", :r-value 0.25438}]}, "hla_3" {:r-factor "hla", :r-level "3", :info [{:r-name "hla_3", :r-outcome "", :r-value 0.17315}]}, "dbmi_3" {:r-factor "dbmi", :r-level "3", :info [{:r-name "dbmi_3", :r-outcome "", :r-value 0.0478}]}, "rage_4" {:r-factor "rage", :r-level "4", :info [{:r-name "rage_4", :r-outcome "", :r-value -0.07373}]}, "wait_3" {:r-factor "wait", :r-level "3", :info [{:r-name "wait_3", :r-outcome "", :r-value 0.31039}]}, "rage_3" {:r-factor "rage", :r-level "3", :info [{:r-name "rage_3", :r-outcome "", :r-value 0}]}, "dhtn_1" {:r-factor "dhtn", :r-level "1", :info [{:r-name "dhtn_1", :r-outcome "", :r-value -0.2105}]}}
+)
   (pprint (keys (r-info-by-clj-r-name options)))
-  (pprint (get (r-info-by-clj-r-name options) "prev_thor_1")))
+  (pprint (get (r-info-by-clj-r-name options) "age_3")))
 
 (comment
   (pprint (r-factor-info options))
@@ -368,8 +370,35 @@
 
 
 (comment
+  options
+  ;; => {:centre "Belfast", :organ "kidney", :tool "graft"}
+
+  (keys (clj-info-by-clj-factor options))
+  ;; => (:age :wait :graft :diabetes :donor-age :donor-bmi :donor-ht :hla-mismatch)
+
+  (def info (clj-info-by-clj-factor options))
+
+  (map keys (-> info :age))
+  ;; => ((:beta-graft :factor :level :r-name :r-link) (:beta-graft :factor :level :r-name :r-link) (:beta-graft :factor :level :r-name :r-link) (:beta-graft :factor :level :r-name :r-link) (:beta-graft :factor :level :r-name :r-link) (:beta-graft :factor :level :r-name :r-link))
+  
+  (map :factor (-> info :age))
+  ;; => (:age :age :age :age :age :age)
+
+  (map :r-name (-> info :age))
+  ;; => ("rage_1" "rage_2" "rage_3" "rage_4" "rage_5" "rage_6")
+
+  (map :r-link (-> info :age))
+  ;; => (nil {:r-factor "rage", :r-level "2", :info [{:r-name "rage_2", :r-outcome "", :r-value 0.29385}]} {:r-factor "rage", :r-level "3", :info [{:r-name "rage_3", :r-outcome "", :r-value 0}]} {:r-factor "rage", :r-level "4", :info [{:r-name "rage_4", :r-outcome "", :r-value -0.07373}]} {:r-factor "rage", :r-level "5", :info [{:r-name "rage_5", :r-outcome "", :r-value -0.14067}]} {:r-factor "rage", :r-level "6", :info [{:r-name "rage_6", :r-outcome "", :r-value -0.10022}]})
+
+  (map :level (-> info :age))
+  ;; => (:18+ :30+ :40+ :50+ :60+ :70+)
+
+
+
+
   (pprint  (first (clj-info-by-clj-factor options)))
-  (pprint (:age (clj-info-by-clj-factor options))))
+  (pprint (:age (clj-info-by-clj-factor options)))
+  )
 
 (defn level-tests
   "Return a list of cljs and R test specifications that should generate the

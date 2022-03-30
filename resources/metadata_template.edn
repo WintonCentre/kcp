@@ -46,7 +46,9 @@
         :tools {; The default tool provides a default configuration for each tool for this organ
                 :default {:button-type "usefulinfo"
                           :label "hide-me!"
-                          :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
+                          :inputs {:header [:div
+                                            [:p.d-print-none "Please enter the inputs that are valid " [:b "at time of registration."]]
+                                            [:p.d-none.d-print-block "Here are the inputs that should be valid " [:b "at time of registration."]]]}
                           :outcomes {:transplant {:label "transplanted"
                                                   :long-label "have been transplanted"
                                                   :fill "#41af6b"
@@ -173,7 +175,9 @@
                 :waiting {:button-type "waiting"
                           :label "Waiting times"
                           :button-colour "pink"
-                          :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
+                          :inputs {:header [:div
+                                            [:p.d-print-none "Please enter the inputs that are valid " [:b "at time of registration."]]
+                                            [:p.d-none.d-print-block "Here are the inputs that should be valid " [:b "at time of registration."]]]}
                           :outcomes {:transplant {:label "transplanted"
                                                   :long-label "have been transplanted"
                                                   :fill "#41af6b"
@@ -425,7 +429,9 @@
           :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :guidance]
           :tools {:waiting {:button-type "waiting"
                             :label "Waiting times"
-                            :inputs {:header [:p "Please enter the inputs that are valid " [:b "at time of registration."]]}
+                            :inputs {:header [:div
+                                              [:p.d-print-none "Please enter the inputs that are valid " [:b "at time of registration."]]
+                                              [:p.d-none.d-print-block "Here are the inputs that should be valid " [:b "at time of registration."]]]}
                             :outcomes {:transplant {:label "transplanted"
                                                     :long-label "have been transplanted"
                                                     :fill "#41af6b"

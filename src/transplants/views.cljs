@@ -1039,9 +1039,10 @@
                [:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."]]
       :else [:div])))
 
+
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
-;  (?-> params ::params)
+ ;(?-> params ::params)
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
@@ -1050,16 +1051,23 @@
           is-full-screen @(rf/subscribe [::subs/is-full-screen])
           tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
 ;        (locals)
+
       [:div {:id "capture"}
        (when-not is-full-screen
-         [:div {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
-          [ui/row
-           [ui/col {:xs 12 :sm 8}
-            [:h1 (:description centre-info)]
-            [:p (:explanation uk-info)]]
-           [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
+         [:div [:div.d-print-none {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
+                [ui/row
+                 [ui/col {:xs 12 :sm 8}
+                  [:h1 (:description centre-info)]
+                  [:p (:explanation uk-info)]]
+                 [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
 
-          [ui/tools-menu tools true organ-name centre-name {:vertical false}]])
+                [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
+          [:div.d-none.d-print-block {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
+           [ui/row
+            [ui/col {:xs 6 :sm 4}
+             [:h1 (:description centre-info)]]
+            [ui/col {:xs 6 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]]
+          [:hr.rounded]])
        
        (when (= tab "test")
          [results/results-panel {:organ organ :centre centre :tool tool :bare true}]
@@ -1077,7 +1085,7 @@
             ;; Inputs panel
             ;;;
             (when-not is-full-screen
-              [ui/col {:xs 12 :md 6
+              [ui/col {:xs 6 :md 6
                        :style {:margin-top 10}}
 
                (when-let [input-header (get-in tool-mdata [:inputs :header])]
@@ -1111,7 +1119,7 @@
                [:<>
                 [:p "This tool cannot take into account all the factors about you that might affect the result. 
                                            We hope to include more in the future. "]
-                [:p "Click below to find out more about those we have considered but are not in the tool."]
+                [:p.d-print-none "Click below to find out more about those we have considered but are not in the tool."]
                 [:p
                  [:> bs/Button {:id "factors-considered"
                                 :size "md"
@@ -1130,7 +1138,9 @@
             ;;;
             ;; Results Panel
             ;;;
-            [ui/col {:xs 12 :md (if is-full-screen 12 6)}
+            [:div.w-100.d-print-none.d-xs-block.d-md-none] ; this allows for a two column print layout but a one column xs and sm screen sizes
+            [ui/col {:xs 6
+                     :md (if is-full-screen 12 6)}
              (when-not is-full-screen
                [:section {:id "test-results"}]
                [:section {:style {:margin-top 10}} (:pre-section tool-mdata)])

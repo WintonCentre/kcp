@@ -76,6 +76,8 @@ See the config files in the data folder.
 
   The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `public/resources`.
 
+  Run either `bb kidney` or `bb lung` depending on which one you want to work on.
+
 ### Configuration Development
 All run-time data is stored in the `resources` folder.
 ```

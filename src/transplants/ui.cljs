@@ -194,7 +194,7 @@ in the routes table."
   ;[:> bs/Container {:fluid "fluid"
   ;                  :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
   ;                          :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
-   [:div
+   [:div.footer
     [:div {:style {:padding "20px 20px 5px 15px" :display "flex" :background-color "#1A4554" :color  "#DDD" :flex-direction "column" :align-items "center"}}
      [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
       [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
@@ -286,7 +286,7 @@ in the routes table."
   [_organ _centre tool]
   [:p
    (when (not= tool "guidance")
-     [:span
+     [:span.d-print-none
       "For more information that will be helpful to patients, follow the link to useful information."])])
 
 
@@ -322,7 +322,7 @@ in the routes table."
     [:<>
      [row
       [col {:xs 12 :sm 8}
-       [:h3 {:style {:padding-right 20}} "Choose a tool:"]
+       [:h3.d-print-none {:style {:padding-right 20}} "Choose a tool:"]
 
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
     ;; Even better would be to configure the break points as what makes sense will be very application
@@ -337,7 +337,7 @@ in the routes table."
          (partition-by :button-type (butlast menu-data))))]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
-       [:p "Things you might discuss during a consultation"]
+       [:p.d-print-none "Things you might discuss during a consultation"]
        [background-link organ-name centre-name active-tool]]]]))
 
 

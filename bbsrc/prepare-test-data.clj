@@ -438,14 +438,14 @@
 ;;             :zero     nil
 ;;             :test     nil}]}
 
-#_(defn assemble
+(defn assemble
     "Assemble the test_configuration data ready for export."
     []
     (let [cm 1
           z (zero-r-factors)
           t (test-r-factors)]
       {:times times
-       #_#_:factors (->> (keys clj-factor-map)
+       :factors (->> (keys clj-factor-map)
                      (map (fn [k]
                             (let [f (cm k)]
                               {:clj k

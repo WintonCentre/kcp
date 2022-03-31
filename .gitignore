@@ -66,3 +66,32 @@ resources/public/metadata.txt
 resources/precache_paths_kidney.edn
 resources/precache_paths_lung.edn
 nbb/playwright_tests.cljs
+resources/NHSBT-ref/kidney/Baselines wlist kid.xlsx
+resources/NHSBT-ref/kidney/kid post-tx dd graft surv.R
+resources/NHSBT-ref/kidney/kid post-tx dd patient surv.R
+resources/NHSBT-ref/kidney/kid post-tx LD graft surv.R
+resources/NHSBT-ref/kidney/kid post-tx LD patient surv.R
+resources/NHSBT-ref/kidney/kid wlist analysis adjusted.R
+resources/NHSBT-ref/kidney/kid wlist analysis.R
+resources/NHSBT-ref/kidney/kid_waitlist_params.csv
+resources/NHSBT-ref/kidney/kid_wlist.csv
+resources/NHSBT-ref/kidney/kidney dd post tx graft params.csv
+resources/NHSBT-ref/kidney/kidney dd post tx graft surv.csv
+resources/NHSBT-ref/kidney/kidney dd post tx patient params.csv
+resources/NHSBT-ref/kidney/kidney dd post tx patient surv.csv
+resources/NHSBT-ref/kidney/kidney LD post tx graft params.csv
+resources/NHSBT-ref/kidney/kidney LD post tx graft surv.csv
+resources/NHSBT-ref/kidney/kidney LD post tx patient params.csv
+resources/NHSBT-ref/kidney/kidney LD post tx patient surv.csv
+resources/NHSBT-ref/kidney/kidney.Rproj
+resources/NHSBT-ref/kidney/Living donor post transplant outcomes March 2021.xlsx
+resources/NHSBT-ref/lung/Baseline post-tx info - categorical.xlsx
+resources/NHSBT-ref/lung/Baseline wlist info - categorical.xlsx
+resources/NHSBT-ref/lung/Lung post-tx - categorical.R
+resources/NHSBT-ref/lung/Lung post-tx - daily - categorical.xlsx
+resources/NHSBT-ref/lung/Lung post-tx param.csv
+resources/NHSBT-ref/lung/Lung post-tx surv.csv
+resources/NHSBT-ref/lung/Lung waiting list - daily - categorical.xlsx
+resources/NHSBT-ref/lung/Lung wlist analysis - categorical.R
+resources/NHSBT-ref/lung/lung wlist surv - categorical.csv
+resources/NHSBT-ref/lung/wlist param - categorical.csv

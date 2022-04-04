@@ -309,7 +309,9 @@
                 :post-transplant {:button-type "survival"
                                   :label "Survival post transplant"
                                   :button-colour "green"
-                                  :inputs {:header [:p "Enter inputs that are correct today.  The results will show outcomes as if the patient receives a transplant today."]}
+                                  :inputs {:header [:div 
+                                                    [:p.d-print-none "Enter inputs " [:b "that are correct today."]  " The results will show outcomes as if the patient receives a transplant today."]
+                                                    [:p.d-none.d-print-block "Here are the inputs " [:b "that should be correct today."] " The results will show outcomes as if the patient receives a transplant today."]]}
                                   :outcomes {:residual {:label "Survived"
                                                         :long-label "of patients have survived"
                                                         :fill "#00979C"
@@ -571,6 +573,9 @@
 
                   :survival {:button-type "survival"
                              :label "Survival - deceased donor"
+                             :inputs {:header [:div
+                                               [:p.d-print-none "Enter inputs " [:b "that are correct today."]  " The results will show outcomes as if the patient receives a transplant today."]
+                                               [:p.d-none.d-print-block "Here are the inputs " [:b "that should be correct today."] " The results will show outcomes as if the patient receives a transplant today."]]}
                              :outcomes {:residual {:label "Surviving"
                                                    :long-label "of patients have survived"
                                                    :fill "#00979C"
@@ -688,6 +693,9 @@
 
                   :graft {:button-type "graft"
                           :label "Kidney survival - deceased donor"
+                          :inputs {:header [:div
+                                            [:p.d-print-none "Enter inputs " [:b "that are correct today."]  " The results will show outcomes as if the patient receives a transplant today."]
+                                            [:p.d-none.d-print-block "Here are the inputs " [:b "that should be correct today."] " The results will show outcomes as if the patient receives a transplant today."]]}
                           :outcomes {:residual {:label "Kidneys still working"
                                                 :long-label "of kidneys have survived"
                                                 :fill "#0491d8" #_"#0044AA"
@@ -804,6 +812,9 @@
        ;; ld for living donor
                   :ldsurvival {:button-type "survival"
                                :label "Survival - living donor"
+                               :inputs {:header [:div
+                                                 [:p.d-print-none "Enter inputs " [:b "that are correct today."]  " The results will show outcomes as if the patient receives a transplant today."]
+                                                 [:p.d-none.d-print-block "Here are the inputs " [:b "that should be correct today."] " The results will show outcomes as if the patient receives a transplant today."]]}
                                :outcomes {:residual {:label "Surviving"
                                                      :long-label "of patients have survived"
                                                      :fill "#00979C"
@@ -916,6 +927,9 @@
                                               [:p "As time passes we will be able to add in more years"]]}
                   :ldgraft {:button-type "graft"
                             :label "Kidney survival - living donor"
+                            :inputs {:header [:div
+                                              [:p.d-print-none "Enter inputs " [:b "that are correct today."]  " The results will show outcomes as if the patient receives a transplant today."]
+                                              [:p.d-none.d-print-block "Here are the inputs " [:b "that should be correct today."] " The results will show outcomes as if the patient receives a transplant today."]]}
                             :outcomes {:residual {:label "Kidneys still working"
                                                   :long-label "of kidneys have survived"
                                                   :fill "#0491D8"

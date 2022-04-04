@@ -183,7 +183,7 @@
                         [:div {:style {:z-index 500
                                        :background-color "#fec2"
                                        :padding 0
-                                       :position "absolute"
+                                       :position "relative" #_"absolute"
                                        :pointer-events "none" ; to allow click through
                                        :top 0
                                        :right 0

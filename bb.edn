@@ -45,21 +45,8 @@
          lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
          kidney (shell "bb --file ./bbsrc/organ-switch.clj -g kidney")
          
-         chrome-kidney (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")
-         chrome-lung (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s lung")
-         chrome-local (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s local")
+         
 
-         ff-kidney (shell "bb --file ./bbsrc/test-drive.clj -d ff -s kidney")
-         ff-lung (shell "bb --file ./bbsrc/test-drive.clj -d ff -s lung")
-         ff-local (shell "bb --file ./bbsrc/test-drive.clj -d ff -s local")
-
-         ;; The safari etaoin tasks throw on quitting Safari
-         safari-kidney (shell "bb --file ./bbsrc/test-drive.clj -d safari -s kidney")
-         safari-lung (shell "bb --file ./bbsrc/test-drive.clj -d safari -s lung")
-         safari-local (shell "bb --file ./bbsrc/test-drive.clj -d safari -s local")
-         multi-local {:doc "local e2e tests in parallel on multiple browsers"
-                  :task (run '-multi-local {:parallel true})}
-         -multi-local {:depends [chrome-local ff-local #_safari-local]}
          test-prep (do
                      (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t graft -c Belfast")
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")

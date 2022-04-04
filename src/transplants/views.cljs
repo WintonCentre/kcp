@@ -1049,7 +1049,7 @@
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])
           tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
-;        (locals)
+        ;(locals)
       [:div {:id "capture"}
        (when-not is-full-screen
          [:div {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
@@ -1062,7 +1062,8 @@
           [ui/tools-menu tools true organ-name centre-name {:vertical false}]])
        
        (when (= tab "test")
-         [results/results-panel {:organ organ :centre centre :tool tool :bare true}]
+         [results/results-panel {:organ organ :centre centre :tool tool :bare true
+                                 :centre-info centre-info}]
          )
 
 

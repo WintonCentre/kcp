@@ -1,30 +1,40 @@
 (ns test-drive
-  "Babashka code to test drive the site model. 
+  "Babashk`````````a code to test drive the site model using etaoin. 
    
+   You will need to download, install, and configure the relevant 
+   browser driver for the browser you want to test. Safaridriver is pre-installed on OSX. Firefox needs
+   geckodriver. Drivers are closely tied to browser versions so do check you have the correct one installed.
+
    The main site is instrumented so it can generate results from uris that contain inputs like this:
    https//kidney.transplants.wintoncentre.uk/kidney/belf/survival/test/huA2SfBaDyl1EbMeGrdysnW1a2
-   where the selected visualisation is 'test'.  The trailing alphabet soup encodes the inputs.
+   where the selected visualisation is 'test'. 
+   
+   The trailing alphabet soup encodes the inputs.
 
-   Make a manual selection of these results to generate test cases, pasting them into tests.edn in the appropriate
-   folder in r_model_tests.
-
-   Use this utility to convert tests.edn to tests.csv and the n run the adjcox.R script against those test cases.
-
+   We use etaoin to load a browser driver with those inputs, and to read off the site results. 
+   
+   We also need to poke those same inputs into the R code, generate its results and then compare.
    "
   (:require [clojure.pprint :refer [pprint]]
             [clojure.java.shell :refer [sh]]
             [clojure.edn :as edn]
             [clojure.set :as rel]
             [clojure.string :as str]
+            [clojure.java.shell :refer [sh]]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]
             [babashka.classpath :refer [add-classpath]]
-            [babashka.tasks :refer [shell]]
             ;[clojure.test :as t :refer [deftest testing is are]]
-            ))
+            [babashka.pods :as pods]))
+
+(pods/load-pod 'org.babashka/etaoin "0.1.0")
 
 (require '[clojure.test :as t :refer [deftest testing is]]
+         '[pod.babashka.etaoin :as eta]
+         '[pod.babashka.etaoin.query :as q]
+         '[pod.babashka.etaoin.keys :as k]
          '[prepare-test-data :as prep])
+
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
@@ -40,6 +50,98 @@
   []
   (= (System/getProperty "babashka.file") *file*))
 
+(def drivers
+  {"chrome" eta/chrome
+   "ff" eta/firefox
+   "safari" eta/safari
+   "edge" eta/edge})
+
+;;;
+;; Following block isn't so useful in babashka as it turns out. The etaoin pod doesn't yet support
+;; scrolling, so a fixture for uri wrpping by multiple deftests isn't so useful. This code would
+;; make more sense in clojure+etaoin on the JVM. So leaving it for now
+;;;
+(defn get-site
+  "Return a site address, defaulting to the local site if the id isn't known"
+  [site-name]
+  (get
+   {"kidney" "kidney.transplants.wintoncentre.uk/"
+    "lung" "lung.transplants.wintoncentre.uk/"
+    "local" "localhost:3000/"}
+   site-name
+   "localhost:3000/"))
+
+(defn uri
+  "Return a URI to test. Get credentials from T_USER and T_PWD environment variables.
+   site-id as used in 'sites' lookup
+   The organ should be 'lung' or 'kidney' as a string
+   centre should be a short centre code from centres.txt
+   tool should be a string
+   inputs should already be in URI string form - like A2SmBoDyEaMeGfdysn
+   "
+  [site-id organ tool inputs]
+  (str
+   (if (= site-id "local")
+     (str (get-site site-id))
+     (str "https://" (env "T_USER") ":" (env "T_PWD") "@" (get-site site-id)))
+   "/"
+   organ
+   "/"
+   tool
+   "/test/"
+   inputs))
+
+
+
+
+(declare driver)
+(declare sites [])
+(def sites ["kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn"
+            "kidney.transplants.wintoncentre.uk/kidney/camb/waiting/test/A2SmBoDyEaMeGfdysn"])
+(declare site)
+
+;; global vars needed in the fixture. 
+;(def driver "chrome") 
+;(def site (uri "kidney"))
+
+;;;
+;; This lot later....
+;; (deftest tester
+;;   (testing "Tool loads and executes"
+;;     (eta/go driver site)
+;;     (eta/wait-visible driver {:id "uri-result"})
+;;       (is (eta/exists? driver {:id "uri-result"}) "uri-result")
+;;     (eta/quit driver)))
+
+
+;; (defn use-driver
+;;     "I had trouble getting this working, but I think that was due to chromedriver issues. geckodriver appears to be better"
+;;     [driver-id uri]
+;;     (with-redefs [driver ((get drivers driver-id))]
+;;     ;(def driver ((get drivers driver-id)))
+;;       (t/use-fixtures :each
+;;         (fn [f]
+;;           (eta/go driver uri)
+;;           (f)
+;;           (eta/quit driver)))))
+;;;
+
+
+;; Run `bb lung` or `bb kidney`  first
+(def metadata (edn/read-string (slurp (io/resource (str "public" file-sep "metadata.txt")))))
+(def organ-k (-> metadata :organ-order first))
+(def tools (-> metadata organ-k :tool-order))
+(def vis "test")
+(def waiting (-> metadata :kidney :tools :waiting keys))
+(def parameters (-> metadata :lookups))
+
+(def m-keys (-> metadata organ-k keys))
+(defn selected-data-points
+  []
+  (let [organ-k (-> metadata :organ-order first)]
+    {:organ (-> metadata organ-k)
+     :tools (-> metadata)}))
+
 ;;;
 ;; Plan:
 ;;  1. For each tool
@@ -47,82 +149,81 @@
 ;;    2. Convert test-data.edn to csv data?
 ;;    3. Run Rscript from bb
 
-(defn dir-path
-  "Create directory path"
-  [dirs]
-  (str/join file-sep dirs))
-
-(defn file-path
-  "join dirs with the file-separator and append the file name to create a file path"
-  [dirs file]
-  (str/join file-sep (conj dirs file)))
-
-(defn current-directory
-  []
-  (-> (sh "pwd") :out (str/trimr)))
-
-(defn read-edn-tests
-  [r-dirs]
-  (-> (file-path r-dirs "tests.edn")
-      slurp
-      (edn/read-string)))
-
-(defn tests-csv
-  [r-dirs]
-  (let [tests (read-edn-tests r-dirs)
-        headers (->> tests first :r-inputs keys (str/join ","))
-        rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests)]
-    (str/join "\n" (cons headers rows))
-    ))
-
-(defn write-csv-tests
-  [r-dirs]
-  (spit (file-path r-dirs "tests.csv") (tests-csv r-dirs)))
-
-(defn run-r-script
+(defn run-r-test-for
   [organ tool]
-  (let [r-dirs ["resources" "r_model_tests" (name organ) (name tool)]
-        r-working-dir (str (current-directory) file-sep (dir-path r-dirs))
-        r-script (file-path r-dirs "adjcox.R")]
-    ;;
-    ;; convert tests.edn to tests.csv for R to read
-    ;;
-    (write-csv-tests r-dirs)
-    ;; 
-    ;; run adjcox over all csv rows (by calling R adjcox::run_tests())
-    ;; passing in the r-working directory so R can use that context.
-    ;;
-    ;(sh "Rscript" "--vanilla" "--default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr" r-script r-working-dir))
-    (shell (str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr" " " r-script " " r-working-dir))
-  ;(sh "Rscript" "--vanilla" "--default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr" "resources/r_model_tests/kidney/waiting/adjcox.R" "/Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting")
-    ;;
-    ;; Read in the results
-    ;;
+  (let [r-dirs [(name organ) (name tool)]
+        tests-edn (str/join file-sep (conj r-dirs "tests.edn"))
+        tests-csv (str/join file-sep (conj r-dirs "tests.csv"))
+        ]
+    (try
+      (with-open [r (io/reader tests-edn)]
+        (let [thing
+              (edn/read (java.io.PushbackReader. r))]
+          (println "read" thing)))
+      (catch java.io.IOException e
+        (printf "Couldn't open '%s': %s\n" source (.getMessage e)))
+      (catch RuntimeException e
+        (printf "Error parsing edn file '%s': %s\n" source (.getMessage e))))
     ))
 
 
-(run-r-script :kidney :waiting)
 
 (comment
   (def r-dirs ["resources" "r_model_tests" "kidney" "waiting"])
-  (def tests (read-edn-tests r-dirs))
-  (def headers (->> tests first :r-inputs keys (str/join ",")))
-  (count headers)
-  (def rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests))
-  (write-csv-tests r-dirs)
-  (spit tests-csv (str/join "\n" (cons headers rows)))
-  (def r-script (file-path r-dirs "adjcox.R"))
-
-  (current-directory)
-
+  (def tests-edn (-> (str/join file-sep (conj r-dirs "tests.edn"))
+                     slurp
+                     edn/read-string))
   (defn edn-values [[k v]] [k (edn/read-string v)])
-
+  (def r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"})
+  (into {} (map edn-values r-inputs))
+  (map (fn [test-map]
+         (map (fn [[k v]]
+                (if (= k :r-inputs) [k v] (into {} (map edn-values r-inputs))))
+              test-map))
+       tests-edn)
+  )
   tests-edn
    => [{:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 85, :transplant 13, :year 1} {:death 2, :removal 7, :residual 43, :transplant 48, :year 3} {:death 2, :removal 12, :residual 8, :transplant 78, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "3", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 2, :residual 86, :transplant 11, :year 1} {:death 3, :removal 10, :residual 45, :transplant 42, :year 3} {:death 5, :removal 17, :residual 9, :transplant 69, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "4", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 2, :removal 2, :residual 87, :transplant 9, :year 1} {:death 5, :removal 13, :residual 48, :transplant 34, :year 3} {:death 8, :removal 22, :residual 11, :transplant 59, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "5", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 3, :removal 3, :residual 87, :transplant 7, :year 1} {:death 8, :removal 18, :residual 46, :transplant 28, :year 3} {:death 12, :removal 31, :residual 10, :transplant 47, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "6", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 3, :removal 5, :residual 86, :transplant 6, :year 1} {:death 9, :removal 30, :residual 40, :transplant 21, :year 3} {:death 13, :removal 48, :residual 6, :transplant 33, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "7", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 3, :removal 12, :residual 80, :transplant 5, :year 1} {:death 8, :removal 57, :residual 22, :transplant 13, :year 3} {:death 10, :removal 72, :residual 1, :transplant 17, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "f", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 0, :removal 1, :residual 87, :transplant 12, :year 1} {:death 2, :removal 6, :residual 47, :transplant 45, :year 3} {:death 2, :removal 11, :residual 10, :transplant 77, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "white", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 84, :transplant 14, :year 1} {:death 2, :removal 8, :residual 41, :transplant 49, :year 3} {:death 3, :removal 13, :residual 7, :transplant 77, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "a", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 75, :transplant 23, :year 1} {:death 2, :removal 7, :residual 22, :transplant 69, :year 3} {:death 2, :removal 9, :residual 1, :transplant 88, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "b", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 86, :transplant 12, :year 1} {:death 2, :removal 7, :residual 44, :transplant 47, :year 3} {:death 3, :removal 12, :residual 8, :transplant 77, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "ab", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 75, :transplant 23, :year 1} {:death 2, :removal 7, :residual 22, :transplant 69, :year 3} {:death 2, :removal 9, :residual 1, :transplant 88, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "1", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 0, :removal 1, :residual 84, :transplant 15, :year 1} {:death 1, :removal 5, :residual 41, :transplant 53, :year 3} {:death 1, :removal 9, :residual 7, :transplant 83, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "1", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 90, :transplant 8, :year 1} {:death 2, :removal 7, :residual 56, :transplant 35, :year 3} {:death 4, :removal 13, :residual 18, :transplant 65, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "2"}, :result [{:death 0, :removal 1, :residual 83, :transplant 16, :year 1} {:death 1, :removal 5, :residual 37, :transplant 57, :year 3} {:death 2, :removal 8, :residual 5, :transplant 85, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "2", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 92, :transplant 6, :year 1} {:death 2, :removal 9, :residual 63, :transplant 26, :year 3} {:death 4, :removal 19, :residual 25, :transplant 52, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "2", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 89, :transplant 9, :year 1} {:death 2, :removal 7, :residual 53, :transplant 38, :year 3} {:death 3, :removal 13, :residual 15, :transplant 69, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "3", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 0, :removal 1, :residual 92, :transplant 7, :year 1} {:death 2, :removal 6, :residual 64, :transplant 28, :year 3} {:death 3, :removal 12, :residual 26, :transplant 59, :year 5}]}]
 
   (sh "pwd")
-  (println (:err (sh "Rscript")))
+  (-main)
+  (def driver-id "chrome")
+  (def d (eta/chrome))
+  (eta/go d "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
 
+  (def options {:centre "Belfast", :organ "kidney", :tool "waiting"})
+  ;; => #'test-drive/options
+
+  (keys (prep/clj-info-by-clj-factor options))
+
+  (def info (prep/clj-info-by-clj-factor options))
+
+  (keys info)
+  ;; => (:age :sex :blood-group :dialysis :ethnicity :matchability :graft :diabetes :sensitised)
+
+  (map keys (:ethnicity info))
+  ;; => ((:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link))
+
+  (map :factor (:ethnicity info))
+  ;; => (:ethnicity :ethnicity :ethnicity :ethnicity :ethnicity :ethnicity)
+
+  (map :level (:ethnicity info))
+  ;; => (:asian :black :chinese :mixed :white :other)
+
+  (map :r-name (:ethnicity info))
+  ;; => ("eth_nonwhite" "eth_nonwhite" "eth_nonwhite" "eth_nonwhite" "eth_white" "eth_nonwhite")
+
+  (map :r-names (:ethnicity info))
+  ;; => (["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_white" "dth_eth_white" "rem_eth_white"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"])
+
+  (map :r-link (:ethnicity info))
+  ;; => (nil nil nil nil nil nil)
+
+  ;; => (nil nil nil nil nil nil)
+
+  ;; => (:asian :black :chinese :mixed :white :other)
+
+  (map keys (:ethnicity info))
   0
   )
 
@@ -150,11 +251,71 @@
 (defn -main [& _args]
   (let [parsed-options (parse-opts *command-line-args* cli-options)]
     (println "parsed-options: " parsed-options)
-    ))
+    (if-let [errors (:errors parsed-options)]
+      (let [msg (str "Encountered one or more errors: " (str/join ", " errors))]
+        (usage msg)
+        (System/exit 1))
+      (let [{:keys [driver-id site-id]} (:options parsed-options)]
+        ;;
+        ;; I should be using var or with-redefs rather than def here
+        ;;
+        (def driver ((get drivers driver-id)))
+        (def site (sites 0))
+        (println "site: " site)
+        (println "Testing: " site " in " driver-id)
+        (t/run-tests)
+
+        (when (invoked-by-command-line?)
+          (System/exit 0))))))
 
 (when (invoked-by-command-line?)
   (try
     (-main)
     (catch Exception e (.getMessage e))))
 
+
+(comment
+
+
+  (def driver ((get drivers "chrome")))
+
+  (eta/go driver "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
+  (eta/wait-visible driver {:id "uri-result"})
+  (eta/get-element-text driver {:id "uri-result"})
+
+  (eta/wait-visible driver "//*[@id=\"app\"]/div/nav/a[2]")
+  (eta/click driver "//*[@id=\"app\"]/div/nav/a[2]")
+  (eta/wait-visible driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
+  (eta/click driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
+
+
+
+  (uri "kidney")
+
+  ;; fixture generators
+  ;; (use-driver "chrome" "kidney")
+  ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x56fff7e0 "sci.impl.fns$fun$arity_1__7325@56fff7e0"])}}
+
+  ;; (use-driver "ff" "local")
+  ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x63a24a3c "sci.impl.fns$fun$arity_1__7325@63a24a3c"])}}
+
+  ;; (use-driver "safari" "local")
+
+  ((get drivers "chrome"))
+
+  (t/run-tests)
+
+  (usage)
+
+  (env "HOME")
+  ;; => "/Users/gmp26"
+
+  ;; We don't want credentials in github, so set them locally in the environment first
+  (uri {:site-id :kidney
+        :username (env "T_USER")
+        :password (env "T_PWD")})
+
+  (uri {:site-id :local})
+  ;; => "https://localhost:3000/"
+  )
 

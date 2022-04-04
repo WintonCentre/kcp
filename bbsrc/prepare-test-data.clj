@@ -438,7 +438,7 @@
 ;;             :zero     nil
 ;;             :test     nil}]}
 
-(defn assemble
+#_(defn assemble
     "Assemble the test_configuration data ready for export."
     []
     (let [cm 1

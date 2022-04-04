@@ -67,7 +67,7 @@
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
-  [{:keys [organ centre tool bare] :as path}]
+  [{:keys [organ centre tool bare centre-info] :as path}]
   (let [day @(rf/subscribe [::subs/test-day])
         mdata @(rf/subscribe [::subs/mdata])
         {:keys [fmaps outcome-keys
@@ -91,7 +91,7 @@
              :inputs @(rf/subscribe [::subs/inputs])
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
 
-;        _ (?-> env ::env)
+       ;; _ (?-> env ::env)
                      
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
@@ -129,7 +129,9 @@
          [:<>
           [:p
            "Run model from URI and return result as EDN"]
-          [:div [vis/test-gen (assoc env :fulfilled-inputs fulfilled-inputs)]]]
+          [:div [vis/test-gen (assoc env 
+                                     :fulfilled-inputs fulfilled-inputs
+                                     :centre-info centre-info)]]]
          [:<>
           [:div.no-printed-border {:style {:background-color "#fff"
                                            :border (str "3px solid " (condp = overlay

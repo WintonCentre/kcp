@@ -1,19 +1,20 @@
 (ns transplants.vis2
   (:require ["react-bootstrap" :as bs]
-            [re-frame.core :as rf]
-            [transplants.model :as model]
-            [transplants.subs :as subs]
-            [transplants.factors :as fac]
-            [transplants.ui :as ui]
-            [transplants.utils :as utils]
-            [transplants.rgb :as rgb]
+            [cljs-css-modules.macro :refer-macros [defstyle]]
+            [cljs.pprint :refer [pprint]]
             [clojure.string :as str :refer [replace]]
             [goog.color :as col]
-            [svg.space :refer [space]]
-            [svg.container :as svgc]
-            [cljs-css-modules.macro :refer-macros [defstyle]]
             [medley.core :as medl]
-            [shadow.debug :refer [locals ?> ?-> ?->>]]))
+            [re-frame.core :as rf]
+            [shadow.debug :refer [?-> ?->> ?> locals]]
+            [svg.container :as svgc]
+            [svg.space :refer [space]]
+            [transplants.factors :as fac]
+            [transplants.model :as model]
+            [transplants.rgb :as rgb]
+            [transplants.subs :as subs]
+            [transplants.ui :as ui]
+            [transplants.utils :as utils]))
 
 ;;
 ;; Plot data prep utilities
@@ -1205,16 +1206,21 @@ After 3 years	75  of them to have received a transplant
 
 
 (defn test-render
-  [year-series tool-mdata plot-order fulfilled-inputs r-params]
+  [year-series tool-mdata plot-order fulfilled-inputs r-params centre-info organ tool]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     ;(?->> ::years years)
     ;(?->> ::plot-order plot-order)
     ;(?->> ::labels labels)
     ;(?->> ::year-series year-series)
+  
     [:section {:id "uri-result"}
      (pr-str
-      {:uri (.-href js/document.location)
+      {;:uri (.-href js/document.location)
+       :organ (name organ)
+       :tool (name tool)
+       :r-inputs  (into {}
+                        (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
        :result (mapv
                 (fn [i]
                   (let [label (nth labels i)
@@ -1227,8 +1233,10 @@ After 3 years	75  of them to have received a transplant
                                   (range (count plot-order))))
                            :year time-index)))
                 (range (count years)))
-       :clj-inputs fulfilled-inputs
-       :r-inputs r-params})]))
+       ;:clj-inputs fulfilled-inputs
+
+       #_[(map first (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
+          (map second (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))]})]))
 
 (defn text
   "a text results view"
@@ -1263,7 +1271,7 @@ After 3 years	75  of them to have received a transplant
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"
-  [{:keys [organ tool base-outcome-keys s0 F fulfilled-inputs fmaps] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F fulfilled-inputs fmaps centre-info] :as env}]
   (let [sample-days (map
                      utils/year->day
                      (range (inc (utils/day->year (first (last s0))))))
@@ -1282,4 +1290,5 @@ After 3 years	75  of them to have received a transplant
     (?-> r-params ::r-params)
     (when tool-mdata
        ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
-      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params])))
+      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params 
+       centre-info organ tool])))

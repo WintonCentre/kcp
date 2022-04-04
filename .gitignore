@@ -95,3 +95,22 @@ resources/NHSBT-ref/lung/Lung waiting list - daily - categorical.xlsx
 resources/NHSBT-ref/lung/Lung wlist analysis - categorical.R
 resources/NHSBT-ref/lung/lung wlist surv - categorical.csv
 resources/NHSBT-ref/lung/wlist param - categorical.csv
+resources/r_model_tests/kidney/waiting/results_1.csv
+resources/r_model_tests/kidney/waiting/results_2.csv
+resources/r_model_tests/kidney/waiting/results_3.csv
+resources/r_model_tests/kidney/waiting/results_4.csv
+resources/r_model_tests/kidney/waiting/results_5.csv
+resources/r_model_tests/kidney/waiting/results_6.csv
+resources/r_model_tests/kidney/waiting/results_7.csv
+resources/r_model_tests/kidney/waiting/results_8.csv
+resources/r_model_tests/kidney/waiting/results_9.csv
+resources/r_model_tests/kidney/waiting/results_10.csv
+resources/r_model_tests/kidney/waiting/results_11.csv
+resources/r_model_tests/kidney/waiting/results_12.csv
+resources/r_model_tests/kidney/waiting/results_13.csv
+resources/r_model_tests/kidney/waiting/results_14.csv
+resources/r_model_tests/kidney/waiting/results_15.csv
+resources/r_model_tests/kidney/waiting/results_16.csv
+resources/r_model_tests/kidney/waiting/results_17.csv
+resources/r_model_tests/kidney/waiting/tests.csv
+tests.csv

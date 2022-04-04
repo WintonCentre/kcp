@@ -1066,7 +1066,9 @@
            [ui/row
             [ui/col {:xs 6 :sm 4}
              [:h1 (:description centre-info)]]
-            [ui/col {:xs 6 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]]
+            [ui/col {:xs 6 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
+           [ui/row
+            [ui/col {:xs 6 :sm 4} [:h4.lblprint (string/capitalize (:label tool-mdata)) " model"]]]]
           [:hr.rounded]])
        
        (when (= tab "test")

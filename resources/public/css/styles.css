@@ -7,6 +7,13 @@
     margin-right: 10mm;
     /* for compatibility with both A4 and Letter */
   }
+  /*body {
+      -webkit-print-color-adjust: exact !important;
+  }*/
+  .lblprint {
+    color: #000;
+  }
+
   hr.rounded {
     border-top: 8px solid #bbb;
     border-radius: 5px;

@@ -10,6 +10,8 @@
 
    Use this utility to convert tests.edn to tests.csv and the n run the adjcox.R script against those test cases.
 
+   Run tests by evluating this file - which will call t/run-tests.
+
    "
   (:require [clojure.pprint :refer [pprint]]
             [clojure.java.shell :refer [sh]]
@@ -18,12 +20,13 @@
             [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]
+            [clojure.data.csv :as csv]
             [babashka.classpath :refer [add-classpath]]
-            [babashka.tasks :refer [shell]]
+            [babashka.tasks :as tasks]
             ;[clojure.test :as t :refer [deftest testing is are]]
             ))
 
-(require '[clojure.test :as t :refer [deftest testing is]]
+(require '[clojure.test :as t :refer [deftest testing is are]]
          '[prepare-test-data :as prep])
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
@@ -45,7 +48,9 @@
 ;;  1. For each tool
 ;;    1. Select test points - semi-manually - write to test-data.edn in R tool subfolder 
 ;;    2. Convert test-data.edn to csv data?
-;;    3. Run Rscript from bb
+;;    3. Run Rscript from bb <=== THIS IS CURRENTLY FAILING. WHY?
+;;    4. Rscript generates results.csv files
+;;    5. We compare these to the cljs results
 
 (defn dir-path
   "Create directory path"
@@ -58,28 +63,28 @@
   (str/join file-sep (conj dirs file)))
 
 (defn current-directory
+  "Get current directory"
   []
   (-> (sh "pwd") :out (str/trimr)))
 
 (defn read-edn-tests
+  "Read the tests.edn file generated manually from selected site test cases"
   [r-dirs]
   (-> (file-path r-dirs "tests.edn")
       slurp
       (edn/read-string)))
 
-(defn tests-csv
+(defn write-csv-tests
+  "Read and convert test.edn to a csv table for R. 
+   Then write it to tests.csv"
   [r-dirs]
   (let [tests (read-edn-tests r-dirs)
         headers (->> tests first :r-inputs keys (str/join ","))
         rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests)]
     (str/join "\n" (cons headers rows))
-    ))
+    (spit (file-path r-dirs "tests.csv") (str/join "\n" (cons headers rows)))))
 
-(defn write-csv-tests
-  [r-dirs]
-  (spit (file-path r-dirs "tests.csv") (tests-csv r-dirs)))
-
-(defn run-r-script
+(defn rscript-command
   [organ tool]
   (let [r-dirs ["resources" "r_model_tests" (name organ) (name tool)]
         r-working-dir (str (current-directory) file-sep (dir-path r-dirs))
@@ -92,19 +97,157 @@
     ;; run adjcox over all csv rows (by calling R adjcox::run_tests())
     ;; passing in the r-working directory so R can use that context.
     ;;
-    ;(sh "Rscript" "--vanilla" "--default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr" r-script r-working-dir))
-    (shell (str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr" " " r-script " " r-working-dir))
-  ;(sh "Rscript" "--vanilla" "--default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr" "resources/r_model_tests/kidney/waiting/adjcox.R" "/Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting")
-    ;;
-    ;; Read in the results
-    ;;
-    ))
+    #_(sh "Rscript" rscript)  ;; unfortunately this fails, though it does run in a bash shell. It's caused by R's attach() fail. 
+
+    ;; so instead we just echo a script line for bash. You may need to tweak these to get them working in your R environment
+    (str "Rscript " r-script)
+    ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.R"
+
+    (str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
 
 
-(run-r-script :kidney :waiting)
+(rscript-command :kidney :waiting)
+;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
+
+;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
+
+(defn test-n-cljs
+  "Get resuts from the nth cljs test (zero-indexed)"
+  [r-dirs n]
+  (-> (read-edn-tests r-dirs)
+      (get n)
+      :result))
+
+(defn test-n-r
+  "Get raw results from the n+1 th R results file"
+  [r-dirs n]
+  (with-open [reader (io/reader (file-path r-dirs (str "results_" (inc n) ".csv")))]
+    (doall
+     (csv/read-csv reader))))
+
+(defn csv-map
+  "ZipMaps header as keys and values from lines."
+  [head & lines]
+  (map #(zipmap (map keyword head) %1) lines))
+
+(defn to%
+  "Fraction to Percentage"
+  [v] (* 100 v))
+
+(defn test-r-as-maps
+  "Convert nth r result to maps"
+  [r-dirs n]
+  (apply csv-map (test-n-r r-dirs n)))
+
+
+(defmulti cljs-normalise 
+  "Normalise an r-map read in from csv results to a cljs form to enable comparison.
+   The normalisation is different for each organ/tool combo which the juxt dispatch function
+   will retrieve from an options map (say)."
+  (juxt :organ :tool))
+
+(defmethod cljs-normalise [:kidney :waiting] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :capS [:residual (to% v)]
+                     :capF_rem [:removal (to% v)]
+                     :capF_tx [:transplant (to% v)]
+                     :capF_dth [:death (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+ (defn =+-1
+   "Check whether maps m1 and m2 are equal +/- 1%. 
+    We can't be more accurate than this because the maps are variously adjusted to add to 100%"
+   [m1 m2]
+   (seq (remove
+         (fn [[k1 v1]]
+           (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
+
+ (deftest kidney-waiting-n
+   (let [r-dirs ["resources" "r_model_tests" "kidney" "waiting"]]
+     (testing "kidney waiting"
+       (are [n]
+            (every? nil?
+                    (map
+                     =+-1
+                     (cljs-normalise {:organ :kidney :tool :waiting}
+                                     (test-r-as-maps r-dirs n))
+                     (test-n-cljs r-dirs n)))
+         0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))))
+
+(t/run-tests)
 
 (comment
+  (test-r-as-maps r-dirs 1)
+  (cljs-normalise {:organ :kidney :tool :waiting}
+                  (test-r-as-maps r-dirs 1))
+
+
+  )
+
+
+(comment
+
+  (defn test1-cljs
+    [test-index]
+    (-> (read-edn-tests r-dirs)
+        (get 0)
+        :result))
+
+  (def test1-r
+    (with-open [reader (io/reader (file-path r-dirs "results_1.csv"))]
+      (doall
+       (csv/read-csv reader))))
+
+  (defn csv-map
+    "ZipMaps header as keys and values from lines."
+    [head & lines]
+    (map #(zipmap (map keyword head) %1) lines))
+
+  (defn to%
+    "Fraction to Percentage"
+    [v] (* 100 v))
+
+  (def test1-r-as-maps (apply csv-map test1-r))
+  (defn cljs-normalise
+    [r-maps]
+    (for [m r-maps]
+      (into {}
+            (map (fn [[k v]]
+
+                   (let [v (edn/read-string v)]
+                     (condp = k
+                       :days [:year (Math/round (/ v 365.25))]
+                       :capS [:residual (to% v)]
+                       :capF_rem [:removal (to% v)]
+                       :capF_tx [:transplant (to% v)]
+                       :capF_dth [:death (to% v)]
+                       :else [:unknown nil])))
+                 m))))
+  
+  (cljs-normalise test1-r-as-maps)
+  (= test1-cljs (cljs-normalise test-r-as-maps))
+
+  (defn =+-1
+    [m1 m2]
+    (seq (remove
+          (fn [[k1 v1]]
+            (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
+
+  (cljs-normalise test1-r-as-maps)
+  ;; => ({:year 1, :residual 85, :removal 1, :transplant 13, :death 1} {:year 3, :residual 43, :removal 7, :transplant 48, :death 2} {:year 5, :residual 8, :removal 12, :transplant 77, :death 3})
+  test1-cljs
+  ;; => [{:death 1, :removal 1, :residual 85, :transplant 13, :year 1} {:death 2, :removal 7, :residual 43, :transplant 48, :year 3} {:death 2, :removal 12, :residual 8, :transplant 78, :year 5}]
+
+  (every? nil? (map =+-1 (cljs-normalise test1-r-as-maps) test1-cljs))
+
   (def r-dirs ["resources" "r_model_tests" "kidney" "waiting"])
+  (def r-working-dir (str (current-directory) file-sep (dir-path r-dirs)))
   (def tests (read-edn-tests r-dirs))
   (def headers (->> tests first :r-inputs keys (str/join ",")))
   (count headers)
@@ -117,14 +260,10 @@
 
   (defn edn-values [[k v]] [k (edn/read-string v)])
 
-  tests-edn
-   => [{:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 85, :transplant 13, :year 1} {:death 2, :removal 7, :residual 43, :transplant 48, :year 3} {:death 2, :removal 12, :residual 8, :transplant 78, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "3", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 2, :residual 86, :transplant 11, :year 1} {:death 3, :removal 10, :residual 45, :transplant 42, :year 3} {:death 5, :removal 17, :residual 9, :transplant 69, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "4", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 2, :removal 2, :residual 87, :transplant 9, :year 1} {:death 5, :removal 13, :residual 48, :transplant 34, :year 3} {:death 8, :removal 22, :residual 11, :transplant 59, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "5", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 3, :removal 3, :residual 87, :transplant 7, :year 1} {:death 8, :removal 18, :residual 46, :transplant 28, :year 3} {:death 12, :removal 31, :residual 10, :transplant 47, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "6", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 3, :removal 5, :residual 86, :transplant 6, :year 1} {:death 9, :removal 30, :residual 40, :transplant 21, :year 3} {:death 13, :removal 48, :residual 6, :transplant 33, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "7", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 3, :removal 12, :residual 80, :transplant 5, :year 1} {:death 8, :removal 57, :residual 22, :transplant 13, :year 3} {:death 10, :removal 72, :residual 1, :transplant 17, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "f", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 0, :removal 1, :residual 87, :transplant 12, :year 1} {:death 2, :removal 6, :residual 47, :transplant 45, :year 3} {:death 2, :removal 11, :residual 10, :transplant 77, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "white", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 84, :transplant 14, :year 1} {:death 2, :removal 8, :residual 41, :transplant 49, :year 3} {:death 3, :removal 13, :residual 7, :transplant 77, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "a", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 75, :transplant 23, :year 1} {:death 2, :removal 7, :residual 22, :transplant 69, :year 3} {:death 2, :removal 9, :residual 1, :transplant 88, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "b", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 86, :transplant 12, :year 1} {:death 2, :removal 7, :residual 44, :transplant 47, :year 3} {:death 3, :removal 12, :residual 8, :transplant 77, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "ab", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 75, :transplant 23, :year 1} {:death 2, :removal 7, :residual 22, :transplant 69, :year 3} {:death 2, :removal 9, :residual 1, :transplant 88, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "1", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 0, :removal 1, :residual 84, :transplant 15, :year 1} {:death 1, :removal 5, :residual 41, :transplant 53, :year 3} {:death 1, :removal 9, :residual 7, :transplant 83, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "1", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 90, :transplant 8, :year 1} {:death 2, :removal 7, :residual 56, :transplant 35, :year 3} {:death 4, :removal 13, :residual 18, :transplant 65, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "2"}, :result [{:death 0, :removal 1, :residual 83, :transplant 16, :year 1} {:death 1, :removal 5, :residual 37, :transplant 57, :year 3} {:death 2, :removal 8, :residual 5, :transplant 85, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "1", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "2", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 92, :transplant 6, :year 1} {:death 2, :removal 9, :residual 63, :transplant 26, :year 3} {:death 4, :removal 19, :residual 25, :transplant 52, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "2", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 1, :removal 1, :residual 89, :transplant 9, :year 1} {:death 2, :removal 7, :residual 53, :transplant 38, :year 3} {:death 3, :removal 13, :residual 15, :transplant 69, :year 5}]} {:organ "kidney", :tool "waiting", :r-inputs {"bld" "o", "graft" "0", "diabetes" "2", "age" "2", "match" "3", "cent" "Birmingham", "sex" "m", "eth" "nonwhite", "sens" "1", "dialysis" "1"}, :result [{:death 0, :removal 1, :residual 92, :transplant 7, :year 1} {:death 2, :removal 6, :residual 64, :transplant 28, :year 3} {:death 3, :removal 12, :residual 26, :transplant 59, :year 5}]}]
-
   (sh "pwd")
   (println (:err (sh "Rscript")))
 
-  0
-  )
+  0)
 
 ;;;
 ;; main
@@ -149,8 +288,7 @@
 
 (defn -main [& _args]
   (let [parsed-options (parse-opts *command-line-args* cli-options)]
-    (println "parsed-options: " parsed-options)
-    ))
+    (println "parsed-options: " parsed-options)))
 
 (when (invoked-by-command-line?)
   (try

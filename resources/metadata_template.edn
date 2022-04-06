@@ -43,6 +43,9 @@
         :label "Lung" ; Labels for any button that takes you to the Lung home page
         :primary-colour "purple" ; unused 
         :tool-order [:waiting :post-transplant :guidance]
+        :contact-email "lungtransplants@statslab.cam.ac.uk"
+        :contact-email-subject "Lung transplants tool"
+        :contact-email-body "Please give us your feedback here. If you would like a reply please say so. If you are reporting a technical issue then it’s always useful to tell us the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system (e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot of the problem."
         :tools {; The default tool provides a default configuration for each tool for this organ
                 :default {:button-type "usefulinfo"
                           :label "hide-me!"
@@ -309,7 +312,7 @@
                 :post-transplant {:button-type "survival"
                                   :label "Survival post transplant"
                                   :button-colour "green"
-                                  :inputs {:header [:div 
+                                  :inputs {:header [:div
                                                     [:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]
                                                     [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]]}
                                   :outcomes {:residual {:label "Survived"
@@ -429,6 +432,9 @@
  :kidney {:text "Kidney"
           :label "Kidney"
           :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :guidance]
+          :contact-email "kidneytransplants@statslab.cam.ac.uk"
+          :contact-email-subject "Kidney transplants tool"
+          :contact-email-body "Please give us your feedback here. If you would like a reply please say so. If you are reporting a technical issue then it’s always useful to tell us the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system (e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot of the problem."
           :tools {:waiting {:button-type "waiting"
                             :label "Waiting times"
                             :inputs {:header [:div
@@ -556,7 +562,7 @@
                             :post-section [:h5 "Outcomes after listing for a kidney transplant"]
                             :rest-of-page [:section
                                            [:p "Why does the display stop at year 5? We do not have data for patients going back 
-                                               more than 5 years that we can use."] 
+                                               more than 5 years that we can use."]
                                            [:p "As time passes we will be able to add in more years"]]
                             #_[:<>
                                [:p "This is an estimate, an average, there are other factors about you that can 

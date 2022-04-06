@@ -106,7 +106,7 @@
 
     ;;(str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
     ))
-
+(rscript-command :kidney :graft)
 (rscript-command :kidney :ldgraft)
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
 

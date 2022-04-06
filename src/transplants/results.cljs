@@ -223,7 +223,11 @@
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/text env]]]
 
+             [ui/tab {:event-key "rig" :title "Test Rig"}
+              [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+               [vis/test-rig env]]]
+
              ;; we normally don't want the test tab to be displayed
              #_[ui/tab {:event-key "test" :title "Test"}
-              [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-               [vis/test-gen env]]]]]]])])))
+                [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+                 [vis/test-gen env]]]]]]])])))

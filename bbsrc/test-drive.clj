@@ -26,14 +26,13 @@
             ;[clojure.test :as t :refer [deftest testing is are]]
             ))
 
+;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
+(add-classpath "bbsrc:src:resources")
+
 (require '[clojure.test :as t :refer [deftest testing is are]]
          '[prepare-test-data :as prep])
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
-
-;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
-(add-classpath "bbsrc:src:resources")
-;(require '[transplants.shortener :as short]) ; gain access to the .cljc 
 
 (defn env [s] (java.lang.System/getenv s))
 
@@ -97,16 +96,18 @@
     ;; run adjcox over all csv rows (by calling R adjcox::run_tests())
     ;; passing in the r-working directory so R can use that context.
     ;;
-    #_(sh "Rscript" rscript)  ;; unfortunately this fails, though it does run in a bash shell. It's caused by R's attach() fail. 
+    (sh "bash" "-c" (str "Rscript " r-script))  ;; unfortunately this fails in the Calva bb repl, 
+    ;; though it does run in other contexts. 
+    ;; See https://gist.github.com/gmp26/b859872eeb53c753ece08c7e632f7b02
 
-    ;; so instead we just echo a script line for bash. You may need to tweak these to get them working in your R environment
+    ;; so for the REPL we just echo a script line we can run in bash. You may need to tweak these to get them working in your R environment
     (str "Rscript " r-script)
     ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.R"
 
-    (str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
+    ;;(str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
+    ))
 
-
-(rscript-command :kidney :waiting)
+(rscript-command :kidney :ldgraft)
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
 
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
@@ -117,6 +118,8 @@
   (-> (read-edn-tests r-dirs)
       (get n)
       :result))
+
+;;(map (fn[m] (dissoc m :graft)) (test-n-cljs r-dirs 1))
 
 (defn test-n-r
   "Get raw results from the n+1 th R results file"
@@ -140,7 +143,7 @@
   (apply csv-map (test-n-r r-dirs n)))
 
 
-(defmulti cljs-normalise 
+(defmulti cljs-normalise
   "Normalise an r-map read in from csv results to a cljs form to enable comparison.
    The normalisation is different for each organ/tool combo which the juxt dispatch function
    will retrieve from an options map (say)."
@@ -160,38 +163,107 @@
                      :else [:unknown nil])))
                m))))
 
- (defn =+-1
-   "Check whether maps m1 and m2 are equal +/- 1%. 
+(defmethod cljs-normalise [:kidney :graft] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defmethod cljs-normalise [:kidney :ldgraft] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defn =+-1
+  "Check whether maps m1 and m2 are equal +/- 1%. 
     We can't be more accurate than this because the maps are variously adjusted to add to 100%"
-   [m1 m2]
-   (seq (remove
-         (fn [[k1 v1]]
-           (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
+  [m1 m2]
+  (seq (remove
+        (fn [[k1 v1]]
+          (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
 
- (deftest kidney-waiting-n
-   (let [r-dirs ["resources" "r_model_tests" "kidney" "waiting"]]
-     (testing "kidney waiting"
-       (are [n]
-            (every? nil?
+(defn =+-15
+  "Check whether maps m1 and m2 are equal +/- 1+%. 
+    We can't be more accurate than this because the maps are variously adjusted to add to 100%"
+  [m1 m2]
+  (seq (remove
+        (fn [[k1 v1]]
+          (<= (Math/abs (- (k1 m2) v1)) 1.3)) m1)))
+
+;; These deftests work, but are useless at locating any failures
+#_(deftest kidney-waiting-n
+  (let [r-dirs ["resources" "r_model_tests" "kidney" "waiting"]]
+    (testing "kidney waiting"
+      (are [n]
+           (every? nil?
+                   (map
+                    =+-1
+                    (cljs-normalise {:organ :kidney :tool :waiting}
+                                    (test-r-as-maps r-dirs n))
+                    (test-n-cljs r-dirs n)))
+        0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))))
+
+#_(deftest kidney-graft-n
+  (let [r-dirs ["resources" "r_model_tests" "kidney" "graft"]]
+    (testing "kidney graft"
+      (are [n]
+           (every? nil?
+                   (map
+                    =+-15
+                    (cljs-normalise {:organ :kidney :tool :graft}
+                                    (test-r-as-maps r-dirs n))
                     (map
-                     =+-1
-                     (cljs-normalise {:organ :kidney :tool :waiting}
-                                     (test-r-as-maps r-dirs n))
-                     (test-n-cljs r-dirs n)))
-         0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))))
+                     (fn [m] (dissoc m :graft))
+                     (test-n-cljs r-dirs n))))
+        0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22))))
 
-(t/run-tests)
+(defn more-useful-kidney-graft
+  "This provides a more useful printout on any discrepancy."
+  []
+  (let [r-dirs ["resources" "r_model_tests" "kidney" "graft"]]
+    (println "testing kidney graft")
+    (doseq [n (range 23)]
+      (if (not (every? nil?
+                       (map
+                        =+-1
+                        (cljs-normalise {:organ :kidney :tool :graft}
+                                        (test-r-as-maps r-dirs n))
+                        (map
+                         (fn [m] (dissoc m :graft))
+                         (test-n-cljs r-dirs n)))))
+        (println (str "Fail on results_" (inc n))
+                 "R: " (cljs-normalise {:organ :kidney :tool :graft}
+                                       (test-r-as-maps r-dirs n))
+                 "cljs" (test-n-cljs r-dirs n))))))
 
-(comment
+(more-useful-kidney-graft)
+#_(t/run-tests)
+
+#_(comment
   (test-r-as-maps r-dirs 1)
-  (cljs-normalise {:organ :kidney :tool :waiting}
-                  (test-r-as-maps r-dirs 1))
 
-
+  (=+-1 [{:year 1, :residual 93.89609541620652} {:year 3, :residual 91.76749160887245} {:year 5, :residual 89.28656547546872}]
+        [{:graft 6, :residual 94, :year 1} {:graft 8, :residual 92, :year 3} {:graft 11, :residual 89, :year 5}])
+  
+  (=+-1
+   (cljs-normalise {:organ :kidney :tool :graft}
+                   (test-r-as-maps r-dirs 1))
+   (test-n-cljs r-dirs 1))
   )
 
 
-(comment
+#_(comment
 
   (defn test1-cljs
     [test-index]
@@ -229,7 +301,7 @@
                        :capF_dth [:death (to% v)]
                        :else [:unknown nil])))
                  m))))
-  
+
   (cljs-normalise test1-r-as-maps)
   (= test1-cljs (cljs-normalise test-r-as-maps))
 
@@ -247,6 +319,7 @@
   (every? nil? (map =+-1 (cljs-normalise test1-r-as-maps) test1-cljs))
 
   (def r-dirs ["resources" "r_model_tests" "kidney" "waiting"])
+  (def r-dirs ["resources" "r_model_tests" "kidney" "graft"])
   (def r-working-dir (str (current-directory) file-sep (dir-path r-dirs)))
   (def tests (read-edn-tests r-dirs))
   (def headers (->> tests first :r-inputs keys (str/join ",")))
@@ -254,7 +327,9 @@
   (def rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests))
   (write-csv-tests r-dirs)
   (spit tests-csv (str/join "\n" (cons headers rows)))
-  (def r-script (file-path r-dirs "adjcox.R"))
+  (def r-script
+       ;; => "resources/r_model_tests/kidney/waiting/adjcox.R"
+    (file-path r-dirs "adjcox.R"))
 
   (current-directory)
 
@@ -268,29 +343,34 @@
 ;;;
 ;; main
 ;;;
-(defn usage
-  "Usage message"
-  ([] (usage nil))
-  ([err-msg]
-   (when err-msg (println err-msg))
-   (println "See bb.edn for examples such as\n
+#_(comment
+  (defn usage
+    "Usage message"
+    ([] (usage nil))
+    ([err-msg]
+     (when err-msg (println err-msg))
+     (println "See bb.edn for examples such as\n
              bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")))
 
-(def cli-options [["-s" "--site-id site-id" "lung or kidney or local"
-                   :default "kidney"
-                   :parse-fn str
-                   :validate [#(#{"kidney" "lung" "local"} %) "kidney | lung | local"]]
-                  ["-d" "--driver-id driver-id" "ff for Firefox geckodriver, chrome, safari, edge"
-                   :default "ff"
-                   :parse-fn str
-                   :validate [#(#{"ff" "chrome" "safari" "edge"} %) "gecko | chrome | safari | edge"]]
-                  ["-h" "--help"]])
 
-(defn -main [& _args]
-  (let [parsed-options (parse-opts *command-line-args* cli-options)]
-    (println "parsed-options: " parsed-options)))
+  (def cli-options [["-o" "--organ [organ-id]" "lung or kidney"
+                     :default "kidney"
+                     :parse-fn str
+                     :validate [#(#{"kidney" "lung"} %) "kidney | lung"]]
+                    ["-t" "--tool [tool-id]"
+                     :default "waiting"
+                     :parse-fn str
+                     :validate [#(#{"waiting" "post-transplant" "graft" "ldgraft" "survival" "ldsurvival"} %)
+                                "waiting | post-transplant | graft | ldgraft | survival | ldsurvival"]]
+                    ["-h" "--help"]])
 
-(when (invoked-by-command-line?)
+
+  (defn -main [& _args]
+    (let [parsed-options (parse-opts *command-line-args* cli-options)]
+      (println "parsed-options: " parsed-options)))
+  )
+
+#_(when (invoked-by-command-line?)
   (try
     (-main)
     (catch Exception e (.getMessage e))))

@@ -1212,7 +1212,7 @@ After 3 years	75  of them to have received a transplant
     ;(?->> ::years years)
     ;(?->> ::plot-order plot-order)
     ;(?->> ::labels labels)
-    ;(?->> ::year-series year-series)
+    (?->> ::year-series year-series)
   
     [:section {:id "uri-result"}
      (pr-str
@@ -1228,8 +1228,8 @@ After 3 years	75  of them to have received a transplant
                     (assoc (into {}
                                  (map
                                   (fn [j]
-                                    (let [[_ {:keys [int-fs]}] (nth year-series time-index)]
-                                      [(nth plot-order j) (nth int-fs j)]))
+                                    (let [[_ {:keys [int-fs fs]}] (nth year-series time-index)]
+                                      [(nth plot-order j) (nth fs #_int-fs j)]))
                                   (range (count plot-order))))
                            :year time-index)))
                 (range (count years)))

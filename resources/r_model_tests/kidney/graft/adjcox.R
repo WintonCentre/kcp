@@ -11,7 +11,7 @@ attach(survdata)
 attach(param)
 attach(tests)
 
-adjcox <- function(cent = "Belfast", rage = 3, wait = 1, diabetes = 1, graft = 1, dage = 4, dbmi = 1, dhtn =2, hla = 1) {
+adjcox <- function(cent = "Birmingham", rage = 1, wait = 5, diabetes = 1, graft = 1, dage = 1, dbmi = 1, dhtn =1, hla = 1) {
   
   ## Calculate individual xbeta terms ##
   
@@ -123,7 +123,7 @@ for (i in 1:nrow(tests)) {
   )
   
   summary <-
-    results[c(366, 365 * 3 + 1, 365 * 5 + 1), c(1, 2)]
+    results[c(366, round(365.25 * 3 + 1), round(365.25 * 5 + 1)), c(1, 2)]
   
   write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }

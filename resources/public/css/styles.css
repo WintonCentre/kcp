@@ -14,11 +14,15 @@
     color: #000;
   }
 
+  .to-left {
+    left: 0 !important;
+  }
+
   .tborder {
     border-left: 1rem solid;
   }
 
-  .no-print-border {
+  .no-printed-border {
     border: 0 !important;
   }
 

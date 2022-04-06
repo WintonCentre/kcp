@@ -23,14 +23,12 @@
             [clojure.data.csv :as csv]
             [babashka.classpath :refer [add-classpath]]
             [babashka.tasks :as tasks]
-            ;[clojure.test :as t :refer [deftest testing is are]]
             ))
 
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
 (add-classpath "bbsrc:src:resources")
 
-(require '[clojure.test :as t :refer [deftest testing is are]]
-         '[prepare-test-data :as prep])
+;(require '[clojure.test :as t :refer [deftest testing is are]])
 
 (def file-sep (java.lang.System/getProperty "file.separator"))
 
@@ -113,7 +111,7 @@
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
 
 (defn test-n-cljs
-  "Get resuts from the nth cljs test (zero-indexed)"
+  "Get results from the nth cljs test (zero-indexed)"
   [r-dirs n]
   (-> (read-edn-tests r-dirs)
       (get n)
@@ -129,7 +127,7 @@
      (csv/read-csv reader))))
 
 (defn csv-map
-  "ZipMaps header as keys and values from lines."
+  "ZipMaps header as keys onto values from lines."
   [head & lines]
   (map #(zipmap (map keyword head) %1) lines))
 
@@ -138,7 +136,7 @@
   [v] (* 100 v))
 
 (defn test-r-as-maps
-  "Convert nth r result to maps"
+  "Convert nth r results to seq of maps"
   [r-dirs n]
   (apply csv-map (test-n-r r-dirs n)))
 
@@ -201,7 +199,9 @@
         (fn [[k1 v1]]
           (<= (Math/abs (- (k1 m2) v1)) 1.3)) m1)))
 
-;; These deftests work, but are useless at locating any failures
+;; These deftests work, but are useless at locating any failures.
+;; I still wish it were possible to apply `are` so we could do (are .... (range 17))
+;; Some clever macro needed maybe?
 #_(deftest kidney-waiting-n
   (let [r-dirs ["resources" "r_model_tests" "kidney" "waiting"]]
     (testing "kidney waiting"
@@ -233,7 +233,7 @@
   []
   (let [r-dirs ["resources" "r_model_tests" "kidney" "graft"]]
     (println "testing kidney graft")
-    (doseq [n (range 23)]
+    (doseq [n (range 4)]
       (if (not (every? nil?
                        (map
                         =+-1
@@ -246,6 +246,54 @@
                  "R: " (cljs-normalise {:organ :kidney :tool :graft}
                                        (test-r-as-maps r-dirs n))
                  "cljs" (test-n-cljs r-dirs n))))))
+
+(defn get-cljs-result
+  [n]
+  (:result (nth edn-tests n)))
+
+(defn more-useful-test-eliding
+  "This provides a more useful printout on any discrepancy.
+   Tests are for a particular organ and tool, and to get a match we may need to elide one
+   key fom the cljs result map."
+  [{:keys [organ tool elide] :as args}]
+  (let [r-dirs ["resources" "r_model_tests" (name organ) (name tool)]
+        edn-tests (read-edn-tests r-dirs)]
+    (println "testing " (name organ) " " (name tool))
+    (doseq [n (range (count edn-tests))
+            :let [cljs-result (map (fn [m] (dissoc m elide)) (get-cljs-result n))
+                  r-result (cljs-normalise args (test-r-as-maps r-dirs n))]]
+      (if (not-any? some?
+                      (map
+                       =+-1
+                       r-result
+                       cljs-result))
+        (println (str "Fail on results_" (inc n))
+                 "R: " r-result
+                 "cljs" cljs-result)))))
+
+(more-useful-test-eliding {:organ :kidney
+                           :tool :graft
+                           :elide :graft})
+
+
+(comment
+  (def r-dirs ["resources" "r_model_tests" "kidney" "graft"])
+  (def elide :graft)
+  (def edn-tests (read-edn-tests r-dirs))
+                 ;; => [{:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :>7, :graft :first, :hla-mismatch :1, :donor-age :0+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "1", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "5", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 22.7999022255712, :residual 77.2000977744288, :year 1} {:graft 29.553725751698234, :residual 70.44627424830178, :year 3} {:graft 36.86901606239652, :residual 63.13098393760348, :year 5}]} {:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :<=1, :graft :first, :hla-mismatch :1, :donor-age :60+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "5", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "1", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 25.32129432037858, :residual 74.67870567962143, :year 1} {:graft 32.62370063062734, :residual 67.37629936937266, :year 3} {:graft 40.43725754124485, :residual 59.56274245875515, :year 5}]} {:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :<=1, :graft :first, :hla-mismatch :1, :donor-age :70+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "6", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "1", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 29.105778749317974, :residual 70.89422125068204, :year 1} {:graft 37.15344298556008, :residual 62.84655701443992, :year 3} {:graft 45.60315894390237, :residual 54.39684105609763, :year 5}]}]
+
+  (def cljs-result
+    (map (fn [m] (dissoc m elide)) (get-cljs-result 2)))
+    ;; => ({:residual 74.67870567962143, :year 1} {:residual 67.37629936937266, :year 3} {:residual 59.56274245875515, :year 5})
+  
+  (def r-result
+    (cljs-normalise {:organ :kidney :tool :graft :elide :graft}
+                    (test-r-as-maps r-dirs 2)))
+    ;; => ({:year 1, :residual 75.45411247482295} {:year 3, :residual 68.10027716746463} {:year 5, :residual 60.245024011478655})
+
+  (def name "kidney")
+  )
+
 
 (more-useful-kidney-graft)
 #_(t/run-tests)

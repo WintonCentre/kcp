@@ -4,8 +4,6 @@ survdata <- read.csv("surv.csv")
 param <- read.csv("params.csv")
 tests <- read.csv("tests.csv")
 
-
-
 library(tidyr)
 library(readr)
 
@@ -116,8 +114,8 @@ for (i in 1:nrow(tests)) {
     cent = tests$cent[i],
     rage = tests$rage[i],
     wait = tests$wait[i],
-    diabetes = tests$graft[i],
-    graft = tests$sens[i],
+    diabetes = tests$diabetes[i],
+    graft = tests$graft[i],
     dage = tests$dage[i],
     dbmi = tests$dbmi[i],
     dhtn = tests$dhtn[i],
@@ -125,7 +123,7 @@ for (i in 1:nrow(tests)) {
   )
   
   summary <-
-    results[c(366, 365 * 3 + 1, 365 * 5 + 1), c(1, 5, 6, 7, 8)]
+    results[c(366, 365 * 3 + 1, 365 * 5 + 1), c(1, 2)]
   
   write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }

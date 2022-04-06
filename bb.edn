@@ -1,10 +1,11 @@
 ;;
 ;; similar in function to the `npm run` tasks initially, but written in clojure
 ;;
-{:paths ["bb_scripts" "resources"]
+{:paths ["bb_scripts" "bbsrc" "resources"]
  :deps  {}
  :tasks {:requires ([babashka.fs :as fs]
-                    [clojure.string :as string])
+                    [clojure.string :as string]
+                    )
          ;:init (defn env [s] (System/getenv s))
          ;;:enter (println "Entering:" (:name (current-task)))
 
@@ -44,7 +45,7 @@
          run-tests (shell "bb --file ./test_runner.clj")
          lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
          kidney (shell "bb --file ./bbsrc/organ-switch.clj -g kidney")
-         
+         test-kw (shell "bb --file ./bbsrc/test-drive.clj -o kidney -t waiting")
          
 
          test-prep (do

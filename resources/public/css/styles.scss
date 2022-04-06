@@ -16,6 +16,12 @@
     .lblprint {
         color: #000;
     }
+    .tborder {
+        border-left: 1rem solid;
+    }
+    .no-print-border {
+        border: 0 !important;
+    }
     hr.rounded {
         border-top: 8px solid #bbb;
         border-radius: 5px;

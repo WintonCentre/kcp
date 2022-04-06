@@ -1099,7 +1099,7 @@
                   :responsive "xl"
                   :bordered true}
      [:thead
-      [:tr
+      [:tr 
        ;[:th "Outcome"]
        (for [i years
              :let [label (nth labels i)
@@ -1114,7 +1114,7 @@
             :let [style ((nth plot-order j) data-styles)
                   long-label (:long-label style)
                   fill (col/hexToRgb (:fill style))]]
-        [:tr {:key (str "c-" j) :style style}
+        [:tr.tborder {:key (str "c-" j) :style (assoc style :border-color (:fill style))}
          ;[:th outcome]
          (for [i years
                :let [label (nth labels i)
@@ -1125,7 +1125,7 @@
             [:div {:style {:position "relative"
                            :width "100%"
                            :height "100%"}}
-             [:> bs/Image {:fluid true
+             #_[:> bs/Image {:fluid true
                            :src (apply utils/fill-data-url fill #_[32 144 245])
                            :style {:position "absolute"
                                    :width "100%"

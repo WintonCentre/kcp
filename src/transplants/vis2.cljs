@@ -1219,6 +1219,7 @@ After 3 years	75  of them to have received a transplant
       {;:uri (.-href js/document.location)
        :organ (name organ)
        :tool (name tool)
+       :clj-inputs fulfilled-inputs
        :r-inputs  (into {}
                         (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
        :result (mapv
@@ -1229,11 +1230,10 @@ After 3 years	75  of them to have received a transplant
                                  (map
                                   (fn [j]
                                     (let [[_ {:keys [int-fs fs]}] (nth year-series time-index)]
-                                      [(nth plot-order j) (nth fs #_int-fs j)]))
+                                      [(nth plot-order j) (* 100 (nth fs #_int-fs j))]))
                                   (range (count plot-order))))
                            :year time-index)))
                 (range (count years)))
-       ;:clj-inputs fulfilled-inputs
 
        #_[(map first (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
           (map second (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))]})]))

@@ -1,10 +1,11 @@
 ;;
 ;; similar in function to the `npm run` tasks initially, but written in clojure
 ;;
-{:paths ["bb_scripts" "resources"]
+{:paths ["bb_scripts" "bbsrc" "resources"]
  :deps  {}
  :tasks {:requires ([babashka.fs :as fs]
-                    [clojure.string :as string])
+                    [clojure.string :as string]
+                    )
          ;:init (defn env [s] (System/getenv s))
          ;;:enter (println "Entering:" (:name (current-task)))
 
@@ -44,22 +45,9 @@
          run-tests (shell "bb --file ./test_runner.clj")
          lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
          kidney (shell "bb --file ./bbsrc/organ-switch.clj -g kidney")
+         test-kw (shell "bb --file ./bbsrc/test-drive.clj -o kidney -t waiting")
          
-         chrome-kidney (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")
-         chrome-lung (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s lung")
-         chrome-local (shell "bb --file ./bbsrc/test-drive.clj -d chrome -s local")
 
-         ff-kidney (shell "bb --file ./bbsrc/test-drive.clj -d ff -s kidney")
-         ff-lung (shell "bb --file ./bbsrc/test-drive.clj -d ff -s lung")
-         ff-local (shell "bb --file ./bbsrc/test-drive.clj -d ff -s local")
-
-         ;; The safari etaoin tasks throw on quitting Safari
-         safari-kidney (shell "bb --file ./bbsrc/test-drive.clj -d safari -s kidney")
-         safari-lung (shell "bb --file ./bbsrc/test-drive.clj -d safari -s lung")
-         safari-local (shell "bb --file ./bbsrc/test-drive.clj -d safari -s local")
-         multi-local {:doc "local e2e tests in parallel on multiple browsers"
-                  :task (run '-multi-local {:parallel true})}
-         -multi-local {:depends [chrome-local ff-local #_safari-local]}
          test-prep (do
                      (shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t graft -c Belfast")
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g kidney -t waiting -c Belfast")

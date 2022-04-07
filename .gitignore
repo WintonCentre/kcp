@@ -61,7 +61,7 @@ resources/public/index.html
 resources/public/metadata.edn
 resources/public/sw_cache_update.js
 bbsrc/etaoin.clj
-resources/public/manifest.json
+resources/public/manifest.jsongit
 resources/public/metadata.txt
 resources/precache_paths_kidney.edn
 resources/precache_paths_lung.edn
@@ -95,3 +95,46 @@ resources/NHSBT-ref/lung/Lung waiting list - daily - categorical.xlsx
 resources/NHSBT-ref/lung/Lung wlist analysis - categorical.R
 resources/NHSBT-ref/lung/lung wlist surv - categorical.csv
 resources/NHSBT-ref/lung/wlist param - categorical.csv
+resources/r_model_tests/kidney/waiting/results_1.csv
+resources/r_model_tests/kidney/waiting/results_2.csv
+resources/r_model_tests/kidney/waiting/results_3.csv
+resources/r_model_tests/kidney/waiting/results_4.csv
+resources/r_model_tests/kidney/waiting/results_5.csv
+resources/r_model_tests/kidney/waiting/results_6.csv
+resources/r_model_tests/kidney/waiting/results_7.csv
+resources/r_model_tests/kidney/waiting/results_8.csv
+resources/r_model_tests/kidney/waiting/results_9.csv
+resources/r_model_tests/kidney/waiting/results_10.csv
+resources/r_model_tests/kidney/waiting/results_11.csv
+resources/r_model_tests/kidney/waiting/results_12.csv
+resources/r_model_tests/kidney/waiting/results_13.csv
+resources/r_model_tests/kidney/waiting/results_14.csv
+resources/r_model_tests/kidney/waiting/results_15.csv
+resources/r_model_tests/kidney/waiting/results_16.csv
+resources/r_model_tests/kidney/waiting/results_17.csv
+resources/r_model_tests/kidney/waiting/tests.csv
+tests.csv
+resources/r_model_tests/kidney/graft/results_1.csv
+resources/r_model_tests/kidney/graft/results_2.csv
+resources/r_model_tests/kidney/graft/results_3.csv
+resources/r_model_tests/kidney/graft/results_4.csv
+resources/r_model_tests/kidney/graft/results_5.csv
+resources/r_model_tests/kidney/graft/results_6.csv
+resources/r_model_tests/kidney/graft/results_7.csv
+resources/r_model_tests/kidney/graft/results_8.csv
+resources/r_model_tests/kidney/graft/results_9.csv
+resources/r_model_tests/kidney/graft/results_10.csv
+resources/r_model_tests/kidney/graft/results_11.csv
+resources/r_model_tests/kidney/graft/results_12.csv
+resources/r_model_tests/kidney/graft/results_13.csv
+resources/r_model_tests/kidney/graft/results_14.csv
+resources/r_model_tests/kidney/graft/results_15.csv
+resources/r_model_tests/kidney/graft/results_16.csv
+resources/r_model_tests/kidney/graft/results_17.csv
+resources/r_model_tests/kidney/graft/results_18.csv
+resources/r_model_tests/kidney/graft/results_19.csv
+resources/r_model_tests/kidney/graft/results_20.csv
+resources/r_model_tests/kidney/graft/results_21.csv
+resources/r_model_tests/kidney/graft/results_22.csv
+resources/r_model_tests/kidney/graft/results_23.csv
+resources/r_model_tests/kidney/graft/tests-orig.edn

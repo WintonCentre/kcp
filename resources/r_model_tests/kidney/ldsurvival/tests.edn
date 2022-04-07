@@ -1,0 +1,15 @@
+;;
+;; These values are copy pasted from the site using a 'test' url like http://localhost:3000/#/kidney/birm/waiting/test/A2SmBoDyEaMdGfdysn
+;;
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "1", "hla" "1"}, :result [{:ldsurvival 0, :residual 100, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 2, :residual 98, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "2", "diabetes" "0", "wait" "1", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 2, :residual 98, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "3", "diabetes" "0", "wait" "1", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 2, :residual 98, :year 3} {:ldsurvival 4, :residual 96, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "4", "diabetes" "0", "wait" "1", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 3, :residual 97, :year 3} {:ldsurvival 6, :residual 94, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "5", "diabetes" "0", "wait" "1", "hla" "1"}, :result [{:ldsurvival 3, :residual 97, :year 1} {:ldsurvival 7, :residual 93, :year 3} {:ldsurvival 13, :residual 87, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "1", "wait" "1", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 2, :residual 98, :year 3} {:ldsurvival 3, :residual 97, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "2", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 2, :residual 98, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "3", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 3, :residual 97, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "4", "hla" "1"}, :result [{:ldsurvival 1, :residual 99, :year 1} {:ldsurvival 2, :residual 98, :year 3} {:ldsurvival 4, :residual 96, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "1", "hla" "2"}, :result [{:ldsurvival 0, :residual 100, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 2, :residual 98, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "1", "hla" "3"}, :result [{:ldsurvival 0, :residual 100, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 1, :residual 99, :year 5}]}
+{:organ "kidney", :tool "ldsurvival", :r-inputs {"cent" "Belfast", "rage" "1", "diabetes" "0", "wait" "1", "hla" "4"}, :result [{:ldsurvival 0, :residual 100, :year 1} {:ldsurvival 1, :residual 99, :year 3} {:ldsurvival 1, :residual 99, :year 5}]}

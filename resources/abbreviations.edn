@@ -85,7 +85,7 @@
                           :blood-group ["B" {:O "o"
                                              :A "a"
                                              :B "b"
-                                             :AB "ab"}]
+                                             :AB "c"}]
                           :matchability ["M" {:easy "e"
                                               :moderate "m"
                                               :difficult "d"

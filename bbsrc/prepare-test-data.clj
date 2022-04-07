@@ -1,5 +1,3 @@
-;#!/usr/bin/env bb 
-
 (ns prepare-test-data
   "Creates the test-configuration.json files needed by each R run. Running the R
    associated with each tool then generates a csv of expected results for that organ and tool.
@@ -438,7 +436,7 @@
 ;;             :zero     nil
 ;;             :test     nil}]}
 
-(defn assemble
+#_(defn assemble
     "Assemble the test_configuration data ready for export."
     []
     (let [cm 1

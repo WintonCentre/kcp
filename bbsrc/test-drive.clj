@@ -1,45 +1,36 @@
 (ns test-drive
-  "Babashka code to test drive the site model using etaoin. 
+  "Babashka code to test drive the site model. 
    
-   You will need to download, install, and configure the relevant 
-   browser driver for the browser you want to test. Safaridriver is pre-installed on OSX. Firefox needs
-   geckodriver. Drivers are closely tied to browser versions so do check you have the correct one installed.
-
    The main site is instrumented so it can generate results from uris that contain inputs like this:
    https//kidney.transplants.wintoncentre.uk/kidney/belf/survival/test/huA2SfBaDyl1EbMeGrdysnW1a2
-   where the selected visualisation is 'test'. 
-   
-   The trailing alphabet soup encodes the inputs.
+   where the selected visualisation is 'test'.  The trailing alphabet soup encodes the inputs.
 
-   We use etaoin to load a browser driver with those inputs, and to read off the site results. 
-   
-   We also need to poke those same inputs into the R code, generate its results and then compare.
+   Make a manual selection of these results to generate test cases, pasting them into tests.edn in the appropriate
+   folder in r_model_tests.
+
+   Use this utility to convert tests.edn to tests.csv and the n run the adjcox.R script against those test cases.
+
+   Run tests by evluating this file - which will call t/run-tests.
+
    "
   (:require [clojure.pprint :refer [pprint]]
+            [clojure.java.shell :refer [sh]]
             [clojure.edn :as edn]
             [clojure.set :as rel]
             [clojure.string :as str]
-            [clojure.java.shell :refer [sh]]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]
+            [clojure.data.csv :as csv]
             [babashka.classpath :refer [add-classpath]]
-            ;[clojure.test :as t :refer [deftest testing is are]]
-            [babashka.pods :as pods]))
-
-(pods/load-pod 'org.babashka/etaoin "0.1.0")
-
-(require '[clojure.test :as t :refer [deftest testing is]]
-         '[pod.babashka.etaoin :as eta]
-         '[pod.babashka.etaoin.query :as q]
-         '[pod.babashka.etaoin.keys :as k]
-         '[prepare-test-data :as prep])
-
-
-(def file-sep (java.lang.System/getProperty "file.separator"))
+            [babashka.tasks :as tasks]
+            ))
 
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
 (add-classpath "bbsrc:src:resources")
-;(require '[transplants.shortener :as short]) ; gain access to the .cljc 
+
+;(require '[clojure.test :as t :refer [deftest testing is are]])
+
+(def file-sep (java.lang.System/getProperty "file.separator"))
 
 (defn env [s] (java.lang.System/getenv s))
 
@@ -49,241 +40,387 @@
   []
   (= (System/getProperty "babashka.file") *file*))
 
-(def drivers
-  {"chrome" eta/chrome
-   "ff" eta/firefox
-   "safari" eta/safari
-   "edge" eta/edge})
-
 ;;;
-;; Following block isn't so useful in babashka as it turns out. The etaoin pod doesn't yet support
-;; scrolling, so a fixture for uri wrpping by multiple deftests isn't so useful. This code would
-;; make more sense in clojure+etaoin on the JVM. So leaving it for now
-;;;
-(defn get-site
-  "Return a site address, defaulting to the local site if the id isn't known"
-  [site-name]
-  (get
-   {"kidney" "kidney.transplants.wintoncentre.uk/"
-    "lung" "lung.transplants.wintoncentre.uk/"
-    "local" "localhost:3000/"}
-   site-name
-   "localhost:3000/"))
+;; Plan:
+;;  1. For each tool
+;;    1. Select test points - semi-manually - write to test-data.edn in R tool subfolder 
+;;    2. Convert test-data.edn to csv data?
+;;    3. Run Rscript from bb <=== THIS IS CURRENTLY FAILING. WHY?
+;;    4. Rscript generates results.csv files
+;;    5. We compare these to the cljs results
 
-(defn uri
-  "Return a URI to test. Get credentials from T_USER and T_PWD environment variables.
-   site-id as used in 'sites' lookup
-   The organ should be 'lung' or 'kidney' as a string
-   centre should be a short centre code from centres.txt
-   tool should be a string
-   inputs should already be in URI string form - like A2SmBoDyEaMeGfdysn
-   "
-  [site-id organ tool inputs]
-  (str
-   (if (= site-id "local")
-     (str (get-site site-id))
-     (str "https://" (env "T_USER") ":" (env "T_PWD") "@" (get-site site-id)))
-   "/"
-   organ
-   "/"
-   tool
-   "/test/"
-   inputs))
+(defn dir-path
+  "Create directory path"
+  [dirs]
+  (str/join file-sep dirs))
 
+(defn file-path
+  "join dirs with the file-separator and append the file name to create a file path"
+  [dirs file]
+  (str/join file-sep (conj dirs file)))
 
-
-
-(declare driver)
-(declare sites [])
-(def sites ["kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn"
-            "kidney.transplants.wintoncentre.uk/kidney/camb/waiting/test/A2SmBoDyEaMeGfdysn"])
-(declare site)
-
-;; global vars needed in the fixture. 
-;(def driver "chrome") 
-;(def site (uri "kidney"))
-
-;;;
-;; This lot later....
-;; (deftest tester
-;;   (testing "Tool loads and executes"
-;;     (eta/go driver site)
-;;     (eta/wait-visible driver {:id "uri-result"})
-;;       (is (eta/exists? driver {:id "uri-result"}) "uri-result")
-;;     (eta/quit driver)))
-
-
-;; (defn use-driver
-;;     "I had trouble getting this working, but I think that was due to chromedriver issues. geckodriver appears to be better"
-;;     [driver-id uri]
-;;     (with-redefs [driver ((get drivers driver-id))]
-;;     ;(def driver ((get drivers driver-id)))
-;;       (t/use-fixtures :each
-;;         (fn [f]
-;;           (eta/go driver uri)
-;;           (f)
-;;           (eta/quit driver)))))
-;;;
-
-
-;; Run `bb lung` or `bb kidney`  first
-(def metadata (edn/read-string (slurp (io/resource (str "public" file-sep "metadata.txt")))))
-(def organ-k (-> metadata :organ-order first))
-(def tools (-> metadata organ-k :tool-order))
-(def vis "test")
-(def waiting (-> metadata :kidney :tools :waiting keys))
-(def parameters (-> metadata :lookups))
-
-(def m-keys (-> metadata organ-k keys))
-(defn selected-data-points
+(defn current-directory
+  "Get current directory"
   []
-  (let [organ-k (-> metadata :organ-order first)]
-    {:organ (-> metadata organ-k)
-     :tools (-> metadata)}))
+  (-> (sh "pwd") :out (str/trimr)))
 
-(defn urls-to-test
-  [centre tool])
-(defn collect-results
-  "Plan:
-   1. Select test points?
-   2. Convert test points to URI codes
-   3. Construct URIs
-   4. Call driver to optain results
-   5. Write results"
-  [])
+(defn read-edn-tests
+  "Read the tests.edn file generated manually from selected site test cases"
+  [r-dirs]
+  (-> (file-path r-dirs "tests.edn")
+      slurp
+      (edn/read-string)))
+
+(defn write-csv-tests
+  "Read and convert test.edn to a csv table for R. 
+   Then write it to tests.csv"
+  [r-dirs]
+  (let [tests (read-edn-tests r-dirs)
+        headers (->> tests first :r-inputs keys (str/join ","))
+        rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests)]
+    (str/join "\n" (cons headers rows))
+    (spit (file-path r-dirs "tests.csv") (str/join "\n" (cons headers rows)))))
+
+(defn rscript-command
+  [organ tool]
+  (let [r-dirs ["resources" "r_model_tests" (name organ) (name tool)]
+        r-working-dir (str (current-directory) file-sep (dir-path r-dirs))
+        r-script (file-path r-dirs "adjcox.R")]
+    ;;
+    ;; convert tests.edn to tests.csv for R to read
+    ;;
+    (write-csv-tests r-dirs)
+    ;; 
+    ;; run adjcox over all csv rows (by calling R adjcox::run_tests())
+    ;; passing in the r-working directory so R can use that context.
+    ;;
+    (sh "bash" "-c" (str "Rscript " r-script))  ;; unfortunately this fails in the Calva bb repl, 
+    ;; though it does run in other contexts. 
+    ;; See https://gist.github.com/gmp26/b859872eeb53c753ece08c7e632f7b02
+
+    ;; so for the REPL we just echo a script line we can run in bash. You may need to tweak these to get them working in your R environment
+    (str "Rscript " r-script)
+    ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.R"
+
+    ;;(str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
+    ))
+(rscript-command :kidney :graft)
+(rscript-command :kidney :ldgraft)
+;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
+
+;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
+
+(defn test-n-cljs
+  "Get results from the nth cljs test (zero-indexed)"
+  [r-dirs n]
+  (-> (read-edn-tests r-dirs)
+      (get n)
+      :result))
+
+;;(map (fn[m] (dissoc m :graft)) (test-n-cljs r-dirs 1))
+
+(defn test-n-r
+  "Get raw results from the n+1 th R results file"
+  [r-dirs n]
+  (with-open [reader (io/reader (file-path r-dirs (str "results_" (inc n) ".csv")))]
+    (doall
+     (csv/read-csv reader))))
+
+(defn csv-map
+  "ZipMaps header as keys onto values from lines."
+  [head & lines]
+  (map #(zipmap (map keyword head) %1) lines))
+
+(defn to%
+  "Fraction to Percentage"
+  [v] (* 100 v))
+
+(defn test-r-as-maps
+  "Convert nth r results to seq of maps"
+  [r-dirs n]
+  (apply csv-map (test-n-r r-dirs n)))
+
+
+(defmulti cljs-normalise
+  "Normalise an r-map read in from csv results to a cljs form to enable comparison.
+   The normalisation is different for each organ/tool combo which the juxt dispatch function
+   will retrieve from an options map (say)."
+  (juxt :organ :tool))
+
+(defmethod cljs-normalise [:kidney :waiting] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :capS [:residual (to% v)]
+                     :capF_rem [:removal (to% v)]
+                     :capF_tx [:transplant (to% v)]
+                     :capF_dth [:death (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defmethod cljs-normalise [:kidney :graft] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defmethod cljs-normalise [:kidney :ldgraft] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defn =+-1
+  "Check whether maps m1 and m2 are equal +/- 1%. 
+    We can't be more accurate than this because the maps are variously adjusted to add to 100%"
+  [m1 m2]
+  (seq (remove
+        (fn [[k1 v1]]
+          (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
+
+(defn =+-15
+  "Check whether maps m1 and m2 are equal +/- 1+%. 
+    We can't be more accurate than this because the maps are variously adjusted to add to 100%"
+  [m1 m2]
+  (seq (remove
+        (fn [[k1 v1]]
+          (<= (Math/abs (- (k1 m2) v1)) 1.3)) m1)))
+
+;; These deftests work, but are useless at locating any failures.
+;; I still wish it were possible to apply `are` so we could do (are .... (range 17))
+;; Some clever macro needed maybe?
+#_(deftest kidney-waiting-n
+  (let [r-dirs ["resources" "r_model_tests" "kidney" "waiting"]]
+    (testing "kidney waiting"
+      (are [n]
+           (every? nil?
+                   (map
+                    =+-1
+                    (cljs-normalise {:organ :kidney :tool :waiting}
+                                    (test-r-as-maps r-dirs n))
+                    (test-n-cljs r-dirs n)))
+        0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))))
+
+#_(deftest kidney-graft-n
+  (let [r-dirs ["resources" "r_model_tests" "kidney" "graft"]]
+    (testing "kidney graft"
+      (are [n]
+           (every? nil?
+                   (map
+                    =+-15
+                    (cljs-normalise {:organ :kidney :tool :graft}
+                                    (test-r-as-maps r-dirs n))
+                    (map
+                     (fn [m] (dissoc m :graft))
+                     (test-n-cljs r-dirs n))))
+        0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22))))
+
+(defn more-useful-kidney-graft
+  "This provides a more useful printout on any discrepancy."
+  []
+  (let [r-dirs ["resources" "r_model_tests" "kidney" "graft"]]
+    (println "testing kidney graft")
+    (doseq [n (range 4)]
+      (if (not (every? nil?
+                       (map
+                        =+-1
+                        (cljs-normalise {:organ :kidney :tool :graft}
+                                        (test-r-as-maps r-dirs n))
+                        (map
+                         (fn [m] (dissoc m :graft))
+                         (test-n-cljs r-dirs n)))))
+        (println (str "Fail on results_" (inc n))
+                 "R: " (cljs-normalise {:organ :kidney :tool :graft}
+                                       (test-r-as-maps r-dirs n))
+                 "cljs" (test-n-cljs r-dirs n))))))
+
+(defn get-cljs-result
+  [n]
+  (:result (nth edn-tests n)))
+
+(defn more-useful-test-eliding
+  "This provides a more useful printout on any discrepancy.
+   Tests are for a particular organ and tool, and to get a match we may need to elide one
+   key fom the cljs result map."
+  [{:keys [organ tool elide] :as args}]
+  (let [r-dirs ["resources" "r_model_tests" (name organ) (name tool)]
+        edn-tests (read-edn-tests r-dirs)]
+    (println "testing " (name organ) " " (name tool))
+    (doseq [n (range (count edn-tests))
+            :let [cljs-result (map (fn [m] (dissoc m elide)) (get-cljs-result n))
+                  r-result (cljs-normalise args (test-r-as-maps r-dirs n))]]
+      (if (not-any? some?
+                      (map
+                       =+-1
+                       r-result
+                       cljs-result))
+        (println (str "Fail on results_" (inc n))
+                 "R: " r-result
+                 "cljs" cljs-result)))))
+
+(more-useful-test-eliding {:organ :kidney
+                           :tool :graft
+                           :elide :graft})
 
 
 (comment
-  (-main)
-  (def driver-id "chrome")
-  (def d (eta/chrome))
-  (eta/go d "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
+  (def r-dirs ["resources" "r_model_tests" "kidney" "graft"])
+  (def elide :graft)
+  (def edn-tests (read-edn-tests r-dirs))
+                 ;; => [{:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :>7, :graft :first, :hla-mismatch :1, :donor-age :0+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "1", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "5", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 22.7999022255712, :residual 77.2000977744288, :year 1} {:graft 29.553725751698234, :residual 70.44627424830178, :year 3} {:graft 36.86901606239652, :residual 63.13098393760348, :year 5}]} {:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :<=1, :graft :first, :hla-mismatch :1, :donor-age :60+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "5", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "1", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 25.32129432037858, :residual 74.67870567962143, :year 1} {:graft 32.62370063062734, :residual 67.37629936937266, :year 3} {:graft 40.43725754124485, :residual 59.56274245875515, :year 5}]} {:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :<=1, :graft :first, :hla-mismatch :1, :donor-age :70+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "6", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "1", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 29.105778749317974, :residual 70.89422125068204, :year 1} {:graft 37.15344298556008, :residual 62.84655701443992, :year 3} {:graft 45.60315894390237, :residual 54.39684105609763, :year 5}]}]
 
-  (def options {:centre "Belfast", :organ "kidney", :tool "waiting"})
-  ;; => #'test-drive/options
-
-  (keys (prep/clj-info-by-clj-factor options))
-
-  (def info (prep/clj-info-by-clj-factor options))
-
-  (keys info)
-  ;; => (:age :sex :blood-group :dialysis :ethnicity :matchability :graft :diabetes :sensitised)
+  (def cljs-result
+    (map (fn [m] (dissoc m elide)) (get-cljs-result 2)))
+    ;; => ({:residual 74.67870567962143, :year 1} {:residual 67.37629936937266, :year 3} {:residual 59.56274245875515, :year 5})
   
-  (map keys (:ethnicity info))
-  ;; => ((:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link) (:beta-transplant :beta-death :beta-removal :factor :level :r-name :r-names :r-link))
+  (def r-result
+    (cljs-normalise {:organ :kidney :tool :graft :elide :graft}
+                    (test-r-as-maps r-dirs 2)))
+    ;; => ({:year 1, :residual 75.45411247482295} {:year 3, :residual 68.10027716746463} {:year 5, :residual 60.245024011478655})
 
-  (map :factor (:ethnicity info))
-  ;; => (:ethnicity :ethnicity :ethnicity :ethnicity :ethnicity :ethnicity)
-
-  (map :level (:ethnicity info))
-  ;; => (:asian :black :chinese :mixed :white :other)
-
-  (map :r-name (:ethnicity info))
-  ;; => ("eth_nonwhite" "eth_nonwhite" "eth_nonwhite" "eth_nonwhite" "eth_white" "eth_nonwhite")
-
-  (map :r-names (:ethnicity info))
-  ;; => (["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"] ["tx_eth_white" "dth_eth_white" "rem_eth_white"] ["tx_eth_nonwhite" "dth_eth_nonwhite" "rem_eth_nonwhite"])
-
-  (map :r-link (:ethnicity info))
-  ;; => (nil nil nil nil nil nil)
-
-  ;; => (nil nil nil nil nil nil)
-
-  ;; => (:asian :black :chinese :mixed :white :other)
-
-  (map keys (:ethnicity info))
-  0
+  (def name "kidney")
   )
+
+
+(more-useful-kidney-graft)
+#_(t/run-tests)
+
+#_(comment
+  (test-r-as-maps r-dirs 1)
+
+  (=+-1 [{:year 1, :residual 93.89609541620652} {:year 3, :residual 91.76749160887245} {:year 5, :residual 89.28656547546872}]
+        [{:graft 6, :residual 94, :year 1} {:graft 8, :residual 92, :year 3} {:graft 11, :residual 89, :year 5}])
+  
+  (=+-1
+   (cljs-normalise {:organ :kidney :tool :graft}
+                   (test-r-as-maps r-dirs 1))
+   (test-n-cljs r-dirs 1))
+  )
+
+
+#_(comment
+
+  (defn test1-cljs
+    [test-index]
+    (-> (read-edn-tests r-dirs)
+        (get 0)
+        :result))
+
+  (def test1-r
+    (with-open [reader (io/reader (file-path r-dirs "results_1.csv"))]
+      (doall
+       (csv/read-csv reader))))
+
+  (defn csv-map
+    "ZipMaps header as keys and values from lines."
+    [head & lines]
+    (map #(zipmap (map keyword head) %1) lines))
+
+  (defn to%
+    "Fraction to Percentage"
+    [v] (* 100 v))
+
+  (def test1-r-as-maps (apply csv-map test1-r))
+  (defn cljs-normalise
+    [r-maps]
+    (for [m r-maps]
+      (into {}
+            (map (fn [[k v]]
+
+                   (let [v (edn/read-string v)]
+                     (condp = k
+                       :days [:year (Math/round (/ v 365.25))]
+                       :capS [:residual (to% v)]
+                       :capF_rem [:removal (to% v)]
+                       :capF_tx [:transplant (to% v)]
+                       :capF_dth [:death (to% v)]
+                       :else [:unknown nil])))
+                 m))))
+
+  (cljs-normalise test1-r-as-maps)
+  (= test1-cljs (cljs-normalise test-r-as-maps))
+
+  (defn =+-1
+    [m1 m2]
+    (seq (remove
+          (fn [[k1 v1]]
+            (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
+
+  (cljs-normalise test1-r-as-maps)
+  ;; => ({:year 1, :residual 85, :removal 1, :transplant 13, :death 1} {:year 3, :residual 43, :removal 7, :transplant 48, :death 2} {:year 5, :residual 8, :removal 12, :transplant 77, :death 3})
+  test1-cljs
+  ;; => [{:death 1, :removal 1, :residual 85, :transplant 13, :year 1} {:death 2, :removal 7, :residual 43, :transplant 48, :year 3} {:death 2, :removal 12, :residual 8, :transplant 78, :year 5}]
+
+  (every? nil? (map =+-1 (cljs-normalise test1-r-as-maps) test1-cljs))
+
+  (def r-dirs ["resources" "r_model_tests" "kidney" "waiting"])
+  (def r-dirs ["resources" "r_model_tests" "kidney" "graft"])
+  (def r-working-dir (str (current-directory) file-sep (dir-path r-dirs)))
+  (def tests (read-edn-tests r-dirs))
+  (def headers (->> tests first :r-inputs keys (str/join ",")))
+  (count headers)
+  (def rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests))
+  (write-csv-tests r-dirs)
+  (spit tests-csv (str/join "\n" (cons headers rows)))
+  (def r-script
+       ;; => "resources/r_model_tests/kidney/waiting/adjcox.R"
+    (file-path r-dirs "adjcox.R"))
+
+  (current-directory)
+
+  (defn edn-values [[k v]] [k (edn/read-string v)])
+
+  (sh "pwd")
+  (println (:err (sh "Rscript")))
+
+  0)
 
 ;;;
 ;; main
 ;;;
-(defn usage
-  "Usage message"
-  ([] (usage nil))
-  ([err-msg]
-   (when err-msg (println err-msg))
-   (println "See bb.edn for examples such as\n
+#_(comment
+  (defn usage
+    "Usage message"
+    ([] (usage nil))
+    ([err-msg]
+     (when err-msg (println err-msg))
+     (println "See bb.edn for examples such as\n
              bb --file ./bbsrc/test-drive.clj -d chrome -s kidney")))
 
-(def cli-options [["-s" "--site-id site-id" "lung or kidney or local"
-                   :default "kidney"
-                   :parse-fn str
-                   :validate [#(#{"kidney" "lung" "local"} %) "kidney | lung | local"]]
-                  ["-d" "--driver-id driver-id" "ff for Firefox geckodriver, chrome, safari, edge"
-                   :default "chrome"
-                   :parse-fn str
-                   :validate [#(#{"ff" "chrome" "safari" "edge"} %) "gecko | chrome | safari | edge"]]
-                  ["-h" "--help"]])
 
-(defn -main [& _args]
-  (let [parsed-options (parse-opts *command-line-args* cli-options)]
-    (println "parsed-options: " parsed-options)
-    (if-let [errors (:errors parsed-options)]
-      (let [msg (str "Encountered one or more errors: " (str/join ", " errors))]
-        (usage msg)
-        (System/exit 1))
-      (let [{:keys [driver-id site-id]} (:options parsed-options)]
-        ;;
-        ;; I should be using var or with-redefs rather than def here
-        ;;
-        (def driver ((get drivers driver-id)))
-        (def site (sites 0))
-        (println "site: " site)
-        (println "Testing: " site " in " driver-id)
-        (t/run-tests)
+  (def cli-options [["-o" "--organ [organ-id]" "lung or kidney"
+                     :default "kidney"
+                     :parse-fn str
+                     :validate [#(#{"kidney" "lung"} %) "kidney | lung"]]
+                    ["-t" "--tool [tool-id]"
+                     :default "waiting"
+                     :parse-fn str
+                     :validate [#(#{"waiting" "post-transplant" "graft" "ldgraft" "survival" "ldsurvival"} %)
+                                "waiting | post-transplant | graft | ldgraft | survival | ldsurvival"]]
+                    ["-h" "--help"]])
 
-        (when (invoked-by-command-line?)
-          (System/exit 0))))))
 
-(when (invoked-by-command-line?)
+  (defn -main [& _args]
+    (let [parsed-options (parse-opts *command-line-args* cli-options)]
+      (println "parsed-options: " parsed-options)))
+  )
+
+#_(when (invoked-by-command-line?)
   (try
     (-main)
     (catch Exception e (.getMessage e))))
 
-
-(comment
-
-
-  (def driver ((get drivers "chrome")))
-
-  (eta/go driver "https://winton:development55@kidney.transplants.wintoncentre.uk/kidney/belf/waiting/test/A2SmBoDyEaMeGfdysn")
-  (eta/wait-visible driver {:id "uri-result"})
-  (eta/get-element-text driver {:id "uri-result"})
-
-  (eta/wait-visible driver "//*[@id=\"app\"]/div/nav/a[2]")
-  (eta/click driver "//*[@id=\"app\"]/div/nav/a[2]")
-  (eta/wait-visible driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
-  (eta/click driver "/html/body/div/div/div/div[1]/div/div/div/button[1]")
-
-
-
-  (uri "kidney")
-
-  ;; fixture generators
-  ;; (use-driver "chrome" "kidney")
-  ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x56fff7e0 "sci.impl.fns$fun$arity_1__7325@56fff7e0"])}}
-
-  ;; (use-driver "ff" "local")
-  ;; => {test-drive {:babashka.impl.clojure.test/once-fixtures (#object[sci.impl.fns$fun$arity_1__7325 0x63a24a3c "sci.impl.fns$fun$arity_1__7325@63a24a3c"])}}
-
-  ;; (use-driver "safari" "local")
-
-  ((get drivers "chrome"))
-
-  (t/run-tests)
-
-  (usage)
-
-  (env "HOME")
-  ;; => "/Users/gmp26"
-
-  ;; We don't want credentials in github, so set them locally in the environment first
-  (uri {:site-id :kidney
-        :username (env "T_USER")
-        :password (env "T_PWD")})
-
-  (uri {:site-id :local})
-  ;; => "https://localhost:3000/"
-  )
 

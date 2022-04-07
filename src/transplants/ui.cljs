@@ -180,6 +180,8 @@ in the routes table."
   "Site footer
    todo: Needs to be made configurable."
   []
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        single-organ (get-single-organ mdata)]
   #_[:div "footer"]
   ;[:> bs/Container {:fluid "fluid"
   ;                  :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
@@ -204,15 +206,18 @@ in the routes table."
       ;; component.
       ;;
      [:div {:style {:text-align "center"}}
-      "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved | "
+      "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved."]
       ;; Can't use javascript hrefs in react - if they worked they would reload the page and lose state. 
       ;; Use reitit generated hrefs instead.
+     [:div {:style {:text-align "center"}}
       [:a {:style {:color "inherit"}
            :href (href :transplants.views/legal)} "Privacy & Data Protection"]
+      #_" | "
+      #_[:a {:style {:color "inherit"}
+             :href (href :transplants.views/legal)} "Disclaimer"]
       " | "
-      [:a {:style {:color "inherit"}
-           :href (href :transplants.views/legal)} "Disclaimer"]]
-     [:div "v-0.0-0.00-0-hash"]]])
+      (str "✉️ " (-> mdata single-organ :contact-email))]
+     [:div "v-0.0-0.00-0-hash"]]]))
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"

@@ -76,8 +76,7 @@
       [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
          using another browser if these features are important to you."]
       [:h1 "Print"]
-      [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
-       [:b "enable the option which prints background graphics. "] "This option is not available in Internet Explorer."]
+      [:p "Press " [:b "Print"] " and the browser print dialogue box will appear."]
       [:h1 "Copy"]
       [:p "The " [:b "Copy"] " button displays a small screenshot which can be
          saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for

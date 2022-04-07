@@ -163,21 +163,11 @@ in the routes table."
           [:> bs/Nav {:class "ml-auto" 
                       :style {:height "100%" :vertical-align "middle"}
                       }
-           [:> bs/Button {:href (str/replace (str "mailto:"
-                                                             (name single-organ)
-                                                             "transplants@statslab.cam.ac.uk"
-                                                             "?subject="
-                                                             (name single-organ) " transplants tool"
-                                                             "&body=Please give us your feedback here. "
-                                                             "If you would like a reply please say so. "
-                                                             "If you are reporting a technical issue then it’s always useful to tell us "
-                                                             "the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system "
-                                                             "(e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot "
-                                                             "of the problem.")
-                                                        " " "%20")
+           [:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
+                                     "?subject=" (-> mdata single-organ :contact-email-subject)
+                                     "&body=" (-> mdata single-organ :contact-email-body)) 
                           :variant "info"
-                          #_#_:class "ml-auto"
-                          } " ✉️ Feedback"]]]])
+                          #_#_:class "ml-auto"} " ✉️ Feedback"]]]])
       [loading])))
 
 (comment
@@ -190,11 +180,13 @@ in the routes table."
   "Site footer
    todo: Needs to be made configurable."
   []
+  (let [mdata @(rf/subscribe [::subs/mdata])
+        single-organ (get-single-organ mdata)]
   #_[:div "footer"]
   ;[:> bs/Container {:fluid "fluid"
   ;                  :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
   ;                          :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
-   [:div
+   [:div.footer
     [:div {:style {:padding "20px 20px 5px 15px" :display "flex" :background-color "#1A4554" :color  "#DDD" :flex-direction "column" :align-items "center"}}
      [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
       [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
@@ -214,15 +206,18 @@ in the routes table."
       ;; component.
       ;;
      [:div {:style {:text-align "center"}}
-      "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved | "
+      "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved."]
       ;; Can't use javascript hrefs in react - if they worked they would reload the page and lose state. 
       ;; Use reitit generated hrefs instead.
+     [:div {:style {:text-align "center"}}
       [:a {:style {:color "inherit"}
            :href (href :transplants.views/legal)} "Privacy & Data Protection"]
+      #_" | "
+      #_[:a {:style {:color "inherit"}
+             :href (href :transplants.views/legal)} "Disclaimer"]
       " | "
-      [:a {:style {:color "inherit"}
-           :href (href :transplants.views/legal)} "Disclaimer"]]
-     [:div "v-0.0-0.00-0-hash"]]])
+      (str "✉️ " (-> mdata single-organ :contact-email))]
+     [:div "v-0.0-0.00-0-hash"]]]))
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
@@ -286,7 +281,7 @@ in the routes table."
   [_organ _centre tool]
   [:p
    (when (not= tool "guidance")
-     [:span
+     [:span.d-print-none
       "For more information that will be helpful to patients, follow the link to useful information."])])
 
 
@@ -322,7 +317,7 @@ in the routes table."
     [:<>
      [row
       [col {:xs 12 :sm 8}
-       [:h3 {:style {:padding-right 20}} "Choose a tool:"]
+       [:h3.d-print-none {:style {:padding-right 20}} "Choose a tool:"]
 
     ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
     ;; Even better would be to configure the break points as what makes sense will be very application
@@ -337,7 +332,7 @@ in the routes table."
          (partition-by :button-type (butlast menu-data))))]
       [col {:xs 12 :sm 4}
        (tool-buttons (last menu-data))
-       [:p "Things you might discuss during a consultation"]
+       [:p.d-print-none "Things you might discuss during a consultation"]
        [background-link organ-name centre-name active-tool]]]]))
 
 

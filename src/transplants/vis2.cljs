@@ -1088,6 +1088,7 @@
         (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)
         (side-by-side-icon-array plot-order* fs-by-year-in-plot-order tool-mdata data-styles))]]))
 
+
 (defn table-render
   [year-series tool-mdata plot-order data-styles]
   (let [;plot-order (:plot-order tool-mdata)
@@ -1098,7 +1099,7 @@
                   :responsive "xl"
                   :bordered true}
      [:thead
-      [:tr
+      [:tr 
        ;[:th "Outcome"]
        (for [i years
              :let [label (nth labels i)
@@ -1113,7 +1114,7 @@
             :let [style ((nth plot-order j) data-styles)
                   long-label (:long-label style)
                   fill (col/hexToRgb (:fill style))]]
-        [:tr {:key (str "c-" j) :style style}
+        [:tr.tborder {:key (str "c-" j) :style (assoc style :border-color (:fill style))}
          ;[:th outcome]
          (for [i years
                :let [label (nth labels i)
@@ -1121,14 +1122,24 @@
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
            [:td {:key (str "r-" i)
                  :style {:margin 0 :padding 0}}
-            [:div {:id (str (name (plot-order j)) "-" i)
-                   :data-year time-index
-                   :data-value (nth int-fs j)
-                   :style {:margin 0 :padding 15
-                           :background-image (str "url(" (apply utils/fill-data-url fill) ")")
-                           :background-repeat "repeat"
+            [:div {:style {:position "relative"
+                           :width "100%"
                            :height "100%"}}
-             (str (nth int-fs j) "%") " " long-label]])])]]))
+             #_[:> bs/Image {:fluid true
+                           :src (apply utils/fill-data-url fill #_[32 144 245])
+                           :style {:position "absolute"
+                                   :width "100%"
+                                   :height "100%"}}]
+             [:div.lblprint {:id (str (name (plot-order j)) "-" i)
+                             :data-year time-index
+                             :data-value (nth int-fs j)
+                             :style {:margin 0 :padding 15
+                                     #_#_:background-color (apply utils/fill-data-url fill #_[30 144 245])
+                                     #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
+                                     #_#_:background-repeat "repeat"
+                                     :height "100%"
+                                     :position "relative"}}
+              (str (nth int-fs j) "%") " " long-label]]])])]]))
 
 (defn text-render
   "If we took an example of 100 transplant patients, who input the same information as you into the tool, we would expect:

@@ -131,16 +131,16 @@
            "Run model from URI and return result as EDN"]
           [:div [vis/test-gen (assoc env :fulfilled-inputs fulfilled-inputs)]]]
          [:<>
-          [:div {:style {:background-color "#fff"
-                         :border (str "3px solid " (condp = overlay
-                                                     :missing "rgb(255,0,0)"
-                                                     :unknowns "teal"
-                                                     nil "#CCC"))
-                         :border-radius 5
-                         :margin-top 30
-                         :margin-bottom 20
-                         :padding "20px 5px 5px 15px"
-                         :position "relative"}}
+          [:div.no-printed-border {:style {:background-color "#fff"
+                                           :border (str "3px solid " (condp = overlay
+                                                                       :missing "rgb(255,0,0)"
+                                                                       :unknowns "teal"
+                                                                       nil "#CCC"))
+                                           :border-radius 5
+                                           :margin-top 30
+                                           :margin-bottom 20
+                                           :padding "20px 5px 5px 15px"
+                                           :position "relative"}}
            (condp = overlay
              :missing [:<>
                        [:div {:style {:z-index 1000
@@ -170,20 +170,20 @@
                                       :width 400}}
                          "Results will appear here once all inputs have been entered."]]]
              :unknowns [:<>
-                        [:div {:style {:z-index 1000
-                                       :color "teal"
-                                       :border "3px solid teal"
-                                       :border-radius 5
-                                       :background-color "#fec"
-                                       :padding "2px 5px"
-                                       :position "absolute"
-                                       :top "-20px"
-                                       :right "20px"}}
+                        [:div.no-printed-border.to-left {:style {:z-index 1000
+                                                         :color "teal"
+                                                         :border "3px solid teal"
+                                                         :border-radius 5
+                                                         :background-color "#fec"
+                                                         :padding "2px 5px"
+                                                         :position "absolute"
+                                                         :top "-20px"
+                                                         :right "20px"}}
                          "Average values were used for some inputs"]
                         [:div {:style {:z-index 500
                                        :background-color "#fec2"
                                        :padding 0
-                                       :position "absolute"
+                                       :position "relative" #_"absolute"
                                        :pointer-events "none" ; to allow click through
                                        :top 0
                                        :right 0

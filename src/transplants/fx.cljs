@@ -5,7 +5,7 @@
             [transplants.subs :as subs]
             [transplants.paths :as paths]
             [transplants.shortener :as shorts]
-            [shadow.debug :refer [?-> locals]]
+            ;[shadow.debug :refer [?-> locals]]
             ))
 
 

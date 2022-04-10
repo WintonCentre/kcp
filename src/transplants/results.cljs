@@ -11,7 +11,7 @@
             [transplants.rgb :as rgb]
             [transplants.fullscreen :as fs]
             [transplants.shortener :as shorts]
-            [shadow.debug :refer [locals ?> ?->]]
+            ;[shadow.debug :refer [locals ?> ?->]]
             ))
 
 #_(comment
@@ -92,18 +92,27 @@
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
 
        ;; _ (?-> env ::env)
-                     
+
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
         s0 all-S0
         s0-for-day (model/S0-for-day s0 day)
 
-        cox? (model/use-cox-adjusted? tool)
+
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        F (model/cox-adjusted s0 sum-betas)
-        #_(if cox? ;false #_(= (:selected-vis env) "test")
-            (model/cox s0-for-day sum-betas)
-            (model/cox-adjusted s0 sum-betas))
+        ; F (model/cox-adjusted s0 sum-betas)
+        cox? (model/use-cox-adjusted? tool)
+        F (if cox?
+            (model/cox-adjusted s0 sum-betas)
+            ;; cox should be applied to all the s0 s. Not sure which yet.!
+            (model/cox-only s0 sum-betas))
+
+       ; _ (?-> (first (last s0-for-day)) ::s0_for_day)
+       ; _ (?-> (model/cox-adjusted s0 sum-betas) ::F)
+       ; _ (?-> (model/cox-only s0 sum-betas) ::cox)
+        #_#_F (if cox? ;false #_(= (:selected-vis env) "test")
+                (model/cox-adjusted s0 sum-betas)
+                (model/cox (first (last s0-for-day)) sum-betas))
 
         env (conj env
                   [:sum-betas sum-betas]
@@ -116,11 +125,14 @@
 ;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
-        _ (?-> fulfilled-inputs ::fulfilled-inputs)
+     ;   _ (?-> fulfilled-inputs ::fulfilled-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
+    ;(?-> beta-keys ::beta-keys)
+    ;(?-> sum-betas ::sum-betas)
+    ;(?-> env ::env)
     (when (:S0 env)
       [:<>
        (rf/dispatch [::events/missing-inputs missing])

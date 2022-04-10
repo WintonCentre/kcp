@@ -13,7 +13,7 @@
    [transplants.subs :as subs]
    [transplants.paths :as paths]
    [transplants.shortener :as shorts]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    #_["react-bootstrap" :as bs :refer [Navbar Navbar.Brand Navbar.Toggle Navbar.Collapse Navbar.Text
                                        Nav Nav.Link]]))
 (comment

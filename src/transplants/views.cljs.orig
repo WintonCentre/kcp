@@ -15,7 +15,7 @@
    [transplants.print-fills :as prf]
    [transplants.rgb :as rgb]
    ;[transplants.fullscreen :as fs]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;;;;

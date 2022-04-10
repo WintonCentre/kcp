@@ -79,7 +79,8 @@
         headers (->> tests first :r-inputs keys (str/join ","))
         rows (map (fn [test] (->> test :r-inputs vals (str/join ","))) tests)]
     (str/join "\n" (cons headers rows))
-    (spit (file-path r-dirs "tests.csv") (str/join "\n" (cons headers rows)))))
+    ; spit out data plus a final EOF marker ("\n")
+    (spit (file-path r-dirs "tests.csv") (str (str/join "\n" (cons headers rows)) "\n"))))
 
 (defn rscript-command
   [organ tool]
@@ -183,12 +184,24 @@
                      :else [:unknown nil])))
                m))))
 
+(defn approx=
+  [m1 m2]
+  (map
+   (fn [[k1 v1]]
+     (when-not (<= (Math/abs (- (k1 m2) v1)) 1)
+       (println (k1 m2) "differs from" v1))
+     (<= (Math/abs (- (k1 m2) v1)) 1))
+   m1)
+  )
+
 (defn =+-1
   "Check whether maps m1 and m2 are equal +/- 1%. 
     We can't be more accurate than this because the maps are variously adjusted to add to 100%"
   [m1 m2]
   (seq (remove
         (fn [[k1 v1]]
+          (when-not (<= (Math/abs (- (k1 m2) v1)) 1)
+            (println (k1 m2) "differs from" v1))
           (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
 
 (defn =+-15
@@ -247,7 +260,8 @@
                                        (test-r-as-maps r-dirs n))
                  "cljs" (test-n-cljs r-dirs n))))))
 
-(defn get-cljs-result
+; same as test-n-cljs
+#_(defn get-cljs-result
   [n]
   (:result (nth edn-tests n)))
 
@@ -260,9 +274,13 @@
         edn-tests (read-edn-tests r-dirs)]
     (println "testing " (name organ) " " (name tool))
     (doseq [n (range (count edn-tests))
-            :let [cljs-result (map (fn [m] (dissoc m elide)) (get-cljs-result n))
+            :let [cljs-result (map (fn [m] (dissoc m elide)) (test-n-cljs r-dirs n))
                   r-result (cljs-normalise args (test-r-as-maps r-dirs n))]]
-      (if (not-any? some?
+      (map
+       =+-1
+       r-result
+       cljs-result)
+      #_(if (not-any? some?
                       (map
                        =+-1
                        r-result
@@ -283,7 +301,7 @@
                  ;; => [{:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :>7, :graft :first, :hla-mismatch :1, :donor-age :0+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "1", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "5", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 22.7999022255712, :residual 77.2000977744288, :year 1} {:graft 29.553725751698234, :residual 70.44627424830178, :year 3} {:graft 36.86901606239652, :residual 63.13098393760348, :year 5}]} {:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :<=1, :graft :first, :hla-mismatch :1, :donor-age :60+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "5", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "1", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 25.32129432037858, :residual 74.67870567962143, :year 1} {:graft 32.62370063062734, :residual 67.37629936937266, :year 3} {:graft 40.43725754124485, :residual 59.56274245875515, :year 5}]} {:organ "kidney", :tool "graft", :clj-inputs {:age :18+, :diabetes :yes, :wait :<=1, :graft :first, :hla-mismatch :1, :donor-age :70+, :donor-ht :no, :donor-bmi :underweight}, :r-inputs {"dage" "6", "graft" "1", "diabetes" "1", "dbmi" "1", "dhtn" "1", "wait" "1", "rage" "1", "cent" "Birmingham", "hla" "1"}, :result [{:graft 29.105778749317974, :residual 70.89422125068204, :year 1} {:graft 37.15344298556008, :residual 62.84655701443992, :year 3} {:graft 45.60315894390237, :residual 54.39684105609763, :year 5}]}]
 
   (def cljs-result
-    (map (fn [m] (dissoc m elide)) (get-cljs-result 2)))
+    (map (fn [m] (dissoc m :graft)) (test-n-cljs r-dirs 2)))
     ;; => ({:residual 74.67870567962143, :year 1} {:residual 67.37629936937266, :year 3} {:residual 59.56274245875515, :year 5})
   
   (def r-result

@@ -1115,7 +1115,7 @@
             :let [style ((nth plot-order j) data-styles)
                   long-label (:long-label style)
                   fill (col/hexToRgb (:fill style))]]
-        [:tr.tborder {:key (str "c-" j) :style (assoc style :border-color (:fill style))}
+        [:tr.tborder {:key (str "c-" j) :style (assoc style :border-color (if (= (:fill style) "#fff") "#000" (:fill style)))}
          ;[:th outcome]
          (for [i years
                :let [label (nth labels i)

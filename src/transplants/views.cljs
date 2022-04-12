@@ -708,7 +708,7 @@
         a window of opportunity which persists until the patient receives a transplant or
         their health deteriorates to the point where it would no longer be recommended."]
    [:> bs/Image {:fluid true
-                 :src "assets/The Window.png"
+                 :src "/assets/The_Window.png"
                  :async true}]])
 
 

@@ -280,7 +280,7 @@
                        "/qrcode.min.js"
                        "/manifest.json"
                        "/assets/crest.png"
-                       "/assets/The Window.png"
+                       "/assets/The_Window.png"
                        "/css/styles.css"
                        "/css/open-iconic-bootstrap.min.css"
                        "/css/foo.css"

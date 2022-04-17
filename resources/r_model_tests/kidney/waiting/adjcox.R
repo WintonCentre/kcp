@@ -111,19 +111,22 @@ adjcox <- function(cent = "Belfast", sex = "m", eth="white", diabetes=2, sens=1,
 
   ## impute values from bel ##
   j<-1
-  for (i in 1:1827){
-    if (smoothed_cent$days[i] == centre$time[j] )
-    { smoothed_cent$capHtx[i] <- centre$capHtx[j]
-    smoothed_cent$capHrem[i] <- centre$capHrem[j]
-    smoothed_cent$capHdth[i] <- centre$capHdth[j]
-    j <- j + 1}
-    else {smoothed_cent$capHtx[i] <- centre$capHtx[j-1]
-    smoothed_cent$capHrem[i] <- centre$capHrem[j-1]
-    smoothed_cent$capHdth[i] <- centre$capHdth[j-1]
+  for (i in 1:1827) {
+    if (smoothed_cent$days[i] == centre$time[j])
+    {
+      smoothed_cent$capHtx[i] <- centre$capHtx[j]
+      smoothed_cent$capHrem[i] <- centre$capHrem[j]
+      smoothed_cent$capHdth[i] <- centre$capHdth[j]
+      if (!is.na(centre$time[j + 1])) {
+        j <- j + 1
+      }
+    }
+    else {
+      smoothed_cent$capHtx[i] <- centre$capHtx[j - 1]
+      smoothed_cent$capHrem[i] <- centre$capHrem[j - 1]
+      smoothed_cent$capHdth[i] <- centre$capHdth[j - 1]
     }
   }
-
-
 
   dim(smoothed_cent)[1]
 
@@ -174,7 +177,6 @@ adjcox <- function(cent = "Belfast", sex = "m", eth="white", diabetes=2, sens=1,
   out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, capF_dth, sumall)
 
   return(out)
-
 }
 
 for (i in 1:nrow(tests)) {
@@ -195,6 +197,7 @@ for (i in 1:nrow(tests)) {
   
   write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }
+
 # run_tests <- function () {
 # 
 #   for (i in 1:nrow(tests)) {
@@ -217,6 +220,5 @@ for (i in 1:nrow(tests)) {
 # 
 #   }
 # }
-
 # run the tests
 # run_tests()

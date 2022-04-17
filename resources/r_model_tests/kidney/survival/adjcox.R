@@ -1,4 +1,15 @@
-## Adjusted capH will be - log(tx_surv) * exp(XB) ##
+setwd("~/clojure/transplants/resources/r_model_tests/kidney/survival")
+
+survdata <- read.csv("surv.csv")
+param <- read.csv("params.csv")
+tests <- read.csv("tests.csv")
+
+library(tidyr)
+library(readr)
+
+attach(survdata)
+attach(param)
+attach(tests)
 
 adjcox <- function(cent = "Belfast", rage = 3, rethnic = 1, wait = 2, diabetes=0, dage = 4, dhtn =1, hla = 1) {
   
@@ -93,5 +104,21 @@ adjcox <- function(cent = "Belfast", rage = 3, rethnic = 1, wait = 2, diabetes=0
   
   return(smoothed_cent)
   
+}
+for (i in 1:nrow(tests)) {
+  results <- adjcox(
+    cent = tests$cent[i],
+    rage = tests$rage[i],
+    rethnic = tests$rethnic[i],
+    wait = tests$wait[i],
+    diabetes = tests$diabetes[i],
+    dage = tests$dage[i],
+    dhtn = tests$dhtn[i],
+    hla = tests$hla[i]
+  )
   
+  summary <-
+    results[c(366, round(365.25 * 3 + 1), round(365.25 * 5 + 1)), c(1, 2)]
+  
+  write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }

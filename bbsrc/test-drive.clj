@@ -112,6 +112,7 @@
 (rscript-command :kidney :waiting) 
 (rscript-command :kidney :graft)
 (rscript-command :kidney :ldgraft)
+(rscript-command :kidney :survival)
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
 
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
@@ -180,6 +181,17 @@
                m))))
 
 (defmethod cljs-normalise [:kidney :ldgraft] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defmethod cljs-normalise [:kidney :survival] [_ r-maps]
   (for [m r-maps]
     (into {}
           (map (fn [[k v]]
@@ -307,6 +319,8 @@
 (diagnostic-test {:organ :kidney :tool :ldgraft})
 (println)
 (diagnostic-test {:organ :kidney :tool :graft})
+(println)
+(diagnostic-test {:organ :kidney :tool :survival})
 
 
 ;; #_(defn more-useful-kidney-graft

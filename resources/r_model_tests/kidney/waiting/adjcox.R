@@ -198,27 +198,3 @@ for (i in 1:nrow(tests)) {
   write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }
 
-# run_tests <- function () {
-# 
-#   for (i in 1:nrow(tests)) {
-#     results <- adjcox(
-#       cent = tests$cent[i],
-#       sex = tests$sex[i],
-#       eth = tests$eth[i],
-#       diabetes = tests$diabetes[i],
-#       sens = tests$sens[i],
-#       bld = tests$bld[i],
-#       dialysis = tests$dialysis[i],
-#       match = tests$match[i],
-#       age = tests$age[i],
-#       graft = tests$graft[i]
-#     )
-# 
-#     summary <- results[c(366, 365 * 3 + 1, 365 * 5 + 1), c(1, 5, 6, 7, 8)]
-# 
-#     write_csv(summary, paste("results_", i, ".csv", sep = ""))
-# 
-#   }
-# }
-# run the tests
-# run_tests()

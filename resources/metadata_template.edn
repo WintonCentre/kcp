@@ -173,7 +173,7 @@
                           :post-section [:h5 "Outcomes after listing"]
                           :rest-of-page [:section
                                          [:p "Why does the display stop at year 3? We do not have data for patients going back 
-                                               more than 5 years that we can use."]
+                                               more than 3 years that we can use."]
                                          [:p "As time passes we will be able to add in more years"]]}
                 :waiting {:button-type "waiting"
                           :label "Waiting times"
@@ -304,7 +304,7 @@
                                              higher or lower. For example you may have other conditions not included in the tool."]]
                           :post-section nil
                           :rest-of-page [:section
-                                         [:p "We’re only showing up to 5 years because after that period, we can’t be sure about the data, 
+                                         [:p "We’re only showing up to 3 years because after that period, we can’t be sure about the data, 
                                               other factors come into play such as other health conditions. The data becomes too unreliable 
                                               after 3 years. Your doctor can talk to you about this in more detail
 "]]}

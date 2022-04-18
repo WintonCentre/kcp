@@ -113,6 +113,9 @@
 (rscript-command :kidney :graft)
 (rscript-command :kidney :ldgraft)
 (rscript-command :kidney :survival)
+(rscript-command :kidney :ldsurvival)
+(rscript-command :lung :waiting)
+(rscript-command :lung :post-transplant)
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
 
 ;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
@@ -125,7 +128,7 @@
       :result))
 
 (comment
-  (def path (file-path r-dirs (str "results_" (inc n) ".csv")))
+;  (def path (file-path r-dirs (str "results_" (inc n) ".csv")))
   )
 
 (defn test-n-r
@@ -202,33 +205,60 @@
                      :else [:unknown nil])))
                m))))
 
+(defmethod cljs-normalise [:kidney :ldsurvival] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defmethod cljs-normalise [:lung :waiting] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   ;;
+                   ;; In the lung waiting tool the R code counts removals (= removals + deaths), but the 
+                   ;; front-end tool calls these deaths.
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :capS [:residual (to% v)]
+                     :capF_rem [:death (to% v)]
+                     :capF_tx [:transplant (to% v)]
+                     ;:capF_dth [:death (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
+(defmethod cljs-normalise [:lung :post-transplant] [_ r-maps]
+  (for [m r-maps]
+    (into {}
+          (map (fn [[k v]]
+                 (let [v (edn/read-string v)]
+                   (condp = k
+                     :days [:year (Math/round (/ v 365.25))]
+                     :adjsurv [:residual (to% v)]
+                     :else [:unknown nil])))
+               m))))
+
 (defn approx=
   [m1 m2 epsilon]
-  (map
-   (fn [[k1 v1]]
-     (when-not (<= (Math/abs (- (k1 m2) v1)) epsilon)
-       (println (k1 m2) "differs from" v1))
-     (<= (Math/abs (- (k1 m2) v1)) 1))
-   m1)
-  )
+  (seq (remove
+        (fn [[k1 v1]]
+          (when-not (<= (Math/abs (- (k1 m2) v1)) epsilon)
+            (println (k1 m2) "differs from" v1 "by more than" epsilon))
+          (<= (Math/abs (- (k1 m2) v1)) epsilon))
+        m1)))
 
 (defn =+-1
-  "Check whether maps m1 and m2 are equal +/- 1%. 
-    We can't be more accurate than this because the maps are variously adjusted to add to 100%"
+  "Usually we check whether maps m1 and m2 are equal +/- 1%,
+     However we can adjust epsilon globally here to see the accruracy we are achieving.
+     We don't need to be more accurate than 1% because the maps are variously adjusted to add to 100%"
   [m1 m2]
-  (seq (remove
-        (fn [[k1 v1]]
-          (when-not (<= (Math/abs (- (k1 m2) v1)) 1)
-            (println (k1 m2) "differs from" v1))
-          (<= (Math/abs (- (k1 m2) v1)) 1)) m1)))
-
-(defn =+-15
-  "Check whether maps m1 and m2 are equal +/- 1+%. 
-    We can't be more accurate than this because the maps are variously adjusted to add to 100%"
-  [m1 m2]
-  (seq (remove
-        (fn [[k1 v1]]
-          (<= (Math/abs (- (k1 m2) v1)) 1.3)) m1)))
+  (approx= m1 m2 0.5))
 
 ;; These deftests work, but are useless at locating any failures.
 ;; I still wish it were possible to apply `are` so we could do (are .... (range 17))
@@ -321,6 +351,13 @@
 (diagnostic-test {:organ :kidney :tool :graft})
 (println)
 (diagnostic-test {:organ :kidney :tool :survival})
+(println)
+(diagnostic-test {:organ :kidney :tool :ldsurvival})
+(println)
+(diagnostic-test {:organ :lung :tool :waiting})
+(println)
+(diagnostic-test {:organ :lung :tool :post-transplant})
+
 
 
 ;; #_(defn more-useful-kidney-graft

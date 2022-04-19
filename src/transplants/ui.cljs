@@ -12,7 +12,7 @@ the low level ui."
               [transplants.numeric-input :as ni]
               [transplants.bsio :as bsio]
               [transplants.shortener :as shorts]
-              [shadow.debug :refer [?-> ?->> locals]]
+              ;[shadow.debug :refer [?-> ?->> locals]]
               ))
 
 (enable-console-print!)

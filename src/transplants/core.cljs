@@ -59,7 +59,7 @@
   ;(enable-console-print!)
 
   ;; service worker
-  #_(try
+  (try
     (-> (. js/navigator.serviceWorker (register "/sw_cache_update.js"))
         (.then (fn [] (js/console.log "service worker registered"))))
     (catch js/Object err (js/console.error "Failed to register service worker" err)))

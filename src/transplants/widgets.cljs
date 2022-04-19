@@ -74,17 +74,17 @@
     [:<>
      [:section {:class-name "print-modal"}
       [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
-         using another browser if these features are important to you."]
+         using another browser if you need to use them."]
       [:h1 "Print"]
-      [:p "Press " [:b "Print"] " and the browser print dialogue box will appear."]
+      [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
+       [:b "do not"] " enable the option which prints background graphics."]
       [:h1 "Copy"]
       [:p "The " [:b "Copy"] " button displays a small screenshot which can be
          saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for
          best results."]
       [:p "The copy feature does not work well in Internet Explorer."]
       [:h1 "Save to PDF"]
-      [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue. Again, be sure to "
-       [:b "enable the option which prints background graphics."]]
+      [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue."]
       [:h1 "QRCode"]
       [:p#docuri {:style {:width 466
                           :word-break "break-word"}} URI]

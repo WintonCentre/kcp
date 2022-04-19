@@ -1,4 +1,18 @@
-adjcox <- function(rage = 3, wait = 1, match=3, dage = 3, hla = 3) {
+args <- commandArgs(TRUE)
+setwd(args)
+
+survdata <- read.csv("surv.csv")
+param <- read.csv("params.csv")
+tests <- read.csv("tests.csv")
+
+library(tidyr)
+library(readr)
+
+attach(survdata)
+attach(param)
+attach(tests)
+
+adjcox <- function(cent = "UK", rage = 3, wait = 1, match=3, dage = 3, hla = 3) {
   
   
   ## Calculate individual xbeta terms ##
@@ -82,4 +96,19 @@ adjcox <- function(rage = 3, wait = 1, match=3, dage = 3, hla = 3) {
   return(smoothed_cent)
   
   
+}
+for (i in 1:nrow(tests)) {
+  results <- adjcox(
+    cent = tests$cent[i],
+    rage = tests$rage[i],
+    wait = tests$wait[i],
+    match = tests$match[i],
+    dage = tests$dage[i],
+    hla = tests$hla[i]
+  )
+  
+  summary <-
+    results[c(366, round(365.25 * 3 + 1), round(365.25 * 5 + 1)), c(1, 2)]
+  
+  write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }

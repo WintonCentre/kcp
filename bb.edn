@@ -43,9 +43,9 @@
          share-xlsx (shell "bb -f bb_scripts/upload_xlsx.clj") ;; publish .xslx files to dropbox
          lint-subs (shell "bb -f bb_scripts/re_frame_subscriptions.clj")
          run-tests (shell "bb --file ./test_runner.clj")
-         lung (shell "bb --file ./bbsrc/organ-switch.clj -g lung")
-         kidney (shell "bb --file ./bbsrc/organ-switch.clj -g kidney")
-         test-kw (shell "bb --file ./bbsrc/test-drive.clj -o kidney -t waiting")
+         lung (shell "bb --file ./bbsrc/organ_switch.clj -g lung")
+         kidney (shell "bb --file ./bbsrc/organ_switch.clj -g kidney")
+         test-models (shell "bb --file ./bbsrc/test_drive.clj")
          
 
          test-prep (do
@@ -57,4 +57,5 @@
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g lung -t waiting -c Newcastle")
                      ;(shell "bb --file ./bbsrc/prepare_test_data.clj -g lung -t post-transplant -c Newcastle")
                      )
+         
          sass (shell "sass resources/public/css/styles.scss:resources/public/css/styles.css")}}

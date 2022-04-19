@@ -6,7 +6,7 @@
             [goog.color :as col]
             [medley.core :as medl]
             [re-frame.core :as rf]
-            [shadow.debug :refer [?-> ?->> ?> locals]]
+            ;[shadow.debug :refer [?-> ?->> ?> locals]]
             [svg.container :as svgc]
             [svg.space :refer [space]]
             [transplants.factors :as fac]
@@ -1212,7 +1212,7 @@ After 3 years	75  of them to have received a transplant
     ;(?->> ::years years)
     ;(?->> ::plot-order plot-order)
     ;(?->> ::labels labels)
-    (?->> ::year-series year-series)
+    ;(?->> ::year-series year-series)
   
     [:section {:id "uri-result"}
      (pr-str
@@ -1286,8 +1286,8 @@ After 3 years	75  of them to have received a transplant
         r-params (map (fn [[k v]]
                      (-> fmaps k :levels v :r-name)) fulfilled-inputs)
        ]
-    (?-> fmaps ::fmaps)
-    (?-> r-params ::r-params)
+    ;(?-> fmaps ::fmaps)
+    ;(?-> r-params ::r-params)
     (when tool-mdata
        ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
       [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params 

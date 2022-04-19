@@ -1,4 +1,18 @@
-adjcox <- function(cent = "Newcastle", dcmv = 1, dsmoke = 1, pred_grp = "0", tx_type = 2, dis_grp = "COPD", rage_grp = 4, tlc_grp = 2, fvc_grp = 3, bili_grp = 2, chol_grp = 2) {
+args <- commandArgs(TRUE)
+setwd(args)
+
+survdata <- read.csv("surv.csv")
+param <- read.csv("params.csv")
+tests <- read.csv("tests.csv")
+
+library(tidyr)
+library(readr)
+
+attach(survdata)
+attach(param)
+attach(tests)
+
+adjcox <- function(cent = "Newcastle", dcmv = 1, dsmoke = 1, pred = "0", type = 2, dis = "COPD", rage = 4, tlc = 2, fvc = 3, bili = 2, chol = 2) {
   
   
   ## Calculate individual xbeta terms ##
@@ -12,49 +26,49 @@ adjcox <- function(cent = "Newcastle", dcmv = 1, dsmoke = 1, pred_grp = "0", tx_
   if(dsmoke == 2){xbeta_dsmoke = dsmoke_2}
   
   #Prednisolone group #
-  if(pred_grp == "0"){xbeta_pred = pred_grp_1}
-  if(pred_grp == "1-14"){xbeta_pred = pred_grp_2}
-  if(pred_grp == ">=15"){xbeta_pred = pred_grp_3}
+  if(pred == "0"){xbeta_pred = pred_grp_1}
+  if(pred == "1"){xbeta_pred = pred_grp_2}
+  if(pred == "15"){xbeta_pred = pred_grp_3}
   
   #Tx type #
-  if(tx_type == 1){xbeta_tx_type = tx_type_1}
-  if(tx_type == 2){xbeta_tx_type = tx_type_2}
+  if(type == 1){xbeta_tx_type = tx_type_1}
+  if(type == 2){xbeta_tx_type = tx_type_2}
   
   #Disease group #
-  if(dis_grp == "COPD"){xbeta_dis = dis_grp_copd}
-  if(dis_grp == "CF"){xbeta_dis = dis_grp_cf}
-  if(dis_grp == "Other"){xbeta_dis = dis_grp_oth}
-  if(dis_grp == "PF"){xbeta_dis = dis_grp_pf}
+  if(dis == "COPD"){xbeta_dis = dis_grp_copd}
+  if(dis == "CF"){xbeta_dis = dis_grp_cf}
+  if(dis == "Other"){xbeta_dis = dis_grp_oth}
+  if(dis == "PF"){xbeta_dis = dis_grp_pf}
   
   #Recipient age at transplant #
-  if(rage_grp == 1){xbeta_rage = rage_grp_1}
-  if(rage_grp == 2){xbeta_rage = rage_grp_2}
-  if(rage_grp == 3){xbeta_rage = rage_grp_3}
-  if(rage_grp == 4){xbeta_rage = rage_grp_4}
-  if(rage_grp == 5){xbeta_rage = rage_grp_5}
+  if(rage == 1){xbeta_rage = rage_grp_1}
+  if(rage == 2){xbeta_rage = rage_grp_2}
+  if(rage == 3){xbeta_rage = rage_grp_3}
+  if(rage == 4){xbeta_rage = rage_grp_4}
+  if(rage == 5){xbeta_rage = rage_grp_5}
   
   #TLC mismatch #
-  if(tlc_grp == 1){xbeta_tlc = tlc_mis_1}
-  if(tlc_grp == 2){xbeta_tlc = tlc_mis_2}
-  if(tlc_grp == 3){xbeta_tlc = tlc_mis_3}
+  if(tlc == 1){xbeta_tlc = tlc_mis_1}
+  if(tlc == 2){xbeta_tlc = tlc_mis_2}
+  if(tlc == 3){xbeta_tlc = tlc_mis_3}
   
   #FVC #
-  if(fvc_grp == 1){xbeta_fvc = fvc_grp_1}
-  if(fvc_grp == 2){xbeta_fvc = fvc_grp_2}
-  if(fvc_grp == 3){xbeta_fvc = fvc_grp_3}
-  if(fvc_grp == 4){xbeta_fvc = fvc_grp_4}
+  if(fvc == 1){xbeta_fvc = fvc_grp_1}
+  if(fvc == 2){xbeta_fvc = fvc_grp_2}
+  if(fvc == 3){xbeta_fvc = fvc_grp_3}
+  if(fvc == 4){xbeta_fvc = fvc_grp_4}
   
   #Bilirubin #
-  if(bili_grp == 1){xbeta_bili = bili_grp_1}
-  if(bili_grp == 2){xbeta_bili = bili_grp_2}
-  if(bili_grp == 3){xbeta_bili = bili_grp_3}
-  if(bili_grp == 4){xbeta_bili = bili_grp_4}
+  if(bili == 1){xbeta_bili = bili_grp_1}
+  if(bili == 2){xbeta_bili = bili_grp_2}
+  if(bili == 3){xbeta_bili = bili_grp_3}
+  if(bili == 4){xbeta_bili = bili_grp_4}
   
   #Cholesterol #
-  if(chol_grp == 1){xbeta_chol = chol_grp_1}
-  if(chol_grp == 2){xbeta_chol = chol_grp_2}
-  if(chol_grp == 3){xbeta_chol = chol_grp_3}
-  if(chol_grp == 4){xbeta_chol = chol_grp_4}
+  if(chol == 1){xbeta_chol = chol_grp_1}
+  if(chol == 2){xbeta_chol = chol_grp_2}
+  if(chol == 3){xbeta_chol = chol_grp_3}
+  if(chol == 4){xbeta_chol = chol_grp_4}
   
   
   ## Total xbetas ##
@@ -101,5 +115,25 @@ adjcox <- function(cent = "Newcastle", dcmv = 1, dsmoke = 1, pred_grp = "0", tx_
   
   return(smoothed_cent)
   
+}
+
+for (i in 1:nrow(tests)) {
+  results <- adjcox(
+    fvc = tests$fvc[i],
+    bili = tests$bili[i],
+    dis = tests$dis[i],
+    pred = tests$pred[i],
+    dsmoke = tests$dsmoke[i],
+    rage = tests$rage[i],
+    type = tests$type[i],
+    cent = tests$cent[i],
+    dcmv = tests$dcmv[i],
+    chol = tests$chol[i],
+    tlc = tests$tlc[i]
+  )
   
+  summary <-
+    results[c(366, round(365.25 * 3 + 1), round(365.25 * 5 + 1)), c(1, 2)]
+  
+  write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }

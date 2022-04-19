@@ -1,4 +1,5 @@
-setwd("~/clojure/transplants/resources/r_model_tests/kidney/graft")
+args <- commandArgs(TRUE)
+setwd(args)
 
 survdata <- read.csv("surv.csv")
 param <- read.csv("params.csv")
@@ -11,7 +12,7 @@ attach(survdata)
 attach(param)
 attach(tests)
 
-adjcox <- function(cent = "Birmingham", rage = 1, wait = 5, diabetes = 1, graft = 1, dage = 1, dbmi = 1, dhtn =1, hla = 1) {
+adjcox <- function(cent = "Birmingham", rage = 1, wait = 1, diabetes = 1, graft = 1, dage = 1, dbmi = 1, dhtn =1, hla = 1) {
   
   ## Calculate individual xbeta terms ##
   
@@ -87,8 +88,8 @@ adjcox <- function(cent = "Birmingham", rage = 1, wait = 5, diabetes = 1, graft 
   
   if(secondday == 0){centre <- centre[-c(2),]}
   
-  ## set up new dataset for day 0- 1826 - make sure there are data points for every day ##
   
+  ## set up new dataset for day 0- 1826 - make sure there are data points for every day ##
   smoothed_cent <- data.frame(days)
   smoothed_cent$adjsurv <- adjsurv2
   
@@ -103,9 +104,7 @@ adjcox <- function(cent = "Birmingham", rage = 1, wait = 5, diabetes = 1, graft 
     }
   }
   
-  
   return(smoothed_cent)
-  
   
 }
 

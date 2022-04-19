@@ -1,9 +1,9 @@
 library(tidyr)
 library(readr)
 
-# args <- commandArgs(TRUE)
-# setwd(args)
-setwd("~/clojure/transplants/resources/r_model_tests/kidney/waiting")
+args <- commandArgs(TRUE)
+setwd(args)
+# setwd("~/clojure/transplants/resources/r_model_tests/kidney/waiting")
 
 survdata <- read.csv("surv.csv")
 param <- read.csv("params.csv")
@@ -111,19 +111,22 @@ adjcox <- function(cent = "Belfast", sex = "m", eth="white", diabetes=2, sens=1,
 
   ## impute values from bel ##
   j<-1
-  for (i in 1:1827){
-    if (smoothed_cent$days[i] == centre$time[j] )
-    { smoothed_cent$capHtx[i] <- centre$capHtx[j]
-    smoothed_cent$capHrem[i] <- centre$capHrem[j]
-    smoothed_cent$capHdth[i] <- centre$capHdth[j]
-    j <- j + 1}
-    else {smoothed_cent$capHtx[i] <- centre$capHtx[j-1]
-    smoothed_cent$capHrem[i] <- centre$capHrem[j-1]
-    smoothed_cent$capHdth[i] <- centre$capHdth[j-1]
+  for (i in 1:1827) {
+    if (smoothed_cent$days[i] == centre$time[j])
+    {
+      smoothed_cent$capHtx[i] <- centre$capHtx[j]
+      smoothed_cent$capHrem[i] <- centre$capHrem[j]
+      smoothed_cent$capHdth[i] <- centre$capHdth[j]
+      if (!is.na(centre$time[j + 1])) {
+        j <- j + 1
+      }
+    }
+    else {
+      smoothed_cent$capHtx[i] <- centre$capHtx[j - 1]
+      smoothed_cent$capHrem[i] <- centre$capHrem[j - 1]
+      smoothed_cent$capHdth[i] <- centre$capHdth[j - 1]
     }
   }
-
-
 
   dim(smoothed_cent)[1]
 
@@ -174,7 +177,6 @@ adjcox <- function(cent = "Belfast", sex = "m", eth="white", diabetes=2, sens=1,
   out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, capF_dth, sumall)
 
   return(out)
-
 }
 
 for (i in 1:nrow(tests)) {
@@ -195,28 +197,4 @@ for (i in 1:nrow(tests)) {
   
   write_csv(summary, paste("results_", i, ".csv", sep = ""))
 }
-# run_tests <- function () {
-# 
-#   for (i in 1:nrow(tests)) {
-#     results <- adjcox(
-#       cent = tests$cent[i],
-#       sex = tests$sex[i],
-#       eth = tests$eth[i],
-#       diabetes = tests$diabetes[i],
-#       sens = tests$sens[i],
-#       bld = tests$bld[i],
-#       dialysis = tests$dialysis[i],
-#       match = tests$match[i],
-#       age = tests$age[i],
-#       graft = tests$graft[i]
-#     )
-# 
-#     summary <- results[c(366, 365 * 3 + 1, 365 * 5 + 1), c(1, 5, 6, 7, 8)]
-# 
-#     write_csv(summary, paste("results_", i, ".csv", sep = ""))
-# 
-#   }
-# }
 
-# run the tests
-# run_tests()

@@ -1,14 +1,14 @@
 {
-    "short_name": "kidney transplants",
-    "name": "kidney transplants",
-    "description": "kidney transplants",
+    "short_name": "lung transplants",
+    "name": "lung transplants",
+    "description": "lung transplants",
     "icons": [{
-            "src": "/assets/logo_kidney_192.png",
+            "src": "/assets/logo_lung_192.png",
             "type": "image/png",
             "sizes": "192x192"
         },
         {
-            "src": "/assets/logo_kidney_512.png",
+            "src": "/assets/logo_lung_512.png",
             "type": "image/png",
             "sizes": "512x512"
         }

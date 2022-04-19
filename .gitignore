@@ -63,8 +63,8 @@ resources/public/sw_cache_update.js
 bbsrc/etaoin.clj
 resources/public/manifest.jsongit
 resources/public/metadata.txt
-# resources/precache_paths_kidney.edn
-# resources/precache_paths_lung.edn
+resources/precache_paths_kidney.edn
+resources/precache_paths_lung.edn
 nbb/playwright_tests.cljs
 resources/NHSBT-ref/kidney/Baselines wlist kid.xlsx
 resources/NHSBT-ref/kidney/kid post-tx dd graft surv.R

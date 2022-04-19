@@ -235,7 +235,7 @@
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/text env]]]
 
-             [ui/tab {:event-key "rig" :title "Test Rig"}
+             #_[ui/tab {:event-key "rig" :title "Test Rig"}
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/test-rig env]]]
 

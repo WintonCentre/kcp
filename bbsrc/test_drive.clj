@@ -10,7 +10,14 @@
 
    Use this utility to convert tests.edn to tests.csv and the n run the adjcox.R script against those test cases.
 
-   Run tests by evluating this file - which will call t/run-tests.
+   Run all tests by evaluating this file.
+
+
+   If running from the Calva babashka REPL you will need to take things in stages because running the R code in that environment
+   fails. See https://gist.github.com/gmp26/b859872eeb53c753ece08c7e632f7b02.
+
+   First, run down to line 123 so all the test.csv files are generated.
+   Then, run the rscript-commands via some other mechanism - e.g. in RStudio, or simply from an external non-Calva shell
 
    "
   (:require [clojure.pprint :refer [pprint]]
@@ -103,11 +110,10 @@
     ;; though it does run in other contexts. 
     ;; See https://gist.github.com/gmp26/b859872eeb53c753ece08c7e632f7b02
 
-    ;; so for the REPL we just echo a script line we can run in bash. You may need to tweak these to get them working in your R environment
-    (str "Rscript " r-script)
-    ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.Rine"
+    ;; so for the REPL we just echo a script line we can run in a shell. You may need to tweak these to get them working in your R environment
+    (str "Rscript " r-script " " r-working-dir)
+    ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.R ..."
 
-    ;;(str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
     ))
 (rscript-command :kidney :waiting) 
 (rscript-command :kidney :graft)
@@ -116,9 +122,6 @@
 (rscript-command :kidney :ldsurvival)
 (rscript-command :lung :waiting)
 (rscript-command :lung :post-transplant)
-;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R"
-
-;; => "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr resources/r_model_tests/kidney/waiting/adjcox.R /Users/gmp26/clojure/transplants/resources/r_model_tests/kidney/waiting"
 
 (defn test-n-cljs
   "Get results from the nth cljs test (zero-indexed)"

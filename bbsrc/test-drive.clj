@@ -99,13 +99,13 @@
     ;; run adjcox over all csv rows (by calling R adjcox::run_tests())
     ;; passing in the r-working directory so R can use that context.
     ;;
-    (babashka.process/sh ["Rscript" r-script])  ;; unfortunately this fails in the Calva bb repl, 
+    (babashka.process/sh ["Rscript" r-script r-working-dir])  ;; unfortunately this fails in the Calva bb repl, 
     ;; though it does run in other contexts. 
     ;; See https://gist.github.com/gmp26/b859872eeb53c753ece08c7e632f7b02
 
     ;; so for the REPL we just echo a script line we can run in bash. You may need to tweak these to get them working in your R environment
     (str "Rscript " r-script)
-    ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.R"
+    ;; => "Rscript resources/r_model_tests/kidney/waiting/adjcox.Rine"
 
     ;;(str "Rscript --vanilla --default-packages=base,datasets,graphics,grDevices,methods,stats,tidyr,utils,readr " r-script)))
     ))

@@ -1,5 +1,5 @@
-
-setwd("~/clojure/transplants/resources/r_model_tests/lung/post-transplant")
+args <- commandArgs(TRUE)
+setwd(args)
 
 survdata <- read.csv("surv.csv")
 param <- read.csv("params.csv")

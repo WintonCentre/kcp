@@ -1,9 +1,9 @@
 library(tidyr)
 library(readr)
 
-# args <- commandArgs(TRUE)
-# setwd(args)
-setwd("~/clojure/transplants/resources/r_model_tests/lung/waiting")
+args <- commandArgs(TRUE)
+setwd(args)
+# setwd("~/clojure/transplants/resources/r_model_tests/lung/waiting")
 
 survdata <- read.csv("surv.csv")
 param <- read.csv("params.csv")

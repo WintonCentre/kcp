@@ -115,7 +115,10 @@ so those individual by-centre files are a complication that can be removed.
 ## Model tests
 The R adjcox function is run on test cases stored as URLs (with the patients inputs encoded as URL parameters).
 Then the clojurescript model is run on those test cases and the results are compared.
-In order to run these model tests, run the following bb tasks in this order:
+
+In order to run these model tests, make sure `Rscript` is installed on your machine. It may also require that the `tinyr` and `readr` libraries be installed first.
+
+Then run the following bb tasks in this order:
 
 ```sh
 bb config

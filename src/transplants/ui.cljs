@@ -83,6 +83,7 @@ in the routes table."
   (def link (js/document.querySelector "link[rel~='icon']"))
   (def logo "/assets/logo_kidney_192.png"))
 
+
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
   [{:keys [router current-route]}]
@@ -163,11 +164,11 @@ in the routes table."
           [:> bs/Nav {:class "ml-auto" 
                       :style {:height "100%" :vertical-align "middle"}
                       }
-           [:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
+           [bsio/feedback-button mdata single-organ]
+           #_[:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
                                      "?subject=" (-> mdata single-organ :contact-email-subject)
-                                     "&body=" (-> mdata single-organ :contact-email-body)) 
-                          :variant "info"
-                          #_#_:class "ml-auto"} " ✉️ Feedback"]]]])
+                                     "&body=" (-> mdata single-organ :contact-email-body))
+                          :variant "info"} "✉️ " [:span {:style {:margin-left 10}} "Feedback"]]]]])
       [loading])))
 
 (comment

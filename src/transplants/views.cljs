@@ -61,8 +61,16 @@
         [:h2 "What does this site do?"]
         [:p "This is a communication tool. It will help patients understand risks and benefit numbers about 
              transplantation. It will help the transplant team explain these numbers by showing them in graphs and charts. "]
+        [:p "Results can be printed out for patients to take home"]
 
-        [:p "Results can be printed out for patients to take home"]]
+        [:> bs/Row
+         [:> bs/Col {:md 4}
+          [:p [bsio/feedback-button mdata single-organ]]]
+         [:> bs/Col {:md 8}
+          [:p
+           [:i "We are still asking for feedback on this site. You are encouraged to email us with any thoughts, corrections 
+              and feedback on any aspect of the site. Please send any feedback by the end of May 2022. "]]]]
+        ]
 
        [home-section
         [:h2 "How does it work?"]
@@ -635,7 +643,7 @@
       [ui/loading])))
 
 ;;
-;; Move background info to config
+;; todo: Move background info to config
 ;;
 
 (def guidances
@@ -666,7 +674,8 @@
 (defmethod show-guidance :donors []
   [:<>
    [:h3 (:donors guidances)]
-   [:p "A checklist of donor factors that may affect a decision."]
+   [:p "Depending which transplant centre you are under, you might be asked about what kinds of donor you are willing to accept.
+Here are typical donor characteristics you might be asked to think about."]
    [:ul
     [:li "Recent or ex smoker"]
     [:li "Older donor (>60 years)"]
@@ -703,7 +712,10 @@
 (defmethod show-guidance :window []
   [:<>
    [:h3 (:window guidances)]
-   [:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
+   [:p "This diagram shows how your lung disease might progress.
+        Transplantation is offered when you are ill enough to need it, 
+        but well enough to survive the surgery.  We call this the ‘window of opportunity’."]
+   #_[:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
         decreases, there comes a point where a transplant could be recommended. This opens
         a window of opportunity which persists until the patient receives a transplant or
         their health deteriorates to the point where it would no longer be recommended."]
@@ -721,7 +733,19 @@
                     :margin-top 20}}
     [ui/col {:xs 6}
      [:h5 "Acute Rejections"]
-     [:p "What to look out for..."]]
+     [:i "When to seek medical advice"]
+     [:p "Please contact your transplant team if you experience any of the following:"]
+     [:ul
+      [:li "A high temperature of 38 degrees C"]
+      [:li "Feeling hot and shivery"]
+      [:li "Severe headache"]
+      [:li "Diarrhoea"]
+      [:li "Vomiting"]
+      [:li "Shortness of breath"]
+      [:li "New chest pain"]
+      [:li "Fatigue or generally feelig 'rough'"]
+      [:li "Little or no urine"]
+      ]]
     [ui/col {:xs 6}
      [:h5 "Chronic Rejection"]
      [:p "What to look out for..."]]
@@ -993,7 +1017,7 @@
                             :margin-right 10
                             :margin-top 30}}
          [:p [:b [:span {:style {:color "red"}} (ui/open-icon "wrench")] " UNDER CONSTRUCTION!"]]
-         [:p "Please tell us what you would like to see here."]
+         [:p "Please tell us what you would like to see here, and do let us know of any errors that need correction."]
          [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")]
               [:a {:href (str "mailto:" (if (= organ :lung) "lung" "kidney") "transplants@statslab.cam.ac.uk?subject=Useful%20Information%20Feedback")} " Email us"]
 

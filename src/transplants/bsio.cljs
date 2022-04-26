@@ -203,3 +203,10 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                     "Save"])
         (when ok [:> bs/Button {:variant "primary" :on-click ok}
                   "OK"])]])))
+
+(defn feedback-button
+  [mdata single-organ]
+  [:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
+                            "?subject=" (-> mdata single-organ :contact-email-subject)
+                            "&body=" (-> mdata single-organ :contact-email-body))
+                 :variant "info"} "✉️ " [:span {:style {:margin-left 10}} "Feedback"]])

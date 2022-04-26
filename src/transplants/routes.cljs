@@ -41,7 +41,7 @@
     {:name      ::views/home
      :view      views/home-page
      :link-text "Transplant Risks"
-     :controllers [{;; Do whatever initialization needed for home page
+     #_#_:controllers [{;; Do whatever initialization needed for home page
        ;; I.e (re-frame/dispatch [::events/load-something-with-ajax])
                     :start (fn [& params] (println ::routes "Entering Home " params))
        ;; Teardown can be done here.
@@ -51,60 +51,60 @@
              :link-text "About"
              :conflicting true
              :controllers [{:parameters {:path [:organ]}
-                            :start (fn [params]
+                            #_#_:start (fn [params]
                                      (js/console.log "Entering About:" params))
-                            :stop  (fn [_params] (js/console.log (str "Leaving About")))}]}]
+                            #_#_:stop  (fn [_params] (js/console.log (str "Leaving About")))}]}]
    ["legal" {:name      ::views/legal
              :view      views/legal-page
              :link-text "Legal"
              :conflicting true
              :controllers [{:parameters {:path [:organ]}
-                            :start (fn [params]
+                            #_#_:start (fn [params]
                                      (js/console.log "Entering Legal:" params))
-                            :stop  (fn [_params] (js/console.log (str "Leaving Legal")))}]}]
+                            #_#_:stop  (fn [_params] (js/console.log (str "Leaving Legal")))}]}]
    ["pubs" {:name      ::views/pubs
              :view      views/pubs-page
              :link-text "Publications"
              :conflicting true
              :controllers [{:parameters {:path [:organ]}
-                            :start (fn [params]
+                            #_#_:start (fn [params]
                                      (js/console.log "Entering Pubs:" params))
-                            :stop  (fn [_params] (js/console.log (str "Leaving Pubs")))}]}]
+                            #_#_:stop  (fn [_params] (js/console.log (str "Leaving Pubs")))}]}]
    ["tech" {:name      ::views/tech
              :view      views/tech-page
              :link-text "Technical"
              :conflicting true
              :controllers [{:parameters {:path [:organ]}
-                            :start (fn [params]
+                            #_#_:start (fn [params]
                                      (js/console.log "Entering Tech:" params))
-                            :stop  (fn [_params] (js/console.log (str "Leaving Tech")))}]}]
+                            #_#_:stop  (fn [_params] (js/console.log (str "Leaving Tech")))}]}]
    [":organ" {:name      ::views/organ
               :view      views/organ-home
               :link-text "organ"
               :conflicting true
               :controllers [{:parameters {:path [:organ]}
                              :start (fn [params]
-                                      (js/console.log "Entering organ:" params)
+                                      #_(js/console.log "Entering organ:" params)
                                       (let [organ (keyword (get-in params [:path :organ]))]
                                         (rf/dispatch [::events/load-and-transpose-always [(paths/tools-path organ) [:tools]]])))
-                             :stop  (fn [_params] (js/console.log (str "Leaving " :organ " Home")))}]}
+                             #_#_:stop  (fn [_params] (js/console.log (str "Leaving " :organ " Home")))}]}
     [""] ; required to make [":organ"] a leaf route
     ["/:centre" {:name ::views/organ-centre
                  :view views/organ-centre
                  :link-text "organ-centre"
                  :controllers [{:parameters {:path [:organ :centre]}
-                                :start (fn [params]
+                                #_#_:start (fn [params]
                                          (let [_centre (keyword (get-in params [:path :centre]))]))
-                                :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :centre])))}]}
+                                #_#_:stop (fn [params] (js/console.log "Leaving " (get-in params [:path :centre])))}]}
      [""] ; required to make [":organ/:centre"] a leaf route
      ["/:tool" {:name ::views/organ-centre-tool
                 :view views/organ-centre-tool
                 :link-text "organ-centre-tool"
                 :controllers [{:parameters {:path [:organ :centre :tool]}
-                               :start (fn [params]
+                               #_#_:start (fn [params]
                                         (let [_tool (keyword (get-in params [:path :tool]))]
                                           (js/console.log "Entering organ-centre-tool: " params)))
-                               :stop (fn [params] (js/console.log "Leaving " (get-in params [:path :tool])))}]}
+                               #_#_:stop (fn [params] (js/console.log "Leaving " (get-in params [:path :tool])))}]}
       [""] ; required to make [":organ/:centre/:tool"] a leaf route
       ["/:tab" ; 
        {:name ::views/organ-centre-tool-tab
@@ -112,12 +112,12 @@
         :link-text "organ-centre-tool-tab"
         :controllers [{:parameters {:path [:organ :centre :tool :tab]}
                        :start (fn [params]
-                                (let [_tool (keyword (get-in params [:path :tool]))
+                                (let [#_#__tool (keyword (get-in params [:path :tool]))
                                       tab (keyword (get-in params [:path :tab]))
                                       path-inputs (get-in params [:path :inputs] "-")]
-                                  (js/console.log "Entering organ-centre-tool-tab: " params)
+                                  #_(js/console.log "Entering organ-centre-tool-tab: " params)
                                   (rf/dispatch [::events/selected-inputs-vis path-inputs tab])))
-                       :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}
+                       #_#_:stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}
        [""]
        ["/:inputs"
         {:name ::views/organ-centre-tool-tab-inputs
@@ -126,7 +126,7 @@
          :controllers [{:parameters {:path [:organ :centre :tool :tab :inputs]}
                         :start  (fn [params]
  ;                                 (?-> "path-inputs"  ::path-inputs)
-                                  (js/console.log "Entering organ-centre-tool-tab-inputs: " params)
+                                  #_(js/console.log "Entering organ-centre-tool-tab-inputs: " params)
                                   (let [tab (keyword (get-in params [:path :tab]))
                                         ;; organ (keyword (get-in params [:path :organ]))
                                         path-inputs (get-in params [:path :inputs] "-")]
@@ -144,7 +144,7 @@
                                        #_(if (not= path-inputs "-")
                                          (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
                                          (rf/dispatch [::events/selected-vis tab]))))
-                        :stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
+                        #_#_:stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
 
 
 (comment

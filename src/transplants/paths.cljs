@@ -31,7 +31,7 @@
 (defn organ-centre-name-tool
   "return a pathname for tool data, else nil"
   [organ centre-name tool]
-  (println ::tool tool)
+  ;(println ::tool tool)
   (let [tool-name (underscore (name tool))
         path
         (cond
@@ -46,7 +46,7 @@
           :else (str (prefix organ)
                      (underscore centre-name) slash
                      tool-name ".txt"))]
-    (println ::organ-centre-name-tool "path=" path)
+    ;(println ::organ-centre-name-tool "path=" path)
     path))
 
 (comment

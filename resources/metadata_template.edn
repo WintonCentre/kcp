@@ -70,7 +70,7 @@
                                                 :stroke-width 1
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
-                                     :death {:label "died or removed"
+                                     :death {:label ["died or removed" "from the list"]
                                              :long-label "have died or been removed from the list"
                                              :fill "#fff"
                                              :opacity 1
@@ -165,7 +165,7 @@
 
                           :pre-section [:section
                                         [:h3 "What might happen if you are listed for a transplant?"]
-                                        [:p "The results below shows what happened to people like you in the past 
+                                        [:p "The results below show what happened to people like you in the past 
                                              (people the same age, disease etc.)."]
                                         [:p "It is not a prediction of what will happen to you, it is an estimate."]
                                         [:p "There are other factors about you that can influence these results and make the numbers 
@@ -199,7 +199,7 @@
                                                 :stroke-width 1
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
-                                     :death {:label "died or removed"
+                                     :death {:label ["died or removed" "from the list"]
                                              :long-label "have died or been removed from the list"
                                              :fill "#fff"
                                              :opacity 1
@@ -297,7 +297,7 @@
                           :page-title ""
                           :pre-section [:section
                                         [:h3 "What might happen if you are listed for a transplant?"]
-                                        [:p "The results below shows what happened to people like you in the past 
+                                        [:p "The results below show what happened to people like you in the past 
                                              (people the same age, disease etc.)."]
                                         [:p "It is not a prediction of what will happen to you, it is an estimate."]
                                         [:p "There are other factors about you that can influence these results and make the numbers 

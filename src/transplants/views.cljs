@@ -208,14 +208,17 @@
        [ui/row
         (condp = single-organ
           :lung [:> bs/Col
-                 [:p "Annual Report on Cardiothoracic Transplantation 2019/2020. NHS Blood and Transplant."
-                  [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf." :target "_blank"}
-                   "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf."] " Published 2020. Accessed 01/03/2021"]
                  [:p
-                  "Kourliouros A Hogg R Mehew J et al. Patient outcomes from time of listing for lung transplantation in the UK: are there disease-specific differences? Thorax 2019 ;74:60-68. Breslow N. E. (1972) “Discussion of Professor Cox’s Paper” J. Royal Stat. Soc. B 34 216 –217."]]
+                  [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf." :target "_blank"}
+                   "Annual Report on Cardiothoracic Transplantation 2019/2020. NHS Blood and Transplant. "] " Published 2020."]
+                 [:p
+                  [:a {:href "https://pubmed.ncbi.nlm.nih.gov/30282722/" :target "_blank"}
+                   "Kourliouros A Hogg R Mehew J et al."] " Patient outcomes from time of listing for lung transplantation in the UK: are there disease-specific differences? Thorax 2019 ;74:60-68. "]
+                 #_[:p [:a {:href "https://www.tandfonline.com/doi/full/10.1080/10485250500491661"} "Breslow N. E. (1972)"] " “Discussion of Professor Cox’s Paper” J. Royal Stat. Soc. B 34 216 –217."]]
           :kidney [:> bs/Col
                    [:p "NHSBT organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ")"]
-                   [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
+                   [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"
+                            :target "_blank"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
           :else [ui/col [:p "None."]])]]
       [ui/loading])))
 
@@ -355,7 +358,7 @@
    [:p "where:"]
    [:ul
     [:li [:span {:style {:font-family "serif"}}
-          [:i "H" [:sub "0"] "(t)"]] " is estimated using the Breslow (1972) estimate"]
+          [:i "H" [:sub "0"] "(t)"]] " is estimated using the " [:a {:href "https://www.tandfonline.com/doi/full/10.1080/10485250500491661"} "Breslow (1972) estimate"]]
     [:li "The log hazard ratios " [:b [:i "β"]] " are estimated by a multivariate linear regression."]
     [:li [:i {:style {:font-family "serif"}} [:b "χ"] [:sub "i"]] " represents the set of characteristics for the " [:i {:style {:font-family "serif"}} "i"] "th individual."]]
    [:p "This can be translated into a survival function through the following equation:"]
@@ -468,7 +471,8 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                                :margin-bottom  20}}
     [:h3 "Patient survival after a deceased donor lung transplant "]
-    [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see Kourliouros et al (2019). However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
+    [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see " 
+     [:a {:href "https://pubmed.ncbi.nlm.nih.gov/30282722/" :target "_blank"} "Kourliouros et al (2019)"] ". However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
     [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"

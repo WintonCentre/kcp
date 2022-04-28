@@ -183,16 +183,21 @@
                             :or {width 255 height 60}}]
    (into [:<>]
          (map (fn [i data-key]
-                (let [styles (data-styles data-key)]
+                (let [styles (data-styles data-key)
+                      label-texts  (if (string? (:label styles)) [(:label styles)] (:label styles))]
                   [:g {:transform (position-f i)
                        :key (str data-key "-" i)}
                    [:rect (merge  {:x 0 :y 0 :width width :height height}
                                   (ui/svg-styles styles)
                                   #_(dissoc styles :label-fill))]
-                   [:text {:x 10 :y 40
-                           :fill (:label-fill styles)
-                           :font-size 25}
-                    (str (:label styles) (string-value-f i))]]))
+                   (into [:<>]
+                         (map-indexed
+                          (fn [line label-text]
+                            [:text {:x 10 :y (+ 40 (* 25 line) (- (* 14 (dec (count label-texts)))))
+                                    :fill (:label-fill styles)
+                                    :font-size 25}
+                             (str label-text (string-value-f i))])
+                          label-texts))]))
               (range)
               plot-order))))
 
@@ -924,7 +929,7 @@
      ;[ui/randomise-query-panel "Randomise order?"]
 
      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                             :height (+ 40 (get-in tool-mdata [:icons :svg-height]))}
+                                             :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
                                      :margin (get-in tool-mdata [:icons :svg-margin])
                                      :padding (get-in tool-mdata [:icons :svg-padding])
                                      :x-ticks 10
@@ -947,11 +952,18 @@
                         :let [outcome-key (plot-order k)
                               outcome (get-in tool-mdata [:outcomes outcome-key])]]
                     [:g {:key (str "outk-" k)
-                         :transform (str "translate (" (* label-index 250) ", " (- (* k 25) 20) ")")}
+                         :transform (str "translate (" (* label-index 250) ", " (- (* k 36) 20) ")")}
                      [h-and-s {:scale 2 :fill (:fill outcome)}]
-                     [:text {:transform "translate (40,15)"} (str (int-fs k) " " (:label outcome))]])]
+                     (let [s (:label outcome)
+                           outcome-labels (if (vector? s) s [s])]
+                       (into [:<>]
+                             (map-indexed
+                              (fn [i outcome-label]
+                                [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")} 
+                                 (str (if (zero? i) (int-fs k)) " " outcome-label)])
+                              outcome-labels)))])]
 
-                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 90)")}
+                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 120)")}
                   (for [i (range 10)
                         j (range 10)
                         :let [ordinal (icon-order (+ j (* 10 i)))]]
@@ -960,7 +972,7 @@
                      [h-and-s
                       {:scale 2 :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])]
 
-                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 340)")}
+                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 370)")}
                   [:text {:font-size "1.2em"
                           :x 20} (get-in label [:line 0])]]])))]]))
 ;
@@ -1019,9 +1031,16 @@
                     :let [outcome-key (plot-order k)
                           outcome (get-in tool-mdata [:outcomes outcome-key])]]
                 [:g {:key (str "outk-" k)
-                     :transform (str "translate (" 10 ", " (+ (* k 25) 20) ")")}
+                     :transform (str "translate (" 10 ", " (+ (* k 45) 20) ")")}
                  [h-and-s {:scale 2 :fill (:fill outcome)}]
-                 [:text {:transform "translate(30,15)"} (str (int-fs k) " " (:label outcome))]])]
+                 (let [s (:label outcome)
+                       outcome-labels (if (vector? s) s [s])]
+                   (into [:<>]
+                         (map-indexed
+                          (fn [i outcome-label]
+                            [:text {:transform (str "translate(30," (+ 15 (* i 18)) ")")}
+                             (str (if (zero? i) (str (int-fs k) " ") "") outcome-label)])
+                          outcome-labels)))])]
              #_(svg-outcome-legend plot-order data-styles
                                    {:width 380
                                     :string-value-f (fn [i] (str ": " (int-fs i) "%"))

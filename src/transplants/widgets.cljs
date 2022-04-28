@@ -67,35 +67,17 @@
 (def label-width "label column grid-size" 6)
 (def widget-width "Widget column grid-size" 6)
 
-(defn print-modal-content
-  "What to say in the print modal"
-  []
-  (let [URI (.-href js/document.location)]
-    [:<>
-     [:section {:class-name "print-modal"}
-      [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
-         using another browser if you need to use them."]
-      [:h1 "Print"]
-      [:p "Press " [:b "Print"] " and the browser print dialogue box will appear. For best results, "
-       [:b "do not"] " enable the option which prints background graphics."]
-      [:h1 "Copy"]
-      [:p "The " [:b "Copy"] " button displays a small screenshot which can be
-         saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for
-         best results."]
-      [:p "The copy feature does not work well in Internet Explorer."]
-      [:h1 "Save to PDF"]
-      [:p "If you prefer a PDF, press " [:b "Print"] " and select \"Save to PDF\" in the browser print dialogue."]
-      [:h1 "QRCode"]
-      [:p#docuri {:style {:width 466
-                          :word-break "break-word"}} URI]
-      [:div#qrcode {:style {:display "flex" :flex-direction "column" :justify-content "top" :align-items "center" :margin-bottom 10}}]
-      [:p "Use a QRCode reader on your mobile to view your inputs there."]
-      ]]))
-
 (defn hide-handler
   "Hide a modal"
   [_e]
   (rf/dispatch [::events/modal-data nil]))
+
+(defn close-modal-and-print
+  "delay the print dialog so it doesn't screen capture this modal when printing.
+  todo: Is there a better event we can hang the js/print on? "
+  [_e]
+  (hide-handler _e)
+  (js/setTimeout js/print, 200))
 
 (defn show-canvas-modal
   "Pop up a large modal ready to display the canvas on it"
@@ -114,9 +96,51 @@
                  :paste (partial snap/show-screen-shot canvas)
                  :cancel hide-handler
                  :on-hide hide-handler
-                 :ok hide-handler
-                 }]))
-  
+                 :ok hide-handler}]))
+
+(defn close-modal-and-copy 
+  "Close the print dialog and throw ip a screenshot." 
+  [_e]
+  (hide-handler _e)
+  (js/setTimeout (fn [_e]
+                   (snap/take-screen-shot
+                    {:from-element (js/document.querySelector "#capture")
+                     :done show-canvas-modal})) 200))
+
+(defn print-modal-content
+  "What to say in the print modal"
+  []
+  (let [URI (.-href js/document.location)]
+    [:<>
+     [:section {:class-name "print-modal"}
+
+      [:h1 "Print"]
+      [:p "Press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
+                                  :style {:margin-right 5}}
+                    "Print"] #_[:b "Print"] "and the browser print dialogue box will appear. For best results, "
+       [:b "do not"] " enable the option which prints background graphics."]
+      [:h1 "Copy"]
+      [:p "The "  [:> bs/Button {:variant "primary" :on-click close-modal-and-copy
+                                 :style {:margin-right 5}}
+                   "Copy"] #_[:b "Copy"] " button displays a small screenshot which can be
+         saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for
+         best results."]
+      [:p "The copy feature does not work well in Internet Explorer."]
+      [:h1 "Save to PDF"]
+      [:p "If you prefer a PDF, press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
+                                                       :style {:margin-right 5}}
+                                         "Print"] " and select \"Save to PDF\" in the browser print dialogue."]
+      [:h1 "QRCode"]
+      [:p#docuri {:style {:width 466
+                          :word-break "break-word"}} URI]
+      [:div#qrcode {:style {:display "flex" :flex-direction "column" :justify-content "top" :align-items "center" :margin-bottom 10}}]
+      [:p "Use a QRCode reader on your mobile to view your inputs there."]
+      [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
+         using another browser if you need to use them."]]]))
+
+
+
+
 
 (defn print-or-save-modal
   "Main Print, Copy or Save modal popup"
@@ -135,12 +159,14 @@
                  :title "Print, Copy or Save to PDF"
                  :content (print-modal-content)
                 ; :ok hide-handler
-                 :print (fn [_e]
-                          (hide-handler _e)
+                 :print close-modal-and-print
+                 #_(fn [_e]
+                   (hide-handler _e)
                        ; delay the print dialog so it doesn't screen capture this modal.
                        ; todo: Is there a better event we can hang the js/print on? 
-                          (js/setTimeout js/print, 200))
-                 :copy (fn [_e]
+                   (js/setTimeout js/print, 200))
+                 :copy close-modal-and-copy
+                 #_(fn [_e]
                         ; Add screen capture logic here 
                          (hide-handler _e)
                          (js/setTimeout (fn [_e]

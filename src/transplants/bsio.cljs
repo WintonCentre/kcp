@@ -188,13 +188,12 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
         [:> bs/Modal.Title title]]
        [:> bs/Modal.Body [:div {:id "snap-display"} content]]
        [:> bs/Modal.Footer
-        (when paste (do (js/setTimeout (fn []
-                                         (paste (js/document.querySelector "#snap-display"))
-                                         (let [el (js/document.querySelector ".modal-dialog")
-                                               style (.-style el)]
-                                           (goog.object.set style "max-width" "85%")
-                                           )), 200)
-                        nil))
+        (when paste (js/setTimeout (fn []
+                                     (paste (js/document.querySelector "#snap-display"))
+                                     (let [el (js/document.querySelector ".modal-dialog")
+                                           style (.-style el)]
+                                       (goog.object.set style "max-width" "85%"))), 200)
+              nil)
         (when copy [:> bs/Button {:variant "primary" :on-click copy}
                     "Copy"])
         (when print [:> bs/Button {:variant "primary" :on-click print}

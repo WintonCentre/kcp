@@ -7,8 +7,8 @@
    Test that EDN parameters deriving from the organ master spreadsheet correspond to the R parameters given by the
    params.CSV file. 
    
-   Unfortunately we don't have a clean way of reading CSV byte order marks in babashka so watch out for issues 
-   occurring in the first byte of params.csv.
+   Unfortunately we don't yet have a clean way of reading CSV byte order marks in babashka so watch out for issues 
+   occurring in the first byte of params.csv. 
    
    Change organ by editing the first line of resources/public/metadata_template.edn and running `bb <organ>"
 

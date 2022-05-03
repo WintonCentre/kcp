@@ -1122,8 +1122,9 @@ Here are typical donor characteristics you might be asked to think about."]
             ;; Inputs panel
             ;;;
             (when-not is-full-screen
-              [ui/col {:xs 6 :md 6
-                       :style {:margin-top 10}}
+              [ui/col {:md 6
+                       :style {:margin-top 10}
+                       :class-name "col-print-6"}
 
                (when-let [input-header (get-in tool-mdata [:inputs :header])]
                  input-header)
@@ -1176,7 +1177,7 @@ Here are typical donor characteristics you might be asked to think about."]
             ;; Results Panel
             ;;;
             [:div.w-100.d-print-none.d-xs-block.d-md-none] ; this allows for a two column print layout but a one column xs and sm screen sizes
-            [ui/col {:xs 6
+            [ui/col {:class-name "col-print-6"
                      :md (if is-full-screen 12 6)}
              (when-not is-full-screen
                [:section {:id "test-results"}]

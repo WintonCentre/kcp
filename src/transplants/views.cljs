@@ -514,10 +514,20 @@
    (maths-section)
    (web-development-section)])
 
-(defn overview-menu [route text]
-  [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
-                                      (js-obj "behavior" "smooth"))
-          :style {:color :blue :font-size 18}} text])
+(defn overview-menu [[route text]]
+  [:li [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
+                                           (js-obj "behavior" "smooth"))
+               :style {:color :#1F6BC4 :font-size 18}} text]])
+
+(def tags [["waiting-times"          "Waiting Times"]
+           ["after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant"]
+           ["after-living-donor"    "Patient and graft survival after a living donor kidney transplant"]
+           ["input-factors"          "Input Factors"]
+           ["mathematical-section"   "Mathematical Section"]
+           ["the-web-implementation" "The web implementation"]
+           ["the-development-stack"  "The development stack"]
+           ["testing"                "Testing"]
+           ["browser-compatibility"  "Browser Compatibility"]])
 
 (defn kidney-tech-content
   []
@@ -525,17 +535,9 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:section "Overview"
-     [:li (overview-menu "waiting-times"          "Waiting Times")]
-     [:li (overview-menu "after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant")]
-     [:li (overview-menu "after-living-donor"     "Patient and graft survival after a living donor kidney transplant")]
-     [:li (overview-menu "input-factors"          "Input Factors")]
-     [:li (overview-menu "mathematical-section"   "Mathematical Section")]
-     [:li (overview-menu "the-web-implementation" "The web implementation")]
-     [:li (overview-menu "the-development-stack"  "The development stack")]
-     [:li (overview-menu"testing"                 "Testing")]
-     [:li (overview-menu "browser-compatibility"  "Browser Compatibility")]
-
+     [:ul (map overview-menu tags)]
      ]
+
     [:h3 "Model development"]
     [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]

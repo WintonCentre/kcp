@@ -514,32 +514,28 @@
    (maths-section)
    (web-development-section)])
 
-
+(defn overview-menu [route text]
+  [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
+                                      (js-obj "behavior" "smooth"))
+          :style {:color :blue :font-size 18}} text])
 
 (defn kidney-tech-content
   []
   [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "waiting-times")
-                                          (js-obj "behavior" "smooth"))} "Waiting Times"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "after-a-deceased-donor")
-                                          (js-obj "behavior" "smooth"))} "Patient and graft survival after a deceased donor kidney transplant"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "after-a-living-donor")
-                                          (js-obj "behavior" "smooth"))} "Patient and graft survival after a living donor kidney transplant"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "input-factors")
-                                          (js-obj "behavior" "smooth"))} "Input factors"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "mathematical-section")
-                                          (js-obj "behavior" "smooth"))} "Mathematical Section"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "the-web-implementation")
-                                          (js-obj "behavior" "smooth"))} "The web implementation"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "the-development-stack")
-                                          (js-obj "behavior" "smooth"))} "The development stack"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "testing")
-                                          (js-obj "behavior" "smooth"))} "Testing"]
-    [:button {:on-click #(.scrollIntoView (.getElementById js/document "browser-compatibility")
-                                          (js-obj "behavior" "smooth"))} "Browser Compatibility"]
+    [:section "Overview"
+     [:li (overview-menu "waiting-times"          "Waiting Times")]
+     [:li (overview-menu "after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant")]
+     [:li (overview-menu "after-living-donor"     "Patient and graft survival after a living donor kidney transplant")]
+     [:li (overview-menu "input-factors"          "Input Factors")]
+     [:li (overview-menu "mathematical-section"   "Mathematical Section")]
+     [:li (overview-menu "the-web-implementation" "The web implementation")]
+     [:li (overview-menu "the-development-stack"  "The development stack")]
+     [:li (overview-menu"testing"                 "Testing")]
+     [:li (overview-menu "browser-compatibility"  "Browser Compatibility")]
 
+     ]
     [:h3 "Model development"]
     [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
@@ -567,7 +563,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h4#after-a-deceased-donor "Patient and graft survival after a deceased donor kidney transplant"]
+    [:h4#after-deceased-donor "Patient and graft survival after a deceased donor kidney transplant"]
     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
 
     [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
@@ -582,7 +578,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h4#after-a-living-donor "Patient and graft survival after a living donor kidney transplant"]
+    [:h4#after-living-donor "Patient and graft survival after a living donor kidney transplant"]
     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2015."]
     [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
     [:ul

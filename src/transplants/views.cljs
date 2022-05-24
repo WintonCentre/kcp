@@ -341,7 +341,7 @@
 
   [:section {:style {:border-bottom "1px #337777 solid"
                      :margin-bottom  20}}
-   [:h2#mathematical-section {:style {:color :#1F6BC4}} "Mathematical Section"]
+   [:h3#mathematical-section {:style {:color :#1F6BC4}} "Mathematical Section"]
    [:p "A cox proportional hazards model was adopted. This multiplies a baseline cumulative hazard by a
         constant hazard ratio for each risk factor."]
    [:p "Using the example of post-transplant survival, this means that the cumulative hazard of post-transplant
@@ -375,7 +375,7 @@
   [:<>
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h2#the-web-implementation {:style {:color :#1F6BC4}} "The web implementation"]
+    [:h3#the-web-implementation {:style {:color :#1F6BC4}} "The web implementation"]
     [:p "This tool is a Single Page Application - an SPA. It is a single web page which loads a Javascript application that updates the page according
         to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser. "]
     [:p "The application is also a calculator. The Javascript code includes
@@ -388,19 +388,19 @@
         (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)."]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h2#the-development-stack {:style {:color :#1F6BC4}} "The development stack"]
+    [:h3#the-development-stack {:style {:color :#1F6BC4}} "The development stack"]
     [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript. The most important libraries that it uses
         are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the developers of these codes. The development system used Shadow-cljs (by Thomas Heller),
         supported by a number of Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h2#testing {:style {:color :#1F6BC4}} "Testing"]
+    [:h3#testing {:style {:color :#1F6BC4}} "Testing"]
     [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
        through the R code, collected the results, and then fed the same inputs into our Javascript implementation, and compared the results. "]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h2#browser-compatibility {:style {:color :#1F6BC4}} "Browser Compatibility"]
+    [:h3#browser-compatibility {:style {:color :#1F6BC4}} "Browser Compatibility"]
     [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
     [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
     [:p "It does not currently support any other version of Internet Explorer."]]])
@@ -536,11 +536,11 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:section
-     [:h2 {:style {:color :#1F6BC4}} "Overview"]
+     [:h3 {:style {:color :#1F6BC4}} "Overview"]
      [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"}} (map overview-menu tags)]
      ]
 
-    [:h2#model-development {:style {:color :#1F6BC4}} "Model development"]
+    [:h3#model-development {:style {:color :#1F6BC4}} "Model development"]
     [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
     [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:b " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
@@ -553,7 +553,7 @@
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h2#waiting-times {:style {:color :#1F6BC4}} "Waiting Times"]
+    [:h3#waiting-times {:style {:color :#1F6BC4}} "Waiting Times"]
     [:p "The dataset used for this model comprised of all adult (aged ≥18 years) first kidney-only registrations (i.e. people joining the transplant waiting list) between 1 January 2010 and 31 December 2015."]
     [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk’ of. We considered outcome data up to 5 years from listing for all patients in the modelling cohort. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox Regression (Section 3.1)."]
     [:p "Each patient in the cohort was assigned to 1 of 4 categories:"]
@@ -567,7 +567,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h2#after-deceased-donor {:style {:color :#1F6BC4}} "Patient and graft survival after a deceased donor kidney transplant"]
+    [:h3#after-deceased-donor {:style {:color :#1F6BC4}} "Patient and graft survival after a deceased donor kidney transplant"]
     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
 
     [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
@@ -582,7 +582,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h2#after-living-donor {:style {:color :#1F6BC4}} "Patient and graft survival after a living donor kidney transplant"]
+    [:h3#after-living-donor {:style {:color :#1F6BC4}} "Patient and graft survival after a living donor kidney transplant"]
     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2015."]
     [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
     [:ul
@@ -595,7 +595,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h2#input-factors {:style {:color :#1F6BC4}} "Input factors"]
+    [:h3#input-factors {:style {:color :#1F6BC4}} "Input factors"]
     [:p "Explanation of donor and recipient input covariates:"]
     [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
     [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender."]

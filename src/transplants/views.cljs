@@ -517,7 +517,7 @@
 (defn overview-menu [[route text]]
   [:li [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
                                            (js-obj "behavior" "smooth"))
-               :style {:color :#1F6BC4 :font-size 18}} text]])
+               :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
 
 (def tags [["waiting-times"          "Waiting Times"]
            ["after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant"]
@@ -534,8 +534,9 @@
   [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:section "Overview"
-     [:ul (map overview-menu tags)]
+    [:section
+     [:h2 {:style {:color :#1F6BC4}} "Overview"]
+     [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"}} (map overview-menu tags)]
      ]
 
     [:h3 "Model development"]

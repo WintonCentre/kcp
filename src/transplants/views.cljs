@@ -225,40 +225,47 @@
 (defn lung-about-content
   []
   [:<>
-   [:h4 "Overview"]
-   [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Overview"]
+    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same
            characteristics, and shows what happened to these people. "
 
-    "For example, how many people 'like you' received a transplant within one year of being listed."]
+     "For example, how many people 'like you' received a transplant within one year of being listed."]
 
-   [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
+    [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
 
-   [:p "It’s important to remember that the tool cannot take into account everything about you, for example,
+    [:p "It’s important to remember that the tool cannot take into account everything about you, for example,
         whether you have other health conditions. The tool will ask for some medical information such as blood group,
         or recent test results. The tool will be less accurate if you don't have all the relevant information."]
 
-   [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication
+    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication
         properly, diet and whether you exercise."]
-   [:p "If you want to know more about the models and data behind the tools, please read the "
-    [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
-    "Data about transplant patients were used to create statistical models.  When you enter information into the tool,
-     the calculator looks at these models and produces results."]
+    [:p "If you want to know more about the models and data behind the tools, please read the "
+     [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
+     "Data about transplant patients were used to create statistical models.  When you enter information into the tool,
+     the calculator looks at these models and produces results."]]
 
-   [:h4 "Using the tool offline"]
-   [:p "You need an internet connection to access the tool for the first time, but once you have visited
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Using the tool offline"]
+    [:p "You need an internet connection to access the tool for the first time, but once you have visited
          the site once, you can access it offline (just don't close the browser)."]
 
-   [:p "The tool can produce a printout of results for later reference."]
-   [:h4 "Who is this site for?"]
-   [:p "The tool is suitable for lung patients who are over 16 years old.
+    [:p "The tool can produce a printout of results for later reference."]]
+
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Who is this site for?"]
+     [:p "The tool is suitable for lung patients who are over 16 years old.
         This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and
         there is not enough data yet to make a tool for children. "]
-   [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]
+     [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]]
 
    [:h4 "Who developed the tool?"]
-   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
+    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
         disclosed by NHSBT under a data sharing agreement."]
-   [:p "We wish to thank all the transplant patients and their partners,
+    [:p "We wish to thank all the transplant patients and their partners,
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
   )
 
@@ -665,25 +672,27 @@
       [ui/page (str " Legal ")
        [ui/row
         [:> bs/Col
-         [:h4 "Disclaimer"]
-         [:p "You MUST read the information below before using the tool."]
-         [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry. However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
-         [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not intended as a substitute for professional medical advice and counselling. This tool is a reference guide only and cannot replace standard clinical counselling. Please read the referenced papers for the study derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
-         [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the disclaimer above or private study or non-commercial research with this notice intact."]
-         [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or otherwise exploit this tool or any content within in whole or in part for any other purposes without the prior written consent of the University of Cambridge, the authors and NHSBT."]
-         [:p "The authors and the University of Cambridge do not accept any liability for any errors in the model prediction or outcomes. See also the University’s standard terms at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions."]]
-         [:p "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
-         [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]
+         [:section  {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+          [:h4 "Disclaimer"]
+          [:p "You MUST read the information below before using the tool."]
+          [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry. However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
+          [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not intended as a substitute for professional medical advice and counselling. This tool is a reference guide only and cannot replace standard clinical counselling. Please read the referenced papers for the study derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
+          [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the disclaimer above or private study or non-commercial research with this notice intact."]
+          [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or otherwise exploit this tool or any content within in whole or in part for any other purposes without the prior written consent of the University of Cambridge, the authors and NHSBT."]
+          [:p "The authors and the University of Cambridge do not accept any liability for any errors in the model prediction or outcomes. See also the University’s standard terms at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions."]]
+          [:p "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
+          [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]]
 
          [:h4 "Cookies and Privacy Notice"]
-         [:p "All cookies " [:u "are disabled"] " on this website."]
-         [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
+          [:p "All cookies " [:u "are disabled"] " on this website."]
+          [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
               system, and it is erased once you close the application window. "]
-         [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
-         [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website."]]
-         [:p "If you print or save pages containing user entered data then you are responsible
+          [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
+          [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website."]]
+          [:p "If you print or save pages containing user entered data then you are responsible
               for protecting the data in those copies."]
-         [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
+          [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
       [ui/loading])))
 
 ;;

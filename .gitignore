@@ -61,7 +61,7 @@ resources/public/index.html
 resources/public/metadata.edn
 resources/public/sw_cache_update.js
 bbsrc/etaoin.clj
-resources/public/manifest.jsongit
+resources/public/manifest.json
 resources/public/metadata.txt
 resources/precache_paths_kidney.edn
 resources/precache_paths_lung.edn

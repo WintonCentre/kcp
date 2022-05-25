@@ -439,12 +439,31 @@
     [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
     [:p "It does not currently support any version of Internet Explorer."]]])
 
+(defn overview-menu [[route text]]
+  [:li [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
+                                           (js-obj "behavior" "smooth"))
+               :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
+
+(def lung-tags [["model-development"      "Model development"]
+                ["datasets-used"          "Datasets used"]
+                ["what-might-happen"      "What might happen to me from time of listing?"]
+                ["after-deceased-donor"   "Patient survival after a deceased donor lung transplant"]
+                ["input-factors"          "Input Factors"]
+                ["mathematical-section"   "Mathematical Section"]
+                ["the-web-implementation" "The web implementation"]
+                ["the-development-stack"  "The development stack"]
+                ["testing"                "Testing"]
+                ["browser-compatibility"  "Browser Compatibility"]])
 
 (defn lung-tech-content
   []
   [ui/col #_{:style {:border-bottom "1px #337777 solid"
                      :margin-bottom  20}}
-   [:h3 "Model development"]
+   [:section
+    [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"
+                  :margin-top 10}} (map overview-menu lung-tags)]]
+
+   [:h3#model-development {:style {:color :#1F6BC4}} "Model development"]
    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
    [:p "NHSBT statisticians worked closely with transplant clinicians to compile a large list of potential variables (e.g. age, disease group) from the UKTR to test in the models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. survival after transplant). These variables are referred to as ‘risk factors’."]
    [:p "At the end of the modelling process, values are obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline curve which represents an ‘average’ patient in the study cohort. This curve when plotted over time represents the estimated chances of survival (for the example of survival after transplant) for a patient in the model development dataset with the mean/most common value of all the risk factors in the model. The parameter estimates are then used by the tool to shift this baseline curve when the values of the risk factors are changed from the mean/most common values. This way, users can select values of each risk factor that best represent their own characteristics and view model results for patients ‘like me’. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre, in order to represent different practice at each centre. Details of the modelling development can be found in Kourliouros et al (2019)."]
@@ -453,13 +472,13 @@
    [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA"]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "Datasets used"]
+    [:h3#datasets-used {:style {:color :#1F6BC4}} "Datasets used"]
     [:p "All data used to develop the lung models behind the Lung-RCT were obtained from the UKTR held by NHSBT as of 14 May 2016. The patient cohort comprised all adult (aged ≥16 years) first lung-only registrations (i.e. people joining the transplant waiting list) between 1 January 2004 and 31 March 2014. Patients who met any of the following exclusion criteria were not studied: patients registered for a heart-lung block or other multiorgan transplant; patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration; patients registered outside the UK or not entitled to ’National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on paediatric lists."]
     [:p "This dataset was used to build the ‘what might happen to me from point of transplant’ models. In order to build the ‘survival after transplant’ model, we used the subset of patients from this dataset who had been transplanted as at time of data extraction (14 May 2016). "]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "What might happen to me from time of listing?"]
+    [:h3#what-might-happen {:style {:color :#1F6BC4}} "What might happen to me from time of listing?"]
     [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk of’. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox regression (see the Mathematical Section below). Because the event of transplant would prevent the event of death on the list/removal from the list from happening, and vice-versa, these Cox Regression models were cause-specific Cox proportional hazard models. When modelling time to transplant, for example, a patient who died on the list at time t would be ‘censored’ at time t and still considered in the time to transplant modelling cohort but whose time of transplant was ‘unknown’. When modelling time to death on the list/removal from the list, the same patient data would be used but there would be no censoring and instead the patient would experience the event of interest at time t. "]
     [:p "For the purposes of the Lung-RCT, the death on the list data has been combined with removal from the list as 1) there were few removals and 2) for lung patients, removal from the list is often sadly due to a deterioration in the patient’s condition. We also made further changes to these models by 1) capping outcome data up to 3 years from listing for all patients in the modelling cohort and 2) removing any risk factors that were no longer statistically significant in both the time to transplant model and the time to death on the list/removal from the list model (p>0.05) and 3) turning all continuous variables into categorical variables. This resulted in two models, one for time to transplant and one for time to death on the list/removal from the list. "]
     [:p "However, to adjust for the fact that the cause-specific Cox proportional hazards model patient-specific estimates would be biased (because once a patient experienced one of the competing events at time t, they would no longer be eligible for any other event), a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model (Mathematical Section). This algorithm enabled the estimated chances of each of the following outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%:"]
@@ -470,14 +489,14 @@
     [:p "The parameter estimates for each of the risk factors in the time to transplant model and the time to death on the list/removal from the list model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Although the two models were developed separately, any risk factor that was found to be significantly influential for one model was retained in the other model in order to keep the same risk factors in all models (although parameter estimates would be different). Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
    [:section {:style {:border-bottom "1px #337777 solid"
                                :margin-bottom  20}}
-    [:h3 "Patient survival after a deceased donor lung transplant "]
+    [:h3#after-deceased-donor {:style {:color :#1F6BC4}} "Patient survival after a deceased donor lung transplant "]
     [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see "
      [:a {:href "https://pubmed.ncbi.nlm.nih.gov/30282722/" :target "_blank"} "Kourliouros et al (2019)"] ". However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
     [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                                :margin-bottom  20}}
-    [:h3 "Input factors"]
+    [:h3#input-factors {:style {:color :#1F6BC4}} "Input factors"]
     [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender"]
     [:p [:b "Blood group"] " - O, A, B or AB"]
     [:p [:b "Lung primary disease group"]
@@ -514,21 +533,17 @@
    (maths-section)
    (web-development-section)])
 
-(defn overview-menu [[route text]]
-  [:li [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
-                                           (js-obj "behavior" "smooth"))
-               :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
+(def kidney-tags [["model-development"       "Model development"]
+                  ["waiting-times"          "Waiting Times"]
+                  ["after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant"]
+                  ["after-living-donor"     "Patient and graft survival after a living donor kidney transplant"]
+                  ["input-factors"          "Input Factors"]
+                  ["mathematical-section"   "Mathematical Section"]
+                  ["the-web-implementation" "The web implementation"]
+                  ["the-development-stack"  "The development stack"]
+                  ["testing"                "Testing"]
+                  ["browser-compatibility"  "Browser Compatibility"]])
 
-(def tags [["model-development"       "Model development"]
-           ["waiting-times"          "Waiting Times"]
-           ["after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant"]
-           ["after-living-donor"     "Patient and graft survival after a living donor kidney transplant"]
-           ["input-factors"          "Input Factors"]
-           ["mathematical-section"   "Mathematical Section"]
-           ["the-web-implementation" "The web implementation"]
-           ["the-development-stack"  "The development stack"]
-           ["testing"                "Testing"]
-           ["browser-compatibility"  "Browser Compatibility"]])
 
 (defn kidney-tech-content
   []
@@ -536,9 +551,8 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:section
-     [:h3 {:style {:color :#1F6BC4}} "Overview"]
-     [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"}} (map overview-menu tags)]
-     ]
+     [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"
+                   :margin-top 10}} (map overview-menu kidney-tags)]]
 
     [:h3#model-development {:style {:color :#1F6BC4}} "Model development"]
     [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]

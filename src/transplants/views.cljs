@@ -28,8 +28,8 @@
         content))
 
 (comment
-  
-  
+
+
   )
 
 (defn scroll-to-target
@@ -65,7 +65,7 @@
       [:> bs/Col {:md 6}
        [home-section
         [:h2 "What does this site do?"]
-        [:p "This is a communication tool. It will help patients understand risks and benefit numbers about 
+        [:p "This is a communication tool. It will help patients understand risks and benefit numbers about
              transplantation. It will help the transplant team explain these numbers by showing them in graphs and charts. "]
         [:p "Results can be printed out for patients to take home"]
 
@@ -74,13 +74,13 @@
           [:p [bsio/feedback-button mdata single-organ]]]
          [:> bs/Col {:md 8}
           [:p
-           [:i "We are still asking for feedback on this site. You are encouraged to email us with any thoughts, corrections 
+           [:i "We are still asking for feedback on this site. You are encouraged to email us with any thoughts, corrections
               and feedback on any aspect of the site. Please send any feedback by the end of May 2022. "]]]]
         ]
 
        [home-section
         [:h2 "How does it work?"]
-        [:p "The tool takes details about the patient such as age, disease, blood group, treatment 
+        [:p "The tool takes details about the patient such as age, disease, blood group, treatment
              centre and produces results personalised for them."]]
 
        [home-section
@@ -92,7 +92,7 @@
 
        [home-section
         [:h2 "Who is this site for?"]
-        [:p "People who are suitable for " (name single-organ) " transplant and who are over " 
+        [:p "People who are suitable for " (name single-organ) " transplant and who are over "
          (if (= single-organ :kidney) "18" "16") " years old."]
         (when (= single-organ :kidney)
           [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]]
@@ -102,18 +102,18 @@
         [:h2 "Overview"]
         [:p "The tool uses data from the NHS BT registry."]
         [:p "It takes the information you enter and shows what happened to people “like you” in the past. "
-         [:b " It is not showing what will happen to you in the future, it is showing what happened to people 
+         [:b " It is not showing what will happen to you in the future, it is showing what happened to people
               like you in the past."]]
-        [:p "The tool cannot take into account everything about you.  For example it does not currently ask 
+        [:p "The tool cannot take into account everything about you.  For example it does not currently ask
              about other health conditions you may have."]
-        [:p "There are many factors that influences how well a transplant does, for example whether you take 
-             your medications correctly, your diet and whether you exercise.  Sometimes transplants don’t work 
-             and we don’t know why."] 
-        [:p " If you want to know more about the data and the models behind the tool read 
+        [:p "There are many factors that influences how well a transplant does, for example whether you take
+             your medications correctly, your diet and whether you exercise.  Sometimes transplants don’t work
+             and we don’t know why."]
+        [:p " If you want to know more about the data and the models behind the tool read
              the " [:a {:href (ui/href :transplants.views/tech)}  "technical section"] " of this site."]]
        [home-section
         [:h2 "Use the tool offline"]
-        [:p "You need an internet connection to access the tool for the first time."] 
+        [:p "You need an internet connection to access the tool for the first time."]
         [:p "Provided you have visited the site once, you can revisit it from the same browser even if you are offline."]]]
 
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
@@ -123,7 +123,7 @@
 
 ;;; Views ;;;
 (defn home-page
-  "Display a generic home page. 
+  "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
   (let [mdata @(rf/subscribe [::subs/mdata])
@@ -164,7 +164,7 @@
         organ (get-in @(rf/subscribe [::subs/current-route]) [:path-params :organ])
         centres @(rf/subscribe [::subs/organ-centres])
         mobile (<= window-width ui/mobile-break)]
-    
+
     ;;
     ;; Insert Kidney or Lung home page here
     ;;
@@ -193,7 +193,7 @@
 
 
 (defn pubs-page
-  "Display a generic home page. 
+  "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
   ;; This needs to be a promise....
@@ -225,40 +225,47 @@
 (defn lung-about-content
   []
   [:<>
-   [:h4 "Overview"]
-   [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Overview"]
+    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same
            characteristics, and shows what happened to these people. "
 
-    "For example, how many people 'like you' received a transplant within one year of being listed."]
+     "For example, how many people 'like you' received a transplant within one year of being listed."]
 
-   [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
+    [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
 
-   [:p "It’s important to remember that the tool cannot take into account everything about you, for example, 
-        whether you have other health conditions. The tool will ask for some medical information such as blood group, 
+    [:p "It’s important to remember that the tool cannot take into account everything about you, for example,
+        whether you have other health conditions. The tool will ask for some medical information such as blood group,
         or recent test results. The tool will be less accurate if you don't have all the relevant information."]
 
-   [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication 
+    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication
         properly, diet and whether you exercise."]
-   [:p "If you want to know more about the models and data behind the tools, please read the "
-    [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
-    "Data about transplant patients were used to create statistical models.  When you enter information into the tool, 
-     the calculator looks at these models and produces results."]
+    [:p "If you want to know more about the models and data behind the tools, please read the "
+     [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
+     "Data about transplant patients were used to create statistical models.  When you enter information into the tool,
+     the calculator looks at these models and produces results."]]
 
-   [:h4 "Using the tool offline"]
-   [:p "You need an internet connection to access the tool for the first time, but once you have visited 
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Using the tool offline"]
+    [:p "You need an internet connection to access the tool for the first time, but once you have visited
          the site once, you can access it offline (just don't close the browser)."]
 
-   [:p "The tool can produce a printout of results for later reference."]
-   [:h4 "Who is this site for?"]
-   [:p "The tool is suitable for lung patients who are over 16 years old.
-        This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
+    [:p "The tool can produce a printout of results for later reference."]]
+
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h4 "Who is this site for?"]
+     [:p "The tool is suitable for lung patients who are over 16 years old.
+        This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and
         there is not enough data yet to make a tool for children. "]
-   [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]
-   
+     [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]]
+
    [:h4 "Who developed the tool?"]
-   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
+    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
         disclosed by NHSBT under a data sharing agreement."]
-   [:p "We wish to thank all the transplant patients and their partners, 
+    [:p "We wish to thank all the transplant patients and their partners,
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
   )
 
@@ -269,18 +276,18 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h4 "Overview"]
-    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same 
+    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same
            characteristics, and shows what happened to these people. "
 
      "For example, how many people 'like you' received a transplant within one year of being listed."]
 
     [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
 
-    [:p "It’s important to remember that the tool cannot take into account everything about you, for example, 
-        whether you have other health conditions. The tool will ask for some medical information such as blood group, 
+    [:p "It’s important to remember that the tool cannot take into account everything about you, for example,
+        whether you have other health conditions. The tool will ask for some medical information such as blood group,
         or recent test results. The tool will be less accurate if you don't have all the relevant information."]
 
-    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication 
+    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication
         properly, diet and whether you exercise."]
     [:p "If you want to know more about the models and data behind the tools, please read the "
      [:a {:href (ui/href :transplants.views/tech)} "Technical section"] ". "
@@ -291,9 +298,9 @@
 
 
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}} 
+                      :margin-bottom  20}}
     [:h4 "Using the tool offline"]
-    [:p "You need an internet connection to access the tool for the first time, but once you have visited 
+    [:p "You need an internet connection to access the tool for the first time, but once you have visited
          the site once, you can access it offline (just don't close the browser)."]
 
     [:p "The tool can produce a printout of results for later reference."]]
@@ -302,21 +309,21 @@
                       :margin-bottom  20}}
     [:h4 "Who is this site for?"]
     [:p "The tool is suitable for kidney patients who are over 18 years old.
-        This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and 
+        This is because we use past data from the NHS transplant registry.  Fewer children have transplants than adults and
         there is not enough data yet to make a tool for children. "]
     [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]]
 
    [:h4 "Who developed the tool?"]
-   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models 
+   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
         disclosed by NHSBT under a data sharing agreement."]
-   [:p "We wish to thank all the transplant patients and their partners, 
+   [:p "We wish to thank all the transplant patients and their partners,
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]
 
   ])
 
 ;;; Views ;;;
 (defn about-page
-  "Display a generic home page. 
+  "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
   ;; This needs to be a promise....
@@ -341,14 +348,14 @@
 
   [:section {:style {:border-bottom "1px #337777 solid"
                      :margin-bottom  20}}
-   [:h3 "Mathematical Section"]
-   [:p "A cox proportional hazards model was adopted. This multiplies a baseline cumulative hazard by a 
+   [:h3#mathematical-section "Mathematical Section"]
+   [:p "A cox proportional hazards model was adopted. This multiplies a baseline cumulative hazard by a
         constant hazard ratio for each risk factor."]
    [:p "Using the example of post-transplant survival, this means that the cumulative hazard of post-transplant
-        death is the product of two components: the baseline hazard (chances of dying for a patient with a baseline set of 
-        characteristics at time of transplant) and all the hazard ratios for the risk factors (the increased/decreased risk of 
+        death is the product of two components: the baseline hazard (chances of dying for a patient with a baseline set of
+        characteristics at time of transplant) and all the hazard ratios for the risk factors (the increased/decreased risk of
         death due to changes in these risk factors compared to the baseline characteristics)."]
-   [:p "In the case of post-transplant survival, the cumulative hazard is then translated into a survival function. 
+   [:p "In the case of post-transplant survival, the cumulative hazard is then translated into a survival function.
         This is described in mathematical form below. "]
    [:p "The estimated cumulative hazard for the ith individual  for the event of interest (e.g. death post-transplant), after t days has the form:
 
@@ -375,35 +382,33 @@
   [:<>
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "The web implementation"]
+    [:h3#the-web-implementation "The web implementation"]
     [:p "This tool is a Single Page Application - an SPA. It is a single web page which loads a Javascript application that updates the page according
         to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser. "]
     [:p "The application is also a calculator. The Javascript code includes
-        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed 
-        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever 
+        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed
+        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever
         you change any input. Once you close the browser window or tab, the data is erased, just like in a calculator."]
     [:p "The tool is also a Progressive Web App - a PWA - which means that in some ways it behaves like an application you might have downloaded onto your phone
         from an App Store. Once you load the app from the website, it is automatically cached in your browser for future use - offline if need be. You can also install the
-        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name 
+        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name
         (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)."]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "The development stack"]
+    [:h3#the-development-stack "The development stack"]
     [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript. The most important libraries that it uses
-        are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the developers of these codes. The development system used Shadow-cljs (by Thomas Heller), 
+        are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the developers of these codes. The development system used Shadow-cljs (by Thomas Heller),
         supported by a number of Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "Testing"]
+    [:h3#testing "Testing"]
     [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
        through the R code, collected the results, and then fed the same inputs into our Javascript implementation, and compared the results. "]]
 
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3 "Browser Compatibility"]
+   [:h3#browser-compatibility "Browser Compatibility"]
     [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
     [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
-    [:p "It does not currently support any other version of Internet Explorer."]]])
+    [:p "It does not currently support any other version of Internet Explorer."]])
 
 #_(defn web-development-section
   []
@@ -414,18 +419,18 @@
     [:p "This tool is a Single Page Application - an SPA. it is a single web page which loads a javascript application that updates the page according
         to the user's inputs. All data that you enter to the tool is stored in javascript variables in the browser. "]
     [:p "The application is also a calculator. The javascript code includes
-        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed 
-        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever 
+        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed
+        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever
         you change any input. Once you close the browser window or tab, the data is erased, just like in a calculator."]
     [:p "The tool is also a Progressive Web App - a PWA - which means that in some ways it behaves like an application you might have downloaded onto your phone
         from an App Store. Once you load the app from the web-site, it is automatically cached in your browser for future use - offline if need be. You can also install the
-        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name 
+        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name
         (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)"]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h3 "The development stack"]
     [:p "The tool runs as a javascript application, but it was written in clojurescript and then compiled to javascript. The most important libraries that it uses
-        are ReactJS, Reagent, and Reframe, and we are sincerely greateful to the developers of these codes. The development system wass Shadow-cljs by Thomas Heller, 
+        are ReactJS, Reagent, and Reframe, and we are sincerely greateful to the developers of these codes. The development system wass Shadow-cljs by Thomas Heller,
         supported by a number of clojure scripts running under Babashka (by Michel Borkent) and the clojure integrated development system Calva running in VSCode. "]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
@@ -439,27 +444,48 @@
     [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
     [:p "It does not currently support any version of Internet Explorer."]]])
 
+(defn overview-menu [[route text]]
+  [:li [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
+                                           (js-obj "behavior" "smooth"))
+               :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
+
+(def lung-tags [["model-development"      "Model development"]
+                ["datasets-used"          "Datasets used"]
+                ["what-might-happen"      "What might happen to me from time of listing?"]
+                ["after-deceased-donor"   "Patient survival after a deceased donor lung transplant"]
+                ["input-factors"          "Input Factors"]
+                ["mathematical-section"   "Mathematical Section"]
+                ["the-web-implementation" "The web implementation"]
+                ["the-development-stack"  "The development stack"]
+                ["testing"                "Testing"]
+                ["browser-compatibility"  "Browser Compatibility"]])
 
 (defn lung-tech-content
   []
   [ui/col #_{:style {:border-bottom "1px #337777 solid"
                      :margin-bottom  20}}
-   [:h3 "Model development"]
-   [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
-   [:p "NHSBT statisticians worked closely with transplant clinicians to compile a large list of potential variables (e.g. age, disease group) from the UKTR to test in the models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. survival after transplant). These variables are referred to as ‘risk factors’."]
-   [:p "At the end of the modelling process, values are obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline curve which represents an ‘average’ patient in the study cohort. This curve when plotted over time represents the estimated chances of survival (for the example of survival after transplant) for a patient in the model development dataset with the mean/most common value of all the risk factors in the model. The parameter estimates are then used by the tool to shift this baseline curve when the values of the risk factors are changed from the mean/most common values. This way, users can select values of each risk factor that best represent their own characteristics and view model results for patients ‘like me’. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre, in order to represent different practice at each centre. Details of the modelling development can be found in Kourliouros et al (2019)."]
-   [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
-   [:p "Patient primary disease is recorded on the UKTR and the following groupings were used for the analysis: COPD (encompassing alpha-1-antitrypsin deficiency and emphysema), cystic fibrosis (CF, also encompassing patients with bronchitectasis) and pulmonary fibrosis (PF, encompassing all fibrotic lung diseases). All other lung diseases were grouped under the category ‘other’."]
-   [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA"]
+   [:section
+    [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"
+                  :margin-top 10}} (map overview-menu lung-tags)]]
+
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "Datasets used"]
+    [:h3#model-development "Model development"]
+    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
+    [:p "NHSBT statisticians worked closely with transplant clinicians to compile a large list of potential variables (e.g. age, disease group) from the UKTR to test in the models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. survival after transplant). These variables are referred to as ‘risk factors’."]
+    [:p "At the end of the modelling process, values are obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline curve which represents an ‘average’ patient in the study cohort. This curve when plotted over time represents the estimated chances of survival (for the example of survival after transplant) for a patient in the model development dataset with the mean/most common value of all the risk factors in the model. The parameter estimates are then used by the tool to shift this baseline curve when the values of the risk factors are changed from the mean/most common values. This way, users can select values of each risk factor that best represent their own characteristics and view model results for patients ‘like me’. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre, in order to represent different practice at each centre. Details of the modelling development can be found in Kourliouros et al (2019)."]
+    [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
+    [:p "Patient primary disease is recorded on the UKTR and the following groupings were used for the analysis: COPD (encompassing alpha-1-antitrypsin deficiency and emphysema), cystic fibrosis (CF, also encompassing patients with bronchitectasis) and pulmonary fibrosis (PF, encompassing all fibrotic lung diseases). All other lung diseases were grouped under the category ‘other’."]
+    [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA"]]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3#datasets-used "Datasets used"]
     [:p "All data used to develop the lung models behind the Lung-RCT were obtained from the UKTR held by NHSBT as of 14 May 2016. The patient cohort comprised all adult (aged ≥16 years) first lung-only registrations (i.e. people joining the transplant waiting list) between 1 January 2004 and 31 March 2014. Patients who met any of the following exclusion criteria were not studied: patients registered for a heart-lung block or other multiorgan transplant; patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration; patients registered outside the UK or not entitled to ’National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on paediatric lists."]
     [:p "This dataset was used to build the ‘what might happen to me from point of transplant’ models. In order to build the ‘survival after transplant’ model, we used the subset of patients from this dataset who had been transplanted as at time of data extraction (14 May 2016). "]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "What might happen to me from time of listing?"]
+    [:h3#what-might-happen "What might happen to me from time of listing?"]
     [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk of’. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox regression (see the Mathematical Section below). Because the event of transplant would prevent the event of death on the list/removal from the list from happening, and vice-versa, these Cox Regression models were cause-specific Cox proportional hazard models. When modelling time to transplant, for example, a patient who died on the list at time t would be ‘censored’ at time t and still considered in the time to transplant modelling cohort but whose time of transplant was ‘unknown’. When modelling time to death on the list/removal from the list, the same patient data would be used but there would be no censoring and instead the patient would experience the event of interest at time t. "]
     [:p "For the purposes of the Lung-RCT, the death on the list data has been combined with removal from the list as 1) there were few removals and 2) for lung patients, removal from the list is often sadly due to a deterioration in the patient’s condition. We also made further changes to these models by 1) capping outcome data up to 3 years from listing for all patients in the modelling cohort and 2) removing any risk factors that were no longer statistically significant in both the time to transplant model and the time to death on the list/removal from the list model (p>0.05) and 3) turning all continuous variables into categorical variables. This resulted in two models, one for time to transplant and one for time to death on the list/removal from the list. "]
     [:p "However, to adjust for the fact that the cause-specific Cox proportional hazards model patient-specific estimates would be biased (because once a patient experienced one of the competing events at time t, they would no longer be eligible for any other event), a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model (Mathematical Section). This algorithm enabled the estimated chances of each of the following outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%:"]
@@ -470,14 +496,14 @@
     [:p "The parameter estimates for each of the risk factors in the time to transplant model and the time to death on the list/removal from the list model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Although the two models were developed separately, any risk factor that was found to be significantly influential for one model was retained in the other model in order to keep the same risk factors in all models (although parameter estimates would be different). Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
    [:section {:style {:border-bottom "1px #337777 solid"
                                :margin-bottom  20}}
-    [:h3 "Patient survival after a deceased donor lung transplant "]
-    [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see " 
+    [:h3#after-deceased-donor "Patient survival after a deceased donor lung transplant "]
+    [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see "
      [:a {:href "https://pubmed.ncbi.nlm.nih.gov/30282722/" :target "_blank"} "Kourliouros et al (2019)"] ". However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
     [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                                :margin-bottom  20}}
-    [:h3 "Input factors"]
+    [:h3#input-factors "Input factors"]
     [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender"]
     [:p [:b "Blood group"] " - O, A, B or AB"]
     [:p [:b "Lung primary disease group"]
@@ -514,6 +540,16 @@
    (maths-section)
    (web-development-section)])
 
+(def kidney-tags [["model-development"       "Model development"]
+                  ["waiting-times"          "Waiting Times"]
+                  ["after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant"]
+                  ["after-living-donor"     "Patient and graft survival after a living donor kidney transplant"]
+                  ["input-factors"          "Input Factors"]
+                  ["mathematical-section"   "Mathematical Section"]
+                  ["the-web-implementation" "The web implementation"]
+                  ["the-development-stack"  "The development stack"]
+                  ["testing"                "Testing"]
+                  ["browser-compatibility"  "Browser Compatibility"]])
 
 
 (defn kidney-tech-content
@@ -521,7 +557,11 @@
   [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3 "Model development"]
+    [:section
+     [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"
+                   :margin-top 10}} (map overview-menu kidney-tags)]]
+
+    [:h3#model-development "Model development"]
     [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
     [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
     [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:b " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
@@ -534,7 +574,7 @@
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h4 "Waiting Times"]
+    [:h3#waiting-times "Waiting Times"]
     [:p "The dataset used for this model comprised of all adult (aged ≥18 years) first kidney-only registrations (i.e. people joining the transplant waiting list) between 1 January 2010 and 31 December 2015."]
     [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk’ of. We considered outcome data up to 5 years from listing for all patients in the modelling cohort. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox Regression (Section 3.1)."]
     [:p "Each patient in the cohort was assigned to 1 of 4 categories:"]
@@ -548,7 +588,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h4 "Patient and graft survival after a deceased donor kidney transplant"]
+    [:h3#after-deceased-donor "Patient and graft survival after a deceased donor kidney transplant"]
     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
 
     [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
@@ -563,7 +603,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h4 "Patient and graft survival after a living donor kidney transplant"]
+    [:h3#after-living-donor "Patient and graft survival after a living donor kidney transplant"]
     [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only transplants that occurred in the UK between 1 January 2010 and 31 December 2015."]
     [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
     [:ul
@@ -576,7 +616,7 @@
 
    [::section {:style {:border-bottom "1px #337777 solid"
                        :margin-bottom  20}}
-    [:h4 "Input factors"]
+    [:h3#input-factors "Input factors"]
     [:p "Explanation of donor and recipient input covariates:"]
     [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
     [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender."]
@@ -597,7 +637,7 @@
    (web-development-section)])
 
 (defn tech-page
-  "Display a generic home page. 
+  "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
   ;; This needs to be a promise....
@@ -618,7 +658,7 @@
 
 
 (defn legal-page
-  "Display a generic home page. 
+  "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
   ;; This needs to be a promise....
@@ -632,25 +672,27 @@
       [ui/page (str " Legal ")
        [ui/row
         [:> bs/Col
-         [:h4 "Disclaimer"]
-         [:p "You MUST read the information below before using the tool."]
-         [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry. However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
-         [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not intended as a substitute for professional medical advice and counselling. This tool is a reference guide only and cannot replace standard clinical counselling. Please read the referenced papers for the study derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
-         [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the disclaimer above or private study or non-commercial research with this notice intact."]
-         [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or otherwise exploit this tool or any content within in whole or in part for any other purposes without the prior written consent of the University of Cambridge, the authors and NHSBT."]
-         [:p "The authors and the University of Cambridge do not accept any liability for any errors in the model prediction or outcomes. See also the University’s standard terms at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions."]]
-         [:p "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
-         [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]
+         [:section  {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+          [:h4 "Disclaimer"]
+          [:p "You MUST read the information below before using the tool."]
+          [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry. However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
+          [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not intended as a substitute for professional medical advice and counselling. This tool is a reference guide only and cannot replace standard clinical counselling. Please read the referenced papers for the study derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
+          [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the disclaimer above or private study or non-commercial research with this notice intact."]
+          [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or otherwise exploit this tool or any content within in whole or in part for any other purposes without the prior written consent of the University of Cambridge, the authors and NHSBT."]
+          [:p "The authors and the University of Cambridge do not accept any liability for any errors in the model prediction or outcomes. See also the University’s standard terms at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions."]]
+          [:p "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
+          [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]]
 
          [:h4 "Cookies and Privacy Notice"]
-         [:p "All cookies " [:u "are disabled"] " on this website."]
-         [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
+          [:p "All cookies " [:u "are disabled"] " on this website."]
+          [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
               system, and it is erased once you close the application window. "]
-         [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
-         [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website."]]
-         [:p "If you print or save pages containing user entered data then you are responsible 
+          [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
+          [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website."]]
+          [:p "If you print or save pages containing user entered data then you are responsible
               for protecting the data in those copies."]
-         [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
+          [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
       [ui/loading])))
 
 ;;
@@ -724,7 +766,7 @@ Here are typical donor characteristics you might be asked to think about."]
   [:<>
    [:h3 (:window guidances)]
    [:p "This diagram shows how your lung disease might progress.
-        Transplantation is offered when you are ill enough to need it, 
+        Transplantation is offered when you are ill enough to need it,
         but well enough to survive the surgery.  We call this the ‘window of opportunity’."]
    #_[:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
         decreases, there comes a point where a transplant could be recommended. This opens
@@ -767,10 +809,10 @@ Here are typical donor characteristics you might be asked to think about."]
      [:h5 "Haemodialysis (HD)"]
      [:p "There are 2 ways of doing HD:"]
      [:ul {:style {:margin-top -5}}
-      [:li "HD (haemodialysis). Done at hospital. People go to hospital 3 times a week 
+      [:li "HD (haemodialysis). Done at hospital. People go to hospital 3 times a week
             (every week) for a 4 hour session."]
-      [:li "HHD (home haemodialysis). HD done at home after training people how to do it. 
-            All supplies are provided free. Saves people needing to stick to inflexible 
+      [:li "HHD (home haemodialysis). HD done at home after training people how to do it.
+            All supplies are provided free. Saves people needing to stick to inflexible
             hospital appointments."]]]]])
 
 (defmethod show-guidance :kidney-numbers []
@@ -1104,7 +1146,7 @@ Here are typical donor characteristics you might be asked to think about."]
            [ui/row
             [ui/col {:xs 6 :sm 4} [:h4.lblprint (:label tool-mdata) " model"]]]]
           [:hr.rounded]])
-       
+
        (when (= tab "test")
          [results/results-panel {:organ organ :centre centre :tool tool :bare true
                                  :centre-info centre-info}]
@@ -1155,7 +1197,7 @@ Here are typical donor characteristics you might be asked to think about."]
 
                        tcb-fmaps))]
                [:<>
-                [:p "This tool cannot take into account all the factors about you that might affect the result. 
+                [:p "This tool cannot take into account all the factors about you that might affect the result.
                                            We hope to include more in the future. "]
                 [:p.d-print-none "Click below to find out more about those we have considered but are not in the tool."]
                 [:p
@@ -1202,10 +1244,10 @@ Here are typical donor characteristics you might be asked to think about."]
 
 (defn organ-centre
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
-   for that organ and centre. I think we no longer use this component because we always set the tool to 
+   for that organ and centre. I think we no longer use this component because we always set the tool to
    the first available one for the organ, so we never display a page without a known tool.
    Minimally, navigate to an organ-centre-tool home page.
-   
+
    If no tool has been selected, load the waiting tool"
   []
   (let [route @(rf/subscribe [::subs/current-route])
@@ -1214,7 +1256,7 @@ Here are typical donor characteristics you might be asked to think about."]
         [organ centre _tool] (map keyword p-names)
         mdata @(rf/subscribe [::subs/mdata])
         tools (utils/get-tools mdata organ)]
-    
+
     (tool-page {:organ organ
                 :organ-centres organ-centres
                 :centre centre
@@ -1323,5 +1365,3 @@ Here are typical donor characteristics you might be asked to think about."]
   (paths/organ-centre-name-tool :kidney
                                 "The Royal Free"
                                 :guidance))
-
-

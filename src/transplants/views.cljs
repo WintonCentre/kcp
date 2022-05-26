@@ -445,9 +445,9 @@
     [:p "It does not currently support any version of Internet Explorer."]]])
 
 (defn overview-menu [[route text]]
-  [:li [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
-                                           (js-obj "behavior" "smooth"))
-               :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
+  [:li {:key (random-uuid)} [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
+                                              (js-obj "behavior" "smooth"))
+                  :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
 
 (def lung-tags [["model-development"      "Model development"]
                 ["datasets-used"          "Datasets used"]

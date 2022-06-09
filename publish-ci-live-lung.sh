@@ -2,7 +2,7 @@
 
 set -e
 echo "Publishing to live production server for lung"
-TARGET='lung.transplants.wintoncentre.uk:/var/www/lung.transplants.wintoncentre.uk/html'
+TARGET='lung.kcp.wintoncentre.uk:/var/www/lung.kcp.wintoncentre.uk/html'
 LOCAL_DEV='resources/public/'
 echo "===============building lung-specific files==============="
 bb lung

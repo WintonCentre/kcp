@@ -1,6 +1,6 @@
 #!/usr/bin/env bb
 
-; Run from the transplants project directory
+; Run from the kcp project directory
 ; $ ./bb-scripts/switch-10x-dev.clj
 ;
 ; I may be wrong, but it is very hard to configure figwheel-main with webpack to easily switch

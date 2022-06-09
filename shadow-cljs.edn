@@ -27,8 +27,8 @@
 
  :builds
  {:app {:target     :browser
-        :dev {:closure-defines {transplants.routes/frag? true}}
-        ;:closure-defines {transplants.routes/frag? true}
+        :dev {:closure-defines {kcp.routes/frag? true}}
+        ;:closure-defines {kcp.routes/frag? true}
         :output-dir "resources/public/js"
         :asset-path "/js"
         ;:devtools {:preloads [re-frame-flow.preload]}
@@ -38,7 +38,7 @@
                            :output-wrapper false
                            ;:output-feature-set :es5
                            }
-        :modules {:app {:init-fn transplants.core/init}}}
+        :modules {:app {:init-fn kcp.core/init}}}
 
   #_#_:lung {:target     :browser
              :output-dir "resources/public-lung/js"
@@ -46,7 +46,7 @@
              :devtools {:preloads [re-frame-flow.preload]}
              :compiler-options {:optimizations  :advanced
                                 :output-wrapper false}
-             :modules {:app {:init-fn transplants.core/lung-init}}}
+             :modules {:app {:init-fn kcp.core/lung-init}}}
 
   #_#_:kidney {:target     :browser
                :output-dir "resources/public-kidney/js"
@@ -54,7 +54,7 @@
                :devtools {:preloads [re-frame-flow.preload]}
                :compiler-options {:optimizations  :advanced
                                   :output-wrapper false}
-               :modules {:app {:init-fn transplants.core/kidney-init}}}
+               :modules {:app {:init-fn kcp.core/kidney-init}}}
 
   :test-browser {:target     :browser-test
                  :test-dir   "out/browser/test"

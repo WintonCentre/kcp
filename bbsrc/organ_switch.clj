@@ -23,7 +23,7 @@
 
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
 (add-classpath "bbsrc:src:resources")
-(require '[transplants.shortener :as short]) ; gain access to the .cljc 
+(require '[kcp.shortener :as short]) ; gain access to the .cljc 
 
 ;;;
 ;; main

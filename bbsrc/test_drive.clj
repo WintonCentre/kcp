@@ -2,7 +2,7 @@
   "Babashka code to test drive the site model. 
    
    The main site is instrumented so it can generate results from uris that contain inputs like this:
-   https//kidney.transplants.wintoncentre.uk/kidney/belf/survival/test/huA2SfBaDyl1EbMeGrdysnW1a2
+   https//kidney.kcp.wintoncentre.uk/kidney/belf/survival/test/huA2SfBaDyl1EbMeGrdysnW1a2
    where the selected visualisation is 'test'.  The trailing alphabet soup encodes the inputs.
 
    Make a manual selection of these results to generate test cases, pasting them into tests.edn in the appropriate

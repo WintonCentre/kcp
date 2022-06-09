@@ -1,5 +1,5 @@
 {
-    "name": "transplants",
+    "name": "kcp",
     "version": "0.1.0",
     "description": "A data driven lung and kidney transplant risk tool",
     "scripts": {

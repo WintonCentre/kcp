@@ -1,4 +1,4 @@
-;; Used to build transplants.configure
+;; Used to build kcp.configure
 {:deps {org.clojure/clojure {:mvn/version "1.10.3"}
         org.clojure/core.memoize {:mvn/version "1.0.236"}
         winton-utils/winton-utils          {:mvn/version "0.2.1"}
@@ -29,4 +29,4 @@
            :tcfg {:extra-paths ["src" "test"]}}
  #_#_:uberjar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}
                :main-opts ["-m" "hf.depstar.uberjar" "configure.jar"
-                           "-C" "-m" "transplants.configure"]}}
+                           "-C" "-m" "kcp.configure"]}}

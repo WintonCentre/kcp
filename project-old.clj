@@ -1,4 +1,4 @@
-(defproject transplants "0.1.0-SNAPSHOT"
+(defproject kcp "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/clojurescript "1.10.764"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
@@ -37,7 +37,7 @@
                              :macosx  "open"
                              :linux   "xdg-open"}}}
 
-  :main  transplants.configure/-main
+  :main  kcp.configure/-main
 
   :npm-deps {"highlight.js" "9.18.1"
              "react" "16.13.0"
@@ -56,7 +56,7 @@
                 :builds {:app {:target :browser
                                :output-dir "resources/public/js/compiled"
                                :asset-path "/js/compiled"
-                               :modules {:app {:init-fn transplants.core/init
+                               :modules {:app {:init-fn kcp.core/init
                                                :preloads [devtools.preload
                                                           day8.re-frame-10x.preload]}}
                                :dev {:compiler-options {:closure-defines {re-frame.trace.trace-enabled? true
@@ -68,7 +68,7 @@
                                :devtools {:http-root "resources/public"
                                           :http-port 8280
                                           :repl-pprint true
-                                          :after-load transplants.core/init}}
+                                          :after-load kcp.core/init}}
 
                          :browser-test
                          {:target :browser-test
@@ -85,7 +85,7 @@
 
 
   :aliases {"check" ["with-profile" "configure" "auto" "eftest"]
-            "config" ["with-profile" "configure" "do" "run" "-m" "transplants.configure"]
+            "config" ["with-profile" "configure" "do" "run" "-m" "kcp.configure"]
             "dev"          ["with-profile" "dev" "do"
                             ["shadow" "watch" "app"]]
             "prod"         ["with-profile" "prod" "do"

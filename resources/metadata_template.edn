@@ -8,7 +8,7 @@
  ; Generalised app-domains. In future we may add :kidney-cancer, :blood-cancer etc.
  ;
  ; If the app only contained one domain of application then the single domain could simply be called :app and could be elided.
- ; The key thing about a domain is that it provides a HOME PAGE for an app, So for transplants, the domain is
+ ; The key thing about a domain is that it provides a HOME PAGE for an app, So for kcp, the domain is
  ; related to the organ transplant that is being modelled.
  ;
  ; The main reason we don't simply write a different app for each domain is that this makes it very hard to write
@@ -43,8 +43,8 @@
         :label "Lung" ; Labels for any button that takes you to the Lung home page
         :primary-colour "purple" ; unused 
         :tool-order [:waiting :post-transplant :guidance]
-        :contact-email "lungtransplants@statslab.cam.ac.uk"
-        :contact-email-subject "Lung transplants tool"
+        :contact-email "lungkcp@statslab.cam.ac.uk"
+        :contact-email-subject "Lung kcp tool"
         :contact-email-body "Please give us your feedback here. If you would like a reply please say so. If you are reporting a technical issue then it’s always useful to tell us the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system (e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot of the problem."
         :tools {; The default tool provides a default configuration for each tool for this organ
                 :default {:button-type "usefulinfo"
@@ -432,8 +432,8 @@
  :kidney {:text "Kidney"
           :label "Kidney"
           :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :guidance]
-          :contact-email "kidneytransplants@statslab.cam.ac.uk"
-          :contact-email-subject "Kidney transplants tool"
+          :contact-email "kidneykcp@statslab.cam.ac.uk"
+          :contact-email-subject "Kidney kcp tool"
           :contact-email-body "Please give us your feedback here. If you would like a reply please say so. If you are reporting a technical issue then it’s always useful to tell us the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system (e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot of the problem."
           :tools {:waiting {:button-type "waiting"
                             :label "Waiting times"
@@ -711,7 +711,7 @@
                                                 :stroke-width 1
                                                 :stroke "#000"
                                                 :label-fill "#fff"}
-                                     :graft {:label "Failed transplants"
+                                     :graft {:label "Failed kcp"
                                              :long-label "of kidneys have died"
                                              :fill "#ffffff"
                                              :opacity 0.7
@@ -945,7 +945,7 @@
                                                   :stroke-width 1
                                                   :stroke "#000"
                                                   :label-fill "#fff"}
-                                       :ldgraft {:label "Failed transplants"
+                                       :ldgraft {:label "Failed kcp"
                                                  :long-label "of kidneys have failed"
                                                  :fill "#ffffff"
                                                  :opacity 0.7

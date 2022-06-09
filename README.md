@@ -33,9 +33,9 @@ with useful snapshotting utilities that call `tap>`. See the comment at the end 
 Start at https://shadow-cljs.github.io/docs/UsersGuide.html#_editor_integration.
 
 ## Server builds
-We run a Jenkins server which will currently build development and staging versions of the transplants project, publishing these at https://transplants-dev.wintoncentre.uk and https://transplants-staging.wintoncentre.uk/. These connect to the nhsbt-develop and nhsbt-staging branches.
+We run a Jenkins server which will currently build development and staging versions of the kcp project, publishing these at https://kcp-dev.wintoncentre.uk and https://kcp-staging.wintoncentre.uk/. These connect to the nhsbt-develop and nhsbt-staging branches.
 
-Future production builds will need to create a servers at lung.transplants.wintoncentre.uk and kidney.transplants.wintoncentre.uk. These have not yet been set up.
+Future production builds will need to create a servers at lung.kcp.wintoncentre.uk and kidney.kcp.wintoncentre.uk. These have not yet been set up.
 
 
 ## Configuration
@@ -59,17 +59,17 @@ There have however been recent releases on the main [clojurescript compiler](htt
 ## Status
 **Requirements**
 
-[Spreadsheet at](file:///Users/gmp26/Dropbox (Cambridge University)/Winton Centre/TRANSPLANT/LUNGS/LUNGS - OTHER STUFF/NHS BT MEETINGStransplants/lungs/lungs other stuff/NHSBT meetings/Joel McGrath/)
+[Spreadsheet at](file:///Users/gmp26/Dropbox (Cambridge University)/Winton Centre/TRANSPLANT/LUNGS/LUNGS - OTHER STUFF/NHS BT MEETINGSkcp/lungs/lungs other stuff/NHSBT meetings/Joel McGrath/)
 
 **Work in Progress**
-A new generic transplants repo which is merging clj pre-processing with the cljs-tool.
+A new generic kcp repo which is merging clj pre-processing with the cljs-tool.
 
 I'm working on the premise that we can generate all the organ transplant tools from this one repo, and also do the configuration pre-processing here.
 
 See the config files in the data folder. 
 
 ## Configuration tools and data
-  Tools are in `src/clj/transplants/configure`.
+  Tools are in `src/clj/kcp/configure`.
   Configuration is in `data` and is controlled by `config.edn`
 
   Run `bb config` to generate a complete set of edn and csv files in the resources/public directory. 
@@ -105,7 +105,7 @@ so those individual by-centre files are a complication that can be removed.
 6) The configuration is incomplete:-
     * Some hard coded features assume a transplant context.
     * Some hard coded names make sense only in a transplant context (e.g. 'organ' should be renamed)
-7) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the transplants context, but may be worth optimising in a PREDICT like decision tool.
+7) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the kcp context, but may be worth optimising in a PREDICT like decision tool.
 8) We have not code or generalised features that would upgrade the tool to be more of a PREDICT-like decision tool. In particular:
     * Pluggable statistical models
     * Treatment inputs as well as patient characteristics
@@ -173,10 +173,10 @@ bb test-models
     - Deleted on `lein clean` (run by all `lein` aliases before building)
     - `js/compiled/`: compiled CLJS (`shadow-cljs`)
       - Not tracked in source control; see [`.gitignore`](.gitignore)
-* [`src/cljs/transplants/`](src/cljs/transplants/): SPA source files (ClojureScript,
+* [`src/cljs/kcp/`](src/cljs/kcp/): SPA source files (ClojureScript,
 [re-frame](https://github.com/Day8/re-frame))
-  - [`core.cljs`](src/cljs/transplants/core.cljs): contains the SPA entry point, `init`
-* [`test/cljs/transplants/`](test/cljs/transplants/): test files (ClojureScript,
+  - [`core.cljs`](src/cljs/kcp/core.cljs): contains the SPA entry point, `init`
+* [`test/cljs/kcp/`](test/cljs/kcp/): test files (ClojureScript,
 [cljs.test](https://clojurescript.org/tools/testing))
   - Only namespaces ending in `-test` (files `*_test.cljs`) are compiled and sent to the test runner
 
@@ -203,7 +203,7 @@ dependency management)
         ```bash
         export CHROME_BIN=chromium-browser
        ```
-7. Clone this repo and open a terminal in the `transplants` project root directory
+7. Clone this repo and open a terminal in the `kcp` project root directory
 8. Download project dependencies:
     ```sh
     lein deps && npm install
@@ -359,14 +359,14 @@ lein run -m shadow.cljs.devtools.cli <action> app
 ```
 ### Debug Logging
 
-The `debug?` variable in [`config.cljs`](src/cljs/transplants/config.cljs) defaults to `true` in
+The `debug?` variable in [`config.cljs`](src/cljs/kcp/config.cljs) defaults to `true` in
 [`dev`](#running-the-app) builds, and `false` in [`prod`](#production) builds.
 
 Use `debug?` for logging or other tasks that should run only on `dev` builds:
 
 ```clj
-(ns transplants.example
-  (:require [transplants.config :as config])
+(ns kcp.example
+  (:require [kcp.config :as config])
 
 (when config/debug?
   (println "This message will appear in the browser console only on dev builds."))

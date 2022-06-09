@@ -19,7 +19,7 @@
          print-env (println (env (first *command-line-args*)))
          tex (shell "pandoc doc/competing_risks.tex -o resources/public/competing_risks.pdf")
          install (shell "npm install")
-         config (shell "clojure -A:config -X transplants.configure/main")
+         config (shell "clojure -A:config -X kcp.configure/main")
          start  (shell "shadow-cljs watch app")
          stop (shell "shadow-cljs stop")
          watch-all (shell "shadow-cljs watch app test-browser")

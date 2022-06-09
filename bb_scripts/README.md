@@ -34,7 +34,7 @@ Use `which bb` to check you have it.
     Creates a production build.
 
 ## config.clj
-    Runs the configuration tool `transplants.configure/-main` to import the excel spreadsheets and convert them to run time EDN text resource files. 
+    Runs the configuration tool `kcp.configure/-main` to import the excel spreadsheets and convert them to run time EDN text resource files. 
     
     The app can then read them as necessary. We don't want the app to have a direct read dependency on Excel xlsx data.
 

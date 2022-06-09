@@ -4,5 +4,5 @@
 
 (shell/sh "clojure" 
           "-A:config" 
-          "-X" "transplants.configure/main")
+          "-X" "kcp.configure/main")
 

@@ -15,8 +15,8 @@
 ; Alternatively use 'lein config', 
 ; but this method avoids a dependency on leiningen
 (let [{:keys [:exit :err :out]} 
-      #_(shell/sh "clj" "-M:config" "-m" "transplants.configure")
-      (shell/sh "clojure" "-A:config" "-X" "transplants.configure/main")]
+      #_(shell/sh "clj" "-M:config" "-m" "kcp.configure")
+      (shell/sh "clojure" "-A:config" "-X" "kcp.configure/main")]
   (if (zero? exit)
     (do (println out)
         (println "<== configuration done"))

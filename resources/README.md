@@ -3,12 +3,12 @@
 Files in this directory need to be processed into EDN format text files that will be installed with the tool inside
 `resouces/public/lung/edn` or `resouces/public/kidney/edn`.
 
-The  entry point for configuration tool that does this lives in the transplants.config clj namespace with an entry point at 
-`transplants.configure/-main`.
+The  entry point for configuration tool that does this lives in the kcp.config clj namespace with an entry point at 
+`kcp.configure/-main`.
 
 Run the configuration tool from this directory with:
 ```
-clojure -A:config -X transplants.configure/-main
+clojure -A:config -X kcp.configure/-main
 ```
 
 Alternatively run the same code with:
@@ -23,9 +23,9 @@ Mostly, you will only need to run the configuration tool if there are revisions 
 To inspect the code and data, start the configuration tool in a clure REPL using
 a **Calva Jack-in**. Open the project in Vscode and hit the key sequence ctl-C ctl-J. Select `clojure cli` first, then the `config` and `reveal` aliases. This will throw up a REPL and a further [reveal](https://github.com/vlaaad/reveal) window.
 
-In the editor, navigate to `src/transplants/configure.clj` and evaluate the whole file using `ctl-c enter`. Individual forms may be selected and evaluated with `ctl-c e`. Forms inside `(comment)` blocks may be evaluated this way, but will be ignored at runtime.
+In the editor, navigate to `src/kcp/configure.clj` and evaluate the whole file using `ctl-c enter`. Individual forms may be selected and evaluated with `ctl-c e`. Forms inside `(comment)` blocks may be evaluated this way, but will be ignored at runtime.
 
- If you run the live comment code in `transplants.configure` in the REPL, you can see the resulting data structures more clearly in the reveal window. There, you can select the structure you wish to view and hit return for the various view options e.g. `view:table`.
+ If you run the live comment code in `kcp.configure` in the REPL, you can see the resulting data structures more clearly in the reveal window. There, you can select the structure you wish to view and hit return for the various view options e.g. `view:table`.
 
 After making a code change, always evaluate the form you have changed
 

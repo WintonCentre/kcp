@@ -1,5 +1,5 @@
 ---
-title: "Testing Transplants cljs model against the various R models"
+title: "Testing kcp cljs model against the various R models"
 output: html_notebook
 ---
 

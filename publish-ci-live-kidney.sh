@@ -2,7 +2,7 @@
 
 set -e
 echo "Publishing to live production server for kidney"
-TARGET='kidney.transplants.wintoncentre.uk:/var/www/kidney.transplants.wintoncentre.uk/html'
+TARGET='kidney.kcp.wintoncentre.uk:/var/www/kidney.kcp.wintoncentre.uk/html'
 LOCAL_DEV='resources/public/'
 echo "===============building kidney-specific files==============="
 bb kidney

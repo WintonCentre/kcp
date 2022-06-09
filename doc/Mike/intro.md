@@ -1,4 +1,4 @@
-# Introduction to generic-transplants-data
+# Introduction to generic-kcp-data
 
 This repo is a rewrite of the lung-model repo that was used in the prototype transplant tools, plus validation
 

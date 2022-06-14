@@ -327,6 +327,8 @@
   ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
 
   (precache-path "resources/public/kidney/edn/UK/ldsurvival.txt")
+  ;; => "/kidney/edn/UK/ldsurvival.txt"
+
 
   )
 
@@ -375,6 +377,9 @@
   ;; => ["UK"]
 
   (write-edn-bundle :kidney "UK" :ldsurvival)
+  ;; => Execution error (StringIndexOutOfBoundsException) at java.lang.String/substring (String.java:2659).
+  ;;    String index out of range: 16
+
 
   0)
 

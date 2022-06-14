@@ -83,7 +83,7 @@ All run-time data is stored in the `resources` folder.
 ```
 data
 ├── config.edn
-├── kidney-models-master.xlsx
+├── kcp-models-master.xlsx
 └── lung-models-master.xlsx
 ```
 

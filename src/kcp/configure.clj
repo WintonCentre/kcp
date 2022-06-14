@@ -73,6 +73,7 @@
 (defn get-column-keys
   "Read the first row of a spreadsheet"
   [organ sheet]
+  (println "sheet: " sheet)
   (->> (memo-workbook organ)
        (xls/select-sheet (name sheet))
        (xls/row-seq)
@@ -104,12 +105,15 @@
 (defn get-centres
   "Retrieve a list of distinct centres from a spreadsheet"
   [organ]
-  (->> (get-row-maps organ :waiting-baseline-cifs)
+  ["UK"]
+  #_(->> (get-row-maps organ :waiting-baseline-cifs)
        (map :centre)
        (distinct)
        (remove nil?)
        (remove #(= ":centre" %))
        (sort)))
+
+(get-centres :kidney)
 
 
 (defn get-col-maps
@@ -206,6 +210,10 @@
   (-bundle-path "edn" organ centre tool-key))
 
 (comment
+  (bundle-path :kidney "UK" :ldsurvival)
+  ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
+
+  
   (bundle-path :lung "Birmingham" :waiting)
   ;; => "resources/public/lung/edn/Birmingham/waiting.txt"
 
@@ -236,9 +244,17 @@
        (into {})))
 
 (comment
-  (centre-row-maps :kidney "survival-baseline-cifs" :bris)
-  (collect-mapped-tool-bundle :kidney :belf :waiting)
-  (collect-mapped-tool-bundle :kidney :bris :survival))
+  (centre-row-maps :kidney "ldsurvival-baseline-cifs" :UK)
+  ;; => ({:centre :centre, :days :days, :cif-ldsurvival :cif-ldsurvival})
+
+  (collect-mapped-tool-bundle :kidney :UK :ldsurvival)
+  ;; => {:ldsurvival-baseline-cifs (), :ldsurvival-baseline-vars ({:factor :age, :level :40+, :optional :no} {:factor :months-waiting, :level :mw-<=6, :optional :no} {:factor :diabetes, :level :no, :optional :no} {:factor :hla-mismatch, :level :3, :optional :no}), :ldsurvival-inputs {:info-box? (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil "[:<>\n[:p \"HLA stands for Human Leukocyte Antigen.\"]\n[:p \"HLA are proteins on the surface of white blood cells and other tissues.\"]\n[:p \"When people have the same HLAs they are said to be a match. There are many different types of HLAs so matching can be to differing degrees.  Patients can match ‘a lot’ or ‘a little’.\"]\n[:p \"HLA mismatch means how likely a patient is to be matched based on these HLA proteins\"]\n[:p [:b \"Level 1\"] \" 000\"]\n[:p [:b \"Level 2\"] \" [0 DR and 0/1 B] or [1 DR and 0 B]\"]\n[:p [:b \"Level 3\"] \" [0 DR and 2 B] or [1 DR and 1 B]\"]\n[:p [:b \"Level 4\"] \" [1 DR and 2 B] or [2 DR]\"]\n]" nil nil nil nil nil), :level-name ("18 - 29" "30 - 39" "40 - 49" "50 - 59" "60 or over" nil "up to 6 months" "6 months to a year" "1 to 2 years" "2 years or more" nil "Diabetes" "PCKD" "Glomerulonephritis" "Other" nil "⓵ (000)" "⓶ (100, 010, 110, 200, 210, 001,101, 201)" "⓷ (020, 120, 220, 011, 111, 211)" "⓸ (021, 121, 221, 002, 102, 202, 012, 112, 212, 022, 122, 222)" "Unknown" nil), :beta-ldsurvival (-0.91329 -0.74681 0.0 0.25157 1.11962 nil 0.0 0.19494 0.33312 0.72515 nil 0.0 0.63358 0.63358 0.63358 nil 0.20284 0.07945 0.0 -0.31232 -0.31232 nil), :type (:v-radio nil nil nil nil nil :v-radio nil nil nil nil :v-radio nil nil nil nil :v-radio nil nil nil nil nil), :sub-text (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), "Things to consider" (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :level (:18+ :30+ :40+ :50+ :60+ nil :mw-<=6 :mw-<=12 :mw-<=24 :mw-24+ nil :yes :pckd :glo :other nil :1 :2 :3 :4 :unknown nil), :r-name ("rage_1" "rage_2" "rage_3" "rage_4" "rage_5" nil "wait_1" "wait_2" "wait_3" "wait_4" nil "diabetes_0" "diabetes_1" "diabetes_1" "diabetes_1" nil "hla_1" "hla_2" "hla_3" "hla_4" nil nil), :factor (:age :age :age :age :age nil :months-waiting :months-waiting :months-waiting :months-waiting nil :diabetes :diabetes :diabetes :diabetes nil :hla-mismatch :hla-mismatch :hla-mismatch :hla-mismatch :hla-mismatch nil), :optional (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil :1 :1 :1 :1 :1 nil), :boxed (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil :yes :yes :yes :yes :yes nil), :order (10.0 10.0 10.0 10.0 10.0 nil 30.0 30.0 30.0 30.0 nil 20.0 20.0 20.0 20.0 nil 40.0 40.0 40.0 40.0 40.0 nil), :factor-name ("Age" nil nil nil nil nil "Waiting time" nil nil nil nil "Primary kidney disease" nil nil nil nil "HLA mismatch level" nil nil nil nil nil)}}
+
+  (collect-mapped-tool-bundle :kidney nil nil)
+  ;; => {:centres {:key ("uk"), :name ("UK"), :link ("https://www.openstreetmap.org/#map=6/54.910/-3.432"), :image ("assets/kidney/osm_logo.svg"), :description (nil), :explanation ("This is the adult transplant centre where the patient will be receiving their transplant.  This is not always the same as the dialysis follow-up centre.")}}
+
+
+  )
 
 #_(defn log-path
   "return the log file where we collect file-paths to precache"
@@ -306,6 +322,13 @@
      (io/make-parents f)
      (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
 
+(comment
+  (bundle-path :kidney "UK" :ldsurvival)
+  ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
+
+  (precache-path "resources/public/kidney/edn/UK/ldsurvival.txt")
+
+  )
 
 (defn write-sheet
   "writes a generic sheet out in edn format. Used for tools and centres"
@@ -322,7 +345,7 @@
   "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
   []
 
-  (doseq [organ [:lung :kidney]
+  (doseq [organ [:kidney] ;[:lung :kidney]
           sheet [:tools :centres]
           :let [precache (atom precache-common)]]
     
@@ -349,11 +372,9 @@
 
 (comment
   (get-centres :kidney)
-  (write-edn-bundle :kidney "UK" :ldgraft)
+  ;; => ["UK"]
 
-  (write-edn-bundle :kidney "Bristol" :waiting)
-  (write-edn-bundle :kidney "Bristol" :survival)
-  ;; => nil
+  (write-edn-bundle :kidney "UK" :ldsurvival)
 
   0)
 

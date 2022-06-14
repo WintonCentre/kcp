@@ -7,12 +7,12 @@
 ;; 
 ;; A :match key of "abc" will be matched against lowercase(:name) with leading and trailing white-space trimmed.
 ;;;
-{:workbook #profile {:kidney "kidney-models-master.xlsx"
-                     :lung "lung-models-master.xlsx"}
+{:workbook #profile {:kidney "kcp-models-master.xlsx"
+                     #_#_:lung "lung-models-master.xlsx"}
 
  :export #profile {:kidney {:csv-path "resources/public/kidney/csv"
                             :edn-path "resources/public/kidney/edn"}
-                   :lung {:csv-path "resources/public/lung/csv"
+                   #_#_:lung {:csv-path "resources/public/lung/csv"
                           :edn-path "resources/public/lung/edn"}}
 
 
@@ -22,13 +22,9 @@
  ;
  :bundles #profile {:kidney {:centres [:centres]
                              :tools [:tools]
-                             :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
-                             :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs]
-                             :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs]
-                             :ldgraft [:ldgraft-baseline-cifs :ldgraft-baseline-vars :ldgraft-inputs]
                              :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]
                              }
-                    :lung {:centres [:centres]
+                    #_#_:lung {:centres [:centres]
                            :tools [:tools]
                            :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
                            :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}}

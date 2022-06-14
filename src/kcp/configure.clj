@@ -376,9 +376,6 @@
   (get-centres :kidney)
   ;; => ["UK"]
 
-  (write-edn-bundle :kidney "UK" :ldsurvival)
-  ;; => Execution error (StringIndexOutOfBoundsException) at java.lang.String/substring (String.java:2659).
-  ;;    String index out of range: 16
 
 
   0)
@@ -399,7 +396,9 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 ;----------------------------------------------
 ;
 (comment
-  (main)) ; Run this
+  (main)
+
+  ) ; Run this
 
 (comment
 

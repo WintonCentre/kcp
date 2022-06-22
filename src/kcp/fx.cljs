@@ -21,10 +21,10 @@
  (fn [[k params query]]
    ;(js/console.log "NAVIGATE!" k params query)
    (let [params (assoc params
-                       :tool (get params :tool "waiting")
+                       :tool (get params :tool "ldsurvival")
                        :tab (get params :tab "bars")
                        :inputs (get params :inputs "-"))]
-     
+
 ;     (?-> [k params query] ::navigate!)
      (rfe/push-state k params query))))
 
@@ -38,7 +38,7 @@
 (rf/reg-fx
  ::load-organ-centres
  (fn [organs]
-   ;; We now only ever have ONE organ - so just take the first 
+   ;; We now only ever have ONE organ - so just take the first
    (let [organ (first organs)]
      ;(locals)
      (goog.object.set js/document "title"
@@ -47,7 +47,7 @@
                         :kidney "Kidney kcp"
                         :else "Metadata Error"))
      (rf/dispatch [:kcp.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))
-  
+
 (defn reg-factor
   "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause a console warning
    on startup. The final registration overwrites any previous ones. This function can be used to register db keys at run-time.
@@ -81,7 +81,7 @@
                                                         :inputs inputs)])
                                    (assoc-in db [:inputs factor-k] v)
 
-                                   ; We should be doing this in a reg-event-fx rather than a reg-event-db, 
+                                   ; We should be doing this in a reg-event-fx rather than a reg-event-db,
                                    ; but it fails. Why?
                                    #_{:fx [[:dispatch [:kcp.events/navigate
                                                        :kcp.views/organ-centre-tool-tab-inputs
@@ -94,7 +94,7 @@
                                #_{:db (assoc-in db [:inputs factor-k] v)})))
 
     #_(rf/reg-event-db ref-k (fn [db [_ v]]
-    ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation 
+    ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation
     ;; in order to make inputs appear in the URL.
                              ;; re-route to the URL with the newly changed input
                              ;(?-> (-> db :mdata :ilookups) ::metadata)
@@ -144,7 +144,7 @@
     (reg-factor organ (:factor fmap))))
 
 (rf/reg-fx :reg-factors reg-factors)
-  
+
 
 ;;
 ;; load translation state; Call this to set up the translation system
@@ -161,8 +161,3 @@
     local-dictionary-url {:headers {"Cache-Control" "no-store"}
                           :on-error file-error
                           :handler  handler})))
-
-
-
-  
-

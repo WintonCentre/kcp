@@ -1,5 +1,5 @@
 (ns kcp.ui
-  "This should become the high level ui interface and should have all ns references factored out into 
+  "This should become the high level ui interface and should have all ns references factored out into
 the low level ui."
   (:require   [clojure.string :as str]
               [reagent.core :as rc]
@@ -35,7 +35,7 @@ the low level ui."
       (dissoc :long-label)))
 
 (defn href
-  "Return relative url for given route. Url can be used in HTML links. Note that k is a route name defined 
+  "Return relative url for given route. Url can be used in HTML links. Note that k is a route name defined
 in the routes table."
   ([k]
    (href k nil nil))
@@ -93,7 +93,7 @@ in the routes table."
         mdata  @(rf/subscribe [::subs/mdata])
 
         ; organ-order gives us the list of configured organ tools, in-order. In development we may have more than one organ,
-        ; but in production each site will have only a single organ. 
+        ; but in production each site will have only a single organ.
         single-organ (get-single-organ mdata)
         organ-centres @(rf/subscribe [::subs/organ-centres])]
 
@@ -102,15 +102,15 @@ in the routes table."
             favicon (str "/assets/favicon_" (name single-organ) ".png")]
         (load-favicon favicon)
 
-        [:> bs/Navbar {#_#_:bg "dark" :expand "lg" 
+        [:> bs/Navbar {#_#_:bg "dark" :expand "lg"
                        :variant "dark"
                        :collapse-on-select true
                        :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
          [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
-     ; Site name below 
+     ; Site name below
          [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
                           ;:organ (name organ)
-                          :href (href :kcp.views/organ {:organ (name organ)})}
+                          :href (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"})}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
              (str (get-in mdata [single-organ :label]) " Transplant Tool")
@@ -146,7 +146,7 @@ in the routes table."
                      tool (path-params :tool)
                      tab (if-let [t (path-params :tab)] t "bars")
                      inputs (if-let [i (path-params :inputs)] i "-")]
-                 
+
                  (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
                                            :title "Transplant Centres" :id "basic-nav-dropdown"}]
                        (map (fn [centre]
@@ -161,7 +161,7 @@ in the routes table."
 
                                (:name centre)])
                             (filter #(not= (:name %) "UK") centres))))))]
-          [:> bs/Nav {:class "ml-auto" 
+          [:> bs/Nav {:class "ml-auto"
                       :style {:height "100%" :vertical-align "middle"}
                       }
            [bsio/feedback-button mdata single-organ]
@@ -192,23 +192,23 @@ in the routes table."
      [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
       [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
        [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
-       [:p {:style {:text-align "center"}} "This tool was developed by the Winton Centre for Risk and Evidence Communication.  
-                     It currently displays models disclosed by NHSBT under a data sharing agreement.  
-                     It was developed with transplant patients and their partners and clinical teams  
+       [:p {:style {:text-align "center"}} "This tool was developed by the Winton Centre for Risk and Evidence Communication.
+                     It currently displays models disclosed by NHSBT under a data sharing agreement.
+                     It was developed with transplant patients and their partners and clinical teams
                      at transplant and referral centres in England. "]]]]
     ;[:div {:style {:background-color "black" :margin  " -15px"}}]
     [:div {:style {:padding 10 :font-size "12px" :color "#9E9E9E" :background-color "black"
                    :display "flex" :flex-direction "column" :justify-content "center" :align-items "center"}}
       ;;
       ;; todo: We do not have any mechanism as yet to scroll to a position within a page so these two links
-      ;; both go to Legal at the current scroll point. 
+      ;; both go to Legal at the current scroll point.
       ;;
       ;; See Predict for a Rum solution of this problem - it would have to be ported to a reagent type 3
       ;; component.
       ;;
      [:div {:style {:text-align "center"}}
       "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved."]
-      ;; Can't use javascript hrefs in react - if they worked they would reload the page and lose state. 
+      ;; Can't use javascript hrefs in react - if they worked they would reload the page and lose state.
       ;; Use reitit generated hrefs instead.
      [:div {:style {:text-align "center"}}
       [:a {:style {:color "inherit"}
@@ -313,7 +313,7 @@ in the routes table."
     ;(?-> tools ::tools-menu)
     ;(?-> menu-data ::menu-data)
     ;TODO: configure this filter!
-    
+
 ;    (locals)
     [:<>
      [row
@@ -442,4 +442,3 @@ in the routes table."
                        :checked @(rf/subscribe [::subs/randomise-icons])}]
     [:> bs/Form.Label
      label]]])
-

@@ -48,7 +48,7 @@
                         :class-name "btn-lg"
                         :variant "primary"
                         :style {:font-size "1.5em"}
-                        :on-click #(rf/dispatch [::events/navigate ::organ {:organ organ}])}
+                        :on-click #(rf/dispatch [::events/navigate ::organ-centre-tool {:organ organ :centre "uk" :tool "ldsurvival"}])}
              (if single-organ
                "Start the tool"
                ;"Choose your transplant centre"

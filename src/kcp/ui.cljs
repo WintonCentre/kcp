@@ -147,20 +147,21 @@ in the routes table."
                      tab (if-let [t (path-params :tab)] t "bars")
                      inputs (if-let [i (path-params :inputs)] i "-")]
 
-                 (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
-                                           :title "Transplant Centres" :id "basic-nav-dropdown"}]
-                       (map (fn [centre]
-                              [:> bs/NavDropdown.Item
-                               {:href (href :kcp.views/organ-centre-tool-tab-inputs ;-tab-inputs
-                                            {:organ (name single-organ)
-                                             :centre (name (:key centre))
-                                             :tool (if tool (name tool) "waiting")
-                                             :tab tab
-                                             :inputs inputs})
-                                :key (name (:key centre))}
+                 (comment
+                   (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
+                                            :title "Transplant Centres" :id "basic-nav-dropdown"}]
+                        (map (fn [centre]
+                               [:> bs/NavDropdown.Item
+                                {:href (href :kcp.views/organ-centre-tool-tab-inputs ;-tab-inputs
+                                             {:organ (name single-organ)
+                                              :centre (name (:key centre))
+                                              :tool (if tool (name tool) "waiting")
+                                              :tab tab
+                                              :inputs inputs})
+                                 :key (name (:key centre))}
 
-                               (:name centre)])
-                            (filter #(not= (:name %) "UK") centres))))))]
+                                (:name centre)])
+                             (filter #(not= (:name %) "UK") centres)))))))]
           [:> bs/Nav {:class "ml-auto"
                       :style {:height "100%" :vertical-align "middle"}
                       }

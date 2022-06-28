@@ -431,7 +431,7 @@
 
  :kidney {:text "Kidney"
           :label "Kidney"
-          :tool-order [:waiting :graft :ldgraft :survival :ldsurvival :guidance]
+          :tool-order [:ldsurvival :guidance]
           :contact-email "kidneykcp@statslab.cam.ac.uk"
           :contact-email-subject "Kidney kcp tool"
           :contact-email-body "Please give us your feedback here. If you would like a reply please say so. If you are reporting a technical issue then it’s always useful to tell us the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system (e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot of the problem."

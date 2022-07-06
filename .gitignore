@@ -12,6 +12,12 @@ resources/public/cljs-out-old
 /.lein-*
 /.nrepl-port
 
+# Temp files
+.*.swp
+*~
+\#*
+.#*
+
 # Node.js dependencies
 /node_modules/
 

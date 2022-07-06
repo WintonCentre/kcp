@@ -27,11 +27,6 @@
   (into [:section {:class-name "home-section"}]
         content))
 
-(comment
-
-
-  )
-
 (defn scroll-to-target
   "A reagent component that registers itself as a target for js/scrollIntoView."
   [{:keys [id]} & content]
@@ -207,67 +202,12 @@
       [ui/page (str "Publications")
        [ui/row
         (condp = single-organ
-          :lung [:> bs/Col
-                 [:p
-                  [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf." :target "_blank"}
-                   "Annual Report on Cardiothoracic Transplantation 2019/2020. NHS Blood and Transplant. "] " Published 2020."]
-                 [:p
-                  [:a {:href "https://pubmed.ncbi.nlm.nih.gov/30282722/" :target "_blank"}
-                   "Kourliouros A Hogg R Mehew J et al."] " Patient outcomes from time of listing for lung transplantation in the UK: are there disease-specific differences? Thorax 2019 ;74:60-68. "]
-                 #_[:p [:a {:href "https://www.tandfonline.com/doi/full/10.1080/10485250500491661"} "Breslow N. E. (1972)"] " “Discussion of Professor Cox’s Paper” J. Royal Stat. Soc. B 34 216 –217."]]
           :kidney [:> bs/Col
                    [:p "NHSBT organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ")"]
                    [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"
                             :target "_blank"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
           :else [ui/col [:p "None."]])]]
       [ui/loading])))
-
-(defn lung-about-content
-  []
-  [:<>
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h4 "Overview"]
-    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same
-           characteristics, and shows what happened to these people. "
-
-     "For example, how many people 'like you' received a transplant within one year of being listed."]
-
-    [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
-
-    [:p "It’s important to remember that the tool cannot take into account everything about you, for example,
-        whether you have other health conditions. The tool will ask for some medical information such as blood group,
-        or recent test results. The tool will be less accurate if you don't have all the relevant information."]
-
-    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication
-        properly, diet and whether you exercise."]
-    [:p "If you want to know more about the models and data behind the tools, please read the "
-     [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "
-     "Data about transplant patients were used to create statistical models.  When you enter information into the tool,
-     the calculator looks at these models and produces results."]]
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h4 "Using the tool offline"]
-    [:p "You need an internet connection to access the tool for the first time, but once you have visited
-         the site once, you can access it offline (just don't close the browser)."]
-
-    [:p "The tool can produce a printout of results for later reference."]]
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h4 "Who is this site for?"]
-     [:p "The tool is suitable for lung patients who are over 16 years old.
-        This is because we use past data from the NHS transplant registry.  Fewer children have kcp than adults and
-        there is not enough data yet to make a tool for children. "]
-     [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]]
-
-   [:h4 "Who developed the tool?"]
-    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
-        disclosed by NHSBT under a data sharing agreement."]
-    [:p "We wish to thank all the transplant patients and their partners,
-        as well as clinical teams at transplant centres in England who took part in researching the tool design."]]
-  )
 
 (defn kidney-about-content
   []
@@ -317,9 +257,9 @@
    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
         disclosed by NHSBT under a data sharing agreement."]
    [:p "We wish to thank all the transplant patients and their partners,
-        as well as clinical teams at transplant centres in England who took part in researching the tool design."]
+        as well as clinical teams at transplant centres in England who took part in researching the tool design."]])
 
-  ])
+  
 
 ;;; Views ;;;
 (defn about-page
@@ -336,8 +276,6 @@
     (if mdata
       [ui/page (str "About the " (string/capitalize (name single-organ)) " tool")
        (condp = single-organ
-         :lung
-         [lung-about-content]
          :kidney
          [kidney-about-content]
          :else [:div])]
@@ -446,99 +384,8 @@
 
 (defn overview-menu [[route text]]
   [:li {:key (random-uuid)} [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
-                                              (js-obj "behavior" "smooth"))
-                  :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
-
-(def lung-tags [["model-development"      "Model development"]
-                ["datasets-used"          "Datasets used"]
-                ["what-might-happen"      "What might happen to me from time of listing?"]
-                ["after-deceased-donor"   "Patient survival after a deceased donor lung transplant"]
-                ["input-factors"          "Input Factors"]
-                ["mathematical-section"   "Mathematical Section"]
-                ["the-web-implementation" "The web implementation"]
-                ["the-development-stack"  "The development stack"]
-                ["testing"                "Testing"]
-                ["browser-compatibility"  "Browser Compatibility"]])
-
-(defn lung-tech-content
-  []
-  [ui/col #_{:style {:border-bottom "1px #337777 solid"
-                     :margin-bottom  20}}
-   [:section
-    [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"
-                  :margin-top 10}} (map overview-menu lung-tags)]]
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3#model-development "Model development"]
-    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data."]
-    [:p "NHSBT statisticians worked closely with transplant clinicians to compile a large list of potential variables (e.g. age, disease group) from the UKTR to test in the models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. survival after transplant). These variables are referred to as ‘risk factors’."]
-    [:p "At the end of the modelling process, values are obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline curve which represents an ‘average’ patient in the study cohort. This curve when plotted over time represents the estimated chances of survival (for the example of survival after transplant) for a patient in the model development dataset with the mean/most common value of all the risk factors in the model. The parameter estimates are then used by the tool to shift this baseline curve when the values of the risk factors are changed from the mean/most common values. This way, users can select values of each risk factor that best represent their own characteristics and view model results for patients ‘like me’. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre, in order to represent different practice at each centre. Details of the modelling development can be found in Kourliouros et al (2019)."]
-    [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
-    [:p "Patient primary disease is recorded on the UKTR and the following groupings were used for the analysis: COPD (encompassing alpha-1-antitrypsin deficiency and emphysema), cystic fibrosis (CF, also encompassing patients with bronchitectasis) and pulmonary fibrosis (PF, encompassing all fibrotic lung diseases). All other lung diseases were grouped under the category ‘other’."]
-    [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA"]]
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3#datasets-used "Datasets used"]
-    [:p "All data used to develop the lung models behind the Lung-RCT were obtained from the UKTR held by NHSBT as of 14 May 2016. The patient cohort comprised all adult (aged ≥16 years) first lung-only registrations (i.e. people joining the transplant waiting list) between 1 January 2004 and 31 March 2014. Patients who met any of the following exclusion criteria were not studied: patients registered for a heart-lung block or other multiorgan transplant; patients registered on another organ transplant list (eg, kidney list) either before, during or after their lung registration; patients registered outside the UK or not entitled to ’National Health Service (NHS) treatment and adult patients registered (for clinical reasons) on paediatric lists."]
-    [:p "This dataset was used to build the ‘what might happen to me from point of transplant’ models. In order to build the ‘survival after transplant’ model, we used the subset of patients from this dataset who had been transplanted as at time of data extraction (14 May 2016). "]]
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3#what-might-happen "What might happen to me from time of listing?"]
-    [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk of’. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox regression (see the Mathematical Section below). Because the event of transplant would prevent the event of death on the list/removal from the list from happening, and vice-versa, these Cox Regression models were cause-specific Cox proportional hazard models. When modelling time to transplant, for example, a patient who died on the list at time t would be ‘censored’ at time t and still considered in the time to transplant modelling cohort but whose time of transplant was ‘unknown’. When modelling time to death on the list/removal from the list, the same patient data would be used but there would be no censoring and instead the patient would experience the event of interest at time t. "]
-    [:p "For the purposes of the Lung-RCT, the death on the list data has been combined with removal from the list as 1) there were few removals and 2) for lung patients, removal from the list is often sadly due to a deterioration in the patient’s condition. We also made further changes to these models by 1) capping outcome data up to 3 years from listing for all patients in the modelling cohort and 2) removing any risk factors that were no longer statistically significant in both the time to transplant model and the time to death on the list/removal from the list model (p>0.05) and 3) turning all continuous variables into categorical variables. This resulted in two models, one for time to transplant and one for time to death on the list/removal from the list. "]
-    [:p "However, to adjust for the fact that the cause-specific Cox proportional hazards model patient-specific estimates would be biased (because once a patient experienced one of the competing events at time t, they would no longer be eligible for any other event), a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model (Mathematical Section). This algorithm enabled the estimated chances of each of the following outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%:"]
-    [:ol
-     [:li "Transplant"]
-     [:li "Death on the list or removal from the list"]
-     [:li "Alive and still waiting on the list"]]
-    [:p "The parameter estimates for each of the risk factors in the time to transplant model and the time to death on the list/removal from the list model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Although the two models were developed separately, any risk factor that was found to be significantly influential for one model was retained in the other model in order to keep the same risk factors in all models (although parameter estimates would be different). Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
-   [:section {:style {:border-bottom "1px #337777 solid"
-                               :margin-bottom  20}}
-    [:h3#after-deceased-donor "Patient survival after a deceased donor lung transplant "]
-    [:p "Post-transplant survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant or if the patient died after 5 years of transplantation. The model used was taken from the NHSBT  Annual Report on Cardiothoracic Organ Transplantation (https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/). For a more detailed description of the model when applied to the cohort used in the Lung-RCT see "
-     [:a {:href "https://pubmed.ncbi.nlm.nih.gov/30282722/" :target "_blank"} "Kourliouros et al (2019)"] ". However, for the purposes of the tool we decided to turn all continuous variables into categorical variables."]
-    [:p "The parameter estimates for each of the risk factors in the post-transplant survival model are shown below. The most common value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve.  Transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]]
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                               :margin-bottom  20}}
-    [:h3#input-factors "Input factors"]
-    [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender"]
-    [:p [:b "Blood group"] " - O, A, B or AB"]
-    [:p [:b "Lung primary disease group"]
-     [:br] "Cystic Fibrosis (CF): Patients registered on to the lung waiting list with Primary Disease recorded as either ‘Cystic Fibrosis’ or ‘Bronchitectasis’"
-     [:br] "Pulmonary fibrosis (PF): Patients registered on to the lung waiting list with Primary Disease recorded as ‘Fibrosing Lung Disease’" [:br] "Chronic obstructive pulmonary disease (COPD): Patients registered on to the lung waiting list with Primary Disease recorded as either ‘alpha-1-antitrypsin deficiency’ or ‘emphysema’"
-     [:br] "Other: Patients registered on to the lung waiting list with Primary Disease not listed under any of the above categories."]
-    [:p [:b "Previous thoracotomy"] " - Has the patient (at time of registration) undergone any previous thoracotomy procedures (yes/no)?"]
-    [:p [:b "In hospital at registration"] " - Is the patient in hospital at the time of registration (yes/no)?"]
-    [:p [:b "Age at registration"] " - Age at time of registration onto the lung transplant waiting list in complete years (e.g. 51 years and 9 months recorded as 51 years)"]
-    [:p [:b "BMI at registration"] " - Patient Body Mass Index at time of registration calculated as (weight (kg)) / height(m" [:sup 2] ")"]
-    [:p [:b "NYHA Class at registration"] " - New York Heart Association Classification (NYHA) Class defined as:"]
-    [:ol
-     [:li "Class I - No symptoms and no limitation in ordinary physical activity, e.g. shortness of breath when walking, climbing stairs etc."]
-     [:li "Class II - Mild symptoms (mild shortness of breath and/or angina) and slight limitation during ordinary activity."]
-     [:li "Class III - Marked limitation in activity due to symptoms, even during less-than-ordinary activity, e.g. walking short distances (20–100 m). Comfortable only at rest."]
-     [:li "Class IV - Severe limitations. Experiences symptoms even while at rest. Mostly bedbound patients."]]
-    [:p [:b "Daily dose of prednisolone at registration"] " - Recorded in mg and categorised as follows:"
-     [:br] "0 (no dosage administered)"
-     [:br] "less than 15mg: dose administered"
-     [:br] "15mg or more: dose administered greater or equal to 15mg"]
-    [:p [:b "Forced vital capacity (FVC) at registration"] " - Lung function as Forced Vital Capacity recorded in litres"]
-    [:p [:b "Recipient bilirubin at registration"] " - Measured in µmol/l"]
-    [:p [:b "Recipient cholesterol at registration"] " - Measured in mmol/l"]
-    [:p [:b "Centre"] " - This refers to which of the 5 UK adult lung transplant centres the patient will be receiving their transplant."]
-    [:p [:b "Patient age at transplant"] " - Age in complete years (e.g. 51 years and 9 months recorded as 51 years)"]
-    [:p [:b "Transplant type"] " - Single or bilateral lung transplant received"]
-    [:p [:b "Donor to recipient (patient) calculated Total Lung Capacity (TLC) mismatch"] " - Mismatch = recipient calculated TLC – donor calculated TLC"
-     [:br] "Where calculated TLC is"
-     [:br] "If male, TLC = 7.99 * (height(cm) / 100) - 7.08"
-     [:br] "If female, TLC = 6.6*(height(cm) / 100) - 5.79"]
-    [:p [:b "Donor CMV status"] " - Is donor Cytomegalovirus positive or negative"]
-    [:p [:b "Donor smoking status"] " - Is the donor a current or past cigarette smoker (yes/no)?"]]
-
-   (maths-section)
-   (web-development-section)])
+                                                                (js-obj "behavior" "smooth"))
+                                    :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
 
 (def kidney-tags [["model-development"       "Model development"]
                   ["waiting-times"          "Waiting Times"]
@@ -651,7 +498,6 @@
       [ui/page (str "Technical Details for the " (string/capitalize (name single-organ)) " tool")
        [ui/row
         (condp = single-organ
-          :lung [lung-tech-content]
           :kidney [kidney-tech-content]
           :else [:div])]]
       [ui/loading])))

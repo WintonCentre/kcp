@@ -213,10 +213,6 @@
   (bundle-path :kidney "UK" :ldsurvival)
   ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
 
-  
-  (bundle-path :lung "Birmingham" :waiting)
-  ;; => "resources/public/lung/edn/Birmingham/waiting.txt"
-
   (bundle-path :kidney "Bristol" :survival))
 
 (defn headed-vectors-to-map
@@ -365,11 +361,11 @@
 
           (write-edn-bundle precache organ
                             ;; todo - this isn't a generalised test for the special case handling for all-centre models
-                            (if (contains? #{:ldgraft :ldsurvival} tool-key) "UK" centre)
+                            (if (contains? #{:ldsurvival} tool-key) "UK" centre)
                             tool-key))))
-    (spit (precache-paths organ) (pr-str @precache)))
+    (spit (precache-paths organ) (pr-str @precache))))
   
-  )
+  
 
 
 (comment

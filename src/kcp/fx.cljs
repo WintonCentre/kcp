@@ -43,7 +43,6 @@
      ;(locals)
      (goog.object.set js/document "title"
                       (condp = organ
-                        :lung "Lung kcp"
                         :kidney "Kidney kcp"
                         :else "Metadata Error"))
      (rf/dispatch [:kcp.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))

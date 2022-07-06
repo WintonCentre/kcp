@@ -17,6 +17,7 @@ resources/public/cljs-out-old
 *~
 \#*
 .#*
+.~*#
 
 # Node.js dependencies
 /node_modules/

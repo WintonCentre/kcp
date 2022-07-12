@@ -20,9 +20,5 @@
  ;
  :bundles #profile {:kidney {:centres [:centres]
                              :tools [:tools]
-                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]
-                             :tools [:tools]
-                             :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs]
-                             :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}}}
-
-  
+                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]}}}
+                            

@@ -11,7 +11,7 @@
             [kcp.rgb :as rgb]
             [kcp.fullscreen :as fs]
             [kcp.shortener :as shorts]
-            ;[shadow.debug :refer [locals ?> ?->]]
+            [shadow.debug :refer [locals ?> ?->]]
             ))
 
 #_(comment
@@ -39,7 +39,7 @@
   (def  sum-betas (map #(fac/sum-beta-xs env %) beta-outcome-keys))
   0)
 
-(comment 
+(comment
   (def sum-betas '(0 0)))
 
 (defn full-screen-overlay-button
@@ -90,8 +90,15 @@
              :cohort-dates @(rf/subscribe [::subs/cohort-dates])
              :inputs @(rf/subscribe [::subs/inputs])
              :selected-vis @(rf/subscribe [::subs/selected-vis])}
+        total-score (+
+                     (get-in env [:fmaps :t-stage :levels (get-in env [:inputs :t-stage]) :score])
+                     (get-in env [:fmaps :n-stage :levels (get-in env [:inputs :n-stage]) :score])
+                     (get-in env [:fmaps :tumor-size :levels (get-in env [:inputs :tumor-size]) :score])
+                     (get-in env [:fmaps :nuclear-grade :levels (get-in env [:inputs :nuclear-grade]) :score])
+                     (get-in env [:fmaps :histologic-tumor-necrosis :levels (get-in env [:inputs :histologic-tumor-necrosis]) :score]))
 
-       ;; _ (?-> env ::env)
+        ;; _ (?-> env ::env)
+
 
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
@@ -100,16 +107,16 @@
 
 
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-        ; F (model/cox-adjusted s0 sum-betas)
+                                        ; F (model/cox-adjusted s0 sum-betas)
         cox? (model/use-cox-adjusted? tool)
         F (if cox?
             (model/cox-adjusted s0 sum-betas)
             ;; cox should be applied to all the s0 s. Not sure which yet.!
             (model/cox-only s0 sum-betas))
 
-       ; _ (?-> (first (last s0-for-day)) ::s0_for_day)
-       ; _ (?-> (model/cox-adjusted s0 sum-betas) ::F)
-       ; _ (?-> (model/cox-only s0 sum-betas) ::cox)
+                                        ; _ (?-> (first (last s0-for-day)) ::s0_for_day)
+                                        ; _ (?-> (model/cox-adjusted s0 sum-betas) ::F)
+                                        ; _ (?-> (model/cox-only s0 sum-betas) ::cox)
         #_#_F (if cox? ;false #_(= (:selected-vis env) "test")
                 (model/cox-adjusted s0 sum-betas)
                 (model/cox (first (last s0-for-day)) sum-betas))
@@ -122,26 +129,29 @@
                   [:F F] ;; is this needed ?
                   )
         inputs (:inputs env)
-;        _ (?-> inputs ::inputs)
+                                        ;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
-     ;   _ (?-> fulfilled-inputs ::fulfilled-inputs)
+                                        ;   _ (?-> fulfilled-inputs ::fulfilled-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
-    ;(?-> beta-keys ::beta-keys)
-    ;(?-> sum-betas ::sum-betas)
-    ;(?-> env ::env)
+                                        ;(?-> beta-keys ::beta-keys)
+                                        ;(?-> sum-betas ::sum-betas)
+                                        ;(?-> env ::env)
+
+    (?-> total-score ::total-score)
+
     (when (:S0 env)
       [:<>
        (rf/dispatch [::events/missing-inputs missing])
-     ;[screen-shot]
+                                        ;[screen-shot]
        (if bare
          [:<>
           [:p
            "Run model from URI and return result as EDN"]
-          [:div [vis/test-gen (assoc env 
+          [:div [vis/test-gen (assoc env
                                      :fulfilled-inputs fulfilled-inputs
                                      :centre-info centre-info)]]]
          [:<>
@@ -185,14 +195,14 @@
                          "Results will appear here once all inputs have been entered."]]]
              :unknowns [:<>
                         [:div.no-printed-border.to-left {:style {:z-index 1000
-                                                         :color "teal"
-                                                         :border "3px solid teal"
-                                                         :border-radius 5
-                                                         :background-color "#fec"
-                                                         :padding "2px 5px"
-                                                         :position "absolute"
-                                                         :top "-20px"
-                                                         :right "20px"}}
+                                                                 :color "teal"
+                                                                 :border "3px solid teal"
+                                                                 :border-radius 5
+                                                                 :background-color "#fec"
+                                                                 :padding "2px 5px"
+                                                                 :position "absolute"
+                                                                 :top "-20px"
+                                                                 :right "20px"}}
                          "Average values were used for some inputs"]
                         [:div {:style {:z-index 500
                                        :background-color "#fec2"
@@ -206,7 +216,7 @@
                         [full-screen-overlay-button path]]
              nil     [full-screen-overlay-button path])
 
-      ;; Place test-data near top for etaoin bababshka-pod
+           ;; Place test-data near top for etaoin bababshka-pod
 
 
            [:section {:style {:margin (if is-full-screen "10%" "0")
@@ -233,11 +243,11 @@
 
              [ui/tab {:event-key "text" :title "Text"}
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-               [vis/text env]]]
+               [vis/text total-score]]]
 
              #_[ui/tab {:event-key "rig" :title "Test Rig"}
-              [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-               [vis/test-rig env]]]
+                [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
+                 [vis/test-rig env]]]
 
              ;; we normally don't want the test tab to be displayed
              #_[ui/tab {:event-key "test" :title "Test"}

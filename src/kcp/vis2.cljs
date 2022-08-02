@@ -18,9 +18,9 @@
 
 ;;
 ;; Plot data prep utilities
-;; 
+;;
 (defn residual
-  "The Fs are the probabilities of leaving the list due to the various outcomes - see David's 
+  "The Fs are the probabilities of leaving the list due to the various outcomes - see David's
    paper at doc/David/transplant-non-simulation.pdf for detail.
 
    In Cox results we can always calculate a residual amount to make the Fs total to 100% on each day.
@@ -61,7 +61,7 @@
 
 (defn int-fs-series
   "convert an ordered fs to a map containing the original ordered-fs and its partial sums.
-   Include integer valued percentage approximations for fs and cum-fs adjusted so the sum of the 
+   Include integer valued percentage approximations for fs and cum-fs adjusted so the sum of the
    int-fs is 100. The alogithm seeks to minimise the error introduced by the adjustment."
   [ordered-fs]
   (let [pc-fs (map #(* 100 %) ordered-fs)
@@ -131,8 +131,8 @@
                   [[1 [0.2 0.1]]
                    [3 [0.3 0.15]]
                    [4 [0.4 0.2]]])
-  ;; => ([1 {:fs (0.1 0.7 0.2), :cum-fs (0.1 0.7999999999999999 1)}] 
-  ;;     [3 {:fs (0.15 0.55 0.3), :cum-fs (0.15 0.7000000000000001 1)}] 
+  ;; => ([1 {:fs (0.1 0.7 0.2), :cum-fs (0.1 0.7999999999999999 1)}]
+  ;;     [3 {:fs (0.15 0.55 0.3), :cum-fs (0.15 0.7000000000000001 1)}]
   ;;     [4 {:fs (0.2 0.3999999999999999 0.4), :cum-fs (0.2 0.5999999999999999 0.9999999999999999)}])
 
   (int-fs-series (repeat 3 (/ 1 3)))
@@ -165,7 +165,7 @@
 
 ;; visualisation commons
 (defn aspect-ratio
-  "Calculate an aspect ratio as a padding CSS %. 
+  "Calculate an aspect ratio as a padding CSS %.
    See https://www.w3schools.com/howto/howto_css_aspect_ratio.asp"
   [width height]
   (str (js/Math.floor (* 100 (/ height width))) "%"))
@@ -350,11 +350,11 @@
 
 (defn label-staggers
   "Take a sequence of values (the fs) to be plotted in a stacked bar chart. We want to label the bars with its
-   f-value which indicates the height of its bar. Bar heights can be smaller than the height of readable text, 
+   f-value which indicates the height of its bar. Bar heights can be smaller than the height of readable text,
    and as it's possible for 2 adjacent bars to be next to each other, their labels can overlap unless we stagger
-   them left to right. 
+   them left to right.
 
-   This function returns a vector indicating which of the f labels should be staggered. 
+   This function returns a vector indicating which of the f labels should be staggered.
 "
   [threshold fs]
   ;(tap> fs)
@@ -378,7 +378,7 @@
 
   (label-staggers 7 [5 3 3 5 8 1 1])
   ;; => [nil true true nil nil true true]
-  ;;   
+  ;;
   (label-staggers 7 [5 3 3 5 8])
   ;; => [nil true true nil nil]
 
@@ -396,11 +396,11 @@
   ((pairwise-stagger 7) [nil true true] [3 [5 nil]])
   0)
 ;; => nil
-;; 
+;;
 
 ;; currently unused
 #_(defn get-mustache
-    "Lookup x in a form that may be a mustached template or a simple vector or a combination of both. 
+    "Lookup x in a form that may be a mustached template or a simple vector or a combination of both.
    If the form is a string, return it
    If the form is a vector, then return the xth element.
    If the form is a map then it should have a :template and :data. Optionally also an :indexed value.
@@ -662,7 +662,7 @@
   [{:keys [X Y year-series quarter-series data-keys tool-mdata data-styles]}]
 
   (let [data-count (count data-keys)
-        ;; 
+        ;;
         ;; for 3 years
         bar-width (get-in tool-mdata [:area :width])
         spacing (get-in tool-mdata [:area :spacing])
@@ -692,7 +692,7 @@
                                                 cum-fs))))
                                  bin-labels))
 
-           ;;todo: these are no longer quarter year intervals. Rename
+        ;;todo: these are no longer quarter year intervals. Rename
         quarter-positions (into []
                                 (map (fn [[time {:keys [fs cum-fs]}]]
                                        (let [quarter (utils/day->week time)]
@@ -739,7 +739,7 @@
                          :style (ui/svg-styles (data-styles dk))
                          #_(dissoc  (data-styles dk) :label-fill)}]))
 
-        ; draw labels at yearly intervals
+                                        ; draw labels at yearly intervals
       (into [:g {:key 2}]
             (map (fn [bin-label]
                    (let [bar-index (:time-index bin-label)
@@ -758,9 +758,9 @@
                                    cum-fs))]))
                  bin-labels))
 
-       ;;
-       ;; Plot label lines
-       ;;
+      ;;
+      ;; Plot label lines
+      ;;
       (into [:g]
             (map
              (fn [bp]
@@ -769,16 +769,16 @@
                          :style {:stroke "#fff" :stroke-width 3}}])))
             bar-positions)]
 
-   ; draw labels
+                                        ; draw labels
      (into [:g {:key 3 :style {:opacity 1}}]
            (map (fn [bin-label]
-                ;draw single bar and label
+                                        ;draw single bar and label
                   (let [bar-index (:time-index bin-label)
                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
                         [time {:keys [fs cum-fs int-fs]}] (nth year-series bar-index)
                         staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs))]
-                    ;(locals)
+                                        ;(locals)
                     (into [:g {:key time}]
                           (conj
                            (map (fn [i data-key cif cum-cif int-fs]
@@ -920,13 +920,13 @@
   [_plot-order year-series tool-mdata _data-styles]
   (let [plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
-        ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
+                                        ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (into [] (range 100))]
-;    (locals)
+                                        ;    (locals)
 
     #_[ui/randomise-query-panel "Randomise order?"]
     [:div
-     ;[ui/randomise-query-panel "Randomise order?"]
+                                        ;[ui/randomise-query-panel "Randomise order?"]
 
      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
                                              :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
@@ -959,7 +959,7 @@
                        (into [:<>]
                              (map-indexed
                               (fn [i outcome-label]
-                                [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")} 
+                                [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")}
                                  (str (if (zero? i) (int-fs k)) " " outcome-label)])
                               outcome-labels)))])]
 
@@ -1119,8 +1119,8 @@
                   :responsive "xl"
                   :bordered true}
      [:thead
-      [:tr 
-       ;[:th "Outcome"]
+      [:tr
+                                        ;[:th "Outcome"]
        (for [i years
              :let [label (nth labels i)
                    line (:line label)
@@ -1136,7 +1136,7 @@
                   fill (col/hexToRgb (:fill style))]]
         [:tr.tborder {:key (str "c-" j) :style (assoc style :border-color (if (or (= (:fill style) "#ffffff")
                                                                                   (= (:fill style) "#fff")) "#000" (:fill style)))}
-         ;[:th outcome]
+                                        ;[:th outcome]
          (for [i years
                :let [label (nth labels i)
                      time-index (:time-index label)
@@ -1147,10 +1147,10 @@
                            :width "100%"
                            :height "100%"}}
              #_[:> bs/Image {:fluid true
-                           :src (apply utils/fill-data-url fill #_[32 144 245])
-                           :style {:position "absolute"
-                                   :width "100%"
-                                   :height "100%"}}]
+                             :src (apply utils/fill-data-url fill #_[32 144 245])
+                             :style {:position "absolute"
+                                     :width "100%"
+                                     :height "100%"}}]
              [:div.lblprint {:id (str (name (plot-order j)) "-" i)
                              :data-year time-index
                              :data-value (nth int-fs j)
@@ -1164,16 +1164,16 @@
 
 (defn text-render
   "If we took an example of 100 transplant patients, who input the same information as you into the tool, we would expect:
-After 1 year	31  of them to have received a transplant
+  After 1 year	31  of them to have received a transplant
 		67  of them to still be waiting for a transplant
 		  2  of them to have died or been removed from the list
-After 2 years 	67  of them to have received a transplant
+  After 2 years 	67  of them to have received a transplant
 		23  of them to still be waiting for a transplant
 		10  of them to have died or been removed from the list
-After 3 years	75  of them to have received a transplant
+  After 3 years	75  of them to have received a transplant
 		  3  of them to still be waiting for a transplant
-		22  of them to have died or been removed from the list 
-"
+		22  of them to have died or been removed from the list
+  "
   [year-series tool-mdata plot-order data-styles]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
@@ -1207,7 +1207,7 @@ After 3 years	75  of them to have received a transplant
         data-styles (get tool-mdata :outcomes)
 
         ;; Table plots need to have positive items at the start; negative (like death) at the end.
-        ;; for survival curves the :residual component is positive farmed, so bring 
+        ;; for survival curves the :residual component is positive farmed, so bring
         ;; this to the start.
         ;;
         ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
@@ -1217,9 +1217,9 @@ After 3 years	75  of them to have received a transplant
                       (move-to-end x :removal)
                       (move-to-end x :death))
 
-        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
+                                        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-    ;(locals)
+                                        ;(locals)
     [:section
      (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
      #_(:post-section tool-mdata)]))
@@ -1229,11 +1229,11 @@ After 3 years	75  of them to have received a transplant
   [year-series tool-mdata plot-order fulfilled-inputs r-params centre-info organ tool]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-    ;(?->> ::years years)
-    ;(?->> ::plot-order plot-order)
-    ;(?->> ::labels labels)
-    ;(?->> ::year-series year-series)
-  
+                                        ;(?->> ::years years)
+                                        ;(?->> ::plot-order plot-order)
+                                        ;(?->> ::labels labels)
+                                        ;(?->> ::year-series year-series)
+
     [:section {:id "uri-result"}
      (pr-str
       {;:uri (.-href js/document.location)
@@ -1260,32 +1260,47 @@ After 3 years	75  of them to have received a transplant
 
 (defn text
   "a text results view"
-  [{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
+                                        ;[{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
+  [total-score]
 
-  (let [sample-days (map
-                     utils/year->day
-                     (range (inc (utils/day->year (first (last s0))))))
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        tool-mdata (tool-metadata env organ tool)
-        data-styles (get tool-mdata :outcomes)
-        plot-order (:plot-order tool-mdata)
+  [:section
 
-        ;; Table plots need to have positive items at the start; negative (like death) at the end.
-        ;; for survival curves the :residual component is positive farmed, so bring 
-        ;; this to the start.
-        ;;
-        ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
-        ;; rather than at the tool level.
-        plot-order* (as-> (:plot-order tool-mdata) x
-                      (move-to-start x :residual)
-                      (move-to-end x :removal)
-                      (move-to-end x :death))
+   (cond
+     (<= total-score 2) [:div
+                         [:h2 "Low Risk"]
+                         [:h6 (str "Score: " total-score)]]
+     (>= total-score 6) [:div
+                         [:h2 "High Risk"]
+                         [:h6 (str "Score: " total-score)]]
+     :default [:div
+               [:h2 "Intermediate Risk"]
+               [:h6 (str "Score: " total-score)]])]
 
-        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-    ;(locals)
-    [:section
-     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)]))
+  #_(let [sample-days (map
+                       utils/year->day
+                       (range (inc (utils/day->year (first (last s0))))))
+          fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+          tool-mdata (tool-metadata env organ tool)
+          data-styles (get tool-mdata :outcomes)
+          plot-order (:plot-order tool-mdata)
+
+          ;; Table plots need to have positive items at the start; negative (like death) at the end.
+          ;; for survival curves the :residual component is positive farmed, so bring
+          ;; this to the start.
+          ;;
+          ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
+          ;; rather than at the tool level.
+          plot-order* (as-> (:plot-order tool-mdata) x
+                        (move-to-start x :residual)
+                        (move-to-end x :removal)
+                        (move-to-end x :death))
+
+                                        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
+          fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
+                                        ;(locals)
+      [:section
+       (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)])
+  )
 
 
 
@@ -1304,11 +1319,11 @@ After 3 years	75  of them to have received a transplant
                           (move-to-end x :death))
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
         r-params (map (fn [[k v]]
-                     (-> fmaps k :levels v :r-name)) fulfilled-inputs)
-       ]
-    ;(?-> fmaps ::fmaps)
-    ;(?-> r-params ::r-params)
+                        (-> fmaps k :levels v :r-name)) fulfilled-inputs)
+        ]
+                                        ;(?-> fmaps ::fmaps)
+                                        ;(?-> r-params ::r-params)
     (when tool-mdata
-       ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
-      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params 
+                                        ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
+      [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params
        centre-info organ tool])))

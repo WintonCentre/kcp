@@ -243,7 +243,10 @@
 
              [ui/tab {:event-key "text" :title "Text"}
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-               [vis/text total-score]]]
+               [vis/text env]]]
+
+             [ui/tab {:event-key "category" :title "Risk Categories"}
+              [vis/risk-categories total-score]]
 
              #_[ui/tab {:event-key "rig" :title "Test Rig"}
                 [:div {:style {:font-size (if is-full-screen "200%" "100%")}}

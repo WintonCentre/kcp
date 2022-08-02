@@ -1260,11 +1260,39 @@
 
 (defn text
   "a text results view"
-                                        ;[{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
+  [{:keys [organ tool inputs base-outcome-keys s0 F] :as env}]
+
+  (let [sample-days (map
+                     utils/year->day
+                     (range (inc (utils/day->year (first (last s0))))))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        tool-mdata (tool-metadata env organ tool)
+        data-styles (get tool-mdata :outcomes)
+        plot-order (:plot-order tool-mdata)
+
+        ;; Table plots need to have positive items at the start; negative (like death) at the end.
+        ;; for survival curves the :residual component is positive farmed, so bring
+        ;; this to the start.
+        ;;
+        ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
+        ;; rather than at the tool level.
+        plot-order* (as-> (:plot-order tool-mdata) x
+                      (move-to-start x :residual)
+                      (move-to-end x :removal)
+                      (move-to-end x :death))
+
+                                        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
+        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
+                                        ;(locals)
+    [:section
+     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)])
+  )
+
+(defn risk-categories
+  "a risk categories results view"
   [total-score]
 
   [:section
-
    (cond
      (<= total-score 2) [:div
                          [:h2 "Low Risk"]
@@ -1274,35 +1302,7 @@
                          [:h6 (str "Score: " total-score)]]
      :default [:div
                [:h2 "Intermediate Risk"]
-               [:h6 (str "Score: " total-score)]])]
-
-  #_(let [sample-days (map
-                       utils/year->day
-                       (range (inc (utils/day->year (first (last s0))))))
-          fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-          tool-mdata (tool-metadata env organ tool)
-          data-styles (get tool-mdata :outcomes)
-          plot-order (:plot-order tool-mdata)
-
-          ;; Table plots need to have positive items at the start; negative (like death) at the end.
-          ;; for survival curves the :residual component is positive farmed, so bring
-          ;; this to the start.
-          ;;
-          ;; todo: Avoid this hacky fix by configuring the plot-order at the visualisation level
-          ;; rather than at the tool level.
-          plot-order* (as-> (:plot-order tool-mdata) x
-                        (move-to-start x :residual)
-                        (move-to-end x :removal)
-                        (move-to-end x :death))
-
-                                        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
-          fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-                                        ;(locals)
-      [:section
-       (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)])
-  )
-
-
+               [:h6 (str "Score: " total-score)]])])
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"

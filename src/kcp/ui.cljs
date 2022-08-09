@@ -83,6 +83,9 @@ in the routes table."
   (def link (js/document.querySelector "link[rel~='icon']"))
   (def logo "/assets/logo_kidney_192.png"))
 
+(comment 
+  (def mdata   @(rf/subscribe [::subs/mdata]))
+         )
 
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
@@ -110,7 +113,7 @@ in the routes table."
      ; Site name below
          [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
                           ;:organ (name organ)
-                          :href (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"})}
+                          :href (str (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"}) "/bars/-")}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
              (str (get-in mdata [single-organ :label]) " Transplant Tool")
@@ -271,8 +274,8 @@ in the routes table."
 (comment
   (rf/dispatch [::events/navigate :kcp.views/organ-centre-tool-tab-inputs
                 {:organ :kidney
-                 :centre "birm"
-                 :tool :survival
+                 :centre "uk"
+                 :tool :ldsurvival
                  :tab "bars"
                  :inputs ""}])
 

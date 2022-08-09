@@ -141,9 +141,9 @@
                                     ;(?-> inputs ::inputs)
                                     ;(if (map? inputs)
                                     (rf/dispatch [::events/selected-inputs-vis path-inputs tab])
-                                       #_(if (not= path-inputs "-")
-                                         (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
-                                         (rf/dispatch [::events/selected-vis tab]))))
+                                    #_(if (not= path-inputs "-")
+                                        (rf/dispatch [::events/selected-inputs-vis organ path-inputs tab])
+                                        (rf/dispatch [::events/selected-vis tab]))))
                         #_#_:stop (fn [params] (js/console.log "Leaving " (pr-str (:path params))))}]}]]]]]])
 
 

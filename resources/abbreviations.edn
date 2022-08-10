@@ -1,9 +1,4 @@
-{:abbreviations {:kidney {:age                        ["A" {:18+ "2"
-                                                            :30+ "3"
-                                                            :40+ "4"
-                                                            :50+ "5"
-                                                            :60+ "6"}]
-                          :t-stage                    ["T" {:pT1a "1"
+{:abbreviations {:kidney {:t-stage                    ["T" {:pT1a "1"
                                                             :pT1b "2"
                                                             :pT2  "3"
                                                             :pT3a "4"

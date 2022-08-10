@@ -53,23 +53,11 @@
     (into {} (map ilookups (mapv #(str/join "" %) (partition 2 2 s))))))
 
 (comment
-  (def test-data {:blood-group ["B" {:O "o"
-                                     :A "a"
-                                     :B "b"
-                                     :AB "ab"}]
-                  :wait ["W" {:<=1 "1"
-                              :<=3 "3"
-                              :<=5 "5"
-                              :<=7 "7"
-                              :>7 "8"}]
-                  :donor-ht ["h" {:yes "y"
-                                  :no "n"
-                                  :unknown "u"}]
-                  :hla-mismatch ["l" {:1 "1"
-                                      :2 "2"
-                                      :3 "3"
-                                      :4 "4"
-                                      :unknown "u"}]})
+  (def test-data {:age ["A" {:18+ "2"
+                             :30+ "3"
+                             :40+ "4"
+                             :50+ "5"
+                             :60+ "6"}]})
 
   (def lookups (make-lookups test-data))    ; forward lookup table
   (def ilookups (rel/map-invert lookups))   ; backwards lookup table
@@ -79,11 +67,11 @@
   (db-to-URI lookups nil)
   ;; => "-"
   
-  (db-to-URI lookups {:blood-group :B :hla-mismatch :3})
+  (db-to-URI lookups {:age :40+})
   (db-to-URI lookups {})
   ;; => "Bbl3"
 
-  (URI-to-db ilookups "Bbl3")
+  (URI-to-db ilookups "A4")
   ;; => {:blood-group :B, :hla-mismatch :3}
 
   (URI-to-db ilookups "-")

@@ -1,133 +1,20 @@
-{:abbreviations {:lung {:sex ["S" {:male "m"
-                                   :female "f"}]
-                        :age ["A" {:18+ "2"
-                                   :30+ "3"
-                                   :40+ "4"
-                                   :50+ "5"
-                                   :60+ "6"
-                                   :70+ "7"}]
-                        :d-gp ["G" {:cf "c"
-                                    :other "o"
-                                    :pf "p"
-                                    :copd "d"}]
-                        :dd-pred ["P" {:pred-0 "0"
-                                       :pred-1-14 "1"
-                                       :pred-15+ "2"}]
-                        :in-hosp ["I" {:no "n"
-                                       :yes "y"}]
-                        :nyha-class ["N" {:nyha-1 "1"
-                                          :nyha-2 "2"
-                                          :nyha-3 "3"
-                                          :nyha-4 "4"}]
-                        :thoracotomy ["T" {:no "n"
-                                           :yes "y"}]
-                        :blood-group ["B" {:O "o"
-                                           :A "a"
-                                           :B "b"
-                                           :AB "c"}]
-                        :rage ["R" {:rage_1 "1"
-                                    :rage_2 "2"
-                                    :rage_3 "3"
-                                    :rage_4 "4"
-                                    :rage_5 "5"}]
-                        :fvc ["f" {:fvc_1 "1"
-                                   :fvc_2 "2"
-                                   :fvc_3 "3"
-                                   :fvc_4 "4"}]
-                        :fvcreg ["F" {:fvc_grp_1 "1"
-                                      :fvc_grp_2 "2"
-                                      :fvc_grp_3 "3"
-                                      :fvc_grp_4 "4"}]
-                        :bmi ["M" {:bmi_1 "1"
-                                   :bmi_2 "2"
-                                   :bmi_3 "3"}]
-                        :donor-cmv ["C" {:negative "n"
-                                         :positive "p"
-                                         :unknown "u"}]
-                        :donor-smokes ["K" {:no "n"
-                                            :yes "y"
-                                            :unknown "u"}]
-                        :type ["Y" {:t1 1
-                                    :t2 2}]
-                        :tage ["E" {:rage_grp_1 "1"
-                                    :rage_grp_2 "2"
-                                    :rage_grp_3 "3"
-                                    :rage_grp_4 "4"
-                                    :rage_grp_5 "5"}]
-                        :tlc-mismatch ["L" {:tlc_mis_1 "1"
-                                            :tlc_mis_2 "2"
-                                            :tlc_mis_3 "3"
-                                            :unknown "u"}]
-                        :bilirubin ["U" {:bili_grp_1 "1"
-                                         :bili_grp_2 "2"
-                                         :bili_grp_3 "3"
-                                         :bili_grp_4 "4"}]
-                        :cholesterol ["H" {:chol_grp_1 "1"
-                                           :chol_grp_2 "2"
-                                           :chol_grp_3 "3"
-                                           :chol_grp_4 "4"
-                                           :unknown "u"}]}
-                 :kidney {;;waiting
-                          :sex ["S" {:male "m"
-                                     :female "f"}]
-                          :age ["A" {:18+ "2"
-                                     :30+ "3"
-                                     :40+ "4"
-                                     :50+ "5"
-                                     :60+ "6"
-                                     :70+ "7"}]
-                          :ethnicity ["E" {:asian "a"
-                                           :black "b"
-                                           :chinese "c"
-                                           :mixed "m"
-                                           :white "w"
-                                           :other "o"}]
-                          :blood-group ["B" {:O "o"
-                                             :A "a"
-                                             :B "b"
-                                             :AB "c"}]
-                          :matchability ["M" {:easy "e"
-                                              :moderate "m"
-                                              :difficult "d"
-                                              :unknown "u"}]
-                          :graft ["G" {:first "f"
-                                       :re-graft "r"}]
-                          :dialysis ["D" {:no "n"
-                                          :yes "y"
-                                          :unknown "u"}]
-                          :sensitised ["s" {:yes "y"
-                                            :no "n"
-                                            :unknown "u"}]
-                          :diabetes ["d" {:yes "y"
-                                          :pckd "p"
-                                          :glo "g"
-                                          :other "o"}]
-                          ;; graft
-                          :wait ["W" {:<=1 "1"
-                                      :<=3 "3"
-                                      :<=5 "5"
-                                      :<=7 "7"
-                                      :>7 "8"}]
-                          :donor-age ["a" {:0+ "1"
-                                           :30+ "2"
-                                           :40+ "3"
-                                           :50+ "4"
-                                           :60+ "5"
-                                           :70+ "6"
-                                           :unknown "u"}]
-                          :donor-bmi ["b" {:underweight "u"
-                                           :healthy "h"
-                                           :overweight "o"
-                                           :unknown "u"}]
-                          :donor-ht ["h" {:yes "y"
-                                          :no "n"
-                                          :unknown "u"}]
-                          :hla-mismatch ["l" {:1 "1"
-                                              :2 "2"
-                                              :3 "3"
-                                              :4 "4"
-                                              :unknown "u"}]
-                          :months-waiting ["m" {:mw-<=6 "0"
-                                                :mw-<=12 "1"
-                                                :mw-<=24 "2"
-                                                :mw-24+ "3"}]}}}
+{:abbreviations {:kidney {:t-stage                    ["T" {:pT1a "1"
+                                                            :pT1b "2"
+                                                            :pT2  "3"
+                                                            :pT3a "4"
+                                                            :pT3b "5"
+                                                            :pT3c "6"
+                                                            :pT4  "7"}]
+                          :n-stage                    ["N" {:pNx "1"
+                                                            :pN0 "2"
+                                                            :pN1 "3"
+                                                            :pN2 "4"}]
+                          :tumor-size                 ["S" {:cm-<10  "1"
+                                                            :cm->=10 "2"}]
+                          :nuclear-grade              ["G" {:1 "1"
+                                                            :2 "2"
+                                                            :3 "3"
+                                                            :4 "4"}]
+                          :histologic-tumor-necrosis  ["H" {:No "n"
+                                                            :Yes "y"}]}}}
+                          

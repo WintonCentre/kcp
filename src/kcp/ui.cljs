@@ -116,7 +116,8 @@ in the routes table."
                           :href (str (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"}) "/bars/-")}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
-             (str (get-in mdata [single-organ :label]) " Transplant Tool")
+             ;(str (get-in mdata [single-organ :label]) " Transplant Tool")
+             (str "Placeholder-8")
              "Development Site")]]
          [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
          [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
@@ -151,8 +152,8 @@ in the routes table."
                      inputs (if-let [i (path-params :inputs)] i "-")]
 
                  (comment
-                   (into [:> bs/NavDropdown {:style {:font-size "1.2em"}
-                                            :title "Transplant Centres" :id "basic-nav-dropdown"}]
+                   (into [:> bs/NavDropdown {:style {:font-size "1.2em"}}
+                                            :title "Transplant Centres" :id "basic-nav-dropdown"]
                         (map (fn [centre]
                                [:> bs/NavDropdown.Item
                                 {:href (href :kcp.views/organ-centre-tool-tab-inputs ;-tab-inputs
@@ -166,13 +167,13 @@ in the routes table."
                                 (:name centre)])
                              (filter #(not= (:name %) "UK") centres)))))))]
           [:> bs/Nav {:class "ml-auto"
-                      :style {:height "100%" :vertical-align "middle"}
-                      }
+                      :style {:height "100%" :vertical-align "middle"}}
+                      
            [bsio/feedback-button mdata single-organ]
            #_[:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
                                      "?subject=" (-> mdata single-organ :contact-email-subject)
-                                     "&body=" (-> mdata single-organ :contact-email-body))
-                          :variant "info"} "✉️ " [:span {:style {:margin-left 10}} "Feedback"]]]]])
+                                     "&body=" (-> mdata single-organ :contact-email-body))}
+                          :variant "info" "✉️ " [:span {:style {:margin-left 10}} "Feedback"]]]]])
       [loading])))
 
 (comment

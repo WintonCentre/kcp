@@ -48,8 +48,9 @@
           :tools {:ldsurvival {:button-type "survival"
                                :label "Survival - living donor"
                                :inputs {:header [:div
-                                                 [:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]
-                                                 [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]]}
+                                                 [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]
+                                                 [:p.d-print-none "Placeholder-3"]]}
+                                                 ;[:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]]}
                                :outcomes {:residual {:label "Surviving"
                                                      :long-label "of patients have survived"
                                                      :fill "#00979C"
@@ -148,8 +149,9 @@
                                                  :line ["By the end of year 5"]}]}
 
                                :pre-section [:<>
-                                             [:h3
-                                              "How long might your kidney last if it's from a living donor?"]
+                                             [:h3 "Placeholder-4"]
+                                             ;[:h3
+                                             ; "How long might your kidney last if it's from a living donor?"
                                              [:section
                                               [:p "The results below show what happened to people like you in the past (people the same age, disease etc.)."]
                                               [:p "It is not a prediction of what will happen to you. It is an estimate."]
@@ -157,6 +159,7 @@
                                                 For example you may have other conditions not included in the tool."]]]
                                :post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
-                                              [:p "Why does the display stop at year 5? We do not have data for patients going back
-                                               more than 5 years that we can use."]
-                                              [:p "As time passes we will be able to add in more years"]]}}}}
+                                              ;[:p "Why does the display stop at year 5? We do not have data for patients going back
+                                              ; more than 5 years that we can use."]
+                                              ;[:p "As time passes we will be able to add in more years"]
+                                              [:p "Placeholder-5"]]}}}}

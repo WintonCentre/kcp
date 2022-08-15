@@ -981,7 +981,8 @@ Here are typical donor characteristics you might be asked to think about."]
                  [ui/col {:xs 12 :sm 8}
                   [:h1 (:description centre-info)]
                   [:p (:explanation uk-info)]]
-                 [ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
+                 ;[ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]
+                 [ui/col {:xs 12 :sm 4} [:h2 "Placeholder-2"]]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
           [:div.d-none.d-print-block {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
@@ -995,8 +996,8 @@ Here are typical donor characteristics you might be asked to think about."]
 
        (when (= tab "test")
          [results/results-panel {:organ organ :centre centre :tool tool :bare true
-                                 :centre-info centre-info}]
-         )
+                                 :centre-info centre-info}])
+         
 
 
        (if-let [tool-centre-bundle tcb]
@@ -1043,8 +1044,9 @@ Here are typical donor characteristics you might be asked to think about."]
 
                        tcb-fmaps))]
                [:<>
-                [:p "This tool cannot take into account all the factors about you that might affect the result.
-                                           We hope to include more in the future. "]
+                [:p "Placeholder-6"]
+                ;[:p "This tool cannot take into account all the factors about you that might affect the result.
+                ;                           We hope to include more in the future. "]
                 [:p.d-print-none "Click below to find out more about those we have considered but are not in the tool."]
                 [:p
                  [:> bs/Button {:id "factors-considered"

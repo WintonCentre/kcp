@@ -60,8 +60,7 @@
       [:> bs/Col {:md 6}
        [home-section
         [:h2 "What does this site do?"]
-        [:p "This is a communication tool. It will help patients understand risks and benefit numbers about
-             transplantation. It will help the transplant team explain these numbers by showing them in graphs and charts. "]
+        [:p "This is a communication tool."]
         [:p "Results can be printed out for patients to take home"]
 
         [:> bs/Row
@@ -70,40 +69,37 @@
          [:> bs/Col {:md 8}
           [:p
            [:i "We are still asking for feedback on this site. You are encouraged to email us with any thoughts, corrections
-              and feedback on any aspect of the site. Please send any feedback by the end of May 2022. "]]]]
-        ]
+              and feedback on any aspect of the site."]]]]]
+        
 
        [home-section
         [:h2 "How does it work?"]
-        [:p "The tool takes details about the patient such as age, disease, blood group, treatment
-             centre and produces results personalised for them."]]
+        [:p "The tool takes details about the patient such as " [:b "Placeholder-9"] " and produces results personalised for them."]]
 
        [home-section
         [:h2 "The tool will show"]
         [:ul
-         [:li "What is my likely " [:b "waiting time"] " for a transplant?"]
-         (when (= single-organ :kidney) [:li "How long might " [:b "the transplant last?"]])
-         [:li "How long might " [:b "I survive"] " after a transplant?"]]]
+         ;[:li "What is my likely " [:b "waiting time"] " for a transplant?"]
+         ;(when (= single-organ :kidney) [:li "How long might " [:b "the transplant last?"]])
+         ;[:li "How long might " [:b "I survive"] " after a transplant?"]
+         [:li [:b "Placeholder-10"]]]]
 
        [home-section
         [:h2 "Who is this site for?"]
-        [:p "People who are suitable for " (name single-organ) " transplant and who are over "
-         (if (= single-organ :kidney) "18" "16") " years old."]
-        (when (= single-organ :kidney)
-          [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]])]]
+        ;[:p "People who are suitable for " (name single-organ) " transplant and who are over "
+         ;(if (= single-organ :kidney) "18" "16") " years old."]
+        [:b "Placeholder-11"]]]
+        ;(when (= single-organ :kidney)
+         ; [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]]]]]
 
       [:> bs/Col {:md 6}
        [home-section
         [:h2 "Overview"]
-        [:p "The tool uses data from the NHS BT registry."]
         [:p "It takes the information you enter and shows what happened to people “like you” in the past. "
          [:b " It is not showing what will happen to you in the future, it is showing what happened to people
               like you in the past."]]
         [:p "The tool cannot take into account everything about you.  For example it does not currently ask
              about other health conditions you may have."]
-        [:p "There are many factors that influences how well a transplant does, for example whether you take
-             your medications correctly, your diet and whether you exercise.  Sometimes kcp don’t work
-             and we don’t know why."]
         [:p " If you want to know more about the data and the models behind the tool read
              the " [:a {:href (ui/href :kcp.views/tech)}  "technical section"] " of this site."]]
        [home-section
@@ -112,9 +108,9 @@
         [:p "Provided you have visited the site once, you can revisit it from the same browser even if you are offline."]]]
 
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
-       (choose-centre-nav mdata)]]])
+       (choose-centre-nav mdata)]]]))
 
-  )
+  
 
 ;;; Views ;;;
 (defn home-page
@@ -140,9 +136,8 @@
                     {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
            [ui/col {:md 8 :style {:color "#fff"}}
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
-            [:p [:b "The tool should be used with a transplant doctor, specialist nurse or other healthcare professional."]]
-            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your transplant"
-                 (if (= organ :kidney) " or dialysis" "") " team."]]]]]
+            [:p [:b "The tool should be used with a clinition, specialist nurse or other healthcare professional."]]
+            [:p [:b "If you are a patient and you use this site on your own, discuss the results with oncologist."]]]]]
          (str (string/capitalize (name single-organ)) " kcp: Understanding the Numbers")
          [ui/row
           [ui/col

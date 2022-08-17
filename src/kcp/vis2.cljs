@@ -6,7 +6,7 @@
             [goog.color :as col]
             [medley.core :as medl]
             [re-frame.core :as rf]
-            ;[shadow.debug :refer [?-> ?->> ?> locals]]
+            [shadow.debug :refer [?-> ?->> ?> locals]]
             [svg.container :as svgc]
             [svg.space :refer [space]]
             [kcp.factors :as fac]
@@ -721,7 +721,8 @@
                                                     (select-keys bp-dk [:x :y0 :y1]))]
                                          (concat (map (juxt :x :y0) tops)
                                                  (map (juxt :x :y1) (reverse tops))))]))]
-    [:g {:key 1}
+    [:g {:key 1
+         :transform "translate(100 0)"}
      [:rect {:key        1
              :class-name (:inner styles)
              :x 0
@@ -731,8 +732,9 @@
      ;;
      ;; Plot areas
      ;;
-     [:g
-      (into [:g {:opacity 1}]
+     [:g {:transform "translate(-10,0)"}
+      (into [:g {:opacity 1
+                 :transform "translate(2,0)"}]
             (for [dk data-keys]
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]
@@ -820,13 +822,16 @@
 (defn area-chart
   "Draw the area chart"
   [{:keys [organ tool base-outcome-keys s0 F] :as env}]
+  (?-> s0 ::s0)
   (let [year-days (map
                    utils/year->day
                    (range (inc (utils/day->year (first (last s0))))))
+
         fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-        quarter-days (map
+        quarter-days (range 120)#_(map
                       utils/week->day
                       (range (inc (utils/day->week (first (last s0))))))
+        _ (?-> quarter-days ::quarter-days)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
@@ -844,7 +849,7 @@
                    :margin (get-in tool-mdata [:area :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
                    :padding #_(get-in tool-mdata [:area :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
                    {:top 40, :right 20, :bottom 100, :left 20}
-                   :x-domain [0 14]
+                   :x-domain [0 15]
                    :x-ticks 10
                    :y-domain [1 0]
                    :y-ticks 10})
@@ -859,6 +864,7 @@
             [:g {:transform "translate(280 0)"}
              #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
                        :style {:fill "#EEF8" :border "3px solid #CCC"}}]
+             (?-> [X Y] ::x-y)
              (stacked-area-chart {:X X
                                   :Y Y
                                   :year-series fs-by-year-in-plot-order

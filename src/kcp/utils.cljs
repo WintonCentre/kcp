@@ -55,10 +55,10 @@
   [tool suffix]
   (keyword (str (name tool) suffix)))
 
-(def year 365.25)
+(def year 12)
 (def quarter (/ year 4))
-(def month (/ year 12))
-(def week 7)
+(def month 1)
+(def week (/ 12 (/ 365.25 7)))
 
 (defn day->week
   [d] (js/Math.ceil (/ d week)))

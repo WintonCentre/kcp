@@ -84,12 +84,12 @@
                                                 :x-offset 0
                                                 :y-offset 610
                                                 :line ["By the end"
-                                                       "of year 3"]}
+                                                       "of year 5"]}
                                                {:time-index 5
                                                 :x-offset 0
                                                 :y-offset 610
                                                 :line ["By the end"
-                                                       "of year 5"]}]}
+                                                       "of year 10"]}]}
                                :area {:svg-width 1060
                                       :svg-height 680
                                       :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
@@ -106,12 +106,12 @@
                                                 :x-offset -50
                                                 :y-offset 585
                                                 :line ["End of"
-                                                       "year 3"]}
+                                                       "year 5"]}
                                                {:time-index 5
                                                 :x-offset -50
                                                 :y-offset 585
                                                 :line ["End of"
-                                                       "year 5"]}]}
+                                                       "year 10"]}]}
                                :icons {:svg-width 1060
                                        :svg-height 520
                                        :svg-margin {:top 0 :right 0 :bottom 0 :left 0}
@@ -129,11 +129,11 @@
                                                 {:time-index 3
                                                  :x-offset -10
                                                  :y-offset 610
-                                                 :line ["By the end of year 3"]}
+                                                 :line ["By the end of year 5"]}
                                                 {:time-index 5
                                                  :x-offset -10
                                                  :y-offset 610
-                                                 :line ["By the end of year 5"]}]}
+                                                 :line ["By the end of year 10"]}]}
                                :table {:font-size 20
                                        :labels [{:time-index 1
                                                  :x-offset -10
@@ -142,11 +142,11 @@
                                                 {:time-index 3
                                                  :x-offset -10
                                                  :y-offset 610
-                                                 :line ["By the end of year 3"]}
+                                                 :line ["By the end of year 5"]}
                                                 {:time-index 5
                                                  :x-offset -10
                                                  :y-offset 610
-                                                 :line ["By the end of year 5"]}]}
+                                                 :line ["By the end of year 10"]}]}
 
                                :pre-section [:<>
                                              [:h3 "Placeholder-4"]

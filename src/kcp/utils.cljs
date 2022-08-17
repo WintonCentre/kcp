@@ -110,6 +110,9 @@
   ;; => 5
   )
 
+;;
+;; days are now really months !!!
+;;
 
 (defn week->day
   [w]
@@ -127,12 +130,12 @@
 (defn day->year
   "Convert a day count to the nearest whole year"
   [d]
-  (js/Math.round (/ d 365.25)))
+  (js/Math.round (/ d 12)))
 
 (defn year->day
   "Convert a year count to the nearest whole day"
   [y]
-  (js/Math.round (* y 365.25)))
+  (js/Math.round (* y 12)))
 
 (def transpose
   "transpose  matrix"

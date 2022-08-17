@@ -14,7 +14,8 @@
             [kcp.rgb :as rgb]
             [kcp.subs :as subs]
             [kcp.ui :as ui]
-            [kcp.utils :as utils]))
+            [kcp.utils :as utils]
+            [shadow.debug :refer [?->]]))
 
 ;;
 ;; Plot data prep utilities

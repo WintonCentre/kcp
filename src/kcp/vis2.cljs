@@ -1292,24 +1292,8 @@
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
                                         ;(locals)
     [:section
-     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)])
-  )
-
-(defn risk-categories
-  "a risk categories results view"
-  [total-score]
-
-  [:section
-   (cond
-     (<= total-score 2) [:div
-                         [:h2 "Low Risk"]
-                         [:h6 (str "Score: " total-score)]]
-     (>= total-score 6) [:div
-                         [:h2 "High Risk"]
-                         [:h6 (str "Score: " total-score)]]
-     :default [:div
-               [:h2 "Intermediate Risk"]
-               [:h6 (str "Score: " total-score)]])])
+     (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)]))
+  
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"
@@ -1326,8 +1310,8 @@
                           (move-to-end x :death))
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
         r-params (map (fn [[k v]]
-                        (-> fmaps k :levels v :r-name)) fulfilled-inputs)
-        ]
+                        (-> fmaps k :levels v :r-name)) fulfilled-inputs)]
+        
                                         ;(?-> fmaps ::fmaps)
                                         ;(?-> r-params ::r-params)
     (when tool-mdata

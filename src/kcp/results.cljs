@@ -126,8 +126,8 @@
                   [:s0 s0]
                   [:s0-for-day s0-for-day]
                   [:cox? cox?]
-                  [:F F] ;; is this needed ?
-                  )
+                  [:F F]) ;; is this needed ?
+                  
         inputs (:inputs env)
                                         ;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
@@ -222,6 +222,17 @@
            [:section {:style {:margin (if is-full-screen "10%" "0")
                               :max-width (if is-full-screen "80%" "100%")
                               :display (when (=  (:selected-vis env) "test") "none")}}
+            [:h1 (cond
+                   (<= total-score 2) [:div {:style {:color "#ff9933"}}
+                                       [:h2 "Low Risk"]
+                                       [:h6 (str "Score: " total-score)]]
+                   (>= total-score 6) [:div {:style {:color "#ff4000"}}
+                                       [:h2 "High Risk"]
+                                       [:h6 (str "Score: " total-score)]]
+                   :default [:div {:style {:color "#ff751a"}}
+                             [:h2 "Intermediate Risk"]
+                             [:h6 (str "Score: " total-score)]])]
+
             [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                       :active-key (:selected-vis env)
                       :on-select #(rf/dispatch [::events/navigate :kcp.views/organ-centre-tool-tab-inputs
@@ -244,9 +255,6 @@
              [ui/tab {:event-key "text" :title "Text"}
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/text env]]]
-
-             [ui/tab {:event-key "category" :title "Risk Categories"}
-              [vis/risk-categories total-score]]
 
              #_[ui/tab {:event-key "rig" :title "Test Rig"}
                 [:div {:style {:font-size (if is-full-screen "200%" "100%")}}

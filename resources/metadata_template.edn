@@ -157,7 +157,7 @@
                                               [:p "It is not a prediction of what will happen to you. It is an estimate."]
                                               [:p "There are other factors about you that can influence these results and make the numbers higher or lower.
                                                 For example you may have other conditions not included in the tool."]]]
-                               :post-section [:h5 "Patient survival after a living donor transplant"]
+                               ;:post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
                                               ;[:p "Why does the display stop at year 5? We do not have data for patients going back
                                               ; more than 5 years that we can use."]

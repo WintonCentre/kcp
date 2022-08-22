@@ -842,7 +842,7 @@
     ;(?-> tool-mdata ::area-chart)
     ;(locals)
     [:> bs/Row
-     [:> bs/Col {:style {:margin-top 10 :margin-right 10 :border "1px solid red"}}
+     [:> bs/Col {:style {:margin-top 10 :margin-right 10}}
       [svgc/svg-container
        (-> (space {:outer {:width (get-in tool-mdata [:area :svg-width])
                            :height (get-in tool-mdata [:area :svg-height])}

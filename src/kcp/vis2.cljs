@@ -828,9 +828,9 @@
                    (range (inc (utils/day->year (first (last s0))))))
 
         fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-        quarter-days (range 120)#_(map
-                      utils/week->day
-                      (range (inc (utils/day->week (first (last s0))))))
+        quarter-days (range 120);#_(map)
+                      ;utils/week->day
+                      ;(range (inc (utils/day->week (first (last s0)))))
         _ (?-> quarter-days ::quarter-days)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)

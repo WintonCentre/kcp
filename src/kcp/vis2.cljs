@@ -621,7 +621,7 @@
         plot-order (:plot-order tool-mdata)]
     ;(locals)
     [:> bs/Row
-     [:> bs/Col {:style {:margin-top 10}}
+     [:> bs/Col {:style {:margin-top 10 :margin-right 10 :margin-bottom 10}}
       ;(:pre-section tool-mdata)
 
       [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:bars :svg-width])
@@ -822,7 +822,8 @@
 (defn area-chart
   "Draw the area chart"
   [{:keys [organ tool base-outcome-keys s0 F] :as env}]
-  (?-> s0 ::s0)
+  ;(?-> s0 ::s0)
+  (?-> env ::env)
   (let [year-days (map
                    utils/year->day
                    (range (inc (utils/day->year (first (last s0))))))
@@ -841,12 +842,12 @@
     ;(?-> tool-mdata ::area-chart)
     ;(locals)
     [:> bs/Row
-     [:> bs/Col {:style {:margin-top 10}}
+     [:> bs/Col {:style {:margin-top 10 :margin-right 10 :border "1px solid red"}}
       [svgc/svg-container
        (-> (space {:outer {:width (get-in tool-mdata [:area :svg-width])
                            :height (get-in tool-mdata [:area :svg-height])}
                    :aspect-ratio (aspect-ratio svg-width svg-height)
-                   :margin (get-in tool-mdata [:area :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
+                   :margin #_(get-in tool-mdata [:area :svg-margin]) {:top 0 :right 10 :bottom 0 :left 0}
                    :padding #_(get-in tool-mdata [:area :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
                    {:top 40, :right 20, :bottom 100, :left 20}
                    :x-domain [0 15]
@@ -1110,7 +1111,7 @@
         window-width (rf/subscribe [::subs/window-width])
         mobile? (<= @window-width ui/mobile-break)]
     [:> bs/Row
-     [:> bs/Col {:style {:margin "10px 0px"}}
+     [:> bs/Col {:style {:margin-top 10 :margin-right 10 :margin-bottom 25}}
       (if mobile?
         (stacked-icon-array fs-by-year-in-plot-order tool-mdata data-styles)
         (side-by-side-icon-array plot-order* fs-by-year-in-plot-order tool-mdata data-styles))]]))
@@ -1227,7 +1228,7 @@
                                         ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
                                         ;(locals)
-    [:section
+    [:section {:style {:margin-right 10 :margin-bottom 20}}
      (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
      #_(:post-section tool-mdata)]))
 

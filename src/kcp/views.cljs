@@ -136,7 +136,7 @@
                     {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
            [ui/col {:md 8 :style {:color "#fff"}}
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
-            [:p [:b "The tool should be used with a clinition, specialist nurse or other healthcare professional."]]
+            [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
             [:p [:b "If you are a patient and you use this site on your own, discuss the results with oncologist."]]]]]
          (str (string/capitalize (name single-organ)) " kcp: Understanding the Numbers")
          [ui/row

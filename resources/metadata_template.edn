@@ -1,24 +1,24 @@
 {; List of organ metadata.
- ; Edit this to add a new organ to the tool.
- ; Forms may be commented out with #_.
- ; Lines or line tail ends may be commented out with ';'
- ; Syntax is EDN - see definition at https://github.com/edn-format/edn
+                                        ; Edit this to add a new organ to the tool.
+                                        ; Forms may be commented out with #_.
+                                        ; Lines or line tail ends may be commented out with ';'
+                                        ; Syntax is EDN - see definition at https://github.com/edn-format/edn
 
  ;;
- ; Generalised app-domains. In future we may add :kidney-cancer, :blood-cancer etc.
- ;
- ; If the app only contained one domain of application then the single domain could simply be called :app and could be elided.
- ; The key thing about a domain is that it provides a HOME PAGE for an app, So for kcp, the domain is
- ; related to the organ transplant that is being modelled.
- ;
- ; The main reason we don't simply write a different app for each domain is that this makes it very hard to write
- ; generic application code which applies to all app domains that are all in development at the same time. We'd have to
- ; share code through libraries, and that lengthens the development cycles.
- ;
- ; We should protect the integrity of all domains with automated tests. At some point - probably when
- ; co-development of similar apps stops - we may want to transition to a classic app + local libraries organisation.
- ;
- ; cf. Polylith in the clojure world.
+                                        ; Generalised app-domains. In future we may add :kidney-cancer, :blood-cancer etc.
+                                        ;
+                                        ; If the app only contained one domain of application then the single domain could simply be called :app and could be elided.
+                                        ; The key thing about a domain is that it provides a HOME PAGE for an app, So for kcp, the domain is
+                                        ; related to the organ transplant that is being modelled.
+                                        ;
+                                        ; The main reason we don't simply write a different app for each domain is that this makes it very hard to write
+                                        ; generic application code which applies to all app domains that are all in development at the same time. We'd have to
+                                        ; share code through libraries, and that lengthens the development cycles.
+                                        ;
+                                        ; We should protect the integrity of all domains with automated tests. At some point - probably when
+                                        ; co-development of similar apps stops - we may want to transition to a classic app + local libraries organisation.
+                                        ;
+                                        ; cf. Polylith in the clojure world.
  ;;
 
  ;; We originally displayed multiple organs in one tool. Now we don't, but so far have retained a vector of organs
@@ -28,16 +28,16 @@
  :organ-order [:lung]
 
  ;;
- ; :todo - Check -
- ; If an app only contains one domain, then the domain selection buttons should be skipped and the app should load
- ; the domain home page at startup.
- ;
- ; If :organ-order contains more than one organ, then the selector should be present on the home page still.
- ; [It's debatable whether this option is ever going to be needed, so we may perhaps just require a single organ at startup.]
+                                        ; :todo - Check -
+                                        ; If an app only contains one domain, then the domain selection buttons should be skipped and the app should load
+                                        ; the domain home page at startup.
+                                        ;
+                                        ; If :organ-order contains more than one organ, then the selector should be present on the home page still.
+                                        ; [It's debatable whether this option is ever going to be needed, so we may perhaps just require a single organ at startup.]
  ;;
 
- ; this record from excel tools sheets. It pre-dates this metadata file and was used at initialisation
- ; to load the top-level tools
+                                        ; this record from excel tools sheets. It pre-dates this metadata file and was used at initialisation
+                                        ; to load the top-level tools
 
  :kidney {:text "Kidney"
           :label "Kidney"
@@ -50,8 +50,8 @@
                                :inputs {:header [:div
                                                  [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]
                                                  [:p.d-print-none "Please enter the information for a primary kidney cancer (a tumour located in the kidney that has not spread from another body), which was treated surgically."]]}
-                                                 ;[:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]]}
-                               :outcomes {:residual {:label "Kidney cancer did not come back (no recurrence)"
+                                        ;[:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]]}
+                               :outcomes {:residual {:label "no recurrence"
                                                      :long-label "of patients have had no recurrence"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
@@ -60,7 +60,7 @@
                                                      :stroke-width 1
                                                      :stroke "#000"
                                                      :label-fill "#fff"}
-                                          :ldsurvival {:label "Kidney cancer came back (recurrence)"
+                                          :ldsurvival {:label "recurrence"
                                                        :long-label "of patients have had recurrence"
                                                        :fill "#ffffff"
                                                        :opacity 0.7
@@ -116,10 +116,10 @@
                                        :svg-height 520
                                        :svg-margin {:top 0 :right 0 :bottom 0 :left 0}
                                        :svg-padding {:top 0 :right 0 :bottom 0 :left 0}
-                                       ;:svg-width 575
-                                       ;:svg-height 250
-                                       ;:svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                                       ;:svg-padding {:top 40 :right 20 :bottom 80 :left 20}
+                                        ;:svg-width 575
+                                        ;:svg-height 250
+                                        ;:svg-margin {:top 0 :right 10 :bottom 0 :left 0}
+                                        ;:svg-padding {:top 40 :right 20 :bottom 80 :left 20}
                                        :width 0
                                        :font-size 25
                                        :labels [{:time-index 1
@@ -149,17 +149,17 @@
                                                  :line ["By the end of year 10"]}]}
 
                                :pre-section [:<>
-                                             [:h3 "Placeholder-4"]
-                                             ;[:h3
-                                             ; "How long might your kidney last if it's from a living donor?"
+                                             [:h3 "What does this show?"]
+                                        ;[:h3
+                                        ; "How long might your kidney last if it's from a living donor?"
                                              [:section
-                                              [:p "The results below show what happened to people like you in the past (people the same age, disease etc.)."]
+                                              [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer)."]
                                               [:p "It is not a prediction of what will happen to you. It is an estimate."]
-                                              [:p "There are other factors about you that can influence these results and make the numbers higher or lower.
-                                                For example you may have other conditions not included in the tool."]]]
-                               ;:post-section [:h5 "Patient survival after a living donor transplant"]
+                                              ]]
+                                        ;:post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
-                                              ;[:p "Why does the display stop at year 5? We do not have data for patients going back
-                                              ; more than 5 years that we can use."]
-                                              ;[:p "As time passes we will be able to add in more years"]
-                                              [:p "Placeholder-5"]]}}}}
+                                        ;[:p "Why does the display stop at year 5? We do not have data for patients going back
+                                        ; more than 5 years that we can use."]
+                                        ;[:p "As time passes we will be able to add in more years"]
+                                              [:h3 "Why does the display stop at year 10?"]
+                                              [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}}}}

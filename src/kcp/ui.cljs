@@ -83,7 +83,7 @@ in the routes table."
   (def link (js/document.querySelector "link[rel~='icon']"))
   (def logo "/assets/logo_kidney_192.png"))
 
-(comment 
+(comment
   (def mdata   @(rf/subscribe [::subs/mdata]))
          )
 
@@ -117,7 +117,7 @@ in the routes table."
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
              ;(str (get-in mdata [single-organ :label]) " Transplant Tool")
-             (str "Placeholder-8")
+             (str "Kidney Cancer Prediction Tool")
              "Development Site")]]
          [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
          [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
@@ -168,7 +168,7 @@ in the routes table."
                              (filter #(not= (:name %) "UK") centres)))))))]
           [:> bs/Nav {:class "ml-auto"
                       :style {:height "100%" :vertical-align "middle"}}
-                      
+
            [bsio/feedback-button mdata single-organ]
            #_[:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
                                      "?subject=" (-> mdata single-organ :contact-email-subject)

@@ -55,7 +55,7 @@
   (let [single-organ (ui/get-single-organ mdata)]
     [:<>
      [:> bs/Row
-      ;[:> bs/Col {:sm 12} (choose-centre-nav mdata)]
+                                        ;[:> bs/Col {:sm 12} (choose-centre-nav mdata)]
 
       [:> bs/Col {:md 6}
        [home-section
@@ -70,27 +70,23 @@
           [:p
            [:i "We are still asking for feedback on this site. You are encouraged to email us with any thoughts, corrections
               and feedback on any aspect of the site."]]]]]
-        
+
 
        [home-section
         [:h2 "How does it work?"]
-        [:p "The tool takes details about the patient such as " [:b "Placeholder-9"] " and produces results personalised for them."]]
+        [:p "This tool takes details about a patient's cancer, such as tumor size, and produces results personlised for them."]]
 
        [home-section
         [:h2 "The tool will show"]
-        [:ul
-         ;[:li "What is my likely " [:b "waiting time"] " for a transplant?"]
-         ;(when (= single-organ :kidney) [:li "How long might " [:b "the transplant last?"]])
-         ;[:li "How long might " [:b "I survive"] " after a transplant?"]
-         [:li [:b "Placeholder-10"]]]]
+        [:p "The risk of your cancer coming back (known as recurrence or metastasising)"]]
 
        [home-section
         [:h2 "Who is this site for?"]
-        ;[:p "People who are suitable for " (name single-organ) " transplant and who are over "
-         ;(if (= single-organ :kidney) "18" "16") " years old."]
-        [:b "Placeholder-11"]]]
-        ;(when (= single-organ :kidney)
-         ; [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]]]]]
+                                        ;[:p "People who are suitable for " (name single-organ) " transplant and who are over "
+                                        ;(if (= single-organ :kidney) "18" "16") " years old."]
+        [:p "Adults kidney cancer patients who have had surgery to remove their cancer (and their relatives/carers)"]]]
+                                        ;(when (= single-organ :kidney)
+                                        ; [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]]]]]
 
       [:> bs/Col {:md 6}
        [home-section
@@ -110,7 +106,7 @@
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
        (choose-centre-nav mdata)]]]))
 
-  
+
 
 ;;; Views ;;;
 (defn home-page
@@ -121,7 +117,7 @@
         route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
         organ (get-in route [:path-params :organ])]
-    ;(locals)
+                                        ;(locals)
     (if mdata
       (if-let [organ (or single-organ organ)]
         [ui/decorated-page
@@ -137,8 +133,8 @@
            [ui/col {:md 8 :style {:color "#fff"}}
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
             [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
-            [:p [:b "If you are a patient and you use this site on your own, discuss the results with oncologist."]]]]]
-         (str (string/capitalize (name single-organ)) " kcp: Understanding the Numbers")
+            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your urology team."]]]]]
+         (str (string/capitalize (name single-organ)) " Cancer Prediction Tool: Leibovich Score")
          [ui/row
           [ui/col
            [:<> (leila-text mdata)]]]])
@@ -254,7 +250,7 @@
    [:p "We wish to thank all the transplant patients and their partners,
         as well as clinical teams at transplant centres in England who took part in researching the tool design."]])
 
-  
+
 
 ;;; Views ;;;
 (defn about-page
@@ -266,7 +262,7 @@
         #_#_route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
         #_#_organ (get-in route [:path-params :organ])]
-    ;(locals)
+                                        ;(locals)
 
     (if mdata
       [ui/page (str "About the " (string/capitalize (name single-organ)) " tool")
@@ -952,15 +948,20 @@ Here are typical donor characteristics you might be asked to think about."]
              [:p [:b "FEV1, Transfer Factor"] " - FVC is included in model."]
              [:p [:b "Comorbidities (coronary artery disease, renal dysfunction, diabetes)"] " - Coronary artery disease collected only as primary disease so not available for inclusion.  eGFR and diabetes was considered when constructing the models originally and were not significant."] [:p [:b "Time on ventilator / mechanical support"] " - Time on support not captured and very low numbers for on ventilator as it is only collected for patients in hospital at transplant – 9 (0.8%) of cohort were on ventilator at transplant."]]
       :kidney [:div
-               [:p [:b "Recipient BMI"] " - Tested and not found  to be significant in model"]
-               [:p [:b "Creatinine"] " - Although we can get terminal creatinine for donor, we don’t know how many were on filtration in ITU – this would give a falsely low creatinine and be misleading. "]
-               [:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."]]
+                                        ;[:p [:b "Recipient BMI"] " - Tested and not found  to be significant in model"]
+                                        ;[:p [:b "Creatinine"] " - Although we can get terminal creatinine for donor, we don’t know how many were on filtration in ITU – this would give a falsely low creatinine and be misleading. "]
+                                        ;[:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."]
+               [:p "In some studies, other information about patients has been shown to be related to likelihood of
+kidney cancer coming back (recurrence). These factors include age, sex and measures of overall
+health (sometimes described as comorbidity or frailty). However, the relationship between these
+factors and the predictions made by this tool are not well understood by researchers and doctors do
+not currently use these factors to make decisions about follow-up care."]]
       :else [:div])))
 
 
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
- ;(?-> params ::params)
+                                        ;(?-> params ::params)
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
@@ -968,7 +969,7 @@ Here are typical donor characteristics you might be asked to think about."]
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])
           tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
-        ;(locals)
+                                        ;(locals)
       [:div {:id "capture"}
        (when-not is-full-screen
          [:div [:div.d-print-none {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
@@ -976,8 +977,8 @@ Here are typical donor characteristics you might be asked to think about."]
                  [ui/col {:xs 12 :sm 8}
                   [:h1 (:description centre-info)]
                   [:p (:explanation uk-info)]]
-                 ;[ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]
-                 [ui/col {:xs 12 :sm 4} [:h2 "Placeholder-2"]]]
+                                        ;[ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]
+                 [ui/col {:xs 12 :sm 4} [:h2 "Kidney Cancer Prediction Tool"]]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
           [:div.d-none.d-print-block {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
@@ -992,7 +993,7 @@ Here are typical donor characteristics you might be asked to think about."]
        (when (= tab "test")
          [results/results-panel {:organ organ :centre centre :tool tool :bare true
                                  :centre-info centre-info}])
-         
+
 
 
        (if-let [tool-centre-bundle tcb]
@@ -1039,10 +1040,8 @@ Here are typical donor characteristics you might be asked to think about."]
 
                        tcb-fmaps))]
                [:<>
-                [:p "Placeholder-6"]
-                ;[:p "This tool cannot take into account all the factors about you that might affect the result.
-                ;                           We hope to include more in the future. "]
-                [:p.d-print-none "Click below to find out more about those we have considered but are not in the tool."]
+                [:p "This tool cannot take into account all the factors about you that might affect the result. We hope to include more in the future."]
+                [:p.d-print-none "Click below to find out more about factors that may affect the likelihood of kidney cancer coming back but are not included the tool."]
                 [:p
                  [:> bs/Button {:id "factors-considered"
                                 :size "md"
@@ -1052,11 +1051,11 @@ Here are typical donor characteristics you might be asked to think about."]
                                 :on-click (fn [_e]
                                             (rf/dispatch [::events/modal-data
                                                           {:show true
-                                                           :title "Factors considered but not included"
+                                                           :title "Important factors not included in the tool"
                                                            :content (factors-not-included mdata)
                                                            :on-hide widg/hide-handler
                                                            :ok widg/hide-handler}]))}
-                  [:span "Show factors considered but not included"]]]]])
+                  [:span "Show important factors not included in the tool"]]]]])
 
             ;;;
             ;; Results Panel

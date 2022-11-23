@@ -127,7 +127,7 @@
                   [:s0-for-day s0-for-day]
                   [:cox? cox?]
                   [:F F]) ;; is this needed ?
-                  
+
         inputs (:inputs env)
                                         ;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
@@ -225,13 +225,13 @@
             [:h1 (cond
                    (<= total-score 2) [:div {:style {:color "#ff9933"}}
                                        [:h2 "Low Risk"]
-                                       [:h6 (str "Score: " total-score)]]
+                                       [:h6 (str "Leibovich Score: " total-score)]]
                    (>= total-score 6) [:div {:style {:color "#ff4000"}}
                                        [:h2 "High Risk"]
-                                       [:h6 (str "Score: " total-score)]]
+                                       [:h6 (str "Leibovich Score: " total-score)]]
                    :default [:div {:style {:color "#ff751a"}}
                              [:h2 "Intermediate Risk"]
-                             [:h6 (str "Score: " total-score)]])]
+                             [:h6 (str "Leibovich Score: " total-score)]])]
 
             [ui/tabs {:variant "pills" :default-active-key (:selected-vis env)
                       :active-key (:selected-vis env)

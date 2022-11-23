@@ -49,10 +49,10 @@
                                :label "Survival - living donor"
                                :inputs {:header [:div
                                                  [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]
-                                                 [:p.d-print-none "Placeholder-3"]]}
+                                                 [:p.d-print-none "Please enter the information for a primary kidney cancer (a tumour located in the kidney that has not spread from another body), which was treated surgically."]]}
                                                  ;[:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]]}
-                               :outcomes {:residual {:label "Surviving"
-                                                     :long-label "of patients have survived"
+                               :outcomes {:residual {:label "Kidney cancer did not come back (no recurrence)"
+                                                     :long-label "of patients have had no recurrence"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
                                                      :color "#fff"
@@ -60,8 +60,8 @@
                                                      :stroke-width 1
                                                      :stroke "#000"
                                                      :label-fill "#fff"}
-                                          :ldsurvival {:label "Died"
-                                                       :long-label "of patients have died"
+                                          :ldsurvival {:label "Kidney cancer came back (recurrence)"
+                                                       :long-label "of patients have had recurrence"
                                                        :fill "#ffffff"
                                                        :opacity 0.7
                                                        :stroke-width 1

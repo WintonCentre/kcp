@@ -1,20 +1,21 @@
-
 # Development Quickstart:
 * Install clojure
 * Install babashka
 * Install npm
-* `npm run` to view scripts help in `package.json` 
+* `npm run` to view scripts help in `package.json`
 * I'm hoping that babashka tasks will eventually wrap all the administrative scripts we use so we can generate a build system that works in Windows as well as Unix/bash flavour OSs. `bb tasks` will list those tasks.
 
 To run the configuration tool, and start a shadow-cljs dashboard:
 ```sh
-npm run config
+bb config
+bb kidney
 npm run watch-all
 ```
+KCP Lung is not currently using, so for generating kidney we use `bb kidney`.
 
 The project is a Shadow-cljs deps.edn project. It no longer uses leiningen.
 
-Open `localhost:9630` for the shadow-cljs dashboard. The `:app` will be served on `localhost:3000` and the 
+Open `localhost:9630` for the shadow-cljs dashboard. The `:app` will be served on `localhost:3000` and the
 `:test-browser` on `localhost:3021`.
 
 ## For VSCode app development,
@@ -23,7 +24,7 @@ Install Calva extension in VSCode.
 Run VSC command `Calva: Start a Project REPL and Connect (aka Jack-in)` and select `shadow-cljs`.
 Check both `:app` and `test-browser` to start both. Connect to the `:app` build. Enable notifications on 3021.
 
-To inspect values in code, it is more convenient to use `tap>` rather than `println`. 
+To inspect values in code, it is more convenient to use `tap>` rather than `println`.
 Results will appear in the dashboard inspectors which allow navigation of run-time data.
 
 Requiring `shadow.debug` will provide a higher level interface to `tap>`
@@ -33,14 +34,14 @@ with useful snapshotting utilities that call `tap>`. See the comment at the end 
 Start at https://shadow-cljs.github.io/docs/UsersGuide.html#_editor_integration.
 
 ## Server builds
-We run a Jenkins server which will currently build development and staging versions of the kcp project, publishing these at https://kcp-dev.wintoncentre.uk and https://kcp-staging.wintoncentre.uk/. These connect to the nhsbt-develop and nhsbt-staging branches.
+We run a Jenkins server which will currently build development and production versions of the kcp project, publishing these at https://kcp-dev.wintoncentre.uk and https://kcp-staging.wintoncentre.uk/. These both connect to the develop branche.
 
-Future production builds will need to create a servers at lung.kcp.wintoncentre.uk and kidney.kcp.wintoncentre.uk. These have not yet been set up.
+Future production builds will need to create a servers at kidney.kcp.wintoncentre.uk. These have not yet been set up.
 
 
 ## Configuration
 
-> **WARNING:** 
+> **WARNING:**
 >
 > If you come back to this after a while with new data, be particularly careful about sheet names within spreadsheets. Make sure they correspond to the sheet names in config.edn. If they fail to exist when reading you can get a puzzling crash.
 
@@ -53,28 +54,16 @@ The configuration tools are written in clojure and run on the JVM. JVM 8 or 11 a
 The websites are also written in clojure - in clojurescript - and they compile to js code to run in a browser. The build tools are currently using the [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html) tool set as this gave simpler access to the few `npm` module dependencies such as react-bootstrap that we are using.
 
 <!--
-There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date. 
+There have however been recent releases on the main [clojurescript compiler](https://clojurescript.org) thread that mean this dependency on shadow-cljs is no longer necessary. It too can now access `npm` modules easily, and it also now has a target which output which is compatible with js bundlers like webpack. We will avoid any run-time code dependencies on shadow-cljs so we retain the ability to use this approach at a later date.
 -->
 
-## Status
-**Requirements**
-
-[Spreadsheet at](file:///Users/gmp26/Dropbox (Cambridge University)/Winton Centre/TRANSPLANT/LUNGS/LUNGS - OTHER STUFF/NHS BT MEETINGSkcp/lungs/lungs other stuff/NHSBT meetings/Joel McGrath/)
-
-**Work in Progress**
-A new generic kcp repo which is merging clj pre-processing with the cljs-tool.
-
-I'm working on the premise that we can generate all the organ transplant tools from this one repo, and also do the configuration pre-processing here.
-
-See the config files in the data folder. 
-
 ## Configuration tools and data
-  Tools are in `src/clj/kcp/configure`.
-  Configuration is in `data` and is controlled by `config.edn`
+  Tools are in `src/kcp/configure`.
+  Configuration is in `data` and is controlled by `resources/config.edn`
 
-  Run `bb config` to generate a complete set of edn and csv files in the resources/public directory. 
+  Run `bb config` to generate a complete set of edn and csv files in the `resources/public` directory.
 
-  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `public/resources`.
+  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `resources/public`.
 
   Run either `bb kidney` or `bb lung` depending on which one you want to work on.
 
@@ -93,20 +82,16 @@ The job of the clojure configuration app is to read these spreadsheets and valid
 
 The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing.
 
-NB: This whole process needs a lot of work as we are now planning on beefing up the tool and the configuration process to make this repo capable of generating other tools for other research groups.
-
 Some issues that need sorting out here:
 1) It is difficult to locate the correct configuration variable to tweak.
 2) There is a mix of .xlsx and .edn configuration which makes this problem worse.
 3) There is insufficient configuration validation. We should at least add a run through spec or mali during configuration. Possibly also on the app database during run-time in development builds. I'm thinking we could add a validator as the last stage in a reframe interceptor chain.
-4) I partitioned the generated EDN files in case the app were installed at individual transplant centres. This will not happen, and
-so those individual by-centre files are a complication that can be removed.
-5) In general we need some kind of configuration editor that makes the configuration understandable to others.
-6) The configuration is incomplete:-
-    * Some hard coded features assume a transplant context.
-    * Some hard coded names make sense only in a transplant context (e.g. 'organ' should be renamed)
-7) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the kcp context, but may be worth optimising in a PREDICT like decision tool.
-8) We have not code or generalised features that would upgrade the tool to be more of a PREDICT-like decision tool. In particular:
+4) In general we need some kind of configuration editor that makes the configuration understandable to others.
+5) The configuration is incomplete:-
+    * Some hard coded features assume a kcp context.
+    * Some hard coded names make sense only in a kcp context (e.g. 'organ' should be renamed)
+6) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the kcp context, but may be worth optimising in a PREDICT like decision tool.
+7) We have not code or generalised features that would upgrade the tool to be more of a PREDICT-like decision tool. In particular:
     * Pluggable statistical models
     * Treatment inputs as well as patient characteristics
     * Delta benefits (and harms) according to treatment.
@@ -173,10 +158,10 @@ bb test-models
     - Deleted on `lein clean` (run by all `lein` aliases before building)
     - `js/compiled/`: compiled CLJS (`shadow-cljs`)
       - Not tracked in source control; see [`.gitignore`](.gitignore)
-* [`src/cljs/kcp/`](src/cljs/kcp/): SPA source files (ClojureScript,
+* [`src/kcp/`](src/cljs/kcp/): SPA source files (ClojureScript,
 [re-frame](https://github.com/Day8/re-frame))
   - [`core.cljs`](src/cljs/kcp/core.cljs): contains the SPA entry point, `init`
-* [`test/cljs/kcp/`](test/cljs/kcp/): test files (ClojureScript,
+* [`test/kcp/`](test/cljs/kcp/): test files (ClojureScript,
 [cljs.test](https://clojurescript.org/tools/testing))
   - Only namespaces ending in `-test` (files `*_test.cljs`) are compiled and sent to the test runner
 
@@ -242,7 +227,7 @@ the enhancement request in their bug tracker:
 
 ## CLJS Development
 
-We are using the react-bootstrap npm module as it provides some useful modal and popup behaviour which woud otherwise need jQuery. There are currently two mechanisms available to allow npm modules to be used in a cljs app. These are the clojure CLI tools with a deps.edn configuration file, and a shadow-cljs build. As it seems to be possible to support both with minor changes, that's what we do for now until it becomes clear which mechanism wins out. 
+We are using the react-bootstrap npm module as it provides some useful modal and popup behaviour which woud otherwise need jQuery. There are currently two mechanisms available to allow npm modules to be used in a cljs app. These are the clojure CLI tools with a deps.edn configuration file, and a shadow-cljs build. As it seems to be possible to support both with minor changes, that's what we do for now until it becomes clear which mechanism wins out.
 
 The newer Deps/CLI uses webpack which should minimise the executable better than shadow-cljs as
 it supports tree shaking. Shadow-cljs is perhaps simpler to set up however.
@@ -253,7 +238,7 @@ This is documented from the perspective of using a VSCode development system wit
 plugin for Clojure/script. We also use figwheel-main for hot-reload during development.
 
 I've documented the procedure at
-https://github.com/gmp26/calva-docs/blob/master/docs/figwheel-main-webpack.md and submitted a 
+https://github.com/gmp26/calva-docs/blob/master/docs/figwheel-main-webpack.md and submitted a
 pull request which has been accepted, though not yet published at time of writing. It should appear at https://calva.io/ in due course.
 
 Here's a quick summary:
@@ -262,18 +247,18 @@ Here's a quick summary:
     3. extra-paths, extra-deps, and a main-opt can be declared in an alias. This permits one deps.edn to serve multiple functions.
     4. We run figwheel.main as the main-opt. This has a `--build dev` option which refers to further configuration in dev.cljs.edn. We use bb-script/switch-10x-dev.clj shell script to switch builds between 10x (for heads-up data display during development), dev (development without 10x), and prod (an optimised build).
     5. See also `figwheel-main.edn` where the target folder is specified for compiled outputs.
-   
+
 In VSCode you can start a build using a `cider jack in` command.
-VSCode looks though the project and offers you available options. 
+VSCode looks though the project and offers you available options.
 For a CLJS development build choose either Clojure CLI + figwheel-main. Then go on to check `fig` either with or without
-`dev`. 
+`dev`.
 
 First time through choose both `fig` and `dev` as this will force a webpack build. It does dump you in a terminal REPL however and as this is a lot less convenient than an in-editor REPL, on subsequent builds I recommend choosing only `fig` here. On the next screen you can select `dev`, but now you will have a Calva connected REPL.
 
 Do the same for a `10x` enabled build after running `bb-script/switch-10x-dev.clj 10x`, or `bb-script/switch-10x-dev.clj dev` if you don't want to use 10x.
 
 For a production build, run `bb-script/switch-10x-dev.clj prod` and then run `clj -Afig:prod`.
-   
+
 
 ### Shadow-cljs builds
 

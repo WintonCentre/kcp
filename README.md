@@ -7,6 +7,7 @@
 
 To run the configuration tool, and start a shadow-cljs dashboard:
 ```sh
+git checkout develop
 bb config
 bb kidney
 npm run watch-all
@@ -63,61 +64,25 @@ There have however been recent releases on the main [clojurescript compiler](htt
 
   Run `bb config` to generate a complete set of edn and csv files in the `resources/public` directory.
 
-  The configuration tool has a profile argument set to either `:kidney` or `:lung` which selects between the kidney or lung xlsx workbooks. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `resources/public`.
-
-  Run either `bb kidney` or `bb lung` depending on which one you want to work on.
+  The configuration tool has a profile argument set to `:kidney` which selects the kidney xlsx workbook. The configuration reads in a workbook, validates it, and generates site run-time configuratioqn files in `resources/public`.
 
 ### Configuration Development
 All run-time data is stored in the `resources` folder.
 ```
-data
+resources
 ├── config.edn
 ├── kcp-models-master.xlsx
-└── lung-models-master.xlsx
 ```
 
 Incoming data/docs from NHSBT and others now in the `doc` folder.
 
 The job of the clojure configuration app is to read these spreadsheets and validate them, and then write them out again in a form suitable for consumption by the web tools. We don't want the web tools to read in xlsx files directly, and we'd also prefer to use a much simpler validation mechanism within the web tool itself such as a hash code.
 
-The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:lung` or `:kidney` may be selected at time of writing.
+The process is controlled by `config.edn`. This identifies the path and the format of all organ `.xlsx` files that need to be read in. We are using `juxt/aero` to simplify the construction of this configuration file. This provides the ability to reference values that were previously defined in the same file, and a mechanism to allow profiling for organ - `:kidney` may be selected at time of writing.
 
-Some issues that need sorting out here:
-1) It is difficult to locate the correct configuration variable to tweak.
-2) There is a mix of .xlsx and .edn configuration which makes this problem worse.
-3) There is insufficient configuration validation. We should at least add a run through spec or mali during configuration. Possibly also on the app database during run-time in development builds. I'm thinking we could add a validator as the last stage in a reframe interceptor chain.
-4) In general we need some kind of configuration editor that makes the configuration understandable to others.
-5) The configuration is incomplete:-
-    * Some hard coded features assume a kcp context.
-    * Some hard coded names make sense only in a kcp context (e.g. 'organ' should be renamed)
-6) I suspect that there is a lot of run-time calculation that should be cached rather than repeated when a user switches between visualisations. It does appear to work fast enough in the kcp context, but may be worth optimising in a PREDICT like decision tool.
-7) We have not code or generalised features that would upgrade the tool to be more of a PREDICT-like decision tool. In particular:
-    * Pluggable statistical models
-    * Treatment inputs as well as patient characteristics
-    * Delta benefits (and harms) according to treatment.
-    * Comparative with and without treatment visuals.
+There is also some issues that need sorting out. You can find more information in todo.md.
 
-## Model tests
-The R adjcox function is run on test cases stored as URLs (with the patients inputs encoded as URL parameters).
-Then the clojurescript model is run on those test cases and the results are compared.
-
-In order to run these model tests, make sure `Rscript` is installed on your machine. It may also require that the `tinyr` and `readr` libraries be installed first.
-
-Then run the following bb tasks in this order:
-
-```sh
-bb config
-bb kidney
-bb lung
-bb test-models
-```
-
-
-
-# Original Re-frame template README below
-## Getting Started
-
-### Project Overview
+## Project Overview
 
 * Architecture:
 [Single Page Application (SPA)](https://en.wikipedia.org/wiki/Single-page_application)
@@ -134,7 +99,6 @@ bb test-models
   - Project task & dependency management: [Leiningen](https://github.com/technomancy/leiningen)
   - CLJS compilation, REPL, & hot reload: [`shadow-cljs`](https://github.com/thheller/shadow-cljs)
   - Test framework: [cljs.test](https://clojurescript.org/tools/testing)
-  - Test runner: [Karma](https://github.com/karma-runner/karma)
 * Development tools
   - Debugging: [CLJS DevTools](https://github.com/binaryage/cljs-devtools),
   [`re-frame-10x`](https://github.com/day8/re-frame-10x)
@@ -145,8 +109,7 @@ bb test-models
 * [`dev/`](dev/): source files compiled only with the [dev](#running-the-app) profile
   - [`cljs/user.cljs`](dev/cljs/user.cljs): symbols for use during development in the
 [ClojureScript REPL](#connecting-to-the-browser-repl-from-a-terminal)
-* [`resources/public/`](resources/public/): SPA root directory;
-[dev](#running-the-app) / [prod](#production) profile depends on the most recent build
+* [`resources/public/`](resources/public/): SPA root directory
   - [`index.html`](resources/public/index.html): SPA home page
     - Dynamic SPA content rendered in the following `div`:
         ```html
@@ -155,7 +118,6 @@ bb test-models
     - Customizable; add headers, footers, links to other scripts and styles, etc.
   - Generated directories and files
     - Created on build with either the [dev](#running-the-app) or [prod](#production) profile
-    - Deleted on `lein clean` (run by all `lein` aliases before building)
     - `js/compiled/`: compiled CLJS (`shadow-cljs`)
       - Not tracked in source control; see [`.gitignore`](.gitignore)
 * [`src/kcp/`](src/cljs/kcp/): SPA source files (ClojureScript,
@@ -164,35 +126,6 @@ bb test-models
 * [`test/kcp/`](test/cljs/kcp/): test files (ClojureScript,
 [cljs.test](https://clojurescript.org/tools/testing))
   - Only namespaces ending in `-test` (files `*_test.cljs`) are compiled and sent to the test runner
-
-### Editor/IDE
-
-Use your preferred editor or IDE that supports Clojure/ClojureScript development. See
-[Clojure tools](https://clojure.org/community/resources#_clojure_tools) for some popular options.
-
-### Environment Setup
-
-1. Install [JDK 8 or later](https://openjdk.java.net/install/) (Java Development Kit)
-2. Install [Leiningen](https://leiningen.org/#install) (Clojure/ClojureScript project task &
-dependency management)
-3. Install [Node.js](https://nodejs.org/) (JavaScript runtime environment)
-4. Install [karma-cli](https://www.npmjs.com/package/karma-cli) (test runner):
-    ```sh
-    npm install -g karma-cli
-    ```
-5. Install [Chrome](https://www.google.com/chrome/) or
-[Chromium](https://www.chromium.org/getting-involved/download-chromium) version 59 or later
-(headless test environment)
-    * For Chromium, set the `CHROME_BIN` environment variable in your shell to the command that
-    launches Chromium. For example, in Ubuntu, add the following line to your `.bashrc`:
-        ```bash
-        export CHROME_BIN=chromium-browser
-       ```
-7. Clone this repo and open a terminal in the `kcp` project root directory
-8. Download project dependencies:
-    ```sh
-    lein deps && npm install
-    ```
 
 ### Browser Setup
 
@@ -245,8 +178,7 @@ Here's a quick summary:
     1. deps.edn is a map of dependencies, source-paths, and aliases.
     2. The clojure commandline interface tools (clojure or clj) refer to this file. `clj -Afoo` will cause them to refer to the alias `foo` in deps.edn.
     3. extra-paths, extra-deps, and a main-opt can be declared in an alias. This permits one deps.edn to serve multiple functions.
-    4. We run figwheel.main as the main-opt. This has a `--build dev` option which refers to further configuration in dev.cljs.edn. We use bb-script/switch-10x-dev.clj shell script to switch builds between 10x (for heads-up data display during development), dev (development without 10x), and prod (an optimised build).
-    5. See also `figwheel-main.edn` where the target folder is specified for compiled outputs.
+    4. See also `figwheel-main.edn` where the target folder is specified for compiled outputs.
 
 In VSCode you can start a build using a `cider jack in` command.
 VSCode looks though the project and offers you available options.
@@ -257,9 +189,6 @@ First time through choose both `fig` and `dev` as this will force a webpack buil
 
 Do the same for a `10x` enabled build after running `bb-script/switch-10x-dev.clj 10x`, or `bb-script/switch-10x-dev.clj dev` if you don't want to use 10x.
 
-For a production build, run `bb-script/switch-10x-dev.clj prod` and then run `clj -Afig:prod`.
-
-
 ### Shadow-cljs builds
 
 Start a temporary local web server, build the app with the `dev` profile, and serve the app with
@@ -267,7 +196,7 @@ hot reload:
 
 
 ```sh
-lein dev
+npx shadow-cljs watch app
 ```
 
 Please be patient; it may take over 20 seconds to see any output, and over 40 seconds to complete.
@@ -283,97 +212,15 @@ Opening the app in your browser starts a
 [ClojureScript browser REPL](https://clojurescript.org/reference/repl#using-the-browser-as-an-evaluation-environment),
 to which you may now connect.
 
-#### Connecting to the browser REPL from your editor
-
-See
-[Shadow CLJS User's Guide: Editor Integration](https://shadow-cljs.github.io/docs/UsersGuide.html#_editor_integration).
-Note that `lein dev` runs `shadow-cljs watch` for you, and that this project's running build id is
-`app`, or the keyword `:app` in a Clojure context.
-
-Alternatively, search the web for info on connecting to a `shadow-cljs` ClojureScript browser REPL
-from your editor and configuration.
-
-For example, in Vim / Neovim with `fireplace.vim`
-1. Open a `.cljs` file in the project to activate `fireplace.vim`
-2. In normal mode, execute the `Piggieback` command with this project's running build id, `:app`:
-    ```vim
-    :Piggieback :app
-    ```
-
-#### Connecting to the browser REPL from a terminal
-
-1. Connect to the `shadow-cljs` nREPL:
-    ```sh
-    lein repl :connect localhost:8777
-    ```
-    The REPL prompt, `shadow.user=>`, indicates that is a Clojure REPL, not ClojureScript.
-
-2. In the REPL, switch the session to this project's running build id, `:app`:
-    ```clj
-    (shadow.cljs.devtools.api/nrepl-select :app)
-    ```
-    The REPL prompt changes to `cljs.user=>`, indicating that this is now a ClojureScript REPL.
-3. See [`user.cljs`](dev/cljs/user.cljs) for symbols that are immediately accessible in the REPL
-without needing to `require`.
-
-### Running Tests
-
-Build the app with the `prod` profile, start a temporary local web server, launch headless
-Chrome/Chromium, run tests, and stop the web server:
-
-```sh
-lein karma
-```
-
-Please be patient; it may take over 15 seconds to see any output, and over 25 seconds to complete.
-
-### Running `shadow-cljs` Actions
-
-See a list of [`shadow-cljs CLI`](https://shadow-cljs.github.io/docs/UsersGuide.html#_command_line)
-actions:
-```sh
-lein run -m shadow.cljs.devtools.cli --help
-```
-
-Please be patient; it may take over 10 seconds to see any output. Also note that some actions shown
-may not actually be supported, outputting "Unknown action." when run.
-
-Run a shadow-cljs action on this project's build id (without the colon, just `app`):
-```sh
-lein run -m shadow.cljs.devtools.cli <action> app
-```
-### Debug Logging
-
-The `debug?` variable in [`config.cljs`](src/cljs/kcp/config.cljs) defaults to `true` in
-[`dev`](#running-the-app) builds, and `false` in [`prod`](#production) builds.
-
-Use `debug?` for logging or other tasks that should run only on `dev` builds:
-
-```clj
-(ns kcp.example
-  (:require [kcp.config :as config])
-
-(when config/debug?
-  (println "This message will appear in the browser console only on dev builds."))
-```
-
 ## Production
 
 Build the app with the `prod` profile:
 
 ```sh
-lein prod
+shadow-cljs release app
 ```
 
 Please be patient; it may take over 15 seconds to see any output, and over 30 seconds to complete.
 
 The `resources/public/js/compiled` directory is created, containing the compiled `app.js` and
 `manifest.edn` files.
-
-The [`resources/public`](resources/public/) directory contains the complete, production web front
-end of your app.
-
-Always inspect the `resources/public/js/compiled` directory prior to deploying the app. Running any
-`lein` alias in this project after `lein dev` will, at the very least, run `lein clean`, which
-deletes this generated directory. Further, running `lein dev` will generate many, much larger
-development versions of the files in this directory

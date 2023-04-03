@@ -2,13 +2,13 @@
   (:require
    [re-frame.core :as rf]))
 
-;;; 
+;;;
 ;; Note that subscription keys are fully qualified in kcp.subs ns, but...
 ;; db keys are global and named similarly
-;; 
+;;
 ;; subscripton keys are used in views (usually) to READ db values
 ;; db keys are used in event handlers (always) to WRITE to the db
-;;; 
+;;;
 
 (rf/reg-sub ::window-width (fn [db] (:window-width db)))
 
@@ -51,3 +51,52 @@
 (rf/reg-sub ::is-full-screen (fn [db] (:is-full-screen db)))
 
 (rf/reg-sub ::missing-inputs (fn [db] (:missing-inputs db)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+                                        ; related to the test file.
+
+(rf/reg-sub ::my-collection-score-zero-and-one (fn [db] (get-in db [:collection-score-zero-and-one])))
+(rf/reg-sub ::my-collection-score-two (fn [db] (get-in db [:collection-score-two])))
+(rf/reg-sub ::my-collection-score-three (fn [db] (get-in db [:collection-score-three])))
+(rf/reg-sub ::my-collection-score-four (fn [db] (get-in db [:collection-score-four])))
+(rf/reg-sub ::my-collection-score-five (fn [db] (get-in db [:collection-score-five])))
+(rf/reg-sub ::my-collection-score-six (fn [db] (get-in db [:collection-score-six])))
+(rf/reg-sub ::my-collection-score-seven (fn [db] (get-in db [:collection-score-seven])))
+(rf/reg-sub ::my-collection-score-eight-and-more (fn [db] (get-in db [:collection-score-eight-and-more])))
+
+(rf/reg-sub ::standard-error-range (fn [db] (get-in db [:standard-error-range])))
+
+(rf/reg-sub ::fine-score-zero-and-one (fn [db] (get-in db [:fine-score-zero-and-one])))
+(rf/reg-sub ::not-fine-score-zero-and-one (fn [db] (get-in db [:not-fine-score-zero-and-one])))
+
+(rf/reg-sub ::fine-score-two (fn [db] (get-in db [:fine-score-two])))
+(rf/reg-sub ::not-fine-score-two (fn [db] (get-in db [:not-fine-score-two])))
+
+(rf/reg-sub ::fine-score-three (fn [db] (get-in db [:fine-score-three])))
+(rf/reg-sub ::not-fine-score-three (fn [db] (get-in db [:not-fine-score-three])))
+
+(rf/reg-sub ::fine-score-four (fn [db] (get-in db [:fine-score-four])))
+(rf/reg-sub ::not-fine-score-four (fn [db] (get-in db [:not-fine-score-four])))
+
+(rf/reg-sub ::fine-score-five (fn [db] (get-in db [:fine-score-five])))
+(rf/reg-sub ::not-fine-score-five (fn [db] (get-in db [:not-fine-score-five])))
+
+(rf/reg-sub ::fine-score-six (fn [db] (get-in db [:fine-score-six])))
+(rf/reg-sub ::not-fine-score-six (fn [db] (get-in db [:not-fine-score-six])))
+
+(rf/reg-sub ::fine-score-seven (fn [db] (get-in db [:fine-score-seven])))
+(rf/reg-sub ::not-fine-score-seven (fn [db] (get-in db [:not-fine-score-seven])))
+
+(rf/reg-sub ::fine-score-eight-and-more (fn [db] (get-in db [:fine-score-eight-and-more])))
+(rf/reg-sub ::not-fine-score-eight-and-more (fn [db] (get-in db [:not-fine-score-eight-and-more])))
+
+
+(rf/reg-sub ::count-of-collection-one-and-zero (fn [db] (get-in db [:coll-one-and-zero])))
+(rf/reg-sub ::count-of-collection-two (fn [db] (get-in db [:coll-two])))
+(rf/reg-sub ::count-of-collection-three (fn [db] (get-in db [:coll-three])))
+(rf/reg-sub ::count-of-collection-four (fn [db] (get-in db [:coll-four])))
+(rf/reg-sub ::count-of-collection-five (fn [db] (get-in db [:coll-five])))
+(rf/reg-sub ::count-of-collection-six (fn [db] (get-in db [:coll-six])))
+(rf/reg-sub ::count-of-collection-seven (fn [db] (get-in db [:coll-seven])))
+(rf/reg-sub ::count-of-collection-eight-and-more (fn [db] (get-in db [:coll-eight-and-more])))

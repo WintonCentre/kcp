@@ -54,7 +54,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-                                        ; related to the test file.
+                                        ; related to the test programe.
 
 (rf/reg-sub ::my-collection-score-zero-and-one (fn [db] (get-in db [:collection-score-zero-and-one])))
 (rf/reg-sub ::my-collection-score-two (fn [db] (get-in db [:collection-score-two])))

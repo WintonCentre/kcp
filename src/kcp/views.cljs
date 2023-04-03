@@ -14,8 +14,12 @@
    [kcp.results :as results]
    [kcp.print-fills :as prf]
    [kcp.rgb :as rgb]
-   ;[kcp.fullscreen :as fs]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+
+   [kcp.factors :as fac]
+   [kcp.model :as model]
+   [medley.core :as medl]
+                                        ;[kcp.fullscreen :as fs]
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;;;;
@@ -1209,9 +1213,135 @@ not currently use these factors to make decisions about follow-up care."]]
                                 :guidance))
 
 
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+(defn tool-metadata
+  [env organ tool]
+                                        ;(locals)
+  (get-in env [:mdata organ :tools tool]) ;; provisional
+
+  ;; Bear in mind that we will want to provide a default configuration template somehow.
+  ;; It's not entirely clear to me what is the best way to do this, but a deep-merge between the
+  ;; default configuration and the custom metadata is one possibility.
+  ;;
+  ;; The default configuration could be hard-coded into the initial database, or it could be read in
+  ;; from an external edn first.
+  (medl/deep-merge (get-in env [:mdata organ :tools :default])
+                   (get-in env [:mdata organ :tools tool]))
+
+  ;; TODO: One other issue to sort out here is that we've used organ names and tool names as keys into the
+  ;; configuration. It would be better if the configuration were free to specify the domains (like :lung) and the
+  ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
+  )
+
+
+(defn residual
+  "The Fs are the probabilities of leaving the list due to the various outcomes - see David's
+   paper at doc/David/transplant-non-simulation.pdf for detail.
+
+   In Cox results we can always calculate a residual amount to make the Fs total to 100% on each day.
+   As we may need to plot this residual and decorate it, we should calculate it and make it explicit.
+
+   Given a seq of Fs for one day, return the residual for that day"
+  [fs]
+  (- 1 (apply + fs)))
+
+
+(defn fs-mapped
+  "We will be plotting outcomes including residuals in some plot order specified in the metadata.
+   `outcomes` is a seq of baseline-cif outcome headers (less any cif- prefix, and as keywords)
+   `fs` are initially in that same order.
+   Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
+   Return fs converted to a map keyed by outcome and with an additional residual outcome."
+  [outcomes fs]
+  (?-> "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+  (?-> outcomes ::outcomes-in-fs-mapped)
+  (?-> fs ::fs-in-fs-mapped)
+  (assoc (->> [outcomes fs]
+              (apply map vector)
+              (into {}))
+         :residual (residual fs)))
+
+(defn fs-in-order
+  "order by outcome is a map of outcome-key to plot order.
+   fsk are a seq of [outcome-key fs] key-values like '([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4]).
+   plot-order is like [:transplant :residual :death]
+   Result would be (0.3 0.30000000000000004 0.4)"
+  [plot-order fsm]
+                                        ;(locals)
+                                        ;(?-> "}}}}}}}}}}}")
+                                        ;(?-> fsm ::fsm)
+  (map
+   (fn [data-key]
+     (fsm data-key))
+   plot-order))
+
+(defn int-fs-series
+  "convert an ordered fs to a map containing the original ordered-fs and its partial sums.
+   Include integer valued percentage approximations for fs and cum-fs adjusted so the sum of the
+   int-fs is 100. The alogithm seeks to minimise the error introduced by the adjustment."
+  [ordered-fs] ;; injaa ro check konam.
+  (?-> ordered-fs ::ordered-fs)
+  (let [pc-fs (map #(* 100 %) ordered-fs)
+        int-fs (loop [int-pc-fs (mapv #(js/Math.round %) pc-fs)]
+                 (let [err-pc-fs (map #(- %1 %2) int-pc-fs pc-fs)
+                       sum-int-pc-fs (apply + int-pc-fs)
+                       sum-err-pc-fs (- sum-int-pc-fs 100)]
+                   (if (zero? sum-err-pc-fs)
+                     int-pc-fs
+                     (let [cmp (if (pos? sum-err-pc-fs) > <)
+                           adjust (reduce (fn [[i me] [j e]]
+                                            (if (cmp e me)
+                                              [j e]
+                                              [i me]))
+                                          [0 0]
+                                          (zipmap (range) err-pc-fs))]
+                       (recur (update int-pc-fs (first adjust) (if (pos? sum-err-pc-fs) dec inc)))))))]
+                                        ;(locals)
+    {:fs ordered-fs
+     :cum-fs (reductions + ordered-fs)
+     :int-fs int-fs
+     :cum-int-fs (reductions + int-fs)}))
+
+
+
+
+(defn fs-time-series
+  "Take a time series of Fs with Fs in spreadsheet column order.
+   Add residuals, and reorder them into a plot data series, adding cumulative values to facilitate
+   a stacked plot."
+  [outcomes plot-order t-fs]
+  (?-> outcomes ::outcomes#####)
+  (?-> plot-order ::plot-order#####)
+  (?-> t-fs ::t-fs#####)
+
+  (map
+   (fn [[t fs]]
+                                        ;(locals)
+     [t (->> fs
+             (fs-mapped outcomes)
+             (fs-in-order plot-order)
+             (int-fs-series))])
+   t-fs))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; standard error test
+                                        ; standard error test programe.
 
 (defn standard-error-test
   []
@@ -1527,3 +1657,7 @@ not currently use these factors to make decisions about follow-up care."]]
       ) ;end of first let
     ) ; end of do
   )
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

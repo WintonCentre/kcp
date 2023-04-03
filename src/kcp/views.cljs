@@ -14,17 +14,10 @@
    [kcp.results :as results]
    [kcp.print-fills :as prf]
    [kcp.rgb :as rgb]
-
    [kcp.factors :as fac]
    [kcp.model :as model]
    [medley.core :as medl]
-                                        ;[kcp.fullscreen :as fs]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
-   ))
-
-;;;;;
-(comment
-  (rf/dispatch [::events/initialize-db]))
+   [shadow.debug :refer [locals ?> ?-> ?->>]]))
 
 (defn home-section
   [& content]
@@ -59,8 +52,6 @@
   (let [single-organ (ui/get-single-organ mdata)]
     [:<>
      [:> bs/Row
-                                        ;[:> bs/Col {:sm 12} (choose-centre-nav mdata)]
-
       [:> bs/Col {:md 6}
        [home-section
         [:h2 "What does this site do?"]
@@ -86,11 +77,7 @@
 
        [home-section
         [:h2 "Who is this site for?"]
-                                        ;[:p "People who are suitable for " (name single-organ) " transplant and who are over "
-                                        ;(if (= single-organ :kidney) "18" "16") " years old."]
         [:p "Adults kidney cancer patients who have had surgery to remove their cancer (and their relatives/carers)"]]]
-                                        ;(when (= single-organ :kidney)
-                                        ; [:p [:span {:style {:color "red"}} [bsio/open-icon "warning"]] [:b "Changes to the kidney offering scheme in September 2019 are not reflected in this tool."]]]]]
 
       [:> bs/Col {:md 6}
        [home-section
@@ -109,8 +96,6 @@
 
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
        (choose-centre-nav mdata)]]]))
-
-
 
 ;;; Views ;;;
 (defn home-page
@@ -144,7 +129,6 @@
            [:<> (leila-text mdata)]]]])
       [ui/loading])))
 
-
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.
    Minimally, navigate to an organ centre home page."
@@ -155,32 +139,27 @@
         centres @(rf/subscribe [::subs/organ-centres])
         mobile (<= window-width ui/mobile-break)]
 
-    ;;
-    ;; Insert Kidney or Lung home page here
-    ;;
-      [ui/card-page
-       "Choose your transplant centre" ; todo: configure
-       (if-not centres
-         [:div "loading /" organ " centres"]
-         (if-not mdata
-           [:div "Loading /metadata.txt"]
-           (let [centres (sort-by :description ((keyword organ) centres))
-                 centres (filter #(utils/filled-in? (:description %)) centres)
-                 tools (utils/get-tools mdata organ)
-                 centre-card (fn [centre]
-                               [ui/centre-card mobile
-                                {:img-src (:image centre)
-                                 :organ organ
-                                 :link [::organ-centre {:organ organ :centre (name (:key centre))}]
-                                 :centre (:key centre)
-                                 :hospital (:description centre)
-                                 :width 200
-                                 :tools tools
-                                 :mdata mdata}])]
-             (into (ui/centre-card-deck mobile)
-                   (map centre-card centres)))))]))
-
-
+    [ui/card-page
+     "Choose your transplant centre" ; todo: configure
+     (if-not centres
+       [:div "loading /" organ " centres"]
+       (if-not mdata
+         [:div "Loading /metadata.txt"]
+         (let [centres (sort-by :description ((keyword organ) centres))
+               centres (filter #(utils/filled-in? (:description %)) centres)
+               tools (utils/get-tools mdata organ)
+               centre-card (fn [centre]
+                             [ui/centre-card mobile
+                              {:img-src (:image centre)
+                               :organ organ
+                               :link [::organ-centre {:organ organ :centre (name (:key centre))}]
+                               :centre (:key centre)
+                               :hospital (:description centre)
+                               :width 200
+                               :tools tools
+                               :mdata mdata}])]
+           (into (ui/centre-card-deck mobile)
+                 (map centre-card centres)))))]))
 
 (defn pubs-page
   "Display a generic home page.
@@ -188,10 +167,7 @@
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        #_#_route @(rf/subscribe [::subs/current-route])
-        single-organ (ui/get-single-organ mdata)
-        #_#_organ (get-in route [:path-params :organ])]
-    ;(locals)
+        single-organ (ui/get-single-organ mdata)]
 
     (if mdata
       [ui/page (str "Publications")
@@ -263,10 +239,7 @@
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        #_#_route @(rf/subscribe [::subs/current-route])
-        single-organ (ui/get-single-organ mdata)
-        #_#_organ (get-in route [:path-params :organ])]
-                                        ;(locals)
+        single-organ (ui/get-single-organ mdata)]
 
     (if mdata
       [ui/page (str "About the " (string/capitalize (name single-organ)) " tool")
@@ -307,8 +280,7 @@
    [:div ""]
    [:p "In the case of the ‘Waiting time’ models, we apply an " [:a {:href "/competing_risks.pdf" :target "_blank"} "iterative algorithm"] " to calculate the risks of all the competing outcomes."]
 
-   [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. "]]
-  #_[:p "The waiting times tool requires a " [:a {:href "/competing_risks.pdf" :target "_blank"} "further adjustment for the competing risks."]])
+   [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. "]])
 
 (defn web-development-section
   []
@@ -339,43 +311,9 @@
        through the R code, collected the results, and then fed the same inputs into our Javascript implementation, and compared the results. "]]
 
    [:h3#browser-compatibility "Browser Compatibility"]
-    [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
-    [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
-    [:p "It does not currently support any other version of Internet Explorer."]])
-
-#_(defn web-development-section
-  []
-  [:<>
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3 "The web implementation"]
-    [:p "This tool is a Single Page Application - an SPA. it is a single web page which loads a javascript application that updates the page according
-        to the user's inputs. All data that you enter to the tool is stored in javascript variables in the browser. "]
-    [:p "The application is also a calculator. The javascript code includes
-        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed
-        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever
-        you change any input. Once you close the browser window or tab, the data is erased, just like in a calculator."]
-    [:p "The tool is also a Progressive Web App - a PWA - which means that in some ways it behaves like an application you might have downloaded onto your phone
-        from an App Store. Once you load the app from the web-site, it is automatically cached in your browser for future use - offline if need be. You can also install the
-        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name
-        (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)"]]
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3 "The development stack"]
-    [:p "The tool runs as a javascript application, but it was written in clojurescript and then compiled to javascript. The most important libraries that it uses
-        are ReactJS, Reagent, and Reframe, and we are sincerely greateful to the developers of these codes. The development system wass Shadow-cljs by Thomas Heller,
-        supported by a number of clojure scripts running under Babashka (by Michel Borkent) and the clojure integrated development system Calva running in VSCode. "]]
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3 "Testing"]
-    [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
-       through the R code, collected the results, and then fed the same inputs into our javascript implementation, and compared the results. "]]
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3 "Browser Compatibilty"]
-    [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
-    [:p "It does not currently support any version of Internet Explorer."]]])
+   [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
+   [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
+   [:p "It does not currently support any other version of Internet Explorer."]])
 
 (defn overview-menu [[route text]]
   [:li {:key (random-uuid)} [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
@@ -392,7 +330,6 @@
                   ["the-development-stack"  "The development stack"]
                   ["testing"                "Testing"]
                   ["browser-compatibility"  "Browser Compatibility"]])
-
 
 (defn kidney-tech-content
   []
@@ -482,12 +419,8 @@
   "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
-  ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        #_#_route @(rf/subscribe [::subs/current-route])
-        single-organ (ui/get-single-organ mdata)
-        #_#_organ (get-in route [:path-params :organ])]
-    ;(locals)
+        single-organ (ui/get-single-organ mdata)]
 
     (if mdata
       [ui/page (str "Technical Details for the " (string/capitalize (name single-organ)) " tool")
@@ -502,19 +435,14 @@
   "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
-  ;; This needs to be a promise....
-  (let [mdata @(rf/subscribe [::subs/mdata])
-        #_#_route @(rf/subscribe [::subs/current-route])
-        #_#_single-organ (ui/get-single-organ mdata)
-        #_#_organ (get-in route [:path-params :organ])]
-    ;(locals)
+  (let [mdata @(rf/subscribe [::subs/mdata])]
 
     (if mdata
       [ui/page (str " Legal ")
        [ui/row
         [:> bs/Col
          [:section  {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                             :margin-bottom  20}}
           [:h4 "Disclaimer"]
           [:p "You MUST read the information below before using the tool."]
           [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed using patient data recorded on the UK Transplant Registry. However, it can only provide a 'best guess' of likely outcomes based on past data, and it can never provide an accurate prediction for an individual. Patients should always consult their own specialist, who will be able to discuss the results in a more personalised context."]
@@ -526,19 +454,15 @@
           [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]]
 
          [:h4 "Cookies and Privacy Notice"]
-          [:p "All cookies " [:u "are disabled"] " on this website."]
-          [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
+         [:p "All cookies " [:u "are disabled"] " on this website."]
+         [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
               system, and it is erased once you close the application window. "]
-          [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
-          [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website."]]
-          [:p "If you print or save pages containing user entered data then you are responsible
+         [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
+         [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website."]]
+         [:p "If you print or save pages containing user entered data then you are responsible
               for protecting the data in those copies."]
-          [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
+         [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"]]]]]
       [ui/loading])))
-
-;;
-;; todo: Move background info to config
-;;
 
 (def guidances
   {:percent "What does a percentage look like?"
@@ -597,11 +521,7 @@ Here are typical donor characteristics you might be asked to think about."]
       [:li "Antiviral Medications"]
       [:li "Diuretics"]
       [:li "Antibiotics"]
-      [:li "Anti-ulcer medications"]]]
-    #_[ui/col {:md 6}
-     [:> bs/Image {:fluid true
-                   :src "assets/Post Transplant Medications.png"}]]]])
-
+      [:li "Anti-ulcer medications"]]]]])
 
 (defmethod show-guidance :window []
   [:<>
@@ -609,14 +529,9 @@ Here are typical donor characteristics you might be asked to think about."]
    [:p "This diagram shows how your lung disease might progress.
         Transplantation is offered when you are ill enough to need it,
         but well enough to survive the surgery.  We call this the ‘window of opportunity’."]
-   #_[:p "This is a diagram drawn by a clinician. As the health of a transplant candidate
-        decreases, there comes a point where a transplant could be recommended. This opens
-        a window of opportunity which persists until the patient receives a transplant or
-        their health deteriorates to the point where it would no longer be recommended."]
    [:> bs/Image {:fluid true
                  :src "/assets/The_Window.png"
                  :async true}]])
-
 
 (defmethod show-guidance :graft-failure []
   [:<>
@@ -683,7 +598,6 @@ Here are typical donor characteristics you might be asked to think about."]
            :target "_blank"}
        "this PDF document for local numbers"]]]]])
 
-
 (defmethod show-guidance :lung-numbers []
   [:<>
    [:h3 (:lung-numbers guidances)]
@@ -728,7 +642,6 @@ Here are typical donor characteristics you might be asked to think about."]
     [ui/col {:sm 4} [:p [:b "Nationally"]]]
     [ui/col {:sm 4} [:p [:b 161]]]]])
 
-
 (defmethod show-guidance :kidney-numbers []
   [:<>
    [:h3 (:kidney-numbers guidances)]
@@ -762,15 +675,6 @@ Here are typical donor characteristics you might be asked to think about."]
   (string/replace s
                   "a percentage "
                   (str v "% ")))
-#_(comment
-    (def random true)
-    (def sample-set (atom #{}))
-    (defn resample [n percent]
-      (when (zero? n)
-        (reset! sample-set #{}))
-      (if (< (count sample-set) percent)
-        (let [x (rand-int 100)]
-          (while (sample-set x))))))
 
 (defmethod show-guidance :percent []
   (let [percent @(rf/subscribe [::subs/guidance-percent])
@@ -781,8 +685,7 @@ Here are typical donor characteristics you might be asked to think about."]
                       :justify-content "start"
                       :flex-wrap "wrap"}}
       [ui/col
-       [:div {:sm 3 :style {;:margin-bottom 5
-                            :display :flex
+       [:div {:sm 3 :style {:display :flex
                             :justify-content "flex-start"
                             :flex-wrap "wrap"}}
         [:div {:style {:display :flex
@@ -832,16 +735,11 @@ Here are typical donor characteristics you might be asked to think about."]
                                 #_(if (< (- 100 (+ 10 (* j 10) (- i))) percent) "#488" "#CCC")
                                 :padding "4px 5px"} "person"]) (range 10))])]])
             (range 10))]))]]]))
-(comment
-  (def i 5)
-  (- i))
-
 
 (defn useful-info-button
   [{:keys [active event label]}]
   [:> bs/Button {:style {:width "100%"}
                  :variant (if active "secondary" "outline-secondary")
-                 #_(if active "primary" "outline-primary")
                  :active active
                  :on-click #(rf/dispatch event)}
    label])
@@ -914,22 +812,7 @@ Here are typical donor characteristics you might be asked to think about."]
          [:p "Please tell us what you would like to see here, and do let us know of any errors that need correction."]
          [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")]
               [:a {:href (str "mailto:" (if (= organ :lung) "lung" "kidney") "kcp@statslab.cam.ac.uk?subject=Useful%20Information%20Feedback")} " Email us"]
-
-              #_[:a {:href "mailto:Leila.finikarides@maths.cam.ac.uk?subject=Useful%20Information%20Feedback"} " Email us"]]]]]]]]))
-
-
-
-  (comment
-    (def organ "kidney")
-    (def centre-info {:key :belf, :name "Belfast", :link "http://www.belfasttrust.hscni.net/", :image "assets/kidney/bel.png", :description "Belfast City Hospital"})
-    (paths/organ-centre-name-tool organ
-                                  "Belfast"
-                                  "waiting"))
-
-
-(comment
-  (utils/get-tool-meta @(rf/subscribe [::subs/mdata]) :lung :waiting)
-  )
+              ]]]]]]]))
 
 ;; todo - move to config
 (def boxed-fill "#DFE4DF")
@@ -952,9 +835,6 @@ Here are typical donor characteristics you might be asked to think about."]
              [:p [:b "FEV1, Transfer Factor"] " - FVC is included in model."]
              [:p [:b "Comorbidities (coronary artery disease, renal dysfunction, diabetes)"] " - Coronary artery disease collected only as primary disease so not available for inclusion.  eGFR and diabetes was considered when constructing the models originally and were not significant."] [:p [:b "Time on ventilator / mechanical support"] " - Time on support not captured and very low numbers for on ventilator as it is only collected for patients in hospital at transplant – 9 (0.8%) of cohort were on ventilator at transplant."]]
       :kidney [:div
-                                        ;[:p [:b "Recipient BMI"] " - Tested and not found  to be significant in model"]
-                                        ;[:p [:b "Creatinine"] " - Although we can get terminal creatinine for donor, we don’t know how many were on filtration in ITU – this would give a falsely low creatinine and be misleading. "]
-                                        ;[:p [:b "Comorbidities (cardiovascular disease, vascular disease, stroke, MI)"] " - Not collected, looked into those that are, have a high proportion of missing data."]
                [:p "In some studies, other information about patients has been shown to be related to likelihood of
 kidney cancer coming back (recurrence). These factors include age, sex and measures of overall
 health (sometimes described as comorbidity or frailty). However, the relationship between these
@@ -962,10 +842,8 @@ factors and the predictions made by this tool are not well understood by researc
 not currently use these factors to make decisions about follow-up care."]]
       :else [:div])))
 
-
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
-                                        ;(?-> params ::params)
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
@@ -973,7 +851,7 @@ not currently use these factors to make decisions about follow-up care."]]
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])
           tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
-                                        ;(locals)
+
       [:div {:id "capture"}
        (when-not is-full-screen
          [:div [:div.d-print-none {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
@@ -981,7 +859,6 @@ not currently use these factors to make decisions about follow-up care."]]
                  [ui/col {:xs 12 :sm 8}
                   [:h1 (:description centre-info)]
                   [:p (:explanation uk-info)]]
-                                        ;[ui/col {:xs 12 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]
                  [ui/col {:xs 12 :sm 4} [:h2 "Kidney Cancer Prediction Tool"]]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
@@ -1168,29 +1045,25 @@ not currently use these factors to make decisions about follow-up care."]]
         organ-centres @(rf/subscribe [::subs/organ-centres])
         path-params (:path-params route)
         path-inputs (:inputs path-params)
-        ;db-inputs @(rf/subscribe [::subs/inputs])
         tab (:tab path-params)
         [organ-name centre-name tool-name :as p-names] (utils/path-names path-params)
         tool-name (if (nil? tool-name) :waiting tool-name)
         [organ centre tool] (map keyword p-names)
-        tools (utils/get-tools mdata organ)
-;; either DISPATCH selected-inputs-vis or set db:inputs here?
-        ]
+        tools (utils/get-tools mdata organ)]
     #_(?-> {:route route
-          :db-inputs db-inputs
-          :path-inputs path-inputs
-          :organ organ
-          :organ-centres organ-centres
-          :centre centre
-          :tool tool
-          :tool-name tool-name
-          :mdata mdata
-          :tools tools
-          :organ-name organ-name
-          :centre-name centre-name} ::param-check)
+            :db-inputs db-inputs
+            :path-inputs path-inputs
+            :organ organ
+            :organ-centres organ-centres
+            :centre centre
+            :tool tool
+            :tool-name tool-name
+            :mdata mdata
+            :tools tools
+            :organ-name organ-name
+            :centre-name centre-name} ::param-check)
     (rf/dispatch [::events/selected-inputs-vis path-inputs tab])
 
-    ;;organ organ-centres centre tool tool-name mdata tools organ-name centre-name :as params
     [tool-page {:organ organ
                 :organ-centres organ-centres
                 :centre centre
@@ -1200,28 +1073,6 @@ not currently use these factors to make decisions about follow-up care."]]
                 :tools tools
                 :organ-name organ-name
                 :centre-name centre-name}]))
-(comment
-  (+ 1 1)
-  (paths/organ-centre-name-tool :kidney
-                                "The Royal Free"
-                                :waiting)
-  (paths/organ-centre-name-tool :kidney
-                                "The Royal Free"
-                                "waiting")
-  (paths/organ-centre-name-tool :kidney
-                                "The Royal Free"
-                                :guidance))
-
-
-
-
-
-
-
-
-
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1231,23 +1082,10 @@ not currently use these factors to make decisions about follow-up care."]]
 
 (defn tool-metadata
   [env organ tool]
-                                        ;(locals)
-  (get-in env [:mdata organ :tools tool]) ;; provisional
+  (get-in env [:mdata organ :tools tool])
 
-  ;; Bear in mind that we will want to provide a default configuration template somehow.
-  ;; It's not entirely clear to me what is the best way to do this, but a deep-merge between the
-  ;; default configuration and the custom metadata is one possibility.
-  ;;
-  ;; The default configuration could be hard-coded into the initial database, or it could be read in
-  ;; from an external edn first.
   (medl/deep-merge (get-in env [:mdata organ :tools :default])
-                   (get-in env [:mdata organ :tools tool]))
-
-  ;; TODO: One other issue to sort out here is that we've used organ names and tool names as keys into the
-  ;; configuration. It would be better if the configuration were free to specify the domains (like :lung) and the
-  ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
-  )
-
+                   (get-in env [:mdata organ :tools tool])))
 
 (defn residual
   "The Fs are the probabilities of leaving the list due to the various outcomes - see David's
@@ -1260,7 +1098,6 @@ not currently use these factors to make decisions about follow-up care."]]
   [fs]
   (- 1 (apply + fs)))
 
-
 (defn fs-mapped
   "We will be plotting outcomes including residuals in some plot order specified in the metadata.
    `outcomes` is a seq of baseline-cif outcome headers (less any cif- prefix, and as keywords)
@@ -1268,9 +1105,6 @@ not currently use these factors to make decisions about follow-up care."]]
    Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
    Return fs converted to a map keyed by outcome and with an additional residual outcome."
   [outcomes fs]
-  (?-> "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-  (?-> outcomes ::outcomes-in-fs-mapped)
-  (?-> fs ::fs-in-fs-mapped)
   (assoc (->> [outcomes fs]
               (apply map vector)
               (into {}))
@@ -1282,9 +1116,6 @@ not currently use these factors to make decisions about follow-up care."]]
    plot-order is like [:transplant :residual :death]
    Result would be (0.3 0.30000000000000004 0.4)"
   [plot-order fsm]
-                                        ;(locals)
-                                        ;(?-> "}}}}}}}}}}}")
-                                        ;(?-> fsm ::fsm)
   (map
    (fn [data-key]
      (fsm data-key))
@@ -1295,7 +1126,6 @@ not currently use these factors to make decisions about follow-up care."]]
    Include integer valued percentage approximations for fs and cum-fs adjusted so the sum of the
    int-fs is 100. The alogithm seeks to minimise the error introduced by the adjustment."
   [ordered-fs] ;; injaa ro check konam.
-  (?-> ordered-fs ::ordered-fs)
   (let [pc-fs (map #(* 100 %) ordered-fs)
         int-fs (loop [int-pc-fs (mapv #(js/Math.round %) pc-fs)]
                  (let [err-pc-fs (map #(- %1 %2) int-pc-fs pc-fs)
@@ -1311,27 +1141,19 @@ not currently use these factors to make decisions about follow-up care."]]
                                           [0 0]
                                           (zipmap (range) err-pc-fs))]
                        (recur (update int-pc-fs (first adjust) (if (pos? sum-err-pc-fs) dec inc)))))))]
-                                        ;(locals)
+
     {:fs ordered-fs
      :cum-fs (reductions + ordered-fs)
      :int-fs int-fs
      :cum-int-fs (reductions + int-fs)}))
-
-
-
 
 (defn fs-time-series
   "Take a time series of Fs with Fs in spreadsheet column order.
    Add residuals, and reorder them into a plot data series, adding cumulative values to facilitate
    a stacked plot."
   [outcomes plot-order t-fs]
-  (?-> outcomes ::outcomes#####)
-  (?-> plot-order ::plot-order#####)
-  (?-> t-fs ::t-fs#####)
-
   (map
    (fn [[t fs]]
-                                        ;(locals)
      [t (->> fs
              (fs-mapped outcomes)
              (fs-in-order plot-order)

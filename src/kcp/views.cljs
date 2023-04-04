@@ -1846,18 +1846,35 @@ not currently use these factors to make decisions about follow-up care."]]
 
         [:h2 "**********************************"]
 
-        (let [coll @(rf/subscribe [::subs/my-collection-score-zero-and-one])
-              error-range-for-score @(rf/subscribe [::subs/standard-error-range])
-              the-index (atom 0)]
-          (for [each coll]
-            (do
-              (swap! the-index inc)
-              [:div
-               [:h2 (str @the-index)]
-               [:h3 (str each)]
-               [:br]
-               [:h3 (str (nth error-range-for-score 1))]
-               [:hr]])))
+        [:p (str @(rf/subscribe [::subs/not-fine-score-zero-and-one]))]
+        [:hr]
+        [:p (str @(rf/subscribe [::subs/my-collection-score-zero-and-one]))]
+
+        #_(let [coll @(rf/subscribe [::subs/not-fine-score-zero-and-one])
+                the-index (atom 0)]
+            (for [each coll]
+              (do
+                (swap! the-index inc)
+                [:div
+                                        ;[:h2 (str @the-index)]
+                 [:h3 (str each)]
+                 [:br]
+                                        ;[:h3 (str (nth error-range-for-score 1))]
+                                        ;[:hr]
+                 ])))
+
+        #_(let [coll @(rf/subscribe [::subs/my-collection-score-zero-and-one])
+                error-range-for-score @(rf/subscribe [::subs/standard-error-range])
+                the-index (atom 0)]
+            (for [each coll]
+              (do
+                (swap! the-index inc)
+                [:div
+                 [:h2 (str @the-index)]
+                 [:h3 (str each)]
+                 [:br]
+                 [:h3 (str (nth error-range-for-score 1))]
+                 [:hr]])))
 
         #_[:h3 (str @(rf/subscribe [::subs/my-collection-score-two]))]
 

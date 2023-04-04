@@ -631,7 +631,7 @@
                            :height (get-in tool-mdata [:area :svg-height])}
                    :aspect-ratio (aspect-ratio svg-width svg-height)
                    :margin {:top 0 :right 10 :bottom 0 :left 0}
-                   {:top 40, :right 20, :bottom 100, :left 20}
+                   :padding {:top 40, :right 20, :bottom 100, :left 20}
                    :x-domain [0 15]
                    :x-ticks 10
                    :y-domain [1 0]

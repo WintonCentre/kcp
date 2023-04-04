@@ -1642,8 +1642,6 @@ not currently use these factors to make decisions about follow-up care."]]
               coll-score-seven           @(rf/subscribe [::subs/my-collection-score-seven])
               coll-score-eight-and-more  @(rf/subscribe [::subs/my-collection-score-eight-and-more])
               error-range-for-score @(rf/subscribe [::subs/standard-error-range])
-              #_#_fine-score-zero-and-one (atom [])
-              #_#_not-fine-score-zero-and-one (atom [])
               fine-score-zero-and-one (atom {:year-one [] :year-five [] :year-ten []})
               not-fine-score-zero-and-one (atom {:year-one [] :year-five [] :year-ten []})
               fine-score-two (atom [])

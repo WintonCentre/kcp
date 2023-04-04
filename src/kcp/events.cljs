@@ -7,14 +7,13 @@
    [kcp.utils :as utils]
    [kcp.db :as init-db]
    [kcp.factors :as fac]
-   ;[kcp.paths :as paths]
    [kcp.shortener :as shorts]
    [kcp.model :as model]
    [ajax.core :as ajax]
    [cljs.reader :as  edn]
    [clojure.string :as string]
    [clojure.set :as rel]
-   ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+                                        ;[shadow.debug :refer [locals ?> ?-> ?->>]]
    ))
 
 ;;; Events ;;;
@@ -74,29 +73,16 @@
    (assoc db :organ-centres ocs)))
 
 (rf/reg-event-fx
- ; reset inputs
+                                        ; reset inputs
  ::reset-inputs
  (fn
    [{:keys [db]} [_ _]]
-   ;(?-> (:current-route db) ::current-route )
    (let [path-params (-> (get-in db [:current-route :path-params])
                          (assoc :inputs "-"))]
-     ;(?-> path-params ::path-params)
      {::fx/navigate! [:kcp.views/organ-centre-tool-tab-inputs path-params]})))
-#_(comment
-   (assoc path
-          :tab %
-          :inputs (shorts/db-to-URI (:lookups mdata) inputs)))
-
-#_(rf/reg-event-db
- ; reset inputs
- ::reset-inputs
- (fn
-   [db [_ _]]
-   (assoc db :inputs {})))
 
 (rf/reg-event-db
- ; switch to or from full screen mode
+                                        ; switch to or from full screen mode
  ::set-full-screen
  (fn
    [db [_ full]]
@@ -152,94 +138,76 @@
   [bundle-name tool-suffix]
   (keyword (str bundle-name tool-suffix)))
 
-(comment
-
-  (def fmaps {:a {:order 10} :b {:order -6} :c {:order nil} :d {:order nil}})
-  (get-in fmaps [:a :order])
-  (into (sorted-map-by (fn [k1 k2]
-                         (compare (get-in fmaps [k1 :order])
-                                  (get-in fmaps [k2 :order]))))
-        fmaps))
-
-
-;;;
+;;
 ;; Process raw tool bundles into db.
 ;;
 ;; It may be more efficient to do this processing at configuration time
 ;;
-;;
-;;;
+
 (rf/reg-event-fx
  ::store-bundle-inputs
  (fn
-  [{:keys [_ db]} [_ data-path response]]
-  (let [path-params (get-in db [:current-route :path-params])
-        [organ _centre tool _tab] (utils/path-keys path-params)
-        tool (if (nil? tool) :ldsurvival tool)
-        raw (edn/read-string response)
+   [{:keys [_ db]} [_ data-path response]]
+   (let [path-params (get-in db [:current-route :path-params])
+         [organ _centre tool _tab] (utils/path-keys path-params)
+         tool (if (nil? tool) :ldsurvival tool)
+         raw (edn/read-string response)
 
-        bundle-name (name tool)
-        inputs-key (bundle-sheet bundle-name "-inputs")
-        fmaps (fac/master-f-maps organ (inputs-key raw))
-        fmaps* (->> fmaps
-                    (group-by :factor)
-                    (map (fn [[k [v]]] [k v]))
-                    (into {}))
-        ; tool-inputs* fmaps* ;(map (fn [[k [v]]] [k v]) (group-by :factor fmaps))
-        ; tool-inputs must be sorted by spreadsheet factor order
-        tool-inputs (into (sorted-map-by (fn [k1 k2]
-                                           (compare (get-in fmaps* [k1 :order])
-                                                    (get-in fmaps* [k2 :order]))))
-                          fmaps*)
+         bundle-name (name tool)
+         inputs-key (bundle-sheet bundle-name "-inputs")
+         fmaps (fac/master-f-maps organ (inputs-key raw))
+         fmaps* (->> fmaps
+                     (group-by :factor)
+                     (map (fn [[k [v]]] [k v]))
+                     (into {}))
+         tool-inputs (into (sorted-map-by (fn [k1 k2]
+                                            (compare (get-in fmaps* [k1 :order])
+                                                     (get-in fmaps* [k2 :order]))))
+                           fmaps*)
 
-        baseline-vars-key (bundle-sheet bundle-name "-baseline-vars")
-        baseline-vars (->> baseline-vars-key
-                           (get raw)
-                           (group-by :factor)
-                           (remove (comp nil? first))
-                           (map (fn [[k [{:keys [level]}]]] [k level]))
-                           (into {}))
+         baseline-vars-key (bundle-sheet bundle-name "-baseline-vars")
+         baseline-vars (->> baseline-vars-key
+                            (get raw)
+                            (group-by :factor)
+                            (remove (comp nil? first))
+                            (map (fn [[k [{:keys [level]}]]] [k level]))
+                            (into {}))
 
-        baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
-        baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
+         baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
+         baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
 
          ;; Convert legacy cifs to survivals keyed by outcome
-        timed-outcome-keys (keys (first baseline-cifs))
-        outcome-keys (remove #(= :days %) timed-outcome-keys)
-        outcomes (fac/get-outcomes* (first baseline-cifs))
-        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
-        base-outcome-keys (map keyword outcomes)
-        ;outcome-keys (fac/prefix-outcomes-keys "cif" outcomes)
+         timed-outcome-keys (keys (first baseline-cifs))
+         outcome-keys (remove #(= :days %) timed-outcome-keys)
+         outcomes (fac/get-outcomes* (first baseline-cifs))
+         beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+         base-outcome-keys (map keyword outcomes)
 
-        ;; Use SO+ if calculating with ALL data points
-        S0+ (map (fn [bc] [(:days bc)
+         ;; Use SO+ if calculating with ALL data points
+         S0+ (map (fn [bc] [(:days bc)
                            ((apply juxt outcome-keys) bc)]) baseline-cifs)
-        #_#_S0+ (map (fn [bc] [(:days bc)
-                               (map (comp - js/Math.log)
-                                    ((apply juxt outcome-keys) bc))]) baseline-cifs)
 
-        ;; Otherwise, use SO for a reduced data optimised calculation
-        S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
-                            %2) (model/sample-from S0+))]
-    ;(?-> tool-inputs ::tool-inputs)
-    ;(locals)
-    {:db ;(assoc db :oct-bundle tool-centre-bundle)
-     (assoc-in db data-path
-               (-> raw
-                   (assoc :fmaps tool-inputs
-                          :baseline-cifs baseline-cifs
-                          :baseline-vars baseline-vars
-                          :outcomes outcomes
-                          :outcome-keys outcome-keys
-                          :base-outcome-keys base-outcome-keys
-                          :timed-outcome-keys timed-outcome-keys
-                          :beta-keys beta-keys
-                          :all-S0 S0+
-                          :S0 S0)
-                   (dissoc inputs-key)
-                   (dissoc baseline-cifs-key)
-                   (dissoc baseline-vars-key)))
-     :reg-factors [organ fmaps]})))
+         ;; Otherwise, use SO for a reduced data optimised calculation
+         S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
+                             %2) (model/sample-from S0+))]
+
+     {:db
+      (assoc-in db data-path
+                (-> raw
+                    (assoc :fmaps tool-inputs
+                           :baseline-cifs baseline-cifs
+                           :baseline-vars baseline-vars
+                           :outcomes outcomes
+                           :outcome-keys outcome-keys
+                           :base-outcome-keys base-outcome-keys
+                           :timed-outcome-keys timed-outcome-keys
+                           :beta-keys beta-keys
+                           :all-S0 S0+
+                           :S0 S0)
+                    (dissoc inputs-key)
+                    (dissoc baseline-cifs-key)
+                    (dissoc baseline-vars-key)))
+      :reg-factors [organ fmaps]})))
 
 (rf/reg-event-db
  ::inc-test-day
@@ -273,16 +241,6 @@
             :selected-vis selection
             :inputs inputs))))
 
-#_(rf/reg-event-db
- ;; Takes inputs and the view seection from the route, and enters them in the db
- ::selected-inputs-vis
- (fn
-   [db [_ organ inputs selection]]
-   (assoc db
-          :selected-vis selection
-          :inputs inputs)))
-
-
 (rf/reg-event-db
  ::missing-inputs
  (fn
@@ -304,35 +262,6 @@
  (fn [db [_ data]]
    (assoc db :modal-data data)))
 
-(comment
-  (def tool-meta-match string/ends-with?)
-  (clojure.string/ends-with? "abcd" "d")
-
-  (def sheet-key-name :tools)
-  (def sheet-meta [{:sheet "centres", :keys [:key :name]}
-                   {:sheet "tools", :keys [:key]}
-                   {:sheet "*-baseline-cifs", :keys [:centre :days]}
-                   {:sheet "*-baseline-vars", :keys [:baseline-factor]}
-                   {:sheet "*-inputs", :keys [:factor :level]}
-                   {:sheet "bmi-calculator", :keys [:factor :level]}])
-  (filter (fn [meta] (clojure.string/ends-with? (:sheet meta) "waiting-baseline-cifs"))
-          sheet-meta)
-
-
-  (def relation #{{:a 1 :b 2 :c 3}
-                  {:a 1 :b 3 :c 3}
-                  {:a 2 :b 1 :c 4}
-                  {:a 2 :b 2 :c 4}})
-  (def v [{:a 1 :b 2 :c 3}
-          {:a 1 :b 3 :c 3}
-          {:a 2 :b 1 :c 4}
-          {:a 2 :b 2 :c 4}])
-  (group-by :a v)
-
-  (clojure.set/index relation [:a :b])
-  (clojure.set/index relation [:a])
-  (filter (fn [[m _s]] (= 1 (:a m))) (clojure.set/index relation [:a :b])))
-
 (defn transpose-response
   "store and transpose labelled column data to row maps format.
    :todo - perhaps we should store the column format too to avoid regenerating it. I think we use column format for baselines?"
@@ -342,8 +271,7 @@
 
 (rf/reg-event-db
  ::transpose-response
- transpose-response
- )
+ transpose-response)
 
 (rf/reg-event-db
  ::transpose-response-centres
@@ -373,30 +301,28 @@
 (rf/reg-event-fx
  ::load-metadata
  (fn
-  [{:keys [db]} [_evt [path data-path]]]
-  (when (nil? (get-in db data-path))
-    {:http-xhrio {:method :get
-                  :uri path
-                  :timeout 8000
-                  :format          (ajax/text-request-format)
-                  :response-format (ajax/text-response-format)
-                  :on-success [::store-metadata-response data-path]
-                  :on-failure [::bad-response data-path]}})))
-
-;;;;;;;;;;;;
+   [{:keys [db]} [_evt [path data-path]]]
+   (when (nil? (get-in db data-path))
+     {:http-xhrio {:method :get
+                   :uri path
+                   :timeout 8000
+                   :format          (ajax/text-request-format)
+                   :response-format (ajax/text-response-format)
+                   :on-success [::store-metadata-response data-path]
+                   :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-edn
  (fn
-  [{:keys [db]} [_evt [path data-path]]]
-  (when (nil? (get-in db data-path))
-    {:http-xhrio {:method :get
-                  :uri path
-                  :timeout 8000
-                  :format          (ajax/text-request-format)
-                  :response-format (ajax/text-response-format)
-                  :on-success [::store-response data-path]
-                  :on-failure [::bad-response data-path]}})))
+   [{:keys [db]} [_evt [path data-path]]]
+   (when (nil? (get-in db data-path))
+     {:http-xhrio {:method :get
+                   :uri path
+                   :timeout 8000
+                   :format          (ajax/text-request-format)
+                   :response-format (ajax/text-response-format)
+                   :on-success [::store-response data-path]
+                   :on-failure [::bad-response data-path]}})))
 
 (rf/reg-event-fx
  ::load-bundles
@@ -423,20 +349,6 @@
                   :on-failure [::bad-response data-path]}}))
 
 (rf/reg-event-fx
- ::load-and-transpose
- load-and-transpose
- #_(fn
-  [{:keys [db]} [_evt [path data-path]]]
-  (when (nil? (get-in db data-path))
-    {:http-xhrio {:method :get
-                  :uri path
-                  :timeout 8000
-                  :format          (ajax/text-request-format)
-                  :response-format (ajax/text-response-format)
-                  :on-success [::transpose-response data-path]
-                  :on-failure [::bad-response data-path]}})))
-
-(rf/reg-event-fx
  ::load-and-transpose-centres
  load-and-transpose)
 
@@ -453,11 +365,9 @@
                  :on-failure [::bad-response data-path]}}))
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
                                         ; related to the test programe.
-
 
 (rf/reg-event-db
  ::my-collection

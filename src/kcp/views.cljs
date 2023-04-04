@@ -1605,13 +1605,13 @@ not currently use these factors to make decisions about follow-up care."]]
                     (= 5 total-score)                        (swap! collection-score-five conj           (hash-map :index @index :score total-score :set-of-inputs the-input
                                                                                                                    :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                                                    :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))
                                                                                                                    ))
                     (= 6 total-score)                        (swap! collection-score-six conj            (hash-map :index @index :score total-score :set-of-inputs the-input
                                                                                                                    :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                                                    :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
                                                                                                                    :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
                     (= 7 total-score)                        (swap! collection-score-seven conj          (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                                                    :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                                                    :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
                                                                                                                    :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
@@ -2013,11 +2013,11 @@ not currently use these factors to make decisions about follow-up care."]]
 
         #_(:max (:year-one (first (nth error-range-for-score 6))))
 
-        [:h2 "**********************************"]
+        #_[:h2 "**********************************"]
 
-        [:p (str @(rf/subscribe [::subs/not-fine-score-zero-and-one]))]
-        [:hr]
-        [:p (str @(rf/subscribe [::subs/my-collection-score-zero-and-one]))]
+        #_[:p (str @(rf/subscribe [::subs/not-fine-score-zero-and-one]))]
+        #_[:hr]
+        #_[:p (str @(rf/subscribe [::subs/my-collection-score-zero-and-one]))]
 
         #_(let [coll @(rf/subscribe [::subs/not-fine-score-zero-and-one])
                 the-index (atom 0)]
@@ -2032,7 +2032,7 @@ not currently use these factors to make decisions about follow-up care."]]
                                         ;[:hr]
                  ])))
 
-        #_(let [coll @(rf/subscribe [::subs/my-collection-score-zero-and-one])
+        #_(let [coll @(rf/subscribe [::subs/my-collection-score-five])
                 error-range-for-score @(rf/subscribe [::subs/standard-error-range])
                 the-index (atom 0)]
             (for [each coll]

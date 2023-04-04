@@ -1485,7 +1485,7 @@ not currently use these factors to make decisions about follow-up care."]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-                                        ; for year one
+                                        ; the main standard error test programe.
 
 (defn standard-error-test
   []

@@ -84,7 +84,7 @@
 (rf/reg-sub ::not-fine-score-eight-and-more (fn [db] (get-in db [:not-fine-score-eight-and-more])))
 
 
-(rf/reg-sub ::count-of-collection-one-and-zero (fn [db] (get-in db [:coll-one-and-zero])))
+(rf/reg-sub ::count-of-collection-zero-and-one (fn [db] (get-in db [:coll-zero-and-one])))
 (rf/reg-sub ::count-of-collection-two (fn [db] (get-in db [:coll-two])))
 (rf/reg-sub ::count-of-collection-three (fn [db] (get-in db [:coll-three])))
 (rf/reg-sub ::count-of-collection-four (fn [db] (get-in db [:coll-four])))

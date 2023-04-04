@@ -519,7 +519,7 @@
 (rf/reg-event-db
  ::count-of-collections
  (fn
-   [db [_ coll-one-and-zero coll-two coll-three coll-four coll-five coll-six coll-seven coll-eight-and-more]]
+   [db [_ coll-zero-and-one coll-two coll-three coll-four coll-five coll-six coll-seven coll-eight-and-more]]
 
-   (assoc db :coll-one-and-zero coll-one-and-zero :coll-two coll-two :coll-three coll-three :coll-four coll-four :coll-five coll-five :coll-six coll-six :coll-seven coll-seven
+   (assoc db :coll-zero-and-one coll-zero-and-one :coll-two coll-two :coll-three coll-three :coll-four coll-four :coll-five coll-five :coll-six coll-six :coll-seven coll-seven
           :coll-eight-and-more coll-eight-and-more)))

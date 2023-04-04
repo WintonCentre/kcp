@@ -1605,7 +1605,7 @@ not currently use these factors to make decisions about follow-up care."]]
                     (= 5 total-score)                        (swap! collection-score-five conj           (hash-map :index @index :score total-score :set-of-inputs the-input
                                                                                                                    :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                                                    :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                                                                                                                   ))
                     (= 6 total-score)                        (swap! collection-score-six conj            (hash-map :index @index :score total-score :set-of-inputs the-input
                                                                                                                    :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                                                    :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
@@ -1646,8 +1646,8 @@ not currently use these factors to make decisions about follow-up care."]]
               not-fine-score-zero-and-one (atom {:year-one [] :year-five [] :year-ten []})
               fine-score-two (atom {:year-one [] :year-five [] :year-ten []})
               not-fine-score-two (atom {:year-one [] :year-five [] :year-ten []})
-              fine-score-three (atom [])
-              not-fine-score-three (atom [])
+              fine-score-three (atom {:year-one [] :year-five [] :year-ten []})
+              not-fine-score-three (atom {:year-one [] :year-five [] :year-ten []})
               fine-score-four (atom [])
               not-fine-score-four (atom [])
               fine-score-five (atom [])
@@ -1710,8 +1710,21 @@ not currently use these factors to make decisions about follow-up care."]]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 3)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 3))))))
-              (swap! fine-score-three conj (:set-of-inputs each))
-              (swap! not-fine-score-three conj (:set-of-inputs each)))
+              (swap! fine-score-three update     :year-one conj (:set-of-inputs each))
+              (swap! not-fine-score-three update :year-one conj (:set-of-inputs each)))
+
+            (if (and
+                 (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 3)))))
+                 (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 3))))))
+              (swap! fine-score-three update     :year-five conj (:set-of-inputs each))
+              (swap! not-fine-score-three update :year-five conj (:set-of-inputs each)))
+
+            (if (and
+                 (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 3)))))
+                 (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 3))))))
+              (swap! fine-score-three update     :year-ten conj (:set-of-inputs each))
+              (swap! not-fine-score-three update :year-ten conj (:set-of-inputs each)))
+
             (rf/dispatch [::events/fine-score-three @fine-score-three])
             (rf/dispatch [::events/not-fine-score-three @not-fine-score-three]))
 
@@ -1804,13 +1817,21 @@ not currently use these factors to make decisions about follow-up care."]]
 
         [:div
          [:h2 (str "Total count of collection with score 3 is: " @(rf/subscribe [::subs/count-of-collection-three]))]
-         [:h2 "fine for score 3:"]
-         [:h2 (str "count: " (count @(rf/subscribe [::subs/fine-score-three])))]
+         [:h2 "fine for score 3 for year one:"]
+         [:h2 (str "count: " (count (:year-one @(rf/subscribe [::subs/fine-score-three]))))]
+         [:h2 "fine for score 3 for year five:"]
+         [:h2 (str "count: " (count (:year-five @(rf/subscribe [::subs/fine-score-three]))))]
+         [:h2 "fine for score 3 for year ten:"]
+         [:h2 (str "count: " (count (:year-ten @(rf/subscribe [::subs/fine-score-three]))))]
          [:br]
          [:p (str @(rf/subscribe [::subs/fine-score-three]))]
          [:hr]
-         [:h2 "not fine for score 3:"]
-         [:h2 (str "count: " (count @(rf/subscribe [::subs/not-fine-score-three])))]
+         [:h2 "not fine for score 3 for year one:"]
+         [:h2 (str "count: " (count (:year-one @(rf/subscribe [::subs/not-fine-score-three]))))]
+         [:h2 "not fine for score 3 for year five:"]
+         [:h2 (str "count: " (count (:year-five @(rf/subscribe [::subs/not-fine-score-three]))))]
+         [:h2 "not fine for score 3 for year ten:"]
+         [:h2 (str "count: " (count (:year-ten @(rf/subscribe [::subs/not-fine-score-three]))))]
          [:br]
          [:p (str @(rf/subscribe [::subs/not-fine-score-three]))]]
 

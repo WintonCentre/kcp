@@ -14,34 +14,6 @@
             [shadow.debug :refer [locals ?> ?->]]
             ))
 
-#_(comment
-  (def day 100)
-  (def route @(rf/subscribe [::subs/current-route]))
-  (def tools @(rf/subscribe [::subs/tools]))
-  (def organ-centres @(rf/subscribe [::subs/organ-centres]))
-  (def bundles @(rf/subscribe [::subs/bundles]))
-  (def oct-names (utils/path-names (:path-params route)))
-  (def oct-keys (map keyword oct-names))
-  (def oct-bundle (apply bun/get-bundle oct-keys))
-  (def baseline-cifs  (:baseline-cifs oct-bundle))
-  (tap> oct-bundle)
-  ;(def baseline-cifs-for-day (bun/cif-0 oct-bundle day))
-  (def outcome-names (fac/get-outcomes* (bun/cif-0 oct-bundle day)))
-  (def outcome-keys (map keyword outcome-names))
-
-  (def beta-outcome-keys (map #(keyword (str "beta-" %)) outcome-names))
-  (def cif-outcome-keys (map #(keyword (str "cif-" %)) outcome-names))
-  (def inputs @(rf/subscribe [::subs/inputs]))
-  (tap> [::inputs inputs])
-  (count (keys (:lung @(rf/subscribe [::subs/inputs]))))
-  (count @(rf/subscribe [::subs/bundles]))
-  (def env [oct-names oct-bundle inputs])
-  (def  sum-betas (map #(fac/sum-beta-xs env %) beta-outcome-keys))
-  0)
-
-(comment
-  (def sum-betas '(0 0)))
-
 (defn full-screen-overlay-button
   "add full screen overlay button"
   [path]
@@ -52,17 +24,6 @@
                  :right 10
                  :bottom -14}}
    [fs/full-screen-wrapper path]])
-
-#_(defn screen-shot
-  "component which will capture a screen shot using html2canvas"
-  []
-  (fn []
-    (r/create-class
-     {;:should-component-update (fn [props nextState] false)
-      :reagent-render (fn []
-                        [:div {:id "screen-shot"
-                               :style {:padding 10 :background "#f5da55"}}])})
-    ))
 
 (defn results-panel
   "Display results.
@@ -97,56 +58,35 @@
                      (get-in env [:fmaps :nuclear-grade :levels (get-in env [:inputs :nuclear-grade]) :score])
                      (get-in env [:fmaps :histologic-tumor-necrosis :levels (get-in env [:inputs :histologic-tumor-necrosis]) :score]))
 
-        ;; _ (?-> env ::env)
-
-
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
         s0 all-S0
         s0-for-day (model/S0-for-day s0 day)
-
-
         sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
-                                        ; F (model/cox-adjusted s0 sum-betas)
         cox? (model/use-cox-adjusted? tool)
         F (if cox?
             (model/cox-adjusted s0 sum-betas)
-            ;; cox should be applied to all the s0 s. Not sure which yet.!
             (model/cox-only s0 sum-betas))
-
-                                        ; _ (?-> (first (last s0-for-day)) ::s0_for_day)
-                                        ; _ (?-> (model/cox-adjusted s0 sum-betas) ::F)
-                                        ; _ (?-> (model/cox-only s0 sum-betas) ::cox)
-        #_#_F (if cox? ;false #_(= (:selected-vis env) "test")
-                (model/cox-adjusted s0 sum-betas)
-                (model/cox (first (last s0-for-day)) sum-betas))
 
         env (conj env
                   [:sum-betas sum-betas]
                   [:s0 s0]
                   [:s0-for-day s0-for-day]
                   [:cox? cox?]
-                  [:F F]) ;; is this needed ?
+                  [:F F])
 
         inputs (:inputs env)
-                                        ;        _ (?-> inputs ::inputs)
         required-inputs (keys fmaps)
         fulfilled-inputs (select-keys inputs required-inputs)
-                                        ;   _ (?-> fulfilled-inputs ::fulfilled-inputs)
         missing #_false (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
-                                        ;(?-> beta-keys ::beta-keys)
-                                        ;(?-> sum-betas ::sum-betas)
-                                        ;(?-> env ::env)
-
-    (?-> total-score ::total-score)
 
     (when (:S0 env)
       [:<>
        (rf/dispatch [::events/missing-inputs missing])
-                                        ;[screen-shot]
+
        (if bare
          [:<>
           [:p
@@ -255,10 +195,6 @@
              [ui/tab {:event-key "text" :title "Text"}
               [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
                [vis/text env]]]
-
-             #_[ui/tab {:event-key "rig" :title "Test Rig"}
-                [:div {:style {:font-size (if is-full-screen "200%" "100%")}}
-                 [vis/test-rig env]]]
 
              ;; we normally don't want the test tab to be displayed
              #_[ui/tab {:event-key "test" :title "Test"}

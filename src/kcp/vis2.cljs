@@ -49,16 +49,10 @@
    plot-order is like [:transplant :residual :death]
    Result would be (0.3 0.30000000000000004 0.4)"
   [plot-order fsm]
-  ;(locals)
   (map
    (fn [data-key]
      (fsm data-key))
    plot-order))
-
-#_(defn fs-series
-    "convert an ordered fs to a map containing the original ordered-fs and its partial sums"
-    [ordered-fs]
-    {:fs ordered-fs :cum-fs (reductions + ordered-fs)})
 
 (defn int-fs-series
   "convert an ordered fs to a map containing the original ordered-fs and its partial sums.
@@ -80,7 +74,7 @@
                                           [0 0]
                                           (zipmap (range) err-pc-fs))]
                        (recur (update int-pc-fs (first adjust) (if (pos? sum-err-pc-fs) dec inc)))))))]
-    ;(locals)
+
     {:fs ordered-fs
      :cum-fs (reductions + ordered-fs)
      :int-fs int-fs
@@ -93,76 +87,11 @@
   [outcomes plot-order t-fs]
   (map
    (fn [[t fs]]
-     ;(locals)
      [t (->> fs
              (fs-mapped outcomes)
              (fs-in-order plot-order)
              (int-fs-series))])
    t-fs))
-
-(comment
-  (residual [0.1])
-  ;; => 0.9
-  (residual [0.1 0.2 0.2])
-  ;; => 0.5
-
-  ;; (def outcomes '(:transplant :death))
-  ;; (def fs [0.3 0.4])
-  ;; (def plot-order {:death 1, :residual 2, :transplant 3})
-  ;; (def data-keys [:death, :residual, :transplant])
-  ;; (def fsk [[:transplant 0.3] [:residual 0.30000000000000004] [:death 0.4]])
-  ;; (def t-fs [[1 [0.2 0.1]]
-  ;;            [3 [0.3 0.15]]
-  ;;            [4 [0.4 0.2]]])
-
-  (fs-mapped '(:transplant :death) [0.3 0.4])
-  ;; => {:transplant 0.3, :death 0.4, :residual 0.30000000000000004}
-
-
-  (fs-in-order
-   [:death, :residual, :transplant]
-   (fs-mapped '(:transplant :death) [0.3 0.4]))
-  ;; => (0.4 0.30000000000000004 0.3)
-
-  ;(fs-series '(0.4 0.30000000000000004 0.3))
-  ;; => {:fs (0.4 0.30000000000000004 0.3), :cum-fs (0.4 0.7000000000000001 1)}
-
-  (fs-time-series [:transplant :death]
-                  [:death, :residual, :transplant]
-                  [[1 [0.2 0.1]]
-                   [3 [0.3 0.15]]
-                   [4 [0.4 0.2]]])
-  ;; => ([1 {:fs (0.1 0.7 0.2), :cum-fs (0.1 0.7999999999999999 1)}]
-  ;;     [3 {:fs (0.15 0.55 0.3), :cum-fs (0.15 0.7000000000000001 1)}]
-  ;;     [4 {:fs (0.2 0.3999999999999999 0.4), :cum-fs (0.2 0.5999999999999999 0.9999999999999999)}])
-
-  (int-fs-series (repeat 3 (/ 1 3)))
-  ;; => {:fs (0.3333333333333333 0.3333333333333333 0.3333333333333333),
-  ;;     :cum-fs (0.3333333333333333 0.6666666666666666 1),
-  ;;     :int-fs [34 33 33],
-  ;;     :cum-int-fs (34 67 100)}
-
-  (int-fs-series (repeat 7 (/ 1 7)))
-    ;; => {:fs
-    ;;     (0.14285714285714285
-    ;;      0.14285714285714285
-    ;;      0.14285714285714285
-    ;;      0.14285714285714285
-    ;;      0.14285714285714285
-    ;;      0.14285714285714285
-    ;;      0.14285714285714285),
-    ;;     :cum-fs
-    ;;     (0.14285714285714285
-    ;;      0.2857142857142857
-    ;;      0.42857142857142855
-    ;;      0.5714285714285714
-    ;;      0.7142857142857142
-    ;;      0.857142857142857
-    ;;      0.9999999999999998),
-    ;;     :int-fs [15 14 14 14 14 14 14],
-    ;;     :cum-int-fs (15 29 43 57 71 85 99)}
-
-  0)
 
 ;; visualisation commons
 (defn aspect-ratio
@@ -202,26 +131,6 @@
               (range)
               plot-order))))
 
-(comment
-  (def plot-order "fixture" [:arthur :brian :charlie])
-  (def data-styles "fixture" {:width 200 :height 50 :string-value-f (constantly "Hello") :position-f (constantly [10 20])})
-  (svg-outcome-legend plot-order data-styles)
-;; => [:<>
-;;     [:g
-;;      {:transform "translate(0 30)", :key ":arthur-0"}
-;;      [:rect {:x 0, :y 0, :width 275, :height 60}]
-;;      [:text {:x 10, :y 40, :fill nil, :font-size 30} ""]]
-;;     [:g
-;;      {:transform "translate(0 110)", :key ":brian-1"}
-;;      [:rect {:x 0, :y 0, :width 275, :height 60}]
-;;      [:text {:x 10, :y 40, :fill nil, :font-size 30} ""]]
-;;     [:g
-;;      {:transform "translate(0 190)", :key ":charlie-2"}
-;;      [:rect {:x 0, :y 0, :width 275, :height 60}]
-;;      [:text {:x 10, :y 40, :fill nil, :font-size 30} ""]]]
-
-  (svg-outcome-legend plot-order data-styles #(str "translate(0 " (+ -35 (* 50 %)) "),scale(0.7)")))
-
 ;; test-rig
 
 (defn outcome-tr
@@ -230,17 +139,6 @@
   [:tr {:key k :style {:background-color rgb/secondary :color "#fff"}}
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
-
-#_(comment
-    (def organ :lung)
-    (def centre :new)
-    (def tool :waiting)
-    (def day 100)
-    (def inputs {})
-    (def bundle
-
-      @(rf/subscribe [::subs/bundles]))
-    0)
 
 (defn test-rig
   "expose calcluation in test"
@@ -274,7 +172,7 @@
                       [:td {:key i} (model/to-precision F_i 4)])
                     (second (model/S0-for-day F day)))]
 
-                    ;; Show sum-beta-xs for selected inputs
+                  ;; Show sum-beta-xs for selected inputs
                   [:tr {:key 1003}
                    [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
                    (map-indexed
@@ -292,7 +190,7 @@
                   (conj
                    (map-indexed
                     (fn [i [factor fmap]]
-                              ; Show individual beta-x contribution
+                                        ; Show individual beta-x contribution
                       [:tr {:key i}
                        [:td {:key i} factor]
                        (when fmap
@@ -356,102 +254,11 @@
    them left to right.
 
    This function returns a vector indicating which of the f labels should be staggered.
-"
+  "
   [threshold fs]
-  ;(tap> fs)
   (reduce (pairwise-stagger threshold)
           []
           (zipmap (range) (partition-all 2 1 fs))))
-
-(comment
-  (label-staggers 4 [7 23 0 3])
-
-
-
-  (label-staggers 7 [5 3 3 5])
-  ;; => [nil true true nil]
-
-  (label-staggers 7 [5 3 3 5 8 1])
-  ;; => [nil true true nil nil nil]
-
-  (label-staggers 10 [5 3 3 5 8 1])
-  ;; => [true true true true true true]
-
-  (label-staggers 7 [5 3 3 5 8 1 1])
-  ;; => [nil true true nil nil true true]
-  ;;
-  (label-staggers 7 [5 3 3 5 8])
-  ;; => [nil true true nil nil]
-
-  (label-staggers 7 [1 1 1 1]) ;this never happens but if it did it would need a 4 position horizontal stagger
-  ;; => [true true true true]
-
-  ((pairwise-stagger 7) [] [0 [5 3]])
-  ;; => [nil]
-
-  ((pairwise-stagger 7) [nil] [1 [3 3]])
-  ;; => [nil true true]
-
-  ((pairwise-stagger 7) [nil true true] [2 [3 5]])
-  ;; => [nil nil true]
-  ((pairwise-stagger 7) [nil true true] [3 [5 nil]])
-  0)
-;; => nil
-;;
-
-;; currently unused
-#_(defn get-mustache
-    "Lookup x in a form that may be a mustached template or a simple vector or a combination of both.
-   If the form is a string, return it
-   If the form is a vector, then return the xth element.
-   If the form is a map then it should have a :template and :data. Optionally also an :indexed value.
-   If get on the indexed value x returns non-nil, then return that value. This allows special values to be returned by index
-   even when other values require a template.
-   If the mdata map has no indexed field or x yields nil, then the :data value is assumed to be a mustached field name
-   in the :template. Render the template with that fied replaced by x"
-    [mdata x]
-    (cond
-      (string? mdata)
-      mdata
-
-      (vector? mdata)
-      (mdata x)
-
-      (map? mdata)
-      (let [{:keys [indexed template data]} mdata]
-        (cond
-          (and indexed (get indexed x))
-          (get indexed x)
-
-          (and template data)
-          (mus/render template {data x})
-
-          :else (locals)))
-      :else mdata))
-
-;; currently unused
-#_(defn right-arrow
-    "Render a right-arrow"
-    [{:keys [x y fill scale stroke stroke-width]}]
-    [:path {:fill fill
-            :stroke stroke
-            :stroke-width stroke-width
-            :d "M5 0v2h-5v1h5v2l3-2.53-3-2.47z"
-            :transform (when (and x y scale)
-                         (str "translate(" x " " y ")scale(" scale ")"))}])
-
-;; currently unused
-#_(defn arrow
-    "render an svg component that draws a white right arrow."
-    [{:keys [index count x-offset y-offset spacing]}]
-  ;(locals)
-    (when (< 0 index count)
-      (right-arrow {:x (+ x-offset (* index spacing))
-                    :y y-offset
-                    :fill "#fff"
-                    :scale "3.5,6"
-                    :stroke "#fff"
-                    :stroke-width 2})))
 
 (defn multiline-bin-label
   "render a multiline bin label"
@@ -467,7 +274,7 @@
 
 (defn draw-bin-labels
   [{:keys [bin-labels spacing offset font-size X]}]
-;  (locals)
+
   (into [:g {:key 1}]
         (map-indexed (fn [bar-index bin-label]
                        (let [x0 (- (X (+ (* spacing #_(:time-index bin-label) (inc bar-index)))) (X offset))]
@@ -479,7 +286,7 @@
 
   (into [:g {:key 2}]
         (map-indexed (fn [bar-index bin-label]
-                       ;(locals)
+
                        (let [;bar-index (:time-index bin-label)
                              x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
                              [_ {:keys [fs cum-fs]}] (nth time-series (:time-index bin-label))]
@@ -496,8 +303,7 @@
                                                               :width bar-width
                                                               :height h
                                                               :data-title cif}
-                                                             (ui/svg-styles styles)
-                                                             #_(dissoc styles :label-fill))]])))
+                                                             (ui/svg-styles styles))]])))
                                         data-keys
                                         fs
                                         cum-fs))]))
@@ -508,7 +314,7 @@
   (into [:g {:key 3 :style {:opacity 1}}]
         (map (fn [bar-index bin-label]
 
-                ;draw single bar and label
+                                        ;draw single bar and label
                (let [[_ {:keys [fs cum-fs int-fs]}]
                      (nth time-series (:time-index bin-label))
                      x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
@@ -540,8 +346,7 @@
                                                    :y (- y-mid 30)
                                                    :height 40
                                                    :rx 10}
-                                                  (ui/svg-styles styles)
-                                                  #_(dissoc styles :label-fill))]
+                                                  (ui/svg-styles styles))]
                                     [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                      (str int-fs "%")]])))
                              (range)
@@ -552,10 +357,8 @@
              (range)
              bin-labels)))
 
-
 (defn tool-metadata
   [env organ tool]
-  ;(locals)
   (get-in env [:mdata organ :tools tool]) ;; provisional
 
   ;; Bear in mind that we will want to provide a default configuration template somehow.
@@ -572,7 +375,6 @@
   ;; particular tools (like :waiting). Keys like :lung and :waiting should be configured too.
   )
 
-
 (defn stacked-bar-chart
   "Draw a stacked bar chart.
    x is a Linear scale defined in svg.scales.Linear containing
@@ -582,9 +384,8 @@
    y and Y are similar for the Y axis
    sample-days are indices into the cif data-series at which bars should be drawn.
    outcomes are the cif data-series"
-  #_[X Y time-series data-keys tool-mdata data-styles]
   [{:keys [data-keys tool-mdata] :as params}]
-;  (locals)
+
   (let [params (assoc params
                       :bin-labels (get-in tool-mdata [:bars :labels])
                       :spacing (get-in tool-mdata [:bars :spacing])
@@ -619,11 +420,9 @@
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)]
-    ;(locals)
+
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10 :margin-right 10 :margin-bottom 10}}
-      ;(:pre-section tool-mdata)
-
       [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:bars :svg-width])
                                               :height (get-in tool-mdata [:bars :svg-height])}
                                       :margin (get-in tool-mdata [:bars :svg-margin])
@@ -637,7 +436,7 @@
 
        (fn [_ _ X Y]
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
-          ;(locals)
+
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
@@ -686,8 +485,7 @@
                                                      :x (+ x-mid 15)
                                                      :y0 y0
                                                      :y1 (Y cum-cif)
-                                                     :styles (ui/svg-styles styles)
-                                                     #_(dissoc styles :label-fill)}))
+                                                     :styles (ui/svg-styles styles)}))
                                                 data-keys
                                                 fs
                                                 cum-fs))))
@@ -739,28 +537,16 @@
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]
                                    (str x "," y " "))
-                         :style (ui/svg-styles (data-styles dk))
-                         #_(dissoc  (data-styles dk) :label-fill)}]))
+                         :style (ui/svg-styles (data-styles dk))}]))
 
                                         ; draw labels at yearly intervals
       (into [:g {:key 2}]
             (map (fn [bin-label]
                    (let [bar-index (:time-index bin-label)
-                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
-                         #_#_[time {:keys [fs cum-fs]}] (nth year-series bar-index)]
+                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))]
                      [:g
-                      (multiline-bin-label bin-label x0 font-size)
-                      #_(into [:g {:key (str "area-chart-" bar-index)}]
-                              (map (fn [cif cum-cif]
-                                     (let [x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
-                                           y0 (- (Y cum-cif) (Y cif))]
-
-                                       #_(when (not (js/isNaN y0))
-                                           (multiline-bin-label bin-label x0 font-size))))
-                                   fs
-                                   cum-fs))]))
+                      (multiline-bin-label bin-label x0 font-size)]))
                  bin-labels))
-
       ;;
       ;; Plot label lines
       ;;
@@ -781,7 +567,7 @@
                         x-mid (+ x0 (/ bar-width 2) -0)
                         [time {:keys [fs cum-fs int-fs]}] (nth year-series bar-index)
                         staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs))]
-                                        ;(locals)
+
                     (into [:g {:key time}]
                           (conj
                            (map (fn [i data-key cif cum-cif int-fs]
@@ -822,16 +608,14 @@
 (defn area-chart
   "Draw the area chart"
   [{:keys [organ tool base-outcome-keys s0 F] :as env}]
-  ;(?-> s0 ::s0)
+                                        ;(?-> s0 ::s0)
   (?-> env ::env)
   (let [year-days (map
                    utils/year->day
                    (range (inc (utils/day->year (first (last s0))))))
 
         fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-        quarter-days (range 120);#_(map)
-                      ;utils/week->day
-                      ;(range (inc (utils/day->week (first (last s0)))))
+        quarter-days (range 120)
         _ (?-> quarter-days ::quarter-days)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)
@@ -839,16 +623,14 @@
         plot-order (:plot-order tool-mdata)
         svg-width 1060
         svg-height 660]
-    ;(?-> tool-mdata ::area-chart)
-    ;(locals)
+
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10 :margin-right 10}}
       [svgc/svg-container
        (-> (space {:outer {:width (get-in tool-mdata [:area :svg-width])
                            :height (get-in tool-mdata [:area :svg-height])}
                    :aspect-ratio (aspect-ratio svg-width svg-height)
-                   :margin #_(get-in tool-mdata [:area :svg-margin]) {:top 0 :right 10 :bottom 0 :left 0}
-                   :padding #_(get-in tool-mdata [:area :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
+                   :margin {:top 0 :right 10 :bottom 0 :left 0}
                    {:top 40, :right 20, :bottom 100, :left 20}
                    :x-domain [0 15]
                    :x-ticks 10
@@ -863,9 +645,7 @@
            [:g
             (svg-outcome-legend plot-order data-styles)
             [:g {:transform "translate(280 0)"}
-             #_[:rect {:x 0 :y 0 :width (X 10) :height (Y 1)
-                       :style {:fill "#EEF8" :border "3px solid #CCC"}}]
-             (?-> [X Y] ::x-y)
+
              (stacked-area-chart {:X X
                                   :Y Y
                                   :year-series fs-by-year-in-plot-order
@@ -904,38 +684,14 @@
                       nil)]
     (get-in tool-mdata [:outcomes outcome-key])))
 
-(comment
-
-  (ordinal->outcome 0 [10 20 30 40 50])
-  ;; => 0
-  (ordinal->outcome 9 [10 20 30 40 50])
-  ;; => 0
-
-  (ordinal->outcome 10 [10 20 30 40 50])
-  ;; => 0
-
-  (ordinal->outcome 11 [10 20 30 40 50])
-
-  (ordinal->outcome 50 [10 20 30 40 50])
-  ;; => 4
-
-  (ordinal->outcome 51 [10 20 30 40 50])
-  ;; => 5
-  )
-
 (defn side-by-side-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
   [_plot-order year-series tool-mdata _data-styles]
   (let [plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
-                                        ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (into [] (range 100))]
-                                        ;    (locals)
 
-    #_[ui/randomise-query-panel "Randomise order?"]
     [:div
-                                        ;[ui/randomise-query-panel "Randomise order?"]
-
      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
                                              :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
                                      :margin (get-in tool-mdata [:icons :svg-margin])
@@ -991,12 +747,10 @@
         svg-height (get-in tool-mdata [:icons :svg-height])
         plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
-        ;randomise-icons @(rf/subscribe [::subs/randomise-icons])
         icon-order (into [] (range 100))]
-;    (locals)
+
     [ui/col {:sm 12
-             :style {:padding 0
-                     #_#_:background-color "#CCC"}}
+             :style {:padding 0}}
      (for [i (range (count labels))
            :let [label (nth labels i)
                  time-index (:time-index label)
@@ -1009,28 +763,17 @@
           (let [line (:line label)]
             (if (sequential? line) (map str line) line))]
 
-         ;[ui/randomise-query-panel "Randomise order?"]
          [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
                                                  :height (get-in tool-mdata [:icons :svg-height])}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (get-in tool-mdata [:icons :svg-margin]) #_{:top 0 :right 10 :bottom 0 :left 0}
-                                         :padding (get-in tool-mdata [:icons :svg-padding]) #_{:top 40 :right 20 :bottom 60 :left 20}
+                                         :margin (get-in tool-mdata [:icons :svg-margin])
+                                         :padding (get-in tool-mdata [:icons :svg-padding])
                                          :x-domain [0 300]
                                          :x-ticks 10
                                          :y-domain [300 0]
                                          :y-ticks 10})
                                  (assoc :styles styles)
                                  (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
-          #_(assoc (space {:outer {:width svg-width
-                                   :height svg-height}
-                           :aspect-ratio (aspect-ratio svg-width svg-height)
-                           :margin (get-in tool-mdata [:icons :svg-margin])
-                           :padding (get-in tool-mdata [:icons :svg-padding])
-                           :x-domain [0 300]
-                           :x-ticks 10
-                           :y-domain [0 300]
-                           :y-ticks 10})
-                   :styles styles)
 
           (fn [_ _ _ _]
             [:g {:transform "translate(10,15),scale(1.9)"}
@@ -1049,10 +792,7 @@
                             [:text {:transform (str "translate(30," (+ 15 (* i 18)) ")")}
                              (str (if (zero? i) (str (int-fs k) " ") "") outcome-label)])
                           outcome-labels)))])]
-             #_(svg-outcome-legend plot-order data-styles
-                                   {:width 380
-                                    :string-value-f (fn [i] (str ": " (int-fs i) "%"))
-                                    :position-f #(str "translate(15 " (+ 20 (* 60 %)) "),scale(0.7)")})
+
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]
@@ -1064,8 +804,7 @@
 
 (defn move-item
   "Returns a-vector with all items (if any) moved to the start or the end depending on whether
-     a < b or b < a
-     "
+     a < b or b < a"
   [a-vector item a b]
   (if (not-any? #(= item %) a-vector)
     a-vector
@@ -1080,18 +819,6 @@
   "Move item to end of vector."
   [a-vector item]
   (move-item a-vector item 1 -1))
-
-(comment
-  (move-to-end [1 2 3] 1)
-  ;; => [2 3 1]
-
-  (move-to-end [1 2 3] 7)
-  ;; => [1 2 3]
-
-  (move-to-end [1 1 2 3] 1)
-  ;; => [2 3 1 1]
-
-  0)
 
 (defn icon-array
   "render an icon array results view"
@@ -1119,8 +846,7 @@
 
 (defn table-render
   [year-series tool-mdata plot-order data-styles]
-  (let [;plot-order (:plot-order tool-mdata)
-        labels (get-in tool-mdata [:table :labels])
+  (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     [:> bs/Table {:style {:margin-top 20
                           :border "3px solid #666"}
@@ -1128,14 +854,11 @@
                   :bordered true}
      [:thead
       [:tr
-                                        ;[:th "Outcome"]
        (for [i years
              :let [label (nth labels i)
                    line (:line label)
                    line (if (sequential? line) (map str line) line)]]
-         [:th {:style {:border-bottom "3px solid #666"
-                       #_#_:color "#fff"
-                       #_#_:background-color "#888"}
+         [:th {:style {:border-bottom "3px solid #666"}
                :key (str "y-" i)} line])]]
      [:tbody#result-table
       (for [j (range (count plot-order))
@@ -1144,7 +867,7 @@
                   fill (col/hexToRgb (:fill style))]]
         [:tr.tborder {:key (str "c-" j) :style (assoc style :border-color (if (or (= (:fill style) "#ffffff")
                                                                                   (= (:fill style) "#fff")) "#000" (:fill style)))}
-                                        ;[:th outcome]
+
          (for [i years
                :let [label (nth labels i)
                      time-index (:time-index label)
@@ -1154,18 +877,11 @@
             [:div {:style {:position "relative"
                            :width "100%"
                            :height "100%"}}
-             #_[:> bs/Image {:fluid true
-                             :src (apply utils/fill-data-url fill #_[32 144 245])
-                             :style {:position "absolute"
-                                     :width "100%"
-                                     :height "100%"}}]
              [:div.lblprint {:id (str (name (plot-order j)) "-" i)
                              :data-year time-index
                              :data-value (nth int-fs j)
                              :style {:margin 0 :padding 15
-                                     #_#_:background-color (apply utils/fill-data-url fill #_[30 144 245])
                                      #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
-                                     #_#_:background-repeat "repeat"
                                      :height "100%"
                                      :position "relative"}}
               (str (nth int-fs j) "%") " " long-label]]])])]]))
@@ -1180,8 +896,7 @@
 		10  of them to have died or been removed from the list
   After 3 years	75  of them to have received a transplant
 		  3  of them to still be waiting for a transplant
-		22  of them to have died or been removed from the list
-  "
+		22  of them to have died or been removed from the list"
   [year-series tool-mdata plot-order data-styles]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
@@ -1200,8 +915,6 @@
                   time-index (:time-index label)
                   [_ {:keys [int-fs]}] (nth year-series time-index)]
               [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
-
-
 
 (defn table
   "render a table results view"
@@ -1224,28 +937,19 @@
                       (move-to-start x :residual)
                       (move-to-end x :removal)
                       (move-to-end x :death))
-
-                                        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-                                        ;(locals)
-    [:section {:style {:margin-right 10 :margin-bottom 20}}
-     (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)
-     #_(:post-section tool-mdata)]))
 
+    [:section {:style {:margin-right 10 :margin-bottom 20}}
+     (table-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)]))
 
 (defn test-render
   [year-series tool-mdata plot-order fulfilled-inputs r-params centre-info organ tool]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-                                        ;(?->> ::years years)
-                                        ;(?->> ::plot-order plot-order)
-                                        ;(?->> ::labels labels)
-                                        ;(?->> ::year-series year-series)
 
     [:section {:id "uri-result"}
      (pr-str
-      {;:uri (.-href js/document.location)
-       :organ (name organ)
+      {:organ (name organ)
        :tool (name tool)
        :clj-inputs fulfilled-inputs
        :r-inputs  (into {}
@@ -1261,10 +965,7 @@
                                       [(nth plot-order j) (* 100 (nth fs #_int-fs j))]))
                                   (range (count plot-order))))
                            :year time-index)))
-                (range (count years)))
-
-       #_[(map first (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
-          (map second (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))]})]))
+                (range (count years)))})]))
 
 (defn text
   "a text results view"
@@ -1289,12 +990,10 @@
                       (move-to-end x :removal)
                       (move-to-end x :death))
 
-                                        ;(conj (vec (remove #(= :death %) (:plot-order tool-mdata))) :death)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order* fs-by-year)]
-                                        ;(locals)
+
     [:section
      (text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles)]))
-  
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"
@@ -1305,17 +1004,10 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         plot-order (:plot-order tool-mdata)
-        #_#_plot-order* (as-> (:plot-order tool-mdata) x
-                          (move-to-start x :residual)
-                          (move-to-end x :removal)
-                          (move-to-end x :death))
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
         r-params (map (fn [[k v]]
                         (-> fmaps k :levels v :r-name)) fulfilled-inputs)]
-        
-                                        ;(?-> fmaps ::fmaps)
-                                        ;(?-> r-params ::r-params)
+
     (when tool-mdata
-                                        ;[text-render fs-by-year-in-plot-order tool-mdata plot-order* data-styles]
       [test-render fs-by-year-in-plot-order tool-mdata plot-order fulfilled-inputs r-params
        centre-info organ tool])))

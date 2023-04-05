@@ -397,6 +397,13 @@
            [8 {:year-one {:min 34.7 :max 44.7} :year-five {:min 8.6 :max 16.8} :year-ten {:min 6.2 :max 14.2}}]])))
 
 (rf/reg-event-db
+ ::wrong-labels-all-scors
+ (fn
+   [db [_ wrong-labels-all-scors]]
+
+   (assoc db :wrong-label-all-scors wrong-labels-all-scors)))
+
+(rf/reg-event-db
  ::fine-score-zero-and-one
  (fn
    [db [_ fine-score-zero-and-one]]

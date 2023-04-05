@@ -59,6 +59,8 @@
 
 (rf/reg-sub ::standard-error-range (fn [db] (get-in db [:standard-error-range])))
 
+(rf/reg-sub ::wrong-labels-all-scors (fn [db] (get-in db [:wrong-labels-all-scors])))
+
 (rf/reg-sub ::fine-score-zero-and-one (fn [db] (get-in db [:fine-score-zero-and-one])))
 (rf/reg-sub ::not-fine-score-zero-and-one (fn [db] (get-in db [:not-fine-score-zero-and-one])))
 

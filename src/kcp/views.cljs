@@ -1316,6 +1316,7 @@ not currently use these factors to make decisions about follow-up care."]]
       [ui/page "hey"
        [:div
         [:h1 "hello"]
+        [:hr]
 
         (rf/dispatch [::events/standard-error-range])
 
@@ -1435,6 +1436,15 @@ not currently use these factors to make decisions about follow-up care."]]
                                             :seven {:year-one [] :year-five [] :year-ten []}
                                             :eight {:year-one [] :year-five [] :year-ten []}})
 
+              correct-labels-all-scors (atom {:one   {:year-one [] :year-five [] :year-ten []}
+                                              :two   {:year-one [] :year-five [] :year-ten []}
+                                              :three {:year-one [] :year-five [] :year-ten []}
+                                              :four  {:year-one [] :year-five [] :year-ten []}
+                                              :five  {:year-one [] :year-five [] :year-ten []}
+                                              :six   {:year-one [] :year-five [] :year-ten []}
+                                              :seven {:year-one [] :year-five [] :year-ten []}
+                                              :eight {:year-one [] :year-five [] :year-ten []}})
+
               error-range-for-score @(rf/subscribe [::subs/standard-error-range])
 
               fine-score-zero-and-one (atom {:year-one [] :year-five [] :year-ten []})
@@ -1461,7 +1471,11 @@ not currently use these factors to make decisions about follow-up care."]]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 1)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 1))))))
-              (swap! fine-score-zero-and-one update     :year-one conj (:set-of-inputs each))
+              (do
+                (swap! fine-score-zero-and-one update     :year-one conj (:set-of-inputs each))
+                (swap! correct-labels-all-scors update-in    [:one :year-one] conj (:set-of-inputs each))
+                )
+
               (do
                 (swap! not-fine-score-zero-and-one update     :year-one conj (:set-of-inputs each))
                 (swap! wrong-labels-all-scors update-in [:one :year-one] conj (:set-of-inputs each)))
@@ -1470,7 +1484,11 @@ not currently use these factors to make decisions about follow-up care."]]
             (if (and
                  (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 1)))))
                  (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 1))))))
-              (swap! fine-score-zero-and-one update     :year-five conj (:set-of-inputs each))
+              (do
+                (swap! fine-score-zero-and-one update     :year-five conj (:set-of-inputs each))
+                (swap! correct-labels-all-scors update-in    [:one :year-five] conj (:set-of-inputs each))
+                )
+
               (do
                 (swap! not-fine-score-zero-and-one update :year-five conj (:set-of-inputs each))
                 (swap! wrong-labels-all-scors update-in [:one :year-five] conj (:set-of-inputs each)))
@@ -1479,12 +1497,21 @@ not currently use these factors to make decisions about follow-up care."]]
             (if (and
                  (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 1)))))
                  (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 1))))))
-              (swap! fine-score-zero-and-one update     :year-ten conj (:set-of-inputs each))
-              (swap! not-fine-score-zero-and-one update :year-ten conj (:set-of-inputs each)))
+              (do
+                (swap! fine-score-zero-and-one update     :year-ten conj (:set-of-inputs each))
+                (swap! correct-labels-all-scors update-in    [:one :year-ten] conj (:set-of-inputs each))
+                )
+
+              (do
+                (swap! not-fine-score-zero-and-one update :year-ten conj (:set-of-inputs each))
+                (swap! wrong-labels-all-scors update-in    [:one :year-ten] conj (:set-of-inputs each)))
+              )
 
             (rf/dispatch [::events/fine-score-zero-and-one @fine-score-zero-and-one])
             (rf/dispatch [::events/not-fine-score-zero-and-one @not-fine-score-zero-and-one])
-            (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors]))
+            (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
+            (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
+            )
 
           (doseq [each coll-score-two]
             (if (and
@@ -1505,13 +1532,13 @@ not currently use these factors to make decisions about follow-up care."]]
               (swap! fine-score-two update     :year-ten conj (:set-of-inputs each))
               (do
                 (swap! not-fine-score-two update :year-ten conj (:set-of-inputs each))
-                ;(swap! wrong-labels-all-scors update-in [:two :year-ten] conj (:set-of-inputs each))
+                                        ;(swap! wrong-labels-all-scors update-in [:two :year-ten] conj (:set-of-inputs each))
                 )
               )
 
             (rf/dispatch [::events/fine-score-two @fine-score-two])
             (rf/dispatch [::events/not-fine-score-two @not-fine-score-two])
-            ;(rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
+                                        ;(rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
             )
 
           (doseq [each coll-score-three]
@@ -1650,8 +1677,31 @@ not currently use these factors to make decisions about follow-up care."]]
                                         ; end of let
 
         [:div
-                                        ;[:p (str @(rf/subscribe [::subs/wrong-labels-all-scors]))]
-                                        ;[:hr]
+         [:h1 "CORRECT LABELS"]
+         (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
+           (for [each correct]
+             [:div
+              [:h1 (str (nth each 0))]
+              [:h5 (str (nth each 1))]
+              [:br]
+              [:h1 (str "year-on of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+              [:h5 (str (:year-one (nth each 1)))]
+              [:br]
+              [:h1 (str "year-five of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
+              [:h5 (str (:year-five (nth each 1)))]
+              [:br]
+              [:h1 (str "year-ten of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
+              [:h5 (str (:year-ten (nth each 1)))]
+              [:hr]])
+           )
+         [:h3 "---------------------------"]]
+
+
+        [:div
+         [:h1 "WRONG LABELS"]
          (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])]
            (for [each wrong]
              [:div
@@ -1671,7 +1721,7 @@ not currently use these factors to make decisions about follow-up care."]]
               [:h5 (str (:year-ten (nth each 1)))]
               [:hr]])
            )
-         [:h3 "----------------------"]]
+         [:h3 "#######################"]]
 
         [:div
          [:h2 (str "Total count of collection with score 0-1 is: " @(rf/subscribe [::subs/count-of-collection-zero-and-one]))]

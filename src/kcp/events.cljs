@@ -404,6 +404,13 @@
    (assoc db :wrong-labels-all-scors wrong-labels-all-scors)))
 
 (rf/reg-event-db
+ ::correct-labels-all-scors
+ (fn
+   [db [_ correct-labels-all-scors]]
+
+   (assoc db :correct-labels-all-scors correct-labels-all-scors)))
+
+(rf/reg-event-db
  ::fine-score-zero-and-one
  (fn
    [db [_ fine-score-zero-and-one]]

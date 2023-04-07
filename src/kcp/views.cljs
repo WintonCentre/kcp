@@ -1446,8 +1446,7 @@ not currently use these factors to make decisions about follow-up care."]]
                                               :eight {:year-one [] :year-five [] :year-ten []}})
 
               error-range-for-score @(rf/subscribe [::subs/standard-error-range])
-              fine-score-two (atom {:year-one [] :year-five [] :year-ten []})
-              not-fine-score-two (atom {:year-one [] :year-five [] :year-ten []})
+
               fine-score-three (atom {:year-one [] :year-five [] :year-ten []})
               not-fine-score-three (atom {:year-one [] :year-five [] :year-ten []})
               fine-score-four (atom {:year-one [] :year-five [] :year-ten []})
@@ -1494,23 +1493,28 @@ not currently use these factors to make decisions about follow-up care."]]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 2)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 2))))))
-              (swap! fine-score-two update     :year-one conj (:set-of-inputs each))
-              (swap! not-fine-score-two update :year-one conj (:set-of-inputs each)))
+              (swap! correct-labels-all-scors update-in    [:two :year-one] conj (:set-of-inputs each))
+              (swap! wrong-labels-all-scors update-in [:two :year-one] conj (:set-of-inputs each))
+              )
 
             (if (and
                  (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 2)))))
                  (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 2))))))
-              (swap! fine-score-two update     :year-five conj (:set-of-inputs each))
-              (swap! not-fine-score-two update :year-five conj (:set-of-inputs each)))
+              (swap! correct-labels-all-scors update-in    [:two :year-five] conj (:set-of-inputs each))
+              (swap! wrong-labels-all-scors update-in [:two :year-five] conj (:set-of-inputs each))
+              )
 
             (if (and
                  (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 2)))))
                  (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 2))))))
-              (swap! fine-score-two update     :year-ten conj (:set-of-inputs each))
-              (swap! not-fine-score-two update :year-ten conj (:set-of-inputs each)))
+              (swap! correct-labels-all-scors update-in    [:two :year-ten] conj (:set-of-inputs each))
+              (swap! wrong-labels-all-scors update-in [:two :year-ten] conj (:set-of-inputs each))
+              )
 
-            (rf/dispatch [::events/fine-score-two @fine-score-two])
-            (rf/dispatch [::events/not-fine-score-two @not-fine-score-two]))
+
+            (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
+            (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
+            )
 
           (doseq [each coll-score-three]
             (if (and

@@ -1680,57 +1680,58 @@ not currently use these factors to make decisions about follow-up care."]]
           )
                                         ; end of let
 
-        #_[:div
-           [:h3 (str (:one @(rf/subscribe [::subs/correct-labels-all-scors])))]
-           [:br]
-           [:h3 (str (:year-five (:one @(rf/subscribe [::subs/correct-labels-all-scors]))))]
-           [:h3 (str (count (get (:one @(rf/subscribe [::subs/correct-labels-all-scors])) :year-one)))]
-           [:h3 "%%%%%%%%%"]
-           [:h1 "CORRECT LABELS"]
-           (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
-             (for [each correct]
-               [:div
-                [:h1 (str (nth each 0))]
-                [:h5 (str (nth each 1))]
-                [:br]
-                [:h1 (str "year-on of " (nth each 0))]
-                [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-                [:h5 (str (:year-one (nth each 1)))]
-                [:br]
-                [:h1 (str "year-five of " (nth each 0))]
-                [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
-                [:h5 (str (:year-five (nth each 1)))]
-                [:br]
-                [:h1 (str "year-ten of " (nth each 0))]
-                [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
-                [:h5 (str (:year-ten (nth each 1)))]
-                [:hr]])
-             )
-           [:h3 "---------------------------"]]
+        [:div
+         [:h3 (str (:one @(rf/subscribe [::subs/correct-labels-all-scors])))]
+         [:br]
+         [:h3 (str (:year-five (:one @(rf/subscribe [::subs/correct-labels-all-scors]))))]
+         [:h3 (str (count (:year-five (:one @(rf/subscribe [::subs/correct-labels-all-scors])))))]
+         [:h3 "%%%%%%%%%"]
+         [:h1 "CORRECT LABELS"]
+
+         (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
+           (for [each correct]
+             [:div
+              [:h1 (str (nth each 0))]
+              [:h5 (str (nth each 1))]
+              [:br]
+              [:h1 (str "year-on of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+              [:h5 (str (:year-one (nth each 1)))]
+              [:br]
+              [:h1 (str "year-five of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
+              [:h5 (str (:year-five (nth each 1)))]
+              [:br]
+              [:h1 (str "year-ten of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
+              [:h5 (str (:year-ten (nth each 1)))]
+              [:hr]])
+           )
+         [:h3 "---------------------------"]]
 
 
-        #_[:div
-           [:h1 "WRONG LABELS"]
-           (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])]
-             (for [each wrong]
-               [:div
-                [:h1 (str (nth each 0))]
-                [:h5 (str (nth each 1))]
-                [:br]
-                [:h1 (str "year-on of " (nth each 0))]
-                [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-                [:h5 (str (:year-one (nth each 1)))]
-                [:br]
-                [:h1 (str "year-five of " (nth each 0))]
-                [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
-                [:h5 (str (:year-five (nth each 1)))]
-                [:br]
-                [:h1 (str "year-ten of " (nth each 0))]
-                [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
-                [:h5 (str (:year-ten (nth each 1)))]
-                [:hr]])
-             )
-           [:h3 "#######################"]]
+        [:div
+         [:h1 "WRONG LABELS"]
+         (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])]
+           (for [each wrong]
+             [:div
+              [:h1 (str (nth each 0))]
+              [:h5 (str (nth each 1))]
+              [:br]
+              [:h1 (str "year-on of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+              [:h5 (str (:year-one (nth each 1)))]
+              [:br]
+              [:h1 (str "year-five of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
+              [:h5 (str (:year-five (nth each 1)))]
+              [:br]
+              [:h1 (str "year-ten of " (nth each 0))]
+              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
+              [:h5 (str (:year-ten (nth each 1)))]
+              [:hr]])
+           )
+         [:h3 "#######################"]]
 
         [:div
          [:h2 (str "Total count of collection with score 0-1 is: " @(rf/subscribe [::subs/count-of-collection-zero-and-one]))]

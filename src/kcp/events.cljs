@@ -401,7 +401,7 @@
  (fn
    [db [_ wrong-labels-all-scors]]
 
-   (assoc db :wrong-label-all-scors wrong-labels-all-scors)))
+   (assoc db :wrong-labels-all-scors wrong-labels-all-scors)))
 
 (rf/reg-event-db
  ::fine-score-zero-and-one

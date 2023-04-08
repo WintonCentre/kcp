@@ -1445,12 +1445,53 @@ not currently use these factors to make decisions about follow-up care."]]
                                               :seven {:year-one [] :year-five [] :year-ten []}
                                               :eight {:year-one [] :year-five [] :year-ten []}})
 
-              error-range-for-score @(rf/subscribe [::subs/standard-error-range])]
+              error-range-for-score @(rf/subscribe [::subs/standard-error-range])
+              #_#_parts [:one :two :three :four :five :six :seven :eight]
+              #_#_index (atom 0)
+              #_#_the-index (atom 1)
+              ]
 
           #_(rf/dispatch [::events/count-of-collections (count coll-score-zero-and-one) (count coll-score-two) (count coll-score-three) (count coll-score-four) (count coll-score-five)
                           (count coll-score-six) (count coll-score-seven) (count coll-score-eight-and-more)])
 
-          #_[:h3 (str (:two scors-collection))]
+          #_(loop [each ((nth parts @index) scors-collection)]
+              (do
+                (if (and
+                     (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score @the-index)))))
+                     (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score @the-index))))))
+                  (swap! correct-labels-all-scors update-in [:one :year-one] conj
+                         (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
+                  (swap! wrong-labels-all-scors   update-in [:one :year-one] conj
+                         (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
+                  )
+
+                (if (and
+                     (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score @the-index)))))
+                     (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score @the-index))))))
+                  (swap! correct-labels-all-scors update-in [(nth parts @index) :year-five] conj
+                         (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
+                  (swap! wrong-labels-all-scors   update-in [(nth parts @index) :year-five] conj
+                         (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
+                  )
+
+                (if (and
+                     (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score @the-index)))))
+                     (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score @the-index))))))
+                  (swap! correct-labels-all-scors update-in [(nth parts @index) :year-ten] conj
+                         (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
+                  (swap! wrong-labels-all-scors   update-in [(nth parts @index) :year-ten] conj
+                         (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
+                  )
+
+                (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
+                (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
+                (js/alert (nth parts @index))
+                #_(js/alert @index)
+                (swap! index inc)
+                (swap! the-index inc)
+                (recur (nth parts @index))
+                )
+              )
 
           (doseq [each (:one scors-collection)]
             (if (and
@@ -1682,41 +1723,47 @@ not currently use these factors to make decisions about follow-up care."]]
 
         #_[:div [:p (str @(rf/subscribe [::subs/collection-of-all-scors]))]]
 
-        [:div
-         (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])
-               the-scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
-               error-range @(rf/subscribe [::subs/standard-error-range])
-               index (atom 0)
-               ]
+        #_[:div
+           (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])
+                 the-scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
+                 error-range @(rf/subscribe [::subs/standard-error-range])
+                 index (atom 0)
+                 ]
 
-           (do
-             [:div
-              [:p (str error-range)]
+             (do
+               [:div
+                [:p (str error-range)]
 
-              (for [each correct]
-                (do
-                  (swap! index inc)
-                  [:div
-                   [:h1 (str "year-one of " (nth each 0))]
-                   [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-                   [:h4 (str (:year-one (second (nth error-range @index))))]
-                   [:h5 (str (:year-one (nth each 1)))]
-                   #_[:br]
-                   #_(for [x (:year-one (nth each 1))]
-                       [:div
-                        [:h1 (str (:label-year-one x))]
-                        [:hr]])
-                   #_[:h3 "................."]]
+                (for [each correct]
+                  (do
+                    (swap! index inc)
+                    [:div
+                     [:h1 (str "year-one of " (nth each 0))]
+                     [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+                     [:h4 (str (:year-one (second (nth error-range @index))))]
+                     [:h5 (str (:year-one (nth each 1)))]
+                     #_[:br]
+                     #_(for [x (:year-one (nth each 1))]
+                         [:div
+                          [:h1 (str (:label-year-one x))]
+                          [:hr]])
+                     #_[:h3 "................."]]
 
-                  #_(if (> (count (:year-one (nth each 1))) 0))
+                    #_(if (> (count (:year-one (nth each 1))) 0))
+                    )
                   )
-                )
-              ]
-             )
+                ]
+               )
 
-           )]
+             )]
 
-        [:h3 "#######################"]
+        #_[:h3 "#######################"]
+
+        #_[:div
+           [:p (str @(rf/subscribe [::subs/correct-labels-all-scors]))]
+           [:hr]
+           [:p (str @(rf/subscribe [::subs/wrong-labels-all-scors]))]
+           ]
 
         [:div
          [:h1 "CORRECT LABELS"]

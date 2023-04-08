@@ -407,7 +407,7 @@
  ::correct-labels-all-scors
  (fn
    [db [_ correct-labels-all-scors]]
-
+   #_(js/alert correct-labels-all-scors)
    (assoc db :correct-labels-all-scors correct-labels-all-scors)))
 
 (rf/reg-event-db

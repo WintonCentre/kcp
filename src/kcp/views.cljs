@@ -1445,10 +1445,7 @@ not currently use these factors to make decisions about follow-up care."]]
                                               :seven {:year-one [] :year-five [] :year-ten []}
                                               :eight {:year-one [] :year-five [] :year-ten []}})
 
-              error-range-for-score @(rf/subscribe [::subs/standard-error-range])
-
-              fine-score-eight-and-more (atom {:year-one [] :year-five [] :year-ten []})
-              not-fine-score-eight-and-more (atom {:year-one [] :year-five [] :year-ten []})]
+              error-range-for-score @(rf/subscribe [::subs/standard-error-range])]
 
           (rf/dispatch [::events/count-of-collections (count coll-score-zero-and-one) (count coll-score-two) (count coll-score-three) (count coll-score-four) (count coll-score-five)
                         (count coll-score-six) (count coll-score-seven) (count coll-score-eight-and-more)])
@@ -1639,23 +1636,27 @@ not currently use these factors to make decisions about follow-up care."]]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 8)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 8))))))
-              (swap! fine-score-eight-and-more     update :year-one conj (:set-of-inputs each))
-              (swap! not-fine-score-eight-and-more update :year-one conj (:set-of-inputs each)))
+              (swap! correct-labels-all-scors update-in    [:eight :year-one] conj (:set-of-inputs each))
+              (swap! wrong-labels-all-scors update-in [:eight :year-one] conj (:set-of-inputs each))
+              )
 
             (if (and
                  (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 8)))))
                  (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 8))))))
-              (swap! fine-score-eight-and-more     update :year-five conj (:set-of-inputs each))
-              (swap! not-fine-score-eight-and-more update :year-five conj (:set-of-inputs each)))
+              (swap! correct-labels-all-scors update-in    [:eight :year-five] conj (:set-of-inputs each))
+              (swap! wrong-labels-all-scors update-in [:eight :year-five] conj (:set-of-inputs each))
+              )
 
             (if (and
                  (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 8)))))
                  (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 8))))))
-              (swap! fine-score-eight-and-more     update :year-ten conj (:set-of-inputs each))
-              (swap! not-fine-score-eight-and-more update :year-ten conj (:set-of-inputs each)))
+              (swap! correct-labels-all-scors update-in    [:eight :year-ten] conj (:set-of-inputs each))
+              (swap! wrong-labels-all-scors update-in [:eight :year-ten] conj (:set-of-inputs each))
+              )
 
-            (rf/dispatch [::events/fine-score-eight-and-more @fine-score-eight-and-more])
-            (rf/dispatch [::events/not-fine-score-eight-and-more @not-fine-score-eight-and-more]))
+            (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
+            (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
+            )
 
           )
                                         ; end of let
@@ -1686,10 +1687,9 @@ not currently use these factors to make decisions about follow-up care."]]
               [:h1 (str "year-ten of " (nth each 0))]
               [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
               [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]])
-           )
-         [:h3 "---------------------------"]]
+              [:hr]]))]
 
+        [:h3 "---------------------------"]
 
         [:div
          [:h1 "WRONG LABELS"]
@@ -1710,78 +1710,14 @@ not currently use these factors to make decisions about follow-up care."]]
               [:h1 (str "year-ten of " (nth each 0))]
               [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
               [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]])
-           )
-         [:h3 "#######################"]]
+              [:hr]]))]
 
-        [:div
-         [:h2 (str "Total count of collection with score 8 is: " @(rf/subscribe [::subs/count-of-collection-eight-and-more]))]
-         [:h2 "fine for score 8 for year one:"]
-         [:h2 (str "count: " (count (:year-one @(rf/subscribe [::subs/fine-score-eight-and-more]))))]
-         [:h2 "fine for score 8 for year five:"]
-         [:h2 (str "count: " (count (:year-five @(rf/subscribe [::subs/fine-score-eight-and-more]))))]
-         [:h2 "fine for score 8 for year ten:"]
-         [:h2 (str "count: " (count (:year-ten @(rf/subscribe [::subs/fine-score-eight-and-more]))))]
-         [:br]
-         [:p (str @(rf/subscribe [::subs/fine-score-eight-and-more]))]
-         [:hr]
-         [:h2 "not fine for score 8 for year one:"]
-         [:h2 (str "count: " (count (:year-one @(rf/subscribe [::subs/not-fine-score-eight-and-more]))))]
-         [:h2 "not fine for score 8 for year five:"]
-         [:h2 (str "count: " (count (:year-five @(rf/subscribe [::subs/not-fine-score-eight-and-more]))))]
-         [:h2 "not fine for score 8 for year ten:"]
-         [:h2 (str "count: " (count (:year-ten @(rf/subscribe [::subs/not-fine-score-eight-and-more]))))]
-         [:br]
-         [:p (str @(rf/subscribe [::subs/not-fine-score-eight-and-more]))]]
-
-        #_[:div
-           [:p (str "***: " @(rf/subscribe [::subs/my-collection-of-int-fs]))]]
-
-        #_[:div
-           [:p (str "collection of score 6:" @(rf/subscribe [::subs/my-collection-score-six]))]]
-
-        #_[:div
-           [:hr]
-           [:p (str "collection of score 3:" @(rf/subscribe [::subs/my-collection-score-three]))]]
-
-        #_(:max (:year-one (first (nth error-range-for-score 6))))
-
-        #_[:h2 "**********************************"]
-
-        #_[:p (str @(rf/subscribe [::subs/not-fine-score-zero-and-one]))]
-        #_[:hr]
-        #_[:p (str @(rf/subscribe [::subs/my-collection-score-zero-and-one]))]
-
-        #_(let [coll @(rf/subscribe [::subs/not-fine-score-zero-and-one])
-                the-index (atom 0)]
-            (for [each coll]
-              (do
-                (swap! the-index inc)
-                [:div
-                                        ;[:h2 (str @the-index)]
-                 [:h3 (str each)]
-                 [:br]
-                                        ;[:h3 (str (nth error-range-for-score 1))]
-                                        ;[:hr]
-                 ])))
-
-        #_(let [coll @(rf/subscribe [::subs/my-collection-score-five])
-                error-range-for-score @(rf/subscribe [::subs/standard-error-range])
-                the-index (atom 0)]
-            (for [each coll]
-              (do
-                (swap! the-index inc)
-                [:div
-                 [:h2 (str @the-index)]
-                 [:h3 (str each)]
-                 [:br]
-                 [:h3 (str (nth error-range-for-score 1))]
-                 [:hr]])))
-
-        #_[:h3 (str @(rf/subscribe [::subs/my-collection-score-two]))]
 
         (let [path (paths/organ-centre-name-tool "kidney" "UK" "ldsurvival")]
-          (rf/dispatch [::events/load-bundles [path [:bundles :kidney :uk :ldsurvival]]]))]]
+          (rf/dispatch [::events/load-bundles [path [:bundles :kidney :uk :ldsurvival]]]))
+
+        ]]
+
       )))
 
 

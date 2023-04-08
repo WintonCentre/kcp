@@ -1321,14 +1321,7 @@ not currently use these factors to make decisions about follow-up care."]]
         (rf/dispatch [::events/standard-error-range])
 
         (let [index (atom 0)
-              collection-score-ziro-and-one (atom [])
-              collection-score-two (atom [])
-              collection-score-three (atom [])
-              collection-score-four (atom [])
-              collection-score-five (atom [])
-              collection-score-six (atom [])
-              collection-score-seven (atom [])
-              collection-score-eight-and-more (atom [])]
+              collection-of-all-scors (atom {:one [] :two [] :three [] :four [] :five [] :six [] :seven [] :eight []})]
 
           (for [t-stage [:pT1a :pT1b :pT2 :pT3a :pT3b :pT3c :pT4]
                 n-stage [:pNx :pN0 :pN1 :pN2]
@@ -1371,62 +1364,69 @@ not currently use these factors to make decisions about follow-up care."]]
 
                 (when (> (count fs-by-year-in-plot-order) 1)
                   (cond
-                    (or (= 0 total-score) (= 1 total-score)) (swap! collection-score-ziro-and-one conj   (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    (= 2 total-score)                        (swap! collection-score-two conj            (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    (= 3 total-score)                        (swap! collection-score-three conj          (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    (= 4 total-score)                        (swap! collection-score-four conj           (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    (= 5 total-score)                        (swap! collection-score-five conj           (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))
-                                                                                                                   ))
-                    (= 6 total-score)                        (swap! collection-score-six conj            (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    (= 7 total-score)                        (swap! collection-score-seven conj          (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    (= 8 total-score)                        (swap! collection-score-eight-and-more conj (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                    :else  (swap! collection-score-eight-and-more conj (hash-map :index @index :score total-score :set-of-inputs the-input
-                                                                                 :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
-                                                                                 :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
-                                                                                 :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))))
+                    (or (= 0 total-score) (= 1 total-score))
+                    (swap! collection-of-all-scors update :one conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                              :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                              :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                              :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 2 total-score)
+                    (swap! collection-of-all-scors update :two conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                              :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                              :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                              :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 3 total-score)
+                    (swap! collection-of-all-scors update :three conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                                :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                                :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                                :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 4 total-score)
+                    (swap! collection-of-all-scors update :four conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                               :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                               :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                               :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 5 total-score)
+                    (swap! collection-of-all-scors update :five conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                               :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                               :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                               :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 6 total-score)
+                    (swap! collection-of-all-scors update :six conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                              :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                              :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                              :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 7 total-score)
+                    (swap! collection-of-all-scors update :seven conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                                :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                                :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                                :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    (= 8 total-score)
+                    (swap! collection-of-all-scors update :eight conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                                :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                                :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                                :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    :else (swap! collection-of-all-scors update :eight conj (hash-map :index @index :score total-score :set-of-inputs the-input
+                                                                                      :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
+                                                                                      :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
+                                                                                      :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
+                    ) ;end of cond
+                  ) ;end of when
 
                 (if (= @index 448)
-                  (rf/dispatch [::events/my-collection @collection-score-ziro-and-one @collection-score-two @collection-score-three @collection-score-four @collection-score-five
-                                @collection-score-six @collection-score-seven @collection-score-eight-and-more]))
+                  (rf/dispatch [::events/collection-of-all-scors @collection-of-all-scors]))
 
-                )
-              )
-            )
-          )
+                ) ;end of let
+              ) ;end of do
+            ) ;end of for
+          ) ;end of let
 
-        (let [coll-score-zero-and-one    @(rf/subscribe [::subs/my-collection-score-zero-and-one])
-              coll-score-two             @(rf/subscribe [::subs/my-collection-score-two])
-              coll-score-three           @(rf/subscribe [::subs/my-collection-score-three])
-              coll-score-four            @(rf/subscribe [::subs/my-collection-score-four])
-              coll-score-five            @(rf/subscribe [::subs/my-collection-score-five])
-              coll-score-six             @(rf/subscribe [::subs/my-collection-score-six])
-              coll-score-seven           @(rf/subscribe [::subs/my-collection-score-seven])
-              coll-score-eight-and-more  @(rf/subscribe [::subs/my-collection-score-eight-and-more])
+        #_[:div
+           #_[:h1 "hello world!"]
+           #_[:h3 (str (:one @(rf/subscribe [::subs/collection-of-all-scors])))]
+           #_[:br]
+           [:h3 (str @(rf/subscribe [::subs/collection-of-all-scors]))]
+           ]
 
+        (let [scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
               wrong-labels-all-scors (atom {:one   {:year-one [] :year-five [] :year-ten []}
                                             :two   {:year-one [] :year-five [] :year-ten []}
                                             :three {:year-one [] :year-five [] :year-ten []}
@@ -1447,10 +1447,12 @@ not currently use these factors to make decisions about follow-up care."]]
 
               error-range-for-score @(rf/subscribe [::subs/standard-error-range])]
 
-          (rf/dispatch [::events/count-of-collections (count coll-score-zero-and-one) (count coll-score-two) (count coll-score-three) (count coll-score-four) (count coll-score-five)
-                        (count coll-score-six) (count coll-score-seven) (count coll-score-eight-and-more)])
+          #_(rf/dispatch [::events/count-of-collections (count coll-score-zero-and-one) (count coll-score-two) (count coll-score-three) (count coll-score-four) (count coll-score-five)
+                          (count coll-score-six) (count coll-score-seven) (count coll-score-eight-and-more)])
 
-          (doseq [each coll-score-zero-and-one]
+          #_[:h3 (str (:two scors-collection))]
+
+          (doseq [each (:one scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 1)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 1))))))
@@ -1476,7 +1478,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-two]
+          (doseq [each (:two scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 2)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 2))))))
@@ -1502,7 +1504,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-three]
+          (doseq [each (:three scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 3)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 3))))))
@@ -1528,7 +1530,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-four]
+          (doseq [each (:four scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 4)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 4))))))
@@ -1554,7 +1556,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-five]
+          (doseq [each (:five scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 5)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 5))))))
@@ -1580,7 +1582,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-six]
+          (doseq [each (:six scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 6)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 6))))))
@@ -1606,7 +1608,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-seven]
+          (doseq [each (:seven scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 7)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 7))))))
@@ -1632,7 +1634,7 @@ not currently use these factors to make decisions about follow-up care."]]
             (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
             )
 
-          (doseq [each coll-score-eight-and-more]
+          (doseq [each (:eight scors-collection)]
             (if (and
                  (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 8)))))
                  (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 8))))))
@@ -1710,13 +1712,13 @@ not currently use these factors to make decisions about follow-up care."]]
               [:h1 (str "year-ten of " (nth each 0))]
               [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
               [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]]))]
+              [:hr]]))]]
 
 
-        (let [path (paths/organ-centre-name-tool "kidney" "UK" "ldsurvival")]
-          (rf/dispatch [::events/load-bundles [path [:bundles :kidney :uk :ldsurvival]]]))
+       (let [path (paths/organ-centre-name-tool "kidney" "UK" "ldsurvival")]
+         (rf/dispatch [::events/load-bundles [path [:bundles :kidney :uk :ldsurvival]]]))
 
-        ]]
+       ]
 
       )))
 

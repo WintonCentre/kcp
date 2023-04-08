@@ -48,44 +48,13 @@
 
                                         ; related to the test programe.
 
-(rf/reg-sub ::my-collection-score-zero-and-one (fn [db] (get-in db [:collection-score-zero-and-one])))
-(rf/reg-sub ::my-collection-score-two (fn [db] (get-in db [:collection-score-two])))
-(rf/reg-sub ::my-collection-score-three (fn [db] (get-in db [:collection-score-three])))
-(rf/reg-sub ::my-collection-score-four (fn [db] (get-in db [:collection-score-four])))
-(rf/reg-sub ::my-collection-score-five (fn [db] (get-in db [:collection-score-five])))
-(rf/reg-sub ::my-collection-score-six (fn [db] (get-in db [:collection-score-six])))
-(rf/reg-sub ::my-collection-score-seven (fn [db] (get-in db [:collection-score-seven])))
-(rf/reg-sub ::my-collection-score-eight-and-more (fn [db] (get-in db [:collection-score-eight-and-more])))
-
 (rf/reg-sub ::standard-error-range (fn [db] (get-in db [:standard-error-range])))
 
 (rf/reg-sub ::wrong-labels-all-scors (fn [db] (get-in db [:wrong-labels-all-scors])))
+
 (rf/reg-sub ::correct-labels-all-scors (fn [db] (get-in db [:correct-labels-all-scors])))
 
-(rf/reg-sub ::fine-score-zero-and-one (fn [db] (get-in db [:fine-score-zero-and-one])))
-(rf/reg-sub ::not-fine-score-zero-and-one (fn [db] (get-in db [:not-fine-score-zero-and-one])))
-
-(rf/reg-sub ::fine-score-two (fn [db] (get-in db [:fine-score-two])))
-(rf/reg-sub ::not-fine-score-two (fn [db] (get-in db [:not-fine-score-two])))
-
-(rf/reg-sub ::fine-score-three (fn [db] (get-in db [:fine-score-three])))
-(rf/reg-sub ::not-fine-score-three (fn [db] (get-in db [:not-fine-score-three])))
-
-(rf/reg-sub ::fine-score-four (fn [db] (get-in db [:fine-score-four])))
-(rf/reg-sub ::not-fine-score-four (fn [db] (get-in db [:not-fine-score-four])))
-
-(rf/reg-sub ::fine-score-five (fn [db] (get-in db [:fine-score-five])))
-(rf/reg-sub ::not-fine-score-five (fn [db] (get-in db [:not-fine-score-five])))
-
-(rf/reg-sub ::fine-score-six (fn [db] (get-in db [:fine-score-six])))
-(rf/reg-sub ::not-fine-score-six (fn [db] (get-in db [:not-fine-score-six])))
-
-(rf/reg-sub ::fine-score-seven (fn [db] (get-in db [:fine-score-seven])))
-(rf/reg-sub ::not-fine-score-seven (fn [db] (get-in db [:not-fine-score-seven])))
-
-(rf/reg-sub ::fine-score-eight-and-more (fn [db] (get-in db [:fine-score-eight-and-more])))
-(rf/reg-sub ::not-fine-score-eight-and-more (fn [db] (get-in db [:not-fine-score-eight-and-more])))
-
+(rf/reg-sub ::collection-of-all-scors (fn [db] (get-in db [:collection-of-all-scors])))
 
 (rf/reg-sub ::count-of-collection-zero-and-one (fn [db] (get-in db [:coll-zero-and-one])))
 (rf/reg-sub ::count-of-collection-two (fn [db] (get-in db [:coll-two])))

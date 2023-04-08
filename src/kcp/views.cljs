@@ -1670,6 +1670,46 @@ not currently use these factors to make decisions about follow-up care."]]
            [:h3 (str (count (:year-five (:one @(rf/subscribe [::subs/correct-labels-all-scors])))))]
            [:h3 "%%%%%%%%%"]]
 
+        #_[:div
+           [:table {:style {:border "1px solid #33ccff"}}
+            [:tr
+             [:th "a"]
+             [:th "b"]
+             ]
+            [:tr
+             [:td "c"]
+             [:td "d"]]]]
+
+        [:div
+         (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])
+               the-scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
+               error-range @(rf/subscribe [::subs/standard-error-range])
+               index (atom 1)
+               ]
+
+           (do
+             [:div
+              [:p (str error-range)]
+
+              (for [each correct]
+                (do
+                  (if (> (count (:year-one (nth each 1))) 0)
+                    [:div
+                     [:h1 (str "year-one of " (nth each 0))]
+                     [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+                     [:h4 (str (:year-one (second (nth error-range @index))))]
+                     [:h5 (str (:year-one (nth each 1)))]
+                     [:br]]
+                    (swap! index inc))
+                  )
+                )
+              ]
+             )
+
+           )]
+
+        [:h3 "#######################"]
+
         [:div
          [:h1 "CORRECT LABELS"]
          (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
@@ -1678,7 +1718,7 @@ not currently use these factors to make decisions about follow-up care."]]
               [:h1 (str (nth each 0))]
               [:h5 (str (nth each 1))]
               [:br]
-              [:h1 (str "year-on of " (nth each 0))]
+              [:h1 (str "year-one of " (nth each 0))]
               [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
               [:h5 (str (:year-one (nth each 1)))]
               [:br]
@@ -1701,7 +1741,7 @@ not currently use these factors to make decisions about follow-up care."]]
               [:h1 (str (nth each 0))]
               [:h5 (str (nth each 1))]
               [:br]
-              [:h1 (str "year-on of " (nth each 0))]
+              [:h1 (str "year-one of " (nth each 0))]
               [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
               [:h5 (str (:year-one (nth each 1)))]
               [:br]

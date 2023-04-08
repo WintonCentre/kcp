@@ -1724,8 +1724,7 @@ not currently use these factors to make decisions about follow-up care."]]
         #_[:div [:p (str @(rf/subscribe [::subs/collection-of-all-scors]))]]
 
         #_[:div
-           (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])
-                 the-scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
+           (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])
                  error-range @(rf/subscribe [::subs/standard-error-range])
                  index (atom 0)
                  ]
@@ -1734,20 +1733,21 @@ not currently use these factors to make decisions about follow-up care."]]
                [:div
                 [:p (str error-range)]
 
-                (for [each correct]
+                (for [each wrong]
                   (do
                     (swap! index inc)
                     [:div
                      [:h1 (str "year-one of " (nth each 0))]
                      [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
                      [:h4 (str (:year-one (second (nth error-range @index))))]
-                     [:h5 (str (:year-one (nth each 1)))]
-                     #_[:br]
+                     #_[:h5 (str (:year-one (nth each 1)))]
+                     [:br]
                      #_(for [x (:year-one (nth each 1))]
                          [:div
                           [:h1 (str (:label-year-one x))]
+                          [:h1 (str (:inputs x))]
                           [:hr]])
-                     #_[:h3 "................."]]
+                     ]
 
                     #_(if (> (count (:year-one (nth each 1))) 0))
                     )
@@ -1757,57 +1757,105 @@ not currently use these factors to make decisions about follow-up care."]]
 
              )]
 
+
+        (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])
+              error-range @(rf/subscribe [::subs/standard-error-range])
+              index (atom 0)]
+
+          (for [each wrong]
+            (do
+              (swap! index inc)
+
+              (if (> (count (:year-one (nth each 1))) 0)
+                [:table
+                 [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   "Score"]
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   "Label Year 1"]
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   "Standard Error Range"]
+                  ]
+
+                 (for [x (:year-one (nth each 1))]
+
+                   [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+
+                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     (str @index)]
+
+                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     (str (:inputs x))]
+
+                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
+                     (str (:label-year-one x))
+
+                     #_[:h1 (str "year-one of " (nth each 0))]
+                     #_[:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+
+                     ]
+
+                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
+
+                    ]                    ;end of tr
+
+                   )                     ;end of inner for
+
+                 ] ;end of table
+                ) ;end of if
+
+              ) ;end of do
+            ) ;end of for
+          ) ;end of let
+
         #_[:h3 "#######################"]
 
         #_[:div
-           [:p (str @(rf/subscribe [::subs/correct-labels-all-scors]))]
-           [:hr]
-           [:p (str @(rf/subscribe [::subs/wrong-labels-all-scors]))]
-           ]
+           [:h1 "CORRECT LABELS"]
+           (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
+             (for [each correct]
+               [:div
+                [:h1 (str (nth each 0))]
+                [:h5 (str (nth each 1))]
+                [:br]
+                [:h1 (str "year-one of " (nth each 0))]
+                [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+                [:h5 (str (:year-one (nth each 1)))]
+                [:br]
+                [:h1 (str "year-five of " (nth each 0))]
+                [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
+                [:h5 (str (:year-five (nth each 1)))]
+                [:br]
+                [:h1 (str "year-ten of " (nth each 0))]
+                [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
+                [:h5 (str (:year-ten (nth each 1)))]
+                [:hr]]))]
 
-        [:div
-         [:h1 "CORRECT LABELS"]
-         (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
-           (for [each correct]
-             [:div
-              [:h1 (str (nth each 0))]
-              [:h5 (str (nth each 1))]
-              [:br]
-              [:h1 (str "year-one of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-              [:h5 (str (:year-one (nth each 1)))]
-              [:br]
-              [:h1 (str "year-five of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
-              [:h5 (str (:year-five (nth each 1)))]
-              [:br]
-              [:h1 (str "year-ten of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
-              [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]]))]
+        #_[:h3 "---------------------------"]
 
-        [:h3 "---------------------------"]
-
-        [:div
-         [:h1 "WRONG LABELS"]
-         (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])]
-           (for [each wrong]
-             [:div
-              [:h1 (str (nth each 0))]
-              [:h5 (str (nth each 1))]
-              [:br]
-              [:h1 (str "year-one of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-              [:h5 (str (:year-one (nth each 1)))]
-              [:br]
-              [:h1 (str "year-five of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
-              [:h5 (str (:year-five (nth each 1)))]
-              [:br]
-              [:h1 (str "year-ten of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
-              [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]]))]]
+        #_[:div
+           [:h1 "WRONG LABELS"]
+           (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])]
+             (for [each wrong]
+               [:div
+                [:h1 (str (nth each 0))]
+                [:h5 (str (nth each 1))]
+                [:br]
+                [:h1 (str "year-one of " (nth each 0))]
+                [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
+                [:h5 (str (:year-one (nth each 1)))]
+                [:br]
+                [:h1 (str "year-five of " (nth each 0))]
+                [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
+                [:h5 (str (:year-five (nth each 1)))]
+                [:br]
+                [:h1 (str "year-ten of " (nth each 0))]
+                [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
+                [:h5 (str (:year-ten (nth each 1)))]
+                [:hr]]))]]
 
 
        (let [path (paths/organ-centre-name-tool "kidney" "UK" "ldsurvival")]

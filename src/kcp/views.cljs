@@ -1709,48 +1709,52 @@ not currently use these factors to make decisions about follow-up care."]]
               error-range @(rf/subscribe [::subs/standard-error-range])
               index (atom 0)]
 
-          (for [each wrong]
-            (do
-              (swap! index inc)
+          [:div
+           [:h1 "Wrong labels of all scors, year one:"]
 
-              (if (> (count (:year-one (nth each 1))) 0)
-                [:table
-                 [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   "Score"]
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   "Label Year 1"]
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   "Standard Error Range"]
-                  ]
+           (for [each wrong]
+             (do
+               (swap! index inc)
 
-                 (for [x (:year-one (nth each 1))]
+               (if (> (count (:year-one (nth each 1))) 0)
+                 [:table
+                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    "Score"]
+                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
+                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    "Label Year 1"]
+                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    "Standard Error Range"]
+                   ]
 
-                   [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                  (for [x (:year-one (nth each 1))]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str @index)]
+                    [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str (:inputs x))]
+                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                      (str @index)]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
-                     (str (:label-year-one x))]
+                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                      (str (:inputs x))]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
+                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
+                      (str (:label-year-one x))]
 
-                    ] ;end of tr
+                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                      (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
 
-                   ) ;end of for
+                     ]                  ;end of tr
 
-                 ] ;end of table
-                ) ;end of if
+                    )                   ;end of for
 
-              ) ;end of do
-            ) ;end of for
+                  ]                     ;end of table
+                 )                      ;end of if
+
+               )                        ;end of do
+             ) ;end of for
+           ] ;end of div
           ) ;end of let
 
 

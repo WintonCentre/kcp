@@ -1753,34 +1753,17 @@ not currently use these factors to make decisions about follow-up care."]]
             (do
               (swap! index inc)
 
-              [:table
-               [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                 "Score"]
-                [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                 (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
-                [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                 "Label Year 1"]
-                [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                 "Standard Error Range"]
-                ]
-
-               (if (empty? (:year-one (nth each 1)))
-
+              (if (> (count (:year-one (nth each 1))) 0)
+                [:table
                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-
-                  [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   (str @index)]
-
-                  [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   "-"]
-
-                  [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
-                   "-"]
-
-                  [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
-
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   "Score"]
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   "Label Year 1"]
+                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   "Standard Error Range"]
                   ]
 
                  (for [x (:year-one (nth each 1))]
@@ -1800,12 +1783,9 @@ not currently use these factors to make decisions about follow-up care."]]
                      (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
 
                     ]
+                   )
 
-                   ))
-
-               ] ;end of table
-
-              #_(if (> (count (:year-one (nth each 1))) 0))
+                 ]) ;end of table
 
               ) ;end of do
             ) ;end of for

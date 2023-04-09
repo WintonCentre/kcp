@@ -1709,35 +1709,6 @@ not currently use these factors to make decisions about follow-up care."]]
               error-range @(rf/subscribe [::subs/standard-error-range])
               index (atom 0)]
 
-          #_(for [each wrong]
-              (do
-                (swap! index inc)
-                [:div
-                 [:div
-                  [:h2 (str (nth each 0))]
-                  (if (> (count (:year-one (nth each 1))) 0)
-                    [:h3 "it is not 0"]
-                    [:h3 "is 0!"])
-                  [:h6 (str (:year-one (nth each 1)))]
-                  [:br]]
-
-                 (if (empty? (:year-one (nth each 1)))
-
-                   [:div
-                    [:h3 "empty!"]
-                    [:hr]]
-
-                   [:div
-                    [:div
-                     (for [x (:year-one (nth each 1))]
-                       [:div
-                        [:h4 (str x)]
-                        [:br]]
-                       )]
-                    [:hr]])
-                 ]
-                ))
-
           (for [each wrong]
             (do
               (swap! index inc)
@@ -1771,15 +1742,51 @@ not currently use these factors to make decisions about follow-up care."]]
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                      (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
 
-                    ]
-                   )
+                    ] ;end of tr
 
-                 ]) ;end of table
+                   ) ;end of for
+
+                 ] ;end of table
+                ) ;end of if
 
               ) ;end of do
             ) ;end of for
           ) ;end of let
 
+
+;;;
+
+
+        #_(for [each wrong]
+            (do
+              (swap! index inc)
+              [:div
+               [:div
+                [:h2 (str (nth each 0))]
+                (if (> (count (:year-one (nth each 1))) 0)
+                  [:h3 "it is not 0"]
+                  [:h3 "is 0!"])
+                [:h6 (str (:year-one (nth each 1)))]
+                [:br]]
+
+               (if (empty? (:year-one (nth each 1)))
+
+                 [:div
+                  [:h3 "empty!"]
+                  [:hr]]
+
+                 [:div
+                  [:div
+                   (for [x (:year-one (nth each 1))]
+                     [:div
+                      [:h4 (str x)]
+                      [:br]]
+                     )]
+                  [:hr]])
+               ]
+              ))
+
+;;;
 
         #_[:div
            [:h1 "CORRECT LABELS"]

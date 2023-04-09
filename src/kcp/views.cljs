@@ -1705,17 +1705,6 @@ not currently use these factors to make decisions about follow-up care."]]
                                         ; end of let
 
 
-        #_[:div
-           [:table {:style {:border "1px solid #33ccff"}}
-            [:tr
-             [:th "a"]
-             [:th "b"]
-             ]
-            [:tr
-             [:td "c"]
-             [:td "d"]]]]
-
-
         (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])
               error-range @(rf/subscribe [::subs/standard-error-range])
               index (atom 0)]
@@ -1791,65 +1780,6 @@ not currently use these factors to make decisions about follow-up care."]]
             ) ;end of for
           ) ;end of let
 
-
-
-
-
-
-        #_(let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])
-                error-range @(rf/subscribe [::subs/standard-error-range])
-                index (atom 0)]
-
-            (for [each wrong]
-              (do
-                (swap! index inc)
-
-                (if (> (count (:year-one (nth each 1))) 0)
-                  [:table
-                   [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     "Score"]
-                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
-                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     "Label Year 1"]
-                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     "Standard Error Range"]
-                    ]
-
-                   (for [x (:year-one (nth each 1))]
-
-                     [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-
-                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                       (str @index)]
-
-                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                       (str (:inputs x))]
-
-                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
-                       (str (:label-year-one x))
-
-                       #_[:h1 (str "year-one of " (nth each 0))]
-                       #_[:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-
-                       ]
-
-                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                       (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
-
-                      ]                    ;end of tr
-
-                     )                     ;end of inner for
-
-                   ] ;end of table
-                  ) ;end of if
-
-                ) ;end of do
-              ) ;end of for
-            ) ;end of let
-
-        #_[:h3 "#######################"]
 
         #_[:div
            [:h1 "CORRECT LABELS"]

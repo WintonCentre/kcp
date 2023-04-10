@@ -418,6 +418,13 @@
    (assoc db :collection-of-all-scors collection-of-all-scors)))
 
 (rf/reg-event-db
+ ::select-table-year
+ (fn
+   [db [_ year-number]]
+
+   (assoc db :year-number year-number)))
+
+(rf/reg-event-db
  ::count-of-collections
  (fn
    [db [_ coll-zero-and-one coll-two coll-three coll-four coll-five coll-six coll-seven coll-eight-and-more]]

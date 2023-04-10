@@ -56,6 +56,8 @@
 
 (rf/reg-sub ::collection-of-all-scors (fn [db] (get-in db [:collection-of-all-scors])))
 
+(rf/reg-sub ::select-table-year (fn [db] (get-in db [:year-number])))
+
 (rf/reg-sub ::count-of-collection-zero-and-one (fn [db] (get-in db [:coll-zero-and-one])))
 (rf/reg-sub ::count-of-collection-two (fn [db] (get-in db [:coll-two])))
 (rf/reg-sub ::count-of-collection-three (fn [db] (get-in db [:coll-three])))

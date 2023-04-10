@@ -1568,50 +1568,80 @@ not currently use these factors to make decisions about follow-up care."]]
             index (atom 0)]
 
         [:div
-         [:h1 "Wrong labels of all scors, year one:"]
+         [ui/button {:class-name "btn-lg"
+                     :variant "primary"
+                     :style {:font-size "1.5em"}
+                     :on-click #(rf/dispatch [::events/select-table-year :year-one])}
+          "year 1"]
+         [ui/button {:class-name "btn-lg"
+                     :variant "primary"
+                     :style {:font-size "1.5em"}
+                     :on-click #(rf/dispatch [::events/select-table-year :year-five])}
+          "year 5"]
 
-         (for [each wrong]
-           (do
-             (swap! index inc)
+         [ui/button {:class-name "btn-lg"
+                     :variant "primary"
+                     :style {:font-size "1.5em"}
+                     :on-click #(rf/dispatch [::events/select-table-year :year-ten])}
+          "year 10"]
 
-             (if (> (count (:year-one (nth each 1))) 0)
-               [:table
-                [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                 [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                  "Score"]
-                 [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                  (str "Inputs - Count is: " (count (:year-one (nth each 1))))]
-                 [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                  "Label Year 1"]
-                 [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                  "Standard Error Range"]
-                 ]
+         [:h2 (if (empty? (str @(rf/subscribe [::subs/select-table-year])))
+                "hello!"
+                (str @(rf/subscribe [::subs/select-table-year])))]
 
-                (for [x (:year-one (nth each 1))]
 
-                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+         (let [year (if (empty? (str @(rf/subscribe [::subs/select-table-year])))
+                      :year-one
+                      (str @(rf/subscribe [::subs/select-table-year])))]
+           #_(js/alert year)
 
-                   [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                    (str @index)]
+           [:div
+            [:h1 (str "Wrong labels of all scors, " year ":")]
 
-                   [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                    (str (:inputs x))]
+            (for [each wrong]
+              (do
+                (swap! index inc)
 
-                   [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
-                    (str (:label-year-one x))]
+                (if (> (count (year (nth each 1))) 0)
+                  [:table
+                   [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     "Score"]
+                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     (str "Inputs - Count is: " (count (year (nth each 1))))]
+                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     "Label Year 1"]
+                    [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     "Standard Error Range"]
+                    ]
 
-                   [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                    (str (:min (:year-one (second (nth error-range @index)))) " - " (:max (:year-one (second (nth error-range @index)))))]
+                   (for [x (year (nth each 1))]
 
-                   ]                  ;end of tr
+                     [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
 
-                  )                   ;end of for
+                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                       (str @index)]
 
-                ]                     ;end of table
-               )                      ;end of if
+                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                       (str (:inputs x))]
 
-             )                        ;end of do
-           ) ;end of for
+                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
+                       (str (:label-year-one x))]
+
+                      [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                       (str (:min (year (second (nth error-range @index)))) " - " (:max (year (second (nth error-range @index)))))]
+
+                      ]                 ;end of tr
+
+                     )                  ;end of for
+
+                   ]                    ;end of table
+                  )                     ;end of if
+
+                )                       ;end of do
+              )
+            ]
+           )
          ] ;end of div
         ) ;end of let
 

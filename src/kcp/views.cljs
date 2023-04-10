@@ -1938,6 +1938,12 @@ not currently use these factors to make decisions about follow-up care."]]
                   fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
 
               [:div
+               [:h5 (str s0)]
+               [:h5 (str sum-betas)]
+               [:br]
+               [:h5 (str F)]
+               [:h5 (str year-days)]
+               [:br]
                [:h4 (str base-outcome-keys " - " plot-order)]
                [:h4 (str fs-by-year)]
                [:br]

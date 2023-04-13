@@ -1569,8 +1569,8 @@ not currently use these factors to make decisions about follow-up care."]]
             year (if (empty? (str @(rf/subscribe [::subs/select-table-year])))
                    :year-one
                    @(rf/subscribe [::subs/select-table-year])
-                                        ;:year-five
-                   )]
+                   )
+            year-number (nth (string/split (nth (string/split year #":") 1) #"-") 1)]
 
         [:div
          [:div
@@ -1592,7 +1592,7 @@ not currently use these factors to make decisions about follow-up care."]]
            "year 10"]]
 
          [:div
-          [:h1 (str "Wrong labels of all scors, " year)]
+          [:h1 (str "Wrong labels of all scors, year " year-number)]
 
           (for [each wrong]
             (do

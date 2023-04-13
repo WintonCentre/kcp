@@ -1618,7 +1618,14 @@ not currently use these factors to make decisions about follow-up care."]]
                      (str @index)]
 
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str (:inputs x))]
+                     (str
+                      "histologic-tumor-necrsis: " (nth (string/split (:histologic-tumor-necrosis (:inputs x)) #":") 1)
+                      ", nuclear-grade: " (nth (string/split (:nuclear-grade (:inputs x)) #":") 1)
+                      ", t-stage: " (nth (string/split (:t-stage (:inputs x)) #":") 1)
+                      ", n-stage: " (nth (string/split (:n-stage (:inputs x)) #":") 1)
+                      ", tumor-size: " (nth (string/split (:tumor-size (:inputs x)) #":") 1)
+                      )
+                     ]
 
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
                      (str (:label-year-one x))]

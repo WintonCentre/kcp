@@ -1605,7 +1605,7 @@ not currently use these factors to make decisions about follow-up care."]]
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    (str "Inputs - Count is: " (count (year (nth each 1))))]
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                   "Label Year 1"]
+                   (str "Label Year " year-number)]
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Standard Error Range"]
                   ]

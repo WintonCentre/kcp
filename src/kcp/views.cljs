@@ -1186,10 +1186,8 @@ not currently use these factors to make decisions about follow-up care."]]
         year-days (map utils/year->day (range (inc (utils/day->year (first (last s0))))))
         ]
 
-    [ui/page "hey"
+    [ui/page "Comparing the labels of years of 1, 5 and 10 with the standard error range:"
      [:div
-      [:h1 "hello"]
-      [:hr]
 
       (rf/dispatch [::events/standard-error-range])
 
@@ -1573,7 +1571,7 @@ not currently use these factors to make decisions about follow-up care."]]
             year-number (nth (string/split (nth (string/split year #":") 1) #"-") 1)]
 
         [:div
-         [:div
+         [:div {:style {:padding-top "10px"}}
           [ui/button {:class-name "btn-lg"
                       :variant "primary"
                       :style {:font-size "1.5em"}
@@ -1592,7 +1590,8 @@ not currently use these factors to make decisions about follow-up care."]]
            "year 10"]]
 
          [:div
-          [:h1 (str "Wrong labels of all scors, year " year-number)]
+          [:h1 {:style {:padding-top "10px"}}
+           (str "Wrong labels of all scors, year " year-number ":")]
 
           (for [each wrong]
             (do

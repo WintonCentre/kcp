@@ -1275,13 +1275,6 @@ not currently use these factors to make decisions about follow-up care."]]
         ) ;end of for
 
 
-      #_[:div
-         #_[:h1 "hello world!"]
-         #_[:h3 (str (:one @(rf/subscribe [::subs/collection-of-all-scors])))]
-         #_[:br]
-         [:h3 (str @(rf/subscribe [::subs/collection-of-all-scors]))]
-         ]
-
       (let [scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
             wrong-labels-all-scors (atom {:one   {:year-one [] :year-five [] :year-ten []}
                                           :two   {:year-one [] :year-five [] :year-ten []}
@@ -1302,263 +1295,47 @@ not currently use these factors to make decisions about follow-up care."]]
                                             :eight {:year-one [] :year-five [] :year-ten []}})
 
             error-range-for-score @(rf/subscribe [::subs/standard-error-range])
-            #_#_parts [:one :two :three :four :five :six :seven :eight]
-            #_#_index (atom 0)
-            #_#_the-index (atom 1)
-            ]
+            index (atom 1)]
 
-        #_(rf/dispatch [::events/count-of-collections (count coll-score-zero-and-one) (count coll-score-two) (count coll-score-three) (count coll-score-four) (count coll-score-five)
-                        (count coll-score-six) (count coll-score-seven) (count coll-score-eight-and-more)])
+        (doseq [x [:one :two :three :four :five :six :seven :eight]]
 
-        #_(loop [each ((nth parts @index) scors-collection)]
+          (doseq [each (x scors-collection)]
+
             (do
               (if (and
-                   (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score @the-index)))))
-                   (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score @the-index))))))
-                (swap! correct-labels-all-scors update-in [:one :year-one] conj
-                       (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-                (swap! wrong-labels-all-scors   update-in [:one :year-one] conj
-                       (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
+                   (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score @index)))))
+                   (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score @index))))))
+                (swap! correct-labels-all-scors update-in [x :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
+                (swap! wrong-labels-all-scors   update-in [x :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
                 )
 
               (if (and
-                   (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score @the-index)))))
-                   (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score @the-index))))))
-                (swap! correct-labels-all-scors update-in [(nth parts @index) :year-five] conj
-                       (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-                (swap! wrong-labels-all-scors   update-in [(nth parts @index) :year-five] conj
-                       (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
+                   (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score @index)))))
+                   (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score @index))))))
+                (swap! correct-labels-all-scors update-in [x :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
+                (swap! wrong-labels-all-scors   update-in [x :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
                 )
 
               (if (and
-                   (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score @the-index)))))
-                   (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score @the-index))))))
-                (swap! correct-labels-all-scors update-in [(nth parts @index) :year-ten] conj
-                       (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-                (swap! wrong-labels-all-scors   update-in [(nth parts @index) :year-ten] conj
-                       (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
+                   (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score @index)))))
+                   (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score @index))))))
+                (swap! correct-labels-all-scors update-in [x :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
+                (swap! wrong-labels-all-scors   update-in [x :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
                 )
 
               (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
               (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-              (js/alert (nth parts @index))
-              #_(js/alert @index)
-              (swap! index inc)
-              (swap! the-index inc)
-              (recur (nth parts @index))
               )
             )
 
-        (doseq [each (:one scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 1)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 1))))))
-            (swap! correct-labels-all-scors update-in    [:one :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:one :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
+          (if (= @index (count (x scors-collection)))
+            (reset! index 1)
+            (swap! index inc))
 
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 1)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 1))))))
-            (swap! correct-labels-all-scors update-in    [:one :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:one :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 1)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 1))))))
-            (swap! correct-labels-all-scors update-in    [:one :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in    [:one :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
           )
 
-        (doseq [each (:two scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 2)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 2))))))
-            (swap! correct-labels-all-scors update-in    [:two :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:two :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
 
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 2)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 2))))))
-            (swap! correct-labels-all-scors update-in    [:two :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:two :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 2)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 2))))))
-            (swap! correct-labels-all-scors update-in    [:two :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:two :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        (doseq [each (:three scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 3)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 3))))))
-            (swap! correct-labels-all-scors update-in    [:three :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:three :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 3)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 3))))))
-            (swap! correct-labels-all-scors update-in    [:three :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:three :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 3)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 3))))))
-            (swap! correct-labels-all-scors update-in    [:three :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:three :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        (doseq [each (:four scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 4)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 4))))))
-            (swap! correct-labels-all-scors update-in    [:four :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:four :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 4)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 4))))))
-            (swap! correct-labels-all-scors update-in    [:four :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:four :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 4)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 4))))))
-            (swap! correct-labels-all-scors update-in    [:four :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:four :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        (doseq [each (:five scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 5)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 5))))))
-            (swap! correct-labels-all-scors update-in    [:five :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:five :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 5)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 5))))))
-            (swap! correct-labels-all-scors update-in    [:five :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:five :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 5)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 5))))))
-            (swap! correct-labels-all-scors update-in    [:five :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:five :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        (doseq [each (:six scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 6)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 6))))))
-            (swap! correct-labels-all-scors update-in    [:six :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:six :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 6)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 6))))))
-            (swap! correct-labels-all-scors update-in    [:six :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:six :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 6)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 6))))))
-            (swap! correct-labels-all-scors update-in    [:six :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:six :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        (doseq [each (:seven scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 7)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 7))))))
-            (swap! correct-labels-all-scors update-in    [:seven :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:seven :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 7)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 7))))))
-            (swap! correct-labels-all-scors update-in    [:seven :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:seven :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 7)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 7))))))
-            (swap! correct-labels-all-scors update-in    [:seven :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:seven :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        (doseq [each (:eight scors-collection)]
-          (if (and
-               (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score 8)))))
-               (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score 8))))))
-            (swap! correct-labels-all-scors update-in    [:eight :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            (swap! wrong-labels-all-scors update-in [:eight :year-one] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-one each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score 8)))))
-               (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score 8))))))
-            (swap! correct-labels-all-scors update-in    [:eight :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            (swap! wrong-labels-all-scors update-in [:eight :year-five] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-five each) 1)))
-            )
-
-          (if (and
-               (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score 8)))))
-               (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score 8))))))
-            (swap! correct-labels-all-scors update-in    [:eight :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            (swap! wrong-labels-all-scors update-in [:eight :year-ten] conj (hash-map :inputs (:set-of-inputs each) :label-year-one (nth (:int-fs-year-ten each) 1)))
-            )
-
-          (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
-          (rf/dispatch [::events/correct-labels-all-scors @correct-labels-all-scors])
-          )
-
-        )
-                                        ; end of let
+        ) ;end of let
 
 
       (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])
@@ -1646,57 +1423,14 @@ not currently use these factors to make decisions about follow-up care."]]
 
          ] ;end of div
         ) ;end of let
-
-
-      #_[:div
-         [:h1 "CORRECT LABELS"]
-         (let [correct @(rf/subscribe [::subs/correct-labels-all-scors])]
-           (for [each correct]
-             [:div
-              [:h1 (str (nth each 0))]
-              [:h5 (str (nth each 1))]
-              [:br]
-              [:h1 (str "year-one of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-              [:h5 (str (:year-one (nth each 1)))]
-              [:br]
-              [:h1 (str "year-five of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
-              [:h5 (str (:year-five (nth each 1)))]
-              [:br]
-              [:h1 (str "year-ten of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
-              [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]]))]
-
-      #_[:h3 "---------------------------"]
-
-      #_[:div
-         [:h1 "WRONG LABELS"]
-         (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])]
-           (for [each wrong]
-             [:div
-              [:h1 (str (nth each 0))]
-              [:h5 (str (nth each 1))]
-              [:br]
-              [:h1 (str "year-one of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-one (nth each 1))))]
-              [:h5 (str (:year-one (nth each 1)))]
-              [:br]
-              [:h1 (str "year-five of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-five (nth each 1))))]
-              [:h5 (str (:year-five (nth each 1)))]
-              [:br]
-              [:h1 (str "year-ten of " (nth each 0))]
-              [:h4 (str "Count is:" (count (:year-ten (nth each 1))))]
-              [:h5 (str (:year-ten (nth each 1)))]
-              [:hr]]))]]
+      ] ;end of div tag above the ui/page tag
 
 
      (let [path (paths/organ-centre-name-tool "kidney" "UK" "ldsurvival")]
        (rf/dispatch [::events/load-bundles [path [:bundles :kidney :uk :ldsurvival]]]))
 
-     ]))
+     ] ;end of ui/page tag
+    ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

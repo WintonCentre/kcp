@@ -124,7 +124,7 @@
   #_(js/alert (- 1 0.9843389611598309))
 
   #_(js/alert (js/Math.exp 1.318)) ;3.7359420163603616
-  (js/alert (js/Math.pow 0.992019074903175 3.7359420163603616)) ;0.970507749849669
+  #_(js/alert (js/Math.pow 0.992019074903175 3.7359420163603616)) ;0.970507749849669
   (mapv #(- 1 (js/Math.pow s0-for-day (js/Math.exp %))) sum-x-betas))
 
 (defn cox-only

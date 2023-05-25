@@ -1186,7 +1186,7 @@ not currently use these factors to make decisions about follow-up care."]]
           year-days (map utils/year->day (range (inc (utils/day->year (first (last s0))))))
           ]
 
-      [ui/page "Comparing the labels of years of 1, 5 and 10 with the standard error range:"
+      [ui/page "Comparing the labels of the year 1, 5 and 10 with the standard error range:"
        [:div
 
         (rf/dispatch [::events/standard-error-range])

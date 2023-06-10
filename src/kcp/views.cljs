@@ -1387,7 +1387,7 @@ not currently use these factors to make decisions about follow-up care."]]
                    "Standard Error Range"]
                   ]
 
-                 (for [x (year (nth each 1))]
+                 (for [x (reverse (sort-by :the-label (year (nth each 1))))]
 
                    [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
 

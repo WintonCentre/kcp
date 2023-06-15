@@ -1375,7 +1375,7 @@ not currently use these factors to make decisions about follow-up care."]]
               (swap! index inc)
 
               (if (> (count (year (nth each 1))) 0)
-                [:table
+                [:table #_{:style {:width "1490px"}}
                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Score"]
@@ -1385,6 +1385,8 @@ not currently use these factors to make decisions about follow-up care."]]
                    (str "Label Year " year-number)]
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Standard Error Range"]
+                  [:th {:style {:border "1px soldi white" :padding "12px" :text-align "center"}}
+                   "Right Score"]
                   ]
 
                  (for [x (reverse (sort-by :the-label (year (nth each 1))))]
@@ -1409,6 +1411,8 @@ not currently use these factors to make decisions about follow-up care."]]
 
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                      (str (:min (year (second (nth error-range @index)))) " - " (:max (year (second (nth error-range @index)))))]
+                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                     (str "")]
 
                     ]                 ;end of tr
 

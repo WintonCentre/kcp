@@ -17,7 +17,8 @@
    [kcp.factors :as fac]
    [kcp.model :as model]
    [medley.core :as medl]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]))
+   [shadow.debug :refer [locals ?> ?-> ?->>]]
+   [clojure.string :as str]))
 
 (defn home-section
   [& content]
@@ -1343,8 +1344,7 @@ not currently use these factors to make decisions about follow-up care."]]
             index (atom 0)
             year (if (empty? (str @(rf/subscribe [::subs/select-table-year])))
                    :year-one
-                   @(rf/subscribe [::subs/select-table-year])
-                   )
+                   @(rf/subscribe [::subs/select-table-year]))
             year-number (nth (string/split (nth (string/split year #":") 1) #"-") 1)]
 
         [:div
@@ -1375,7 +1375,7 @@ not currently use these factors to make decisions about follow-up care."]]
               (swap! index inc)
 
               (if (> (count (year (nth each 1))) 0)
-                [:table #_{:style {:width "1490px"}}
+                [:table
                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Score"]
@@ -1386,7 +1386,7 @@ not currently use these factors to make decisions about follow-up care."]]
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Standard Error Range"]
                   [:th {:style {:border "1px soldi white" :padding "12px" :text-align "center"}}
-                   "Right Score"]
+                   "Correct Score"]
                   ]
 
                  (for [x (reverse (sort-by :the-label (year (nth each 1))))]
@@ -1396,14 +1396,12 @@ not currently use these factors to make decisions about follow-up care."]]
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                      (str @index)]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str
-                      "histologic-tumor-necrsis: " (nth (string/split (:histologic-tumor-necrosis (:inputs x)) #":") 1)
-                      ", nuclear-grade: " (nth (string/split (:nuclear-grade (:inputs x)) #":") 1)
-                      ", t-stage: " (nth (string/split (:t-stage (:inputs x)) #":") 1)
-                      ", n-stage: " (nth (string/split (:n-stage (:inputs x)) #":") 1)
-                      ", tumor-size: " (nth (string/split (:tumor-size (:inputs x)) #":") 1)
-                      )
+                    [:td {:style {:border "1px solid white" :padding "12px"}}
+                     "histologic-tumor-necrsis: " [:span {:style {:color "blue"}} (nth (string/split (:histologic-tumor-necrosis (:inputs x)) #":") 1)]
+                     ", nuclear-grade: "          [:span {:style {:color "blue"}} (nth (string/split (:nuclear-grade             (:inputs x)) #":") 1)]
+                     ", t-stage: "                [:span {:style {:color "blue"}} (nth (string/split (:t-stage                   (:inputs x)) #":") 1)]
+                     ", n-stage: "                [:span {:style {:color "blue"}} (nth (string/split (:n-stage                   (:inputs x)) #":") 1)]
+                     ", tumor-size: "             [:span {:style {:color "blue"}} (nth (string/split (:tumor-size                (:inputs x)) #":") 1)]
                      ]
 
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
@@ -1411,8 +1409,37 @@ not currently use these factors to make decisions about follow-up care."]]
 
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                      (str (:min (year (second (nth error-range @index)))) " - " (:max (year (second (nth error-range @index)))))]
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                     (str "")]
+                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "green"}}
+                     (cond
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 0)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 0)))))) (str "0")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 1)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 1)))))) (str "1")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 2)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 2)))))) (str "2")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 3)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 3)))))) (str "3")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 4)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 4)))))) (str "4")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 5)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 5)))))) (str "5")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 6)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 6)))))) (str "6")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 7)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 7)))))) (str "7")
+                       (and
+                        (<= (:the-label x) (:max (year (second (nth error-range 8)))))
+                        (>= (:the-label x) (:min (year (second (nth error-range 8)))))) (str "8")
+                       :else (str "none")
+                       )]
 
                     ]                 ;end of tr
 

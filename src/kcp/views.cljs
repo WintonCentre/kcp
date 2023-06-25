@@ -1375,7 +1375,7 @@ not currently use these factors to make decisions about follow-up care."]]
               (swap! index inc)
 
               (if (> (count (year (nth each 1))) 0)
-                [:table
+                [:table {:style {:font-family "monospace" :margin-left "-100px" :margin-right "-100px"}}
                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Score"]
@@ -1396,7 +1396,7 @@ not currently use these factors to make decisions about follow-up care."]]
                     [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                      (str @index)]
 
-                    [:td {:style {:border "1px solid white" :padding "12px"}}
+                    [:td {:style {:border "1px solid white" :padding "12px" :padding-left "25px" :text-align "left" :width "1000px"}}
                      "histologic-tumor-necrsis: " [:span {:style {:color "blue"}} (nth (string/split (:histologic-tumor-necrosis (:inputs x)) #":") 1)]
                      ", nuclear-grade: "          [:span {:style {:color "blue"}} (nth (string/split (:nuclear-grade             (:inputs x)) #":") 1)]
                      ", t-stage: "                [:span {:style {:color "blue"}} (nth (string/split (:t-stage                   (:inputs x)) #":") 1)]

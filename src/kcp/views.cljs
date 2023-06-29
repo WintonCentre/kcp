@@ -1374,7 +1374,7 @@ not currently use these factors to make decisions about follow-up care."]]
            "year 10"]]
 
          [:div
-          [:h1 {:style {:padding-top "10px"}}
+          [:h1 {:style {:padding-top "20px"}}
            (str "Wrong labels of all scors, year " year-number ":")]
 
           (for [each wrong]
@@ -1382,7 +1382,7 @@ not currently use these factors to make decisions about follow-up care."]]
               (swap! index inc)
 
               (if (> (count (year (nth each 1))) 0)
-                [:table {:style {:font-family "monospace" :margin-left "-100px" :margin-right "-100px"}}
+                [:table {:style {:font-family "monospace" :margin-left "-100px" :margin-right "-100px" :margin-top "10px"}}
                  [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                   [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
                    "Score"]

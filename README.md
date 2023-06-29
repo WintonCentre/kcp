@@ -227,7 +227,7 @@ The `resources/public/js/compiled` directory is created, containing the compiled
 
 ## Label test program
 
-To check the correctness of labels on the charts, there is a script that generates all possible combinations of inputs and check if their label is wrong. The result of only wrong labels will be available as a table in the url:
+To check the correctness of labels on the charts, there is a script that generates all possible combinations of inputs and check if their label is wrong. The result of "only" wrong labels will be available as a table in the url:
 
 ```sh
 /standard-error-test-848efcc3-938f-4dff-9b55-1f0394f29793

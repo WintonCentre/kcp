@@ -31,11 +31,11 @@
     {:name      ::views/home
      :view      views/home-page
      :link-text "Transplant Risks"}]
-   #_["standard-error-test" {:name      ::views/standard-error-test
-                             :view      views/standard-error-test
-                             :link-text "Standard Error Test"
-                             :conflicting true
-                             :controllers [{:parameters {:path [:organ]}}]}]
+   ["standard-error-test-848efcc3-938f-4dff-9b55-1f0394f29793" {:name      ::views/standard-error-test
+                                                                :view      views/standard-error-test
+                                                                :link-text "Standard Error Test"
+                                                                :conflicting true
+                                                                :controllers [{:parameters {:path [:organ]}}]}]
    ["about" {:name      ::views/about
              :view      views/about-page
              :link-text "About"

@@ -1384,27 +1384,27 @@ not currently use these factors to make decisions about follow-up care."]]
 
               (if (> (count (year (nth each 1))) 0)
                 [:table {:style {:font-family "monospace" :margin-left "-100px" :margin-right "-100px" :margin-top "10px"}}
-                 [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                 [:tr {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
+                  [:th {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
                    "Score"]
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                  [:th {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
                    (str "Inputs - Count is: " (count (year (nth each 1))))]
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                  [:th {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
                    (str "Label Year " year-number)]
-                  [:th {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                  [:th {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
                    "Standard Error Range"]
-                  [:th {:style {:border "1px soldi white" :padding "12px" :text-align "center"}}
+                  [:th {:style {:border "1px soldi black" :padding "12px" :text-align "center"}}
                    "Correct Score"]
                   ]
 
                  (for [x (reverse (sort-by :the-label (year (nth each 1))))]
 
-                   [:tr {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                   [:tr {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    [:td {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
                      (str @index)]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :padding-left "25px" :text-align "left" :width "1000px"}}
+                    [:td {:style {:border "1px solid black" :padding "12px" :padding-left "25px" :text-align "left" :width "1000px"}}
                      "histologic-tumor-necrsis: " [:span {:style {:color "blue"}} (nth (string/split (:histologic-tumor-necrosis (:inputs x)) #":") 1)]
                      ", nuclear-grade: "          [:span {:style {:color "blue"}} (nth (string/split (:nuclear-grade             (:inputs x)) #":") 1)]
                      ", t-stage: "                [:span {:style {:color "blue"}} (nth (string/split (:t-stage                   (:inputs x)) #":") 1)]
@@ -1412,12 +1412,12 @@ not currently use these factors to make decisions about follow-up care."]]
                      ", tumor-size: "             [:span {:style {:color "blue"}} (nth (string/split (:tumor-size                (:inputs x)) #":") 1)]
                      ]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "red"}}
+                    [:td {:style {:border "1px solid black" :padding "12px" :text-align "center" :color "red"}}
                      (str (:the-label x))]
 
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center"}}
+                    [:td {:style {:border "1px solid black" :padding "12px" :text-align "center"}}
                      (str (:min (year (second (nth error-range @index)))) " - " (:max (year (second (nth error-range @index)))))]
-                    [:td {:style {:border "1px solid white" :padding "12px" :text-align "center" :color "green"}}
+                    [:td {:style {:border "1px solid black" :padding "12px" :text-align "center" :color "green"}}
                      (cond
                        (and
                         (<= (:the-label x) (:max (year (second (nth error-range 0)))))

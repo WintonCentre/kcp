@@ -30,6 +30,7 @@ resources/public/cljs-out-old
 .cache/
 resources/public/js
 resources/public/cljs-out
+resources/public/index.html
 .DS_Store
 */.DS_Store
 

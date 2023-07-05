@@ -30,31 +30,31 @@
 
 ;; TODO: DELETE THIS EVENTUALLY
 (defn sample-from
-    "returns a selection of data from S0. Could be optimised so it only needs one pass through S0, 
+  "returns a selection of data from S0. Could be optimised so it only needs one pass through S0,
    This is a once only call per centre so keeping it simple for now. It's called when centre data is stored on
    :events/store-bundle-inputs"
-    [S0]
-    (let [day-in-first? (partial utils/day-in? first)
+  [S0]
+  (let [day-in-first? (partial utils/day-in? first)
 
-          W1S0 (->> S0
-                    (take-while (day-in-first? utils/week)))
-          M1S0 (->> S0
-                    (drop-while (day-in-first? utils/week))
-                    (take-while (day-in-first? utils/month)))
-          Q1S0 (->> S0
-                    (drop-while (day-in-first? utils/month))
-                    (take-while (day-in-first? utils/quarter)))
-          Qs (->> S0
-                  (drop-while (day-in-first? utils/quarter)))]
+        W1S0 (->> S0
+                  (take-while (day-in-first? utils/week)))
+        M1S0 (->> S0
+                  (drop-while (day-in-first? utils/week))
+                  (take-while (day-in-first? utils/month)))
+        Q1S0 (->> S0
+                  (drop-while (day-in-first? utils/month))
+                  (take-while (day-in-first? utils/quarter)))
+        Qs (->> S0
+                (drop-while (day-in-first? utils/quarter)))]
 
-    ;; Selected days are: 
-    ;;     weekly for first month; 
-    ;;     then monthly for 1st quarter; 
+    ;; Selected days are:
+    ;;     weekly for first month;
+    ;;     then monthly for 1st quarter;
     ;;     then by quarter
-      (concat W1S0
-              (mapv last (partition-by (fn [[day _H]] (utils/day->week day)) M1S0))
-              (mapv last (partition-by (fn [[day _H]] (utils/day->month day)) Q1S0))
-              (mapv last (partition-by (fn [[day _H]] (utils/day->quarter day)) Qs)))))
+    (concat W1S0
+            (mapv last (partition-by (fn [[day _H]] (utils/day->week day)) M1S0))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->month day)) Q1S0))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->quarter day)) Qs)))))
 
   ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
   ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
@@ -77,8 +77,8 @@
   "survival-data is a a vector of [day survival-by-outcomes].
    survival-by-outcome is a vector of survivals for each outcome.
    exp-sum-beta-xs is a vector of exponentials of sum-beta-xs for each outcome.
-   
-   Run the cox-adustment over survival-data, returning a vector of [day leaving-proportion-by-outcome] having taken 
+
+   Run the cox-adustment over survival-data, returning a vector of [day leaving-proportion-by-outcome] having taken
    account of the input contributions to exp-sum-beta-xs, and having ensured the sum of all outcomes is 1.
    Formally it has the same form as the input survival-data vector."
   [survival-data sum-beta-xs]
@@ -86,7 +86,7 @@
     (loop [SD survival-data
            s 1
            f (map (constantly 0) sum-beta-xs)
-           ;_sumall 1
+                                        ;_sumall 1
            result [[0 f]]]
       (let [[_days S] (first SD)
             SD+ (rest SD)]
@@ -98,13 +98,13 @@
                 p (map #(* s %) delta-h)
                 f+ (map + f p)
                 s+ (- s (apply + p))
-                ;sumall+ (+ s (apply + f))
+                                        ;sumall+ (+ s (apply + f))
                 ]
-            ;(locals)
+                                        ;(locals)
             (recur SD+
                    s+
                    f+
-                   ;sumall+
+                                        ;sumall+
                    (conj result [days+ f+])))
           result)))))
 
@@ -119,6 +119,12 @@
 (defn cox
   "For a single cox calculation we should use the formula based on all-S0 rather than S0"
   [s0-for-day sum-x-betas]
+  #_(js/alert (js/Math.exp 0.678))
+  #_(js/alert (js/Math.pow 0.992019074903175 1.9699339218909298))
+  #_(js/alert (- 1 0.9843389611598309))
+
+  #_(js/alert (js/Math.exp 1.318)) ;3.7359420163603616
+  #_(js/alert (js/Math.pow 0.992019074903175 3.7359420163603616)) ;0.970507749849669
   (mapv #(- 1 (js/Math.pow s0-for-day (js/Math.exp %))) sum-x-betas))
 
 (defn cox-only
@@ -133,8 +139,8 @@
 ;;
 (defn S0-for-day
   "Returns a vector of [day outcome-baselines] for the given day from S0.
-   
-   Since S0 may not collect all days, but S0-for-day will return the last known value 
+
+   Since S0 may not collect all days, but S0-for-day will return the last known value
    at or before the given day, the day used may therefore be earlier or equal to the
    input day.
    "
@@ -202,7 +208,7 @@
 (comment
   (cox 0.9 [0.9 0.7])
   ;; => (0.22828892339131668 0.1911728338852633)
-  ;;   
+  ;;
   (map #(- 1 (js/Math.pow 0.9 (js/Math.exp %))) [0.9 0.7]))
 
 (comment
@@ -324,9 +330,9 @@
   ;;     [30 [0.9336213532 0.9874262621]]
   ;;     [91 [0.8060717379 0.9521491681]]
   ;;     [954 [0.0991815473 0.5659942916]]
-  ;;     [1095 [0.080756853 0.5165745583]] 
+  ;;     [1095 [0.080756853 0.5165745583]]
   ;;     [1095 [0.080756853 0.5165745583]])
-  ;;       
+  ;;
   (let [S0 [[0 [1 1]]
             [1 [0.9857067242 0.9980148933]]
             [2 [0.9815928264 0.9960015827]]
@@ -351,12 +357,9 @@
             [954 [0.0991815473 0.5659942916]]
             [1095 [0.080756853 0.5165745583]]]]
     (S0-for-days S0 [-1 0 5 30 100 1000 2000 10000]))
-   ;; => [nil [0 [1 1]] [4 [0.9774623833 0.9949805958]] [30 [0.9336213532 0.9874262621]] [91 [0.8060717379 0.9521491681]] [954 [0.0991815473 0.5659942916]] [1095 [0.080756853 0.5165745583]]]
+  ;; => [nil [0 [1 1]] [4 [0.9774623833 0.9949805958]] [30 [0.9336213532 0.9874262621]] [91 [0.8060717379 0.9521491681]] [954 [0.0991815473 0.5659942916]] [1095 [0.080756853 0.5165745583]]]
 
-   ;; => [[1095 [0.080756853 0.5165745583]] [954 [0.0991815473 0.5659942916]] [883 [0.112959532 0.5867497829]]]
+  ;; => [[1095 [0.080756853 0.5165745583]] [954 [0.0991815473 0.5659942916]] [883 [0.112959532 0.5867497829]]]
 
 
   0)
-
-
-

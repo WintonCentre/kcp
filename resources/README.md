@@ -1,4 +1,12 @@
+# Data Preparation
+
+`resources/corrected-leibovoch-baseline-calculation.xlsx` contains a spreadsheet that reverse engineers the
+Leobovich paper to generate a baseline S_0.
+
+Once only this baseline must be copied to the correct times in `resources/kcp-models-master.xlsx` sheet ldsurvival-baseline-cifs. Note that this file format was originally developed for an app that used days as time units.
+One old day is ONE kcp MONTH. So we need 120 old days to for the full kcp 10 years. We fill in the gaps from the reverse engineered baseline by piecewise linear interpolation.
 # Data Configuration
+
 
 Files in this directory need to be processed into EDN format text files that will be installed with the tool inside
 `resouces/public/lung/edn` or `resouces/public/kidney/edn`.
@@ -6,14 +14,10 @@ Files in this directory need to be processed into EDN format text files that wil
 The  entry point for configuration tool that does this lives in the kcp.config clj namespace with an entry point at 
 `kcp.configure/-main`.
 
-Run the configuration tool from this directory with:
+Run the configuration tools from this directory with:
 ```
-clojure -A:config -X kcp.configure/-main
-```
-
-Alternatively run the same code with:
-```
-./bb-scripts/config.clj
+bb kidney
+bb config
 ```
 
 ## Reconfiguration
@@ -47,5 +51,16 @@ Inside `config.edn` is a single map with keys for the major sections. These are:
     :sheets
         For each organ
             The columns where data is to be found in each sheet
+
+##Running the app in development
+After a shadow-cljs jack-in, browse to the dashboard at localhost:9630. From here you can find links to the app and a small test suite in the test-browser.
+
+To test the model against Leibovich go to:
+http://localhost:3000/#/standard-error-test-848efcc3-938f-4dff-9b55-1f0394f29793
+
+To run the app, go to http://localhost:3000/ 
+
+The test suite is at http://localhost:3021/  which runs the :test-browser build.
+
 
 ****

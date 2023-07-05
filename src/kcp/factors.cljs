@@ -7,7 +7,7 @@
             [kcp.transforms :as xf]
             [kcp.spline :refer [spline]]
             [kcp.bundles :as bun]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            [shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (comment
@@ -105,7 +105,7 @@
        #_(map #(assoc % :label (:level-name %)))))
 
 (defn master-f-map
-  "Given a collection of f-maps all relating to the same factor, return a master f-map 
+  "Given a collection of f-maps all relating to the same factor, return a master f-map
    containing nested detail relating to levels"
   [organ f-maps]
   (let [f-map (first f-maps)
@@ -200,23 +200,26 @@
 
 (defn lookup-simple-factor-level
   "The value (level) of input factors may be found in the tool path parameters or in the tool inputs.
-   This function first looks in the organ inputs (e.g. :age is an input), then in the environment 
-   (e.g. :centre which is determined by path-params). 
+   This function first looks in the organ inputs (e.g. :age is an input), then in the environment
+   (e.g. :centre which is determined by path-params).
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
   [env factor]
-  ;(locals)
+  #_(js/alert factor)
+  #_(js/alert (:inputs env))
+                                        ;(locals)
   (if-let [level (factor (select-keys env [:centre]))] ;; in-case factor is :centre
     level
     (when-let [level (factor (:inputs env))]
+      #_(js/alert level)
       level)))
 
 ;; We no longer have any cross-over factors
 (defn lookup-cross-over-factor-level
   "When we have a cross-over factor, we need to lookup each of its simple factor components, and
-   join them together into a simple level. We then find in the level map inside the fmaps (the fmaps) for 
+   join them together into a simple level. We then find in the level map inside the fmaps (the fmaps) for
    that cross-over factor.
-   
+
    The spreadsheet checker should verify in advance that all cross-over combinations have levels."
   [env factor]
   (->> factor
@@ -241,45 +244,47 @@
 
 (defn selected-beta-x
   [{:keys [bundle] :as env} factor master-fmap beta-outcome-key]
+  (?-> master-fmap ::master-fmap)
   (cond
 
-    ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre. 
-    ; We need to separate these components into a seq like [:d-gp :centre]
-    ; Find the level of each e.g. [:copd :birm]
-    ; And encode this as a single level e.g. :copd*birm
-    ; 
-    ;     
-    ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
-    ;     But we no longer have any cross overs 
-    ; 
+                                        ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre.
+                                        ; We need to separate these components into a seq like [:d-gp :centre]
+                                        ; Find the level of each e.g. [:copd :birm]
+                                        ; And encode this as a single level e.g. :copd*birm
+                                        ;
+                                        ;
+                                        ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
+                                        ;     But we no longer have any cross overs
+                                        ;
     (is-cross-over? factor)
-    (try 
+    (try
       (let [level-key (lookup-cross-over-factor-level env factor)
-               beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
-           [factor level-key (if beta beta 0)])
+            beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
+        [factor level-key (if beta beta 0)])
       (catch :default _e
         [factor nil 0]))
 
-    ; Simple categorical levels.
-    ; Lookup the level and use that to lookup the beta
-    ; x will be 1 if the factor has been entered, else 0
+                                        ; Simple categorical levels.
+                                        ; Lookup the level and use that to lookup the beta
+                                        ; x will be 1 if the factor has been entered, else 0
     (is-categorical? env factor)
     (let [level-key (lookup-simple-factor-level env factor)
           beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
+      #_(js/alert level-key)
       [factor level-key beta])
 
-    ; Splined numeric inputs are defined by a spline function and its parameters defined in
-    ; the master-fmap's :level - such as '[:spline :x :beta1 :beta2 :beta3]'
-    ; This indicates that the raw value x, must be processed by a call to the function spline 
-    ; of the form '(spline x beta1 beta2 beta3).
-    ; x is the raw input value for this factor
-    ; The beta parameters can be located in the master factor map :levels using the 
-    ; keywords :beta1, :beta2, :beta3, and a knowledge of the required outcome
-    ; ("transplant" "removal" "death").
-    ;  - First locate the corresponding level map in :levels
-    ;  - Then find the beta(s) from the :beta-outcome column for the relevant outcome
-    ;    (e.g. from :beta-transplant)
-    ; (get-in master-f-map [])
+                                        ; Splined numeric inputs are defined by a spline function and its parameters defined in
+                                        ; the master-fmap's :level - such as '[:spline :x :beta1 :beta2 :beta3]'
+                                        ; This indicates that the raw value x, must be processed by a call to the function spline
+                                        ; of the form '(spline x beta1 beta2 beta3).
+                                        ; x is the raw input value for this factor
+                                        ; The beta parameters can be located in the master factor map :levels using the
+                                        ; keywords :beta1, :beta2, :beta3, and a knowledge of the required outcome
+                                        ; ("transplant" "removal" "death").
+                                        ;  - First locate the corresponding level map in :levels
+                                        ;  - Then find the beta(s) from the :beta-outcome column for the relevant outcome
+                                        ;    (e.g. from :beta-transplant)
+                                        ; (get-in master-f-map [])
     (is-spline? env factor)
     (let [;[_ bundle _] env
           baseline-vars (:baseline-vars bundle)
@@ -292,8 +297,8 @@
                      ((juxt :beta1 :beta2 :beta3))
                      (map beta-outcome-key))
           x0 (factor baseline-vars)
-          
-          ; If an input is not yet available, use the baseline value
+
+                                        ; If an input is not yet available, use the baseline value
           x (if-let [x* (lookup-numeric-input env factor)] x* x0)
           ]
       [factor [:spline knots betas] (spline knots betas x0 x)])
@@ -306,83 +311,83 @@
           x (if-let [x* (lookup-numeric-input env factor)] x* x0)
           x-x0 (- x x0)
           beta-x-x0 (* beta x-x0)]
-      ;(tap> [::is-numeric? [env factor]])
+                                        ;(tap> [::is-numeric? [env factor]])
       [factor beta x0 beta-x-x0])
 
     :else
     [:unclassified factor]))
 
- (defn sum-beta-xs
-   "returns sum of all xs and betas (keyed by input factor?)"
-   [{:keys [bundle] :as env}
-    beta-outcome-key]
-   (->> (:fmaps bundle)
-        (map (fn [[factor master-fmap]]
-               (selected-beta-x env factor master-fmap beta-outcome-key)))
-        
-        (map last)
-        (apply +)))
+(defn sum-beta-xs
+  "returns sum of all xs and betas (keyed by input factor?)"
+  [{:keys [bundle] :as env}
+   beta-outcome-key]
+  #_(js/alert (:fmaps bundle))
+  (?-> (:fmaps bundle) ::iiiiiii)
+  (->> (:fmaps bundle)
+       (map (fn [[factor master-fmap]]
+              (selected-beta-x env factor master-fmap beta-outcome-key)))
+
+       (map last)
+       (apply +)))
 
 
- (comment
-   (def bundle (bun/get-bundle :lung :new :waiting))
+(comment
+  (def bundle (bun/get-bundle :lung :new :waiting))
 
-  ;inputs
-   (def inputs* {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
+                                        ;inputs
+  (def inputs* {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
 
-   (def path-params {:organ :lung, :centre :birm, :tool :waiting})
+  (def path-params {:organ :lung, :centre :birm, :tool :waiting})
 
-   (def env [path-params bundle inputs])
+  (def env [path-params bundle inputs])
 
-   #_(lookup-cross-over-factor-level env :d-gp*centre)
+  #_(lookup-cross-over-factor-level env :d-gp*centre)
 
-   (def master-fmaps (:fmaps bundle))
-   (def master-fmap (get-in bundle [:fmaps :d-gp*centre]))
-   (def master-fmap-level (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm]))
-  ;=> {:beta-transplant -0.10624, :beta-death -0.35576, :info-box? nil, :beta-removal 0.11786, :level-name "PF and Birmingham", :beta-all-reasons -0.45309, :type :none, :sub-text nil, :level :pf*birm, :factor :d-gp*centre, :order -1, :factor-name nil}
-   (def master-fmap-level-transplant (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm :beta-transplant]))
-  ;=> -0.10624
-   
-   (:centre (:path-params env))
+  (def master-fmaps (:fmaps bundle))
+  (def master-fmap (get-in bundle [:fmaps :d-gp*centre]))
+  (def master-fmap-level (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm]))
+                                        ;=> {:beta-transplant -0.10624, :beta-death -0.35576, :info-box? nil, :beta-removal 0.11786, :level-name "PF and Birmingham", :beta-all-reasons -0.45309, :type :none, :sub-text nil, :level :pf*birm, :factor :d-gp*centre, :order -1, :factor-name nil}
+  (def master-fmap-level-transplant (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm :beta-transplant]))
+                                        ;=> -0.10624
 
-   (is-cross-over? :d-gp*centre)
-   (split-cross-over :d-gp*centre)
-   (lookup-simple-factor-level env :age)
-   (lookup-simple-factor-level env :centre)
-   (lookup-simple-factor-level env :d-gp)
+  (:centre (:path-params env))
 
-   (is-spline? env :bmi)
-   (is-spline? env :age)
-   (is-spline? env :fvc)
-   
-   (is-categorical? env :bmi)
-   (is-numeric? env :bmi)
-   (lookup-simple-factor-level env :bmi)
-   (lookup-simple-factor-level env :pred)
+  (is-cross-over? :d-gp*centre)
+  (split-cross-over :d-gp*centre)
+  (lookup-simple-factor-level env :age)
+  (lookup-simple-factor-level env :centre)
+  (lookup-simple-factor-level env :d-gp)
 
-  ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
-   (lookup-simple-factor-level env :d-gp*centre)
+  (is-spline? env :bmi)
+  (is-spline? env :age)
+  (is-spline? env :fvc)
 
-  ; So we need to call this instead...
-   
-   #_(lookup-cross-over-factor-level env :d-gp*centre)
+  (is-categorical? env :bmi)
+  (is-numeric? env :bmi)
+  (lookup-simple-factor-level env :bmi)
+  (lookup-simple-factor-level env :pred)
 
-   (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
-   (selected-beta-x env :pred master-fmap :beta-transplant)
-   (selected-beta-x env :ethnicity master-fmap :beta-transplant)
+                                        ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
+  (lookup-simple-factor-level env :d-gp*centre)
 
-   ;(selected-beta-xs env :beta-transplant)
-   (sum-beta-xs env :beta-transplant)
-  ;=>
-   #_([:d-gp*centre :pf*birm -0.10624]
-      [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
-      [:pred :pred-1-14 0.15256]
-      [:nyha-class :nyha-2 0.52044]
-      [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
-      [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]
-      [:blood-group :B -0.73794] [:ethnicity :white -0.03768]
-      [:bmi 0.01457 23.0224 0.10166363199999998]
-      [:bilirubin -0.0004091 9 0.0024546000000000004]
-      [:thoracotomy :no 0.44664]))
+                                        ; So we need to call this instead...
 
+  #_(lookup-cross-over-factor-level env :d-gp*centre)
 
+  (selected-beta-x env :d-gp*centre master-fmap :beta-transplant)
+  (selected-beta-x env :pred master-fmap :beta-transplant)
+  (selected-beta-x env :ethnicity master-fmap :beta-transplant)
+
+                                        ;(selected-beta-xs env :beta-transplant)
+  (sum-beta-xs env :beta-transplant)
+                                        ;=>
+  #_([:d-gp*centre :pf*birm -0.10624]
+     [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
+     [:pred :pred-1-14 0.15256]
+     [:nyha-class :nyha-2 0.52044]
+     [:fvc [:spline '(0.94 1.63 2.22 3.55) '(0.28376 0.23757 -0.69056)]]
+     [:in-hosp :no 0.25921] [:sex :male 0.24638] [:d-gp :pf -0.23764]
+     [:blood-group :B -0.73794] [:ethnicity :white -0.03768]
+     [:bmi 0.01457 23.0224 0.10166363199999998]
+     [:bilirubin -0.0004091 9 0.0024546000000000004]
+     [:thoracotomy :no 0.44664]))

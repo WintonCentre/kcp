@@ -884,7 +884,7 @@
                                      #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
                                      :height "100%"
                                      :position "relative"}}
-              (str (nth int-fs j) "%") " " long-label]]])])]]))
+              (str (nth int-fs j) "%") " of " long-label]]])])]]))
 
 (defn text-render
   "If we took an example of 100 transplant patients, who input the same information as you into the tool, we would expect:
@@ -914,7 +914,7 @@
             (let [label (nth labels i)
                   time-index (:time-index label)
                   [_ {:keys [int-fs]}] (nth year-series time-index)]
-              [:div {:key (str "r-" i)} (str (nth int-fs j)) " " long-label])])])]]))
+              [:div {:key (str "r-" i)} (str (nth int-fs j)) " out of 100 " long-label])])])]]))
 
 (defn table
   "render a table results view"

@@ -179,14 +179,14 @@
                                                 (assoc path
                                                        :tab %
                                                        :inputs (shorts/db-to-URI (:lookups mdata) inputs))])}
+             [ui/tab {:event-key "icons" :title "Icon Array"}
+              [vis/icon-array env]]
+
              [ui/tab {:event-key "bars" :title "Bar Chart"}
               [vis/bar-chart env]]
 
              [ui/tab {:event-key "area" :title "Area Chart"}
               [vis/area-chart env]]
-
-             [ui/tab {:event-key "icons" :title "Icon Array"}
-              [vis/icon-array env]]
 
              [ui/tab {:event-key "table" :title "Table"}
               [:div {:style {:font-size (if is-full-screen "300%" "100%")}}

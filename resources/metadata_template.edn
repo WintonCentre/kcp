@@ -98,20 +98,20 @@
                                       :spacing 0.97
                                       :font-size 30
                                       :labels [{:time-index 1
-                                                :x-offset -50
+                                                :x-offset -75
                                                 :y-offset 585
-                                                :line ["End of"
-                                                       "year 1"]}
+                                                :line ["By the end"
+                                                       "of year 1"]}
                                                {:time-index 5
-                                                :x-offset -50
+                                                :x-offset -75
                                                 :y-offset 585
-                                                :line ["End of"
-                                                       "year 5"]}
+                                                :line ["By the end"
+                                                       "of year 5"]}
                                                {:time-index 10
-                                                :x-offset -50
+                                                :x-offset -75
                                                 :y-offset 585
-                                                :line ["End of"
-                                                       "year 10"]}]}
+                                                :line ["By the end"
+                                                       "of year 10"]}]}
                                :icons {:svg-width 1060
                                        :svg-height 520
                                        :svg-margin {:top 0 :right 0 :bottom 0 :left 0}

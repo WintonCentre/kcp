@@ -858,9 +858,7 @@ not currently use these factors to make decisions about follow-up care."]]
          [:div [:div.d-print-none {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
                 [ui/row
                  [ui/col {:xs 12 :sm 8}
-                  [:h1 (:description centre-info)]
-                  [:p (:explanation uk-info)]]
-                 [ui/col {:xs 12 :sm 4} [:h2 "Kidney Cancer Prediction Tool"]]]
+                  [:h1 (:explanation uk-info)]]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
           [:div.d-none.d-print-block {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}

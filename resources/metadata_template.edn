@@ -49,7 +49,7 @@
                                :label "Survival - living donor"
                                :inputs {:header [:div
                                                  [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]
-                                                 [:p.d-print-none "Please enter the information for a primary kidney cancer (a tumour located in the kidney that has not spread from another body), which was treated surgically."]]}
+                                                 [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour. That means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
                                         ;[:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]]}
                                :outcomes {:residual {:label "no recurrence"
                                                      :long-label "of patients have had no recurrence"

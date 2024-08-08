@@ -5,8 +5,7 @@
    
    It does this by 
    1) Generating metadata,ed with the correct :organ-order
-   2) Generating sw_cache_update.js with the correct precache files
-   3) Generating index.html with the correct matomo site-id
+   2) Generating index.html with the correct matomo site-id
 
    All these resources/public files are generated from templates in resources.
    "
@@ -64,21 +63,6 @@
       (spit "resources/public/metadata.txt" x)))
   )
 
-(defn set-sw-cache
-  "Replace '//include-paths' with a list of pre-cache paths calculated by the `bb config`"
-  [organ]
-  (let [template (slurp "resources/sw_cache_template.js")
-        precache-v (distinct (edn/read-string (slurp (str "resources/precache_paths_" organ ".edn"))))
-        precache-list (->> precache-v
-                           (map (fn [path] (str "\t\t\t'" path "'")))
-                           (str/join ",\n")
-                           )]
-
-    (->> (str/replace template
-                      #"\s+//include-paths"
-                      (str "\n" precache-list))
-         (spit "resources/public/sw_cache_update.js"))))
-
 (defn set-matomo-site-id
   "Change the matomo site id in index.html to the right one for the organ.
    NB. we could do the same for the site title to avoid assigning it dynamically."
@@ -88,20 +72,11 @@
        (str/replace #"\['setSiteId', 'n'\]" (str "['setSiteId', '" (get matomo-site-id organ) "']")))
    (spit "resources/public/index.html")))
 
-(defn set-manifest
-  [organ]
-  (->>
-   (-> (slurp "resources/public/manifest_template.json")
-       (str/replace #"kidney" organ))
-   (spit "resources/public/manifest.json")))
-
 (defn -main [& _args]
   (let [options (parse-opts *command-line-args* cli-options)
         organ (get-in options [:options :organ])]
-    (set-sw-cache organ)
     (set-metadata organ)
     (set-matomo-site-id organ)
-    (set-manifest organ)
     ))
 
 

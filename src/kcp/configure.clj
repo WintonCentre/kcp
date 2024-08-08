@@ -290,7 +290,6 @@
                        "/metadata.txt"
                        "/object-assign-auto-min.js"
                        "/qrcode.min.js"
-                       "/manifest.json"
                        "/assets/crest.png"
                        "/assets/The_Window.png"
                        "/css/styles.css"

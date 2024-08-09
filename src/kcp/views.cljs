@@ -188,48 +188,36 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h4 "Overview"]
-    [:p "The tool takes information about you, such as age, blood group, disease, and it looks at people who had these same
-           characteristics, and shows what happened to these people. "
-
-     "For example, how many people 'like you' received a transplant within one year of being listed."]
+    [:p "The tool takes information about your tumour, including the size and stage, and makes a prediction based on
+         what happened to people in the past who had similar tumours. For example, how many people 'like you'
+         had a kidney cancer recurrence within one year of surgery."]
 
     [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
 
-    [:p "It’s important to remember that the tool cannot take into account everything about you, for example,
-        whether you have other health conditions. The tool will ask for some medical information such as blood group,
-        or recent test results. The tool will be less accurate if you don't have all the relevant information."]
+    [:p "It is important to remember that the tool does not consider everything about you, for example, whether you have
+         other health conditions which might impact your outcome. The tool requires some medical information about your
+          kidney cancer and will be less accurate if you do not have all the correct information."]
 
-    [:p "There are many factors that can influence how well a transplanted organ does, for example taking your medication
-        properly, diet and whether you exercise."]
     [:p "If you want to know more about the models and data behind the tools, please read the "
      [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "
-     "Data about transplant patients were used to create statistical models.  When you enter information into the tool, the calculator looks at these models and produces results.
-"]
-
-    [:p [:span {:style {:color "red"}} [ui/open-icon "warning"]] "Changes to the UK Kidney Offering Scheme in September 2019 are not reflected in these models"]]
-
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h4 "Using the tool offline"]
-    [:p "You need an internet connection to access the tool for the first time, but once you have visited
-         the site once, you can access it offline (just don't close the browser)."]
-
-    [:p "The tool can produce a printout of results for later reference."]]
+     "Data about kidney cancer patients were used to create the statistical model (the Leibovich model). When you enter
+     information into the tool, the calculator looks at this model and produces results."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h4 "Who is this site for?"]
-    [:p "The tool is suitable for kidney patients who are over 18 years old.
-        This is because we use past data from the NHS transplant registry.  Fewer children have kcp than adults and
-        there is not enough data yet to make a tool for children. "]
-    [:p [:b "The tool should be used by patients alongside their transplant doctors or specialist nurses."]]]
+    [:p "The tool is suitable for patients with clear cell renal cell carcinoma (ccRCC) who are over 18 years old and
+         have had surgery to treat kidney cancer (such as a partial or radical nephrectomy). This tool is not suitable
+         for individuals with a diagnosis of metastatic kidney cancer or those with known hereditary kidney cancer
+         syndromes such as Von Hippel-Lindau Disease (VHL)."]
+    [:p "The tool should be used initially by patients alongside their oncologist, urologist or specialist nurses."]]
 
    [:h4 "Who developed the tool?"]
-   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and currently displays models
-        disclosed by NHSBT under a data sharing agreement."]
-   [:p "We wish to thank all the transplant patients and their partners,
-        as well as clinical teams at transplant centres in England who took part in researching the tool design."]])
+   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and by
+        researchers in the Department of Public Health and Primary Care at the University of
+        Cambridge. Patients, members of the public, doctors and nurses have been involved in the
+        design of this tool. The tool uses the Leibovich model which was built by a team at the Mayo
+        Clinic (Minnesota, USA)."]])
 
 
 
@@ -243,7 +231,7 @@
         single-organ (ui/get-single-organ mdata)]
 
     (if mdata
-      [ui/page (str "About the " (string/capitalize (name single-organ)) " tool")
+      [ui/page (str "About the Predict " (string/capitalize (name single-organ)) " tool")
        (condp = single-organ
          :kidney
          [kidney-about-content]

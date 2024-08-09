@@ -175,9 +175,9 @@
        [ui/row
         (condp = single-organ
           :kidney [:> bs/Col
-                   [:p "NHSBT organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ")"]
-                   [:p [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf"
-                            :target "_blank"} "Annual Report on Kidney Transplantation 2019/2020."] " NHS Blood and Transplant. https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/20032/kidney-annual-report-2019-20-final.pdf Published 2020."]]
+                   [:p "Leibovich Model (" [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "https://doi.org/10.1002/cncr.11234"] ")."]
+                   [:p "Systematic review of models predicting recurrence after kidney cancer surgery (" [:a {:href "https://doi.org/10.1111/bju.15673"
+                            :target "_blank"} "https://doi.org/10.1111/bju.15673"] ")."]]
           :else [ui/col [:p "None."]])]]
       [ui/loading])))
 

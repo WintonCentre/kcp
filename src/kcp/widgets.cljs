@@ -161,6 +161,76 @@
                  :on-hide hide-handler}]))
 
 
+
+(defn additional-details-form
+  "A form for collecting additional information which can be used in the printout."
+  []
+  (let [additional-details @(rf/subscribe [::subs/additional-details])]
+    [:<>
+     [:section {:class-name "additional-info-modal"}
+
+      [:h3 "Additional Information"]
+      [:p "All of the following inputs are optional."]
+
+      [:h4 "Patient Details"]
+      [:div {:class-name "form-group"}
+       [:label {:for "patient-name"} "Name"]
+       [:input {:type      "text" :class-name "form-control"
+                :id        "patient-name"
+                :auto-complete "off"
+                :value     (get additional-details :patient-name "")
+                :on-change #(rf/dispatch [:kcp.events/update-additional-details
+                                          {:patient-name (-> % .-target .-value)}])}]]
+
+      [:div {:class-name "form-group"}
+       [:label {:for "nhs-number"} "NHS Number"]
+       [:input {:type      "text" :class-name "form-control"
+                :id        "nhs-number"
+                :autoComplete "off"
+                :value     (get additional-details :nhs-number "")
+                :on-change #(rf/dispatch [:kcp.events/update-additional-details
+                                          {:nhs-number (-> % .-target .-value)}])}]]
+
+      [:div {:class-name "form-group"}
+       [:label {:for "dob"} "Date of Birth"]
+       [:input {:type      "date" :class-name "form-control"
+                :id        "dob"
+                :autoComplete "off"
+                :value     (get additional-details :dob "")
+                :on-change #(rf/dispatch [:kcp.events/update-additional-details
+                                          {:dob (-> % .-target .-value)}])}]]
+
+      [:h4 "Clinician Details"]
+
+      [:div {:class-name "form-group"}
+       [:label {:for "clinician-name"} "Name"]
+       [:input {:type      "text" :class-name "form-control"
+                :id        "clinician-name"
+                :autoComplete "off"
+                :value     (get additional-details :clinician-name "")
+                :on-change #(rf/dispatch [:kcp.events/update-additional-details
+                                          {:clinician-name (-> % .-target .-value)}])}]]
+      ]]))
+
+
+
+(defn open-collect-additional-details-modal
+  "Opens a dialog for collecting additional details, ready for printing."
+  [_e]
+  (let [cancel-modal (fn []
+                      (rf/dispatch [::events/reset-additional-details])
+                      (hide-handler nil))]
+  (rf/dispatch [::events/modal-data
+                {:show     true
+                 :width    "700px"
+                 :title    "Print, Copy or Save to PDF"
+                 :content  [additional-details-form]
+                 :continue print-or-save-modal
+                 :cancel   cancel-modal
+                 :on-hide  cancel-modal}])))
+
+
+
 (defmethod widget :reset
   [_w]
   [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
@@ -169,12 +239,12 @@
     [:span
      (bsio/reset-button {:on-click #(rf/dispatch [::events/reset-inputs])})
      (when-not @(rf/subscribe [::subs/missing-inputs])
-       (bsio/print-button {:on-click print-or-save-modal}))]]])
+       (bsio/print-button {:on-click open-collect-additional-details-modal}))]]])
 
 (defn print-or-save
   []
   (when-not @(rf/subscribe [::subs/missing-inputs])
-    (bsio/print-button {:on-click print-or-save-modal})))
+    (bsio/print-button {:on-click open-collect-additional-details-modal})))
 
 (defn radio
   [{:keys [factor-name factor-key levels _default _type vertical optional _boxed info-box?] :as w}]

@@ -172,13 +172,13 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
 
 (defn modal
   "A modal dialog box. 
-   There is only one - so this gets called just once from the root component. We control it via db :modal-data - see available operations
-   in https://react-bootstrap.github.io/components/modal/#modal-props. Not yet a reusable 
-   component as ony the parts we use are configured.
+   There is only one at a time (i.e. no nesting) - so this gets called just once from the root component. We control
+   it via db :modal-data - see available operations in https://react-bootstrap.github.io/components/modal/#modal-props.
+   Not yet a reusable component as ony the parts we use are configured.
    To cancel the dialogue use the top-right close button."
   [data-f]
   ;(locals)
-  (let [{:keys [title content cancel on-hide print copy save ok paste width on-show ] :as data} @(data-f)]
+  (let [{:keys [title content cancel continue on-hide print copy save ok paste width on-show ] :as data} @(data-f)]
     (when data
       [:> bs/Modal {:show true 
                     :onHide on-hide 
@@ -194,6 +194,10 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                            style (.-style el)]
                                        (goog.object.set style "max-width" "85%"))), 200)
               nil)
+        (when cancel [:> bs/Button {:variant "secondary" :on-click cancel}
+                    "Cancel"])
+        (when continue [:> bs/Button {:variant "primary" :on-click continue}
+                      "Continue"])
         (when copy [:> bs/Button {:variant "primary" :on-click copy}
                     "Copy"])
         (when print [:> bs/Button {:variant "primary" :on-click print}

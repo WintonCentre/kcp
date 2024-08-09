@@ -258,6 +258,16 @@
       (assoc-in data-path (edn/read-string response)))))
 
 (rf/reg-event-db
+  ::update-additional-details
+  (fn [db [_ details]]
+    (update db :additional-details merge details)))
+
+(rf/reg-event-db
+  ::reset-additional-details
+  (fn [db _]
+    (assoc db :additional-details {})))
+
+(rf/reg-event-db
  ::modal-data
  (fn [db [_ data]]
    (assoc db :modal-data data)))

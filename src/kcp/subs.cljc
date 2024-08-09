@@ -42,6 +42,8 @@
 
 (rf/reg-sub ::is-full-screen (fn [db] (:is-full-screen db)))
 
+(rf/reg-sub ::additional-details (fn [db] (:additional-details db)))
+
 (rf/reg-sub ::missing-inputs (fn [db] (:missing-inputs db)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

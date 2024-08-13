@@ -129,14 +129,7 @@
       [:h1 "Save to PDF"]
       [:p "If you prefer a PDF, press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
                                                        :style {:margin-right 5}}
-                                         "Print"] " and select \"Save to PDF\" in the browser print dialogue."]
-      [:h1 "QRCode"]
-      [:p#docuri {:style {:width 466
-                          :word-break "break-word"}} URI]
-      [:div#qrcode {:style {:display "flex" :flex-direction "column" :justify-content "top" :align-items "center" :margin-bottom 10}}]
-      [:p "Use a QRCode reader on your mobile to view your inputs there."]
-      [:i "Unfortunately we are unable to support these features in Internet Explorer. We recommend
-         using another browser if you need to use them."]]]))
+                                         "Print"] " and select \"Save to PDF\" in the browser print dialogue."]]]))
 
 
 
@@ -148,14 +141,6 @@
   (rf/dispatch [::events/modal-data
                 {:show true
                  :width "700px"
-                 :on-show #(js/setTimeout
-                            (fn [_e]
-                              (js/QRCode.
-                               (js/document.getElementById "qrcode")
-                               #js {:text (.-href js/document.location)
-                                    :width 128
-                                    :height 128}))
-                            500)
                  :title "Print, Copy or Save to PDF"
                  :content (print-modal-content)
                 ; :ok hide-handler

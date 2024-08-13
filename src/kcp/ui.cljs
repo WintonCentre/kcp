@@ -191,7 +191,6 @@ in the routes table."
           [:> bs/Nav {:class "ml-auto"
                       :style {:height "100%" :vertical-align "middle"}}
 
-           [bsio/feedback-button mdata single-organ]
            #_[:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
                                        "?subject=" (-> mdata single-organ :contact-email-subject)
                                        "&body=" (-> mdata single-organ :contact-email-body))}

@@ -57,15 +57,7 @@
        [home-section
         [:h2 "What does this site do?"]
         [:p (get-in mdata [single-organ :description])]
-        [:p "Results can be printed out for patients to take home."]
-
-        [:> bs/Row
-         [:> bs/Col {:md 4}
-          [:p [bsio/feedback-button mdata single-organ]]]
-         [:> bs/Col {:md 8}
-          [:p
-           [:i "We are still asking for feedback on this site. You are encouraged to email us with any thoughts, corrections
-              and feedback on any aspect of the site."]]]]]
+        [:p "Results can be printed out for patients to take home."]]
 
 
        [home-section

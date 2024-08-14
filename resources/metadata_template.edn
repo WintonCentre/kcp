@@ -44,10 +44,15 @@
           :description "This is a tool to predict the risk of cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the 10 years following surgery for kidney cancer. The aim of the tool is to support conversations between patients and their clinical team around the risk of recurrence when planning follow-up care."
           :how-does-it-work [:p "This tool takes details about a patient's cancer, such as tumor size, and produces results personalised for them. The tool uses the Leibovich score. For more information on this score please read the " [:a {:href :kcp.views/tech} "technical section"] " of this site."]
           :who-is-it-for "This site is for adults who have had surgery to remove a kidney cancer that has not spread beyond the kidney at the time of surgery. It should not be used for those with a diagnosis of metastatic kidney cancer or those with known hereditary cancer syndromes such as Von Hippel-Lindau Disease (VHL)."
-          :more-information [:p "More information about kidney cancer and available support services is available from "
-                             [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "Kidney Cancer UK"] ", "
-                             [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "Cancer Research UK"] " and "
-                             [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "Macmillan"] "." ]
+          :more-information [:div
+                             [:p.d-print-none "More information about kidney cancer and available support services is available from "
+                              [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "Kidney Cancer UK"] ", "
+                              [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "Cancer Research UK"] " and "
+                              [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "Macmillan"] "."]
+                             [:ul.d-none.d-print-block
+                              [:li "Kidney Cancer UK - " [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "https://www.kcuk.org.uk/"]]
+                              [:li "Cancer Research UK - " [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "https://www.cancerresearchuk.org/about-cancer/kidney-cancer"]]
+                              [:li "Macmillan - " [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer"]]]]
           :tool-order [:ldsurvival :guidance]
           :contact-email "kidneykcp@statslab.cam.ac.uk"
           :contact-email-subject "Kidney kcp tool"
@@ -55,9 +60,7 @@
           :tools {:ldsurvival {:button-type "survival"
                                :label "Survival - living donor"
                                :inputs {:header [:div
-                                                 [:p.d-none.d-print-block "Here is the information that should be valid " [:b "at time of registration."] " The results will show outcomes as if the patient receives a transplant today."]
                                                  [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour. That means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
-                                        ;[:p.d-print-none "Please enter the information that is valid " [:b "at time of registration."]  " The results will show outcomes as if the patient receives a transplant today."]]}
                                :outcomes {:residual {:label "no recurrence"
                                                      :long-label "patients have had no recurrence"
                                                      :fill "#00979C"
@@ -75,6 +78,15 @@
                                                        :stroke "#000"
                                                        :label-fill "#000000"}}
                                :plot-order [:ldsurvival :residual]
+                               :fully-qualified-level-name {:histologic-tumor-necrosis {:No "No necrosis"
+                                                                                        :Yes "Necrosis found"}
+                                                            :nuclear-grade {:1 "Grade 1"
+                                                                            :2 "Grade 2"
+                                                                            :3 "Grade 3"
+                                                                            :4 "Grade 4"}}
+                               :printout {
+                                          :time-index 5
+                                          :description "over the next 5 years"}
                                :bars {:width 150
                                       :spacing 3.2
                                       :font-size 30
@@ -123,10 +135,6 @@
                                        :svg-height 520
                                        :svg-margin {:top 0 :right 0 :bottom 0 :left 0}
                                        :svg-padding {:top 0 :right 0 :bottom 0 :left 0}
-                                        ;:svg-width 575
-                                        ;:svg-height 250
-                                        ;:svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                                        ;:svg-padding {:top 40 :right 20 :bottom 80 :left 20}
                                        :width 0
                                        :font-size 25
                                        :labels [{:time-index 1
@@ -157,16 +165,10 @@
 
                                :pre-section [:<>
                                              [:h3 "What does this show?"]
-                                        ;[:h3
-                                        ; "How long might your kidney last if it's from a living donor?"
                                              [:section
                                               [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer)."]
                                               [:p "It is not a prediction of what will happen to you. It is an estimate."]
                                               ]]
-                                        ;:post-section [:h5 "Patient survival after a living donor transplant"]
                                :rest-of-page [:section
-                                        ;[:p "Why does the display stop at year 5? We do not have data for patients going back
-                                        ; more than 5 years that we can use."]
-                                        ;[:p "As time passes we will be able to add in more years"]
                                               [:h3 "Why does the display stop at year 10?"]
                                               [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}}}}

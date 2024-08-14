@@ -1,18 +1,35 @@
 //@use "sass:color";
+.text-decoration-underline {
+    text-decoration: underline;
+}
+
+
 // printing fixes for chrome in particular
 @media print {
     @page {
         size: 210mm 297mm;
-        /* landscape */
-        /* you can also specify margins here: */
-        margin: 10mm;
-        margin-right: 10mm;
-        /* for compatibility with both A4 and Letter */
+        // clear the default date and title
+        margin: 0;
     }
-    //works (for Chrome) but not production ready
-    /*body {
-        -webkit-print-color-adjust: exact !important;
-    }*/
+    .print-root {
+        // add the margins back in...
+        margin: 10mm;
+    }
+    .print-header {
+        position: fixed;
+        top: 0;
+        left: 10mm;
+        right: 10mm;
+        height: 5cm;
+    }
+    .print-body {
+        margin-top: 5cm;
+    }
+    .page-break {
+        page-break-before: always;
+        // recreate the margins that were removed
+        margin-top: 6cm;
+    }
     .col-print-6 {
         width: 50%
     }
@@ -56,12 +73,15 @@
     .nav-item {
         display: none;
     }
-    /*a[class="nav-item nav-link"] {
-        display: none;
-    }*/
     /* Making icons more visible in "Useful information" */
     .oi.oi-person[style*="color: rgb(204, 204, 204); padding: 4px 5px;"] {
         color: rgb(250, 250, 250) !important;
+    }
+    .boxed {
+        border: 1px solid #333333;
+    }
+    svg {
+        border: 2px solid rgb(102, 102, 102);
     }
 }
 

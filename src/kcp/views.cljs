@@ -1,24 +1,27 @@
 (ns kcp.views
   (:require
-   [clojure.string :as string]
-   [re-frame.core :as rf]
-   ["react-bootstrap" :as bs]
-   [kcp.bsio :as bsio]
-   [kcp.bundles :as bun]
-   [kcp.utils :as utils]
-   [kcp.subs :as subs]
-   [kcp.events :as events]
-   [kcp.ui :as ui]
-   [kcp.paths :as paths]
-   [kcp.widgets :as widg]
-   [kcp.results :as results]
-   [kcp.print-fills :as prf]
-   [kcp.rgb :as rgb]
-   [kcp.factors :as fac]
-   [kcp.model :as model]
-   [medley.core :as medl]
-   [shadow.debug :refer [locals ?> ?-> ?->>]]
-   [clojure.string :as str]))
+    [clojure.edn :as edn]
+    [clojure.string :as string]
+    [kcp.vis2 :as vis]
+    [re-frame.core :as rf]
+    ["react-bootstrap" :as bs]
+    [kcp.bsio :as bsio]
+    [kcp.bundles :as bun]
+    [kcp.utils :as utils]
+    [kcp.subs :as subs]
+    [kcp.events :as events]
+    [kcp.ui :as ui]
+    [kcp.paths :as paths]
+    [kcp.widgets :as widg]
+    [kcp.results :as results]
+    [kcp.print-fills :as prf]
+    [kcp.rgb :as rgb]
+    [kcp.factors :as fac]
+    [kcp.model :as model]
+    [medley.core :as medl]
+    [shadow.debug :refer [locals ?> ?-> ?->>]]
+    [clojure.string :as str]
+    [svg.container :as svgc]))
 
 (defn home-section
   [& content]
@@ -839,6 +842,46 @@ factors and the predictions made by this tool are not well understood by researc
 not currently use these factors to make decisions about follow-up care."]]
       :else [:div])))
 
+(defn format-date [date]
+  (let [options (clj->js {:day "numeric" :month "long" :year "numeric"})
+        formatted-date (.toLocaleDateString date "en-GB" options)]
+    formatted-date))
+
+(defn create-printout-details
+  "Creates a context object for use in the printout"
+  [visualization-context additional-details]
+  (let [
+        total-score (:total-score visualization-context)
+        time-index (get-in visualization-context [:tool-mdata :printout :time-index] nil)
+        fs-by-year-in-plot-order (:fs-by-year-in-plot-order visualization-context)
+        details {
+                 :risk-score total-score
+                 :risk-description (cond
+                                     (<= total-score 2) "low risk"
+                                     (>= total-score 6) "high risk"
+                                     :default "intermediate risk")
+                 :risk-at-print-time-index (if (empty? fs-by-year-in-plot-order)
+                                             nil
+                                             (-> fs-by-year-in-plot-order
+                                                 (nth time-index)
+                                                 second     ; [time, {series}]
+                                                 :int-fs
+                                                 ; HACK: hardcoded against plot order... ideally this would be keyed
+                                                 second))
+                 :time-index-description (get-in visualization-context [:tool-mdata :printout :description] "")
+                 :header-data {
+                               :patient-name (:patient-name additional-details)
+                               :nhs-number (:nhs-number additional-details)
+                               :dob (:dob additional-details)
+                               :clinician-name (:clinician-name additional-details)
+                               :date-today (format-date (js/Date.))}
+                 :more-information (-> visualization-context
+                                       :mdata
+                                       (get-in [(ui/get-single-organ (:mdata visualization-context))])
+                                       :more-information)}]
+    details)
+  )
+
 (defn tool-page
   [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
@@ -847,9 +890,12 @@ not currently use these factors to make decisions about follow-up care."]]
           tool-mdata (utils/get-tool-meta mdata organ tool)
           tcb (bun/get-bundle organ centre tool)
           is-full-screen @(rf/subscribe [::subs/is-full-screen])
-          tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")]
+          tab (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tab] "bars")
+          vis-context (results/create-visualization-context {:organ        organ :centre centre :tool tool
+                                                             :selected-vis @(rf/subscribe [::subs/selected-vis])})
+          printout-details (create-printout-details vis-context @(rf/subscribe [::subs/additional-details]))]
 
-      [:div {:id "capture"}
+      [:div {:id "capture" :class-name "print-body"}
        (when-not is-full-screen
          [:div [:div.d-print-none {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
                 [ui/row
@@ -857,19 +903,35 @@ not currently use these factors to make decisions about follow-up care."]]
                   [:h1 (:explanation uk-info)]]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
-          [:div.d-none.d-print-block {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
-           [ui/row
-            [ui/col {:xs 6 :sm 4}
-             [:h1 (:description centre-info)]]
-            [ui/col {:xs 6 :sm 4} [:h2 (string/capitalize organ-name) " Transplant Tool"]]]
-           [ui/row
-            [ui/col {:xs 6 :sm 4} [:h4.lblprint (:label tool-mdata) " model"]]]]
-          [:hr.rounded]])
+          [:div.d-none.d-print-block.print-header
+           [:div {:style { :padding "30px 30px 0 30px" }}
+            [:img {:src "assets/nhs-left-align_scaled.svg" :style {:display "block" :width "3cm" :margin-left "auto" :margin-right 0}}]
+            [ui/row
+             [ui/col {:xs 6}
+              [:p [:b "Patient details:"] [:br]
+               "Name: " (-> printout-details :header-data :patient-name) [:br]
+               "NHS  number: " (-> printout-details :header-data :nhs-number) [:br]
+               "Date of birth: " (-> printout-details :header-data :dob)]]
+             [ui/col {:xs 6}
+              [:p [:b "Consultant:"] [:br]
+               "Name: " (-> printout-details :header-data :clinician-name) [:br]
+               "Date: " (-> printout-details :header-data :date-today) [:br]
+               "Signature: "]]]]
+           [:hr.rounded { :style {:border-color rgb/theme :margin 0 } }]]])
 
        (when (= tab "test")
-         [results/results-panel {:organ organ :centre centre :tool tool :bare true
-                                 :centre-info centre-info}])
+         [results/results-panel { :bare true :vis-context vis-context :centre-info centre-info }])
 
+
+       (when-not @(rf/subscribe [::subs/missing-inputs])
+         [ui/col {:xs 12 :class-name "flex-fill d-none d-print-block"}
+          [:div {:class-name "boxed text-center" :style {:margin-bottom "16px"}}
+           [:p {:style {:margin "8px"}}
+            "PREDICT Kidney is a prognostic tool to predict recurrence in patients surgically treated for non-metastatic kidney cancer"]]
+          [ui/col {:xs 12}
+           (let [total-score (:risk-score printout-details)]
+             [:h4 {:class-name "text-decoration-underline"}
+              (str "RESULTS: " (str/upper-case (:risk-description printout-details)) " Leibovich Score: " total-score)])]])
 
 
        (if-let [tool-centre-bundle tcb]
@@ -885,12 +947,12 @@ not currently use these factors to make decisions about follow-up care."]]
             (when-not is-full-screen
               [ui/col {:md 6
                        :style {:margin-top 10}
-                       :class-name "col-print-6"}
+                       :class-name "col-print-6 boxed"}
 
                (when-let [input-header (get-in tool-mdata [:inputs :header])]
                  input-header)
 
-               [:div {:style {:padding "0px 0px 15px 15px"}}
+               [:div {:style {:padding "0px 0px 0 15px"}}
                 (widg/widget {:type :reset})
 
                 (into [:<>]
@@ -916,7 +978,7 @@ not currently use these factors to make decisions about follow-up care."]]
 
                        tcb-fmaps))]
                [:<>
-                [:p "This tool cannot take into account all the factors about you that might affect the result. We hope to include more in the future."]
+                [:p.d-print-none {:style {:margin-top "15px"}} "This tool cannot take into account all the factors about you that might affect the result. We hope to include more in the future."]
                 [:p.d-print-none "Click below to find out more about factors that may affect the likelihood of kidney cancer coming back but are not included the tool."]
                 [:p
                  [:> bs/Button {:id "factors-considered"
@@ -936,18 +998,68 @@ not currently use these factors to make decisions about follow-up care."]]
             ;;;
             ;; Results Panel
             ;;;
-            [:div.w-100.d-print-none.d-xs-block.d-md-none] ; this allows for a two column print layout but a one column xs and sm screen sizes
+            [:div.w-100.d-print-none.d-xs-block.d-md-none]  ; this allows for a two column print layout but a one column xs and sm screen sizes
             [ui/col {:class-name "col-print-6"
-                     :md (if is-full-screen 12 6)}
+                     :md         (if is-full-screen 12 6)}
+
              (when-not is-full-screen
-               [:section {:id "test-results"}]
-               [:section {:style {:margin-top 10}} (:pre-section tool-mdata)])
-             [:section
-
-              [results/results-panel {:organ organ :centre centre :tool tool}]
-
+               [:section.d-print-none {:style {:margin-top 10}} (:pre-section tool-mdata)])
+             [:section.d-print-none
+              [results/results-panel {:vis-context vis-context}]
               (:rest-of-page tool-mdata)]
-             [widg/print-or-save]]])
+
+             (when-not @(rf/subscribe [::subs/missing-inputs]) [:section.d-none.d-print-block {:style {:margin-top 10}}
+              [:p "Based on the details of your tumour, you are at "
+               [:b (:risk-description printout-details)] (str " of your cancer coming back or
+              spreading. When we consider the details of your tumour the estimated risk of your cancer coming back
+              (recurrence) or spreading to other parts of the body
+              (metastasis) " (:time-index-description printout-details) " is " (:risk-at-print-time-index printout-details) "%.")]
+              [:p "In other words, " [:b (str "the cancer will come back or spread " (:time-index-description printout-details)
+                   " in about " (:risk-at-print-time-index printout-details) " out of 100 patients with the same tumour as you.")]]])
+
+             [widg/print-or-save]]
+
+            (when-not @(rf/subscribe [::subs/missing-inputs])
+              [:div [ui/col {:class-name "flex-fill d-none d-print-flex" :style {:margin-top "10px"}}
+               [ui/col {:xs 12 :style {:padding 0}} [:p "The following images show that risk in different ways. They also
+             show the estimated risk of the cancer coming back or spreading between 1 year and 10 years."]]]
+
+              [ui/col {:class-name "flex-fill d-none d-print-flex"}
+               [ui/col {:xs 6 :style {:padding 0}} [vis/icon-array vis-context {:disable-mobile true}]]
+               [ui/col {:xs 1 :style {:padding 0}}]
+               [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
+
+               [ui/col {:class-name "flex-fill d-none d-print-flex"}
+                [ui/col {:xs 8 :style {:padding 0 :margin-top -20}} [vis/table vis-context]]
+
+                [ui/col {:xs 3 :style {:padding 0}}
+                 [:svg {:style {:width "180px" :border "2px solid"}
+                        :viewBox "0 0 270 160"
+                        :preserveAspectRatio "xMinYMin meet"}
+                  [:rect {:width "100%" :height "100%" :fill "#CCC"}]
+                  [:g {:transform "translate(7 -20)"}
+                   (vis/svg-outcome-legend (:plot-order vis-context) (:data-styles vis-context))]]]]
+
+              [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}
+               [:h3 "Further details"]
+
+               [:div
+                (into [:<>]
+                      (map
+                        (fn [[_ stage-data]] ^{:key (:factor stage-data)}
+                          [:div
+                           [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
+
+                           [:p {:style {:color "#007bff"}} [:b (get-in (:fully-qualified-level-name tool-mdata)
+                                                                       [(:factor stage-data) (:level stage-data)]
+                                                                       (:level-name stage-data))]
+                            (when-let [sub-text (:sub-text stage-data)]
+                              (str " - " sub-text))]])
+                        tcb-fmaps))]]
+
+              [ui/col {:xs 12 :class-name "d-none d-print-block boxed" :style {:padding "16px 16px 0"}}
+               [:h5 "MORE INFORMATION AND SUPPORT:"]
+               (:more-information printout-details)]])])
 
          (if (= tool :guidance)
            [guidance organ]
@@ -1074,97 +1186,6 @@ not currently use these factors to make decisions about follow-up care."]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
-(defn tool-metadata
-  [env organ tool]
-  (get-in env [:mdata organ :tools tool])
-
-  (medl/deep-merge (get-in env [:mdata organ :tools :default])
-                   (get-in env [:mdata organ :tools tool])))
-
-(defn residual
-  "The Fs are the probabilities of leaving the list due to the various outcomes - see David's
-   paper at doc/David/transplant-non-simulation.pdf for detail.
-
-   In Cox results we can always calculate a residual amount to make the Fs total to 100% on each day.
-   As we may need to plot this residual and decorate it, we should calculate it and make it explicit.
-
-   Given a seq of Fs for one day, return the residual for that day"
-  [fs]
-  (- 1 (apply + fs)))
-
-(defn fs-mapped
-  "We will be plotting outcomes including residuals in some plot order specified in the metadata.
-   `outcomes` is a seq of baseline-cif outcome headers (less any cif- prefix, and as keywords)
-   `fs` are initially in that same order.
-   Both outcomes and fs are assumed to be in spreadsheet baseline-cif column order.
-   Return fs converted to a map keyed by outcome and with an additional residual outcome."
-  [outcomes fs]
-  #_(js/alert fs) ;fs dar vaaghe adad e avval e un fs haast. 2 taa dada budan in avvali e har kodume.
-                                        ;residual ham dar vaaghe adade dovvome ke tu function e residual, ye kaari ruye adade avval anjaam mishe ke adade dovvom be dast miyaad.
-  (assoc (->> [outcomes fs]
-              (apply map vector)
-              (into {}))
-         :residual (residual fs)))
-
-(defn fs-in-order
-  "order by outcome is a map of outcome-key to plot order.
-   fsk are a seq of [outcome-key fs] key-values like '([:residual 0.30000000000000004] [:transplant 0.3] [:death 0.4]).
-   plot-order is like [:transplant :residual :death]
-   Result would be (0.3 0.30000000000000004 0.4)"
-  [plot-order fsm]
-  #_(js/alert fsm) ;fsm dar vaaghe fs haaye har kodum az 12 o 24 o... hast.
-                                        ;dar vaaghe fsm ro tu map migire ke key haaye :ldsurvival va :resudual daaran, bad mikonateshun tuye [] budune key haashun.
-  (map
-   (fn [data-key]
-     (fsm data-key))
-   plot-order))
-
-(defn int-fs-series
-  "convert an ordered fs to a map containing the original ordered-fs and its partial sums.
-   Include integer valued percentage approximations for fs and cum-fs adjusted so the sum of the
-   int-fs is 100. The alogithm seeks to minimise the error introduced by the adjustment."
-  [ordered-fs]
-  #_(js/alert ordered-fs) ;in dar vaaghe fs e har kodum az un adad haaye 12 o 24 o... hast. in adade avval o dovvom ro baa ham daare, bedune key haashun.
-  #_(js/alert (js/Math.round 2.5283547350491444))
-  (let [pc-fs (map #(* 100 %) ordered-fs)
-        int-fs (loop [int-pc-fs (mapv #(js/Math.round %) pc-fs)]
-                 (let [err-pc-fs (map #(- %1 %2) int-pc-fs pc-fs)
-                       sum-int-pc-fs (apply + int-pc-fs)
-                       sum-err-pc-fs (- sum-int-pc-fs 100)]
-                   (if (zero? sum-err-pc-fs)
-                     int-pc-fs
-                     (let [cmp (if (pos? sum-err-pc-fs) > <)
-                           adjust (reduce (fn [[i me] [j e]]
-                                            (if (cmp e me)
-                                              [j e]
-                                              [i me]))
-                                          [0 0]
-                                          (zipmap (range) err-pc-fs))]
-                       (recur (update int-pc-fs (first adjust) (if (pos? sum-err-pc-fs) dec inc)))))))]
-
-    {:fs ordered-fs
-     :cum-fs (reductions + ordered-fs)
-     :int-fs int-fs
-     :cum-int-fs (reductions + int-fs)}))
-
-(defn fs-time-series
-  "Take a time series of Fs with Fs in spreadsheet column order.
-   Add residuals, and reorder them into a plot data series, adding cumulative values to facilitate
-   a stacked plot."
-  [outcomes plot-order t-fs]
-  (map
-   (fn [[t fs]]
-     [t (->> fs
-             (fs-mapped outcomes)
-             (fs-in-order plot-order)
-             (int-fs-series))])
-   t-fs))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 ; the standard error test programe.
 ; the rute for this program is standard-error-test-848efcc3-938f-4dff-9b55-1f0394f29793.
 
@@ -1217,9 +1238,9 @@ not currently use these factors to make decisions about follow-up care."]]
                 F (model/cox-only s0 sum-betas)
                 env (conj env [:sum-betas sum-betas] [:s0 s0] [:s0-for-day s0-for-day] [:F F])
                 fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-                tool-mdata (tool-metadata env :kidney :ldsurvival)
+                tool-mdata (vis/tool-metadata env :kidney :ldsurvival)
                 plot-order (:plot-order tool-mdata)
-                fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+                fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys plot-order fs-by-year)]
 
             (when (> (count fs-by-year-in-plot-order) 1)
               (cond

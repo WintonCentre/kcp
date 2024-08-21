@@ -81,7 +81,7 @@ in the routes table."
 
 (comment
   (def link (js/document.querySelector "link[rel~='icon']"))
-  (def logo "/assets/logo_kidney_192.png"))
+  (def logo "assets/logo_kidney_192.png"))
 
 (comment
   (def mdata   @(rf/subscribe [::subs/mdata]))
@@ -101,8 +101,8 @@ in the routes table."
         organ-centres @(rf/subscribe [::subs/organ-centres])]
 
     (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded. If it isn't yet the navbar will rerender.
-      (let [logo (str "/assets/crest.png")
-            favicon (str "/assets/favicon_" (name single-organ) ".png")]
+      (let [logo (str "assets/crest.png")
+            favicon (str "assets/favicon_" (name single-organ) ".png")]
         (load-favicon favicon)
 
         [:> bs/Navbar {#_#_:bg "dark" :expand "lg"
@@ -196,7 +196,7 @@ in the routes table."
     [:div {:style {:padding "20px 20px 5px 15px" :display "flex" :background-color "#1A4554" :color  "#DDD" :flex-direction "column" :align-items "center"}}
      [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
       [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
-       [:img {:src "/assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
+       [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
        [:p {:style {:text-align "center"}} "This tool was developed by the Winton Centre for Risk and Evidence Communication.
                      It currently displays models disclosed by NHSBT under a data sharing agreement.
                      It was developed with transplant patients and their partners and clinical teams

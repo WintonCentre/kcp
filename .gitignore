@@ -11,6 +11,8 @@ resources/public/cljs-out-old
 # Leiningen
 /.lein-*
 /.nrepl-port
+.clj-kondo/
+tmp.iml
 
 # Temp files
 .*.swp

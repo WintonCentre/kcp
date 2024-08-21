@@ -2,14 +2,12 @@
  ; "Configuration file paths"
   (:require [kcp.shared :refer [underscore]]))
 
-(def slash "/")
-
 (defn prefix
   [organ]
-  (str slash (name organ) slash "edn" slash))
+  (str "" (name organ) "/" "edn" "/"))
 
 
-(def metadata-path (str slash "metadata.txt"))
+(def metadata-path (str "metadata.txt"))
 
 (defn tools-path
   [organ]
@@ -20,13 +18,13 @@
   (str (prefix organ) "centres.txt"))
 
 #_(defn organ-centre-name-tool
-  [organ centre-name tool]
+    [organ centre-name tool]
   ;(println ::tool tool)
-  (if (= (name tool) "guidance")
-    nil
-    (str (prefix organ)
-         (underscore centre-name) slash
-         (underscore tool) ".txt")))
+    (if (= (name tool) "guidance")
+      nil
+      (str (prefix organ)
+           (underscore centre-name) "/"
+           (underscore tool) ".txt")))
 
 (defn organ-centre-name-tool
   "return a pathname for tool data, else nil"
@@ -40,11 +38,11 @@
 
       ;; todo: NHSBT dependent
           (#{"ldsurvival" "ldgraft"} tool-name) (str (prefix organ)
-                                                     "UK" slash
+                                                     "UK" "/"
                                                      tool-name ".txt")
       ;; OK
           :else (str (prefix organ)
-                     (underscore centre-name) slash
+                     (underscore centre-name) "/"
                      tool-name ".txt"))]
     ;(println ::organ-centre-name-tool "path=" path)
     path))
@@ -53,10 +51,8 @@
   (prefix "lung")
   (centres-path :lung)
   (underscore :waiting)
-  
+
   (organ-centre-name-tool  "lung"
-                            "birm"
-                            "post-transplant")
-  
-  )
+                           "birm"
+                           "post-transplant"))
   

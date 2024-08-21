@@ -109,7 +109,7 @@
    {:data {:coercion rss/coercion}}))
 
 ;;to control the use of fragments at compile stage
-(goog-define frag? false)
+(goog-define frag? true)
 
 (defn init-routes! []
   (rfe/start!

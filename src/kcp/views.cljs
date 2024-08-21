@@ -118,8 +118,8 @@
           [ui/row
            [ui/col {:md 4}
             [:img (if (= organ :lung)
-                    {:src "/assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
-                    {:src "/assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
+                    {:src "assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
+                    {:src "assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
            [ui/col {:md 8 :style {:color "#fff"}}
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
             [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
@@ -279,7 +279,7 @@
    [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
     [:i "S" [:sub "i"] "(t) "] " = exp" [:i " (-H" [:sub "i"] " (t))"]]
    [:div ""]
-   [:p "In the case of the ‘Waiting time’ models, we apply an " [:a {:href "/competing_risks.pdf" :target "_blank"} "iterative algorithm"] " to calculate the risks of all the competing outcomes."]
+   [:p "In the case of the ‘Waiting time’ models, we apply an " [:a {:href "competing_risks.pdf" :target "_blank"} "iterative algorithm"] " to calculate the risks of all the competing outcomes."]
 
    [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. "]])
 
@@ -338,7 +338,7 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:section
-     [:ul {:style {:list-style-image "url(/assets/bullet-plus.png)"
+     [:ul {:style {:list-style-image "url(assets/bullet-plus.png)"
                    :margin-top 10}} (map overview-menu kidney-tags)]]
 
     [:h3#model-development "Model development"]
@@ -531,7 +531,7 @@ Here are typical donor characteristics you might be asked to think about."]
         Transplantation is offered when you are ill enough to need it,
         but well enough to survive the surgery.  We call this the ‘window of opportunity’."]
    [:> bs/Image {:fluid true
-                 :src "/assets/The_Window.png"
+                 :src "assets/The_Window.png"
                  :async true}]])
 
 (defmethod show-guidance :graft-failure []

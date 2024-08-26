@@ -1,6 +1,7 @@
 {:abbreviations {:kidney {:t-stage                    ["T" {:pT1a "1"
                                                             :pT1b "2"
-                                                            :pT2  "3"
+                                                            :pT2a "3"
+                                                            :pT2b "3"
                                                             :pT3a "4"
                                                             :pT3b "5"
                                                             :pT3c "6"

@@ -248,93 +248,36 @@
 
   (collect-mapped-tool-bundle :kidney nil nil)
   ;; => {:centres {:key ("uk"), :name ("UK"), :link ("https://www.openstreetmap.org/#map=6/54.910/-3.432"), :image ("assets/kidney/osm_logo.svg"), :description (nil), :explanation ("This is the adult transplant centre where the patient will be receiving their transplant.  This is not always the same as the dialysis follow-up centre.")}}
-
-
   )
-
-#_(defn log-path
-  "return the log file where we collect file-paths to precache"
-  [organ]
-  (str "resources/precache_paths_" (name organ) ".txt"))
-
-
-(defn precache-paths
-  "return the log file where we collect file-paths to precache"
-  [organ]
-  (str "resources/precache_paths_" (name organ) ".edn"))
-
-
-
-(defn relative-path
-  "return the path relative to resources/public/ given a project relative path in a form
-   suitable for inclusion in a javascript array."
-  [path]
-  (let [c (dec (count (str "resources" slash  "public" slash)))]
-    (str "\t\t\t'" (subs path c) "'," "\n")))
-
-(defn precache-path
-  "return the path relative to resources/public/ given a project relative path in a form
-   suitable for inclusion in a javascript array."
-  [path]
-  (let [c (dec (count (str "resources" slash  "public" slash)))]
-    (subs path c)))
-
-(def precache-common  ["/"
-                       "/about"
-                       "/legal"
-                       "/pubs"
-                       "/tech"
-                       "/js/app.js"
-                       "/competing_risks.pdf"
-                       "/index.html"
-                       "/metadata.txt"
-                       "/object-assign-auto-min.js"
-                       "/assets/crest.png"
-                       "/assets/The_Window.png"
-                       "/css/styles.css"
-                       "/css/open-iconic-bootstrap.min.css"
-                       "/css/foo.css"
-                       "/fonts/open-iconic.ttf"
-                       "/fonts/open-iconic.woff"
-])
 
 (defn write-edn-bundle
   "Write out a bundle containing sufficient data for one tool. If centre is not given, then enough for all centres.
    To create the PWA cache, we'll also append a log with the list of files"
-  ([precache organ]
-   (write-edn-bundle precache organ nil nil))
+  ([organ]
+   (write-edn-bundle organ nil nil))
 
-  ([precache organ centre]
-   (write-edn-bundle precache organ centre nil))
+  ([organ centre]
+   (write-edn-bundle organ centre nil))
 
-  ([precache organ centre tool-key]
+  ([organ centre tool-key]
 
    (let [path (bundle-path organ centre tool-key)
          f (io/file path)]
-     ;(spit (log-path organ) (relative-path path) :append true)
-     (swap! precache conj (precache-path path))
      (io/make-parents f)
      (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
 
 (comment
   (bundle-path :kidney "UK" :ldsurvival)
   ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
-
-  (precache-path "resources/public/kidney/edn/UK/ldsurvival.txt")
-  ;; => "/kidney/edn/UK/ldsurvival.txt"
-
-
   )
 
 (defn write-sheet
   "writes a generic sheet out in edn format. Used for tools and centres"
-  [precache organ key]
+  [organ key]
   (let [sheet (get-col-maps organ key)
         sheet-path (str (get-in (memo-config organ) [:export :edn-path])
                         slash (str (name key)) ".txt")]
     (io/make-parents sheet-path)
-    ;(spit (log-path organ) (relative-path sheet-path) :append true)
-    (swap! precache conj (precache-path sheet-path))
     (spit sheet-path sheet)))
 
 (defn export-all-edn-bundles
@@ -342,26 +285,20 @@
   []
 
   (doseq [organ [:kidney] ;[:lung :kidney]
-          sheet [:tools :centres]
-          :let [precache (atom precache-common)]]
-    
-    ;; Add in the tools.txt files that are otherwise missed for some reason
-    (swap! precache conj (str "/" (name organ) "/edn/tools.txt"))
+          sheet [:tools :centres]]
 
-    (write-sheet precache organ sheet)
+    (write-sheet organ sheet)
 
     (let [centres (get-centres organ)]
       (doseq [centre centres]
 
-        (write-edn-bundle precache organ centre)
+        (write-edn-bundle organ centre)
         (doseq [tool-key (keys (get-bundle organ))]
-      ;(println ::organ organ :centre centre :tool-key tool-key)
 
-          (write-edn-bundle precache organ
+          (write-edn-bundle organ
                             ;; todo - this isn't a generalised test for the special case handling for all-centre models
                             (if (contains? #{:ldsurvival} tool-key) "UK" centre)
-                            tool-key))))
-    (spit (precache-paths organ) (pr-str @precache))))
+                            tool-key))))))
   
   
 
@@ -505,11 +442,6 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   (bundle-path nil nil nil)
   (collect-mapped-tool-bundle :kidney "Belfast" :survival)
   (collect-mapped-tool-bundle :kidney "Bristol" :survival)
-
-  ;
-
-  (relative-path "resource/public/foo.txt")
-  (precache-path "resource/public/foo.txt")
 
   (export-all-edn-bundles)
 

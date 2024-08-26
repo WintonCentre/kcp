@@ -1,0 +1,21 @@
+{
+    "short_name": "kidney kcp",
+    "name": "kidney kcp",
+    "description": "kidney kcp",
+    "icons": [{
+            "src": "assets/logo_kidney_192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "assets/logo_kidney_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "",
+    "scope": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}

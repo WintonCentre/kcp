@@ -1200,7 +1200,7 @@ not currently use these factors to make decisions about follow-up care."]]
 
       (rf/dispatch [::events/standard-error-range])
 
-      (for [t-stage [:pT1a :pT1b :pT2 :pT3a :pT3b :pT3c :pT4]
+      (for [t-stage [:pT1a :pT1b :pT2a :pT2b :pT3a :pT3b :pT3c :pT4]
             n-stage [:pNx :pN0 :pN1 :pN2]
             tumor-size [:cm-<10 :cm->=10]
             nuclear-grade [:1 :2 :3 :4]

@@ -1,4 +1,4 @@
-
+.clj-kondo/
 /out/
 /resources/public/js/compiled/
 resources/public/kidney
@@ -70,6 +70,7 @@ edn-paths-kidney.txt
 resources/public/index.html
 resources/public/metadata.edn
 resources/public/sw_cache_update.js
+resources/public/css/styles.css*
 bbsrc/etaoin.clj
 resources/public/manifest.json
 resources/public/metadata.txt

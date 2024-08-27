@@ -1,19 +1,19 @@
 (ns kcp.ui
   "This should become the high level ui interface and should have all ns references factored out into
 the low level ui."
-  (:require   [clojure.string :as str]
-              [reagent.core :as rc]
-              [reitit.frontend.easy :as rfe]
-              ["react-bootstrap" :as bs]
-              [re-frame.core :as rf]
-              [kcp.events :as events]
-              [kcp.utils :as utils]
-              [kcp.subs :as subs]
-              [kcp.numeric-input :as ni]
-              [kcp.bsio :as bsio]
-              [kcp.shortener :as shorts]
-              ;[shadow.debug :refer [?-> ?->> locals]]
-              ))
+  (:require [clojure.string :as str]
+            [clojure.walk :as walk]
+            [kcp.bsio :as bsio]
+            [kcp.events :as events]
+            ["react-bootstrap" :as bs]
+            [kcp.numeric-input :as ni]
+            [kcp.shortener :as shorts]
+            [kcp.subs :as subs]
+            [kcp.utils :as utils]
+            [re-frame.core :as rf]
+            [reagent.core :as rc]
+            [reitit.frontend.easy :as rfe]
+            ))
 
 (enable-console-print!)
 
@@ -38,11 +38,33 @@ the low level ui."
   "Return relative url for given route. Url can be used in HTML links. Note that k is a route name defined
 in the routes table."
   ([k]
-   (href k nil nil))
+   (href k nil nil rfe/href))
   ([k params]
-   (href k params nil))
-  ([k params query]
-   (rfe/href k params query)))
+   (href k params nil rfe/href))
+  ([k params query parse-url]
+   (parse-url k params query)))
+
+(defn fixup-markup
+  "Fixes up markup (from e.g. edn files) to work better with the UI.
+  It does NOT perform sanitization, i.e. not safe for user inputs..."
+  ([markup]
+   (fixup-markup markup {:parse-url href}))
+
+  ([markup {:keys [parse-url]}]
+   (if-not (vector? markup)
+     (throw (ex-info "Markup should be a vector" {}))
+     (walk/postwalk
+       (fn [elem]
+         ; look for link elements
+         (if (and (vector? elem)
+                  (map? (second elem))
+                  (:href (second elem)))
+           (let [[tag attrs & content] elem
+                 updated-attrs (update attrs :href parse-url)]
+             ; replace them with an updated link address
+             (into [tag updated-attrs] content))
+           elem))
+       markup))))
 
 (comment
   (href :kcp.views/organ {:organ "kidney"}))
@@ -60,7 +82,7 @@ in the routes table."
     (if (= (count organ-order) 1)
       (first organ-order)
       ; todo - redefine a UI to select an organ if we offer more than one at a url
-      :lung ; till we do that, select lung
+      :lung                                                 ; till we do that, select lung
       )))
 
 (def oset goog.object.set)
@@ -84,23 +106,23 @@ in the routes table."
   (def logo "assets/logo_kidney_192.png"))
 
 (comment
-  (def mdata   @(rf/subscribe [::subs/mdata]))
-         )
+  (def mdata @(rf/subscribe [::subs/mdata]))
+  )
 
 (defn navbar
   "Straight out of the react-bootstrap example with reitit routing patched in."
   [{:keys [router current-route]}]
   (let [route @(rf/subscribe [::subs/current-route])
-        organ (get-in route [:path-params :organ]) ; this is nil until it has been selected
+        organ (get-in route [:path-params :organ])          ; this is nil until it has been selected
         home-url "/"
-        mdata  @(rf/subscribe [::subs/mdata])
+        mdata @(rf/subscribe [::subs/mdata])
 
         ; organ-order gives us the list of configured organ tools, in-order. In development we may have more than one organ,
         ; but in production each site will have only a single organ.
         single-organ (get-single-organ mdata)
         organ-centres @(rf/subscribe [::subs/organ-centres])]
 
-    (if-let [organ (or single-organ organ)] ; guard in case mdata has not been loaded. If it isn't yet the navbar will rerender.
+    (if-let [organ (or single-organ organ)]                 ; guard in case mdata has not been loaded. If it isn't yet the navbar will rerender.
       (let [logo (str "assets/crest.png")
             favicon (str "assets/favicon_" (name single-organ) ".png")]
         (load-favicon favicon)
@@ -109,15 +131,15 @@ in the routes table."
                        :variant "dark"
                        :collapse-on-select true
                        :style {:border-bottom "1px solid white" :opacity "1" :background-color "#336677"}}
-         [:> bs/Navbar.Brand  {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
-     ; Site name below
+         [:> bs/Navbar.Brand {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
+         ; Site name below
          [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
                           ;:organ (name organ)
                           :href (str (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"}) "/bars/-")}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
              ;(str (get-in mdata [single-organ :label]) " Transplant Tool")
-             (str "Kidney Cancer Prediction Tool")
+             (str "PREDICT Kidney")
              "Development Site")]]
          [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
          [:> bs/Navbar.Collapse {:id "basic-navbar-nav"}
@@ -153,34 +175,34 @@ in the routes table."
 
                  (comment
                    (into [:> bs/NavDropdown {:style {:font-size "1.2em"}}
-                                            :title "Transplant Centres" :id "basic-nav-dropdown"]
-                        (map (fn [centre]
-                               [:> bs/NavDropdown.Item
-                                {:href (href :kcp.views/organ-centre-tool-tab-inputs ;-tab-inputs
-                                             {:organ (name single-organ)
-                                              :centre (name (:key centre))
-                                              :tool (if tool (name tool) "waiting")
-                                              :tab tab
-                                              :inputs inputs})
-                                 :key (name (:key centre))}
+                          :title "Transplant Centres" :id "basic-nav-dropdown"]
+                         (map (fn [centre]
+                                [:> bs/NavDropdown.Item
+                                 {:href (href :kcp.views/organ-centre-tool-tab-inputs ;-tab-inputs
+                                              {:organ (name single-organ)
+                                               :centre (name (:key centre))
+                                               :tool (if tool (name tool) "waiting")
+                                               :tab tab
+                                               :inputs inputs})
+                                  :key (name (:key centre))}
 
-                                (:name centre)])
-                             (filter #(not= (:name %) "UK") centres)))))))]
+                                 (:name centre)])
+                              (filter #(not= (:name %) "UK") centres)))))))]
           [:> bs/Nav {:class "ml-auto"
                       :style {:height "100%" :vertical-align "middle"}}
 
            [bsio/feedback-button mdata single-organ]
            #_[:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
-                                     "?subject=" (-> mdata single-organ :contact-email-subject)
-                                     "&body=" (-> mdata single-organ :contact-email-body))}
-                          :variant "info" "✉️ " [:span {:style {:margin-left 10}} "Feedback"]]]]])
+                                       "?subject=" (-> mdata single-organ :contact-email-subject)
+                                       "&body=" (-> mdata single-organ :contact-email-body))}
+              :variant "info" "✉️ " [:span {:style {:margin-left 10}} "Feedback"]]]]])
       [loading])))
 
 (comment
   (keys @(rf/subscribe [::subs/organ-centres]))
   @(rf/subscribe [::subs/organ-centre])
   (kcp.ui/href :kcp.views/organ-centres {:organ (name :kidney)
-                                                         :centre "card"}))
+                                         :centre "card"}))
 
 (defn footer
   "Site footer
@@ -188,22 +210,22 @@ in the routes table."
   []
   (let [mdata @(rf/subscribe [::subs/mdata])
         single-organ (get-single-organ mdata)]
-  #_[:div "footer"]
-  ;[:> bs/Container {:fluid "fluid"
-  ;                  :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
-  ;                          :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
-   [:div.footer
-    [:div {:style {:padding "20px 20px 5px 15px" :display "flex" :background-color "#1A4554" :color  "#DDD" :flex-direction "column" :align-items "center"}}
-     [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
-      [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
-       [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
-       [:p {:style {:text-align "center"}} "This tool was developed by the Winton Centre for Risk and Evidence Communication.
-                     It currently displays models disclosed by NHSBT under a data sharing agreement.
-                     It was developed with transplant patients and their partners and clinical teams
-                     at transplant and referral centres in England. "]]]]
-    ;[:div {:style {:background-color "black" :margin  " -15px"}}]
-    [:div {:style {:padding 10 :font-size "12px" :color "#9E9E9E" :background-color "black"
-                   :display "flex" :flex-direction "column" :justify-content "center" :align-items "center"}}
+    #_[:div "footer"]
+    ;[:> bs/Container {:fluid "fluid"
+    ;                  :style {:width "100%"  :background-color "#1A4554" #_"black" :color "white"
+    ;                          :align-items "center" :justify-content "center" #_#_:flex-wrap "wrap"}}
+    [:div.footer
+     [:div {:style {:padding "20px 20px 5px 15px" :display "flex" :background-color "#1A4554" :color "#DDD" :flex-direction "column" :align-items "center"}}
+      [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
+       [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
+        [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
+        [:p {:style {:text-align "center"}} "The tool was developed by the Winton Centre for Risk and Evidence
+       Communication and by researchers in the Department of Public Health and Primary Care at the
+       University of Cambridge. Patients, members of the public, doctors and nurses have been involved
+       in the design of this tool."]]]]
+     ;[:div {:style {:background-color "black" :margin  " -15px"}}]
+     [:div {:style {:padding 10 :font-size "12px" :color "#9E9E9E" :background-color "black"
+                    :display "flex" :flex-direction "column" :justify-content "center" :align-items "center"}}
       ;;
       ;; todo: We do not have any mechanism as yet to scroll to a position within a page so these two links
       ;; both go to Legal at the current scroll point.
@@ -211,19 +233,19 @@ in the routes table."
       ;; See Predict for a Rum solution of this problem - it would have to be ported to a reagent type 3
       ;; component.
       ;;
-     [:div {:style {:text-align "center"}}
-      "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved."]
+      [:div {:style {:text-align "center"}}
+       "Copyright Ⓒ " (.getFullYear (js/Date.)) " University of Cambridge. All Rights Reserved."]
       ;; Can't use javascript hrefs in react - if they worked they would reload the page and lose state.
       ;; Use reitit generated hrefs instead.
-     [:div {:style {:text-align "center"}}
-      [:a {:style {:color "inherit"}
-           :href (href :kcp.views/legal)} "Privacy & Data Protection"]
-      #_" | "
-      #_[:a {:style {:color "inherit"}
-             :href (href :kcp.views/legal)} "Disclaimer"]
-      " | "
-      (str "✉️ " (-> mdata single-organ :contact-email))]
-     [:div "v-0.0-0.00-0-hash"]]]))
+      [:div {:style {:text-align "center"}}
+       [:a {:style {:color "inherit"}
+            :href (href :kcp.views/legal)} "Privacy & Data Protection"]
+       #_" | "
+       #_[:a {:style {:color "inherit"}
+              :href (href :kcp.views/legal)} "Disclaimer"]
+       " | "
+       (str "✉️ " (-> mdata single-organ :contact-email))]
+      [:div "v-0.0-0.00-0-hash"]]]))
 
 (defn root-component
   "The root of the component tree which is mounted on the main app html element"
@@ -245,7 +267,7 @@ in the routes table."
 (defn card-page
   "Render an array of cards"
   [title & children]
-  [container {:key 1 :style {:margin-top 40;
+  [container {:key 1 :style {:margin-top 40                 ;
                              :min-height "calc(100vh - 144px"}}
    [row
     [col
@@ -262,7 +284,7 @@ in the routes table."
   ;(?-> button-colour ::tool-buttons)
   ;(?-> button-type ::button-type)
   (let [active (= (name tool) active-tool)]
-;    (locals)
+    ;    (locals)
     [button {:id (str (name organ) "-" (name centre) "-" (name key))
              :variant (if active button-type (str "outline-" button-type))
              :style {:margin-bottom 2
@@ -299,47 +321,47 @@ in the routes table."
   (let [active-tool (get-in @(rf/subscribe [::subs/current-route]) [:path-params :tool])
         organ-name (name organ)
         mdata @(rf/subscribe [::subs/mdata])
-        menu-data  (map
+        menu-data (map
                     (fn [tool]
                       (assoc
-                       (if (= tool :guidance)
-                         {:label "Useful information"
-                          :button-type "usefulinfo"}
-                         (select-keys (utils/get-tool-meta mdata organ-name tool)
-                                      [:label :button-type]))
-                       :organ organ-name
-                       :tool tool
-                       :centre centre-name
-                       :active-tool active-tool
-                       :key (str organ-name "-" tool)
-                       :mdata mdata))
+                        (if (= tool :guidance)
+                          {:label "Useful information"
+                           :button-type "usefulinfo"}
+                          (select-keys (utils/get-tool-meta mdata organ-name tool)
+                                       [:label :button-type]))
+                        :organ organ-name
+                        :tool tool
+                        :centre centre-name
+                        :active-tool active-tool
+                        :key (str organ-name "-" tool)
+                        :mdata mdata))
                     (if include-guidance? tools (remove #(= :guidance %) tools)))]))
-    ;(?-> active-tool ::active-tool)
-    ;(?-> tools ::tools-menu)
-    ;(?-> menu-data ::menu-data)
-    ;TODO: configure this filter!
+;(?-> active-tool ::active-tool)
+;(?-> tools ::tools-menu)
+;(?-> menu-data ::menu-data)
+;TODO: configure this filter!
 
 ;    (locals)
-    ;[:<>
-     ;[row
-      ;[col {:xs 12 :sm 8}
-       ;[:h3.d-print-none {:style {:padding-right 20}} "Choose a tool:"]
+;[:<>
+;[row
+;[col {:xs 12 :sm 8}
+;[:h3.d-print-none {:style {:padding-right 20}} "Choose a tool:"]
 
-    ;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
-    ;; Even better would be to configure the break points as what makes sense will be very application
-    ;; specific.
-       ;(doall
-        ;(map-indexed
-         ;(fn [i group]
-          ; [:div {:key i}
-           ; (->> group
-            ;     (map tool-buttons)
-             ;    (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)])
-         ;(partition-by :button-type (butlast menu-data))]
-      ;[col {:xs 12 :sm 4}
-       ;(tool-buttons (last menu-data))
-       ;[:p.d-print-none "Things you might discuss during a consultation"]
-       ;[background-link organ-name centre-name active-tool]))
+;; :todo; There'll be a better CSS solution to keeping this on screen for both desktop and mobile
+;; Even better would be to configure the break points as what makes sense will be very application
+;; specific.
+;(doall
+;(map-indexed
+;(fn [i group]
+; [:div {:key i}
+; (->> group
+;     (map tool-buttons)
+;    (into [:> bs/ButtonGroup (merge {:style {:width "auto"}} orientation)])
+;(partition-by :button-type (butlast menu-data))]
+;[col {:xs 12 :sm 4}
+;(tool-buttons (last menu-data))
+;[:p.d-print-none "Things you might discuss during a consultation"]
+;[background-link organ-name centre-name active-tool]))
 
 
 (defn phone-card
@@ -354,7 +376,7 @@ in the routes table."
     #_(?-> inputs ::phone-card-inputs)
     (when (and mdata lookups)
       [:> bs/ListGroup.Item {:action true
-                         ;:href (apply rfe/href link)
+                             ;:href (apply rfe/href link)
                              :on-click #(rf/dispatch [::events/navigate :kcp.views/organ-centre-tool-tab-inputs
                                                       {:organ organ
                                                        :centre centre
@@ -370,7 +392,7 @@ in the routes table."
                :fluid "xl"
                :style {:min-height "calc(100vh - 165px"
                        :background-color "#ffffffbb"
-                       :max-width 2000 ;todo: adjust for side margins
+                       :max-width 2000                      ;todo: adjust for side margins
                        :margin-bottom 20}}
     [row
      [:> bs/Col {:md {:span 8 :offset 2}}
@@ -379,21 +401,22 @@ in the routes table."
 
 (defn decorated-page
   "A generic page component, rendering a title and the page's children"
-  ([decoration title & children]
+  ([decoration title subtitle & children]
    [container {:key 1
                :fluid "xl"
                :style {:min-height "calc(100vh - 165px"
                        :background-color "#ffffffbb"
-                       :max-width 2000 ;todo: adjust for side margins
+                       :max-width 2000                      ;todo: adjust for side margins
                        :margin-bottom 20}}
     [row
      [col
       decoration
       [:h1 {:style {:margin-top 20 :font-size "2em"}} title]
+      [:p [:b subtitle]]
       (into [:<>] (map-indexed (fn [k c] ^{:key k} c) children))]]]))
 (def mobile-break
   "Screens of this size or smaller are rendered with mobile oriented views."
-  1200 ;800
+  1200                                                      ;800
   )
 
 (defn centre-card
@@ -418,12 +441,12 @@ in the routes table."
 (defn test-day-selector
   "Used to select a test day to display"
   [label]
-  [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 20}}
+  [:> bs/Row {:style {:display "flex" :align-items "center" :margin-bottom 20}}
    [:> bs/Col {:style {:display "flex" :justify-content "flex-end"}}
     [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom 20 :line-height 1.2}}
      label]]
    [:> bs/Col
-    (ni/numeric-input {:key :test/day-input ; creates id="test-day-input" on input element
+    (ni/numeric-input {:key :test/day-input                 ; creates id="test-day-input" on input element
                        :value-f (fn [] @(rf/subscribe [::subs/test-day]))
                        :min (constantly 0)
                        :max (constantly (* 365 5))

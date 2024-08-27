@@ -56,8 +56,8 @@
       [:> bs/Col {:md 6}
        [home-section
         [:h2 "What does this site do?"]
-        [:p "This is a communication tool."]
-        [:p "Results can be printed out for patients to take home"]
+        [:p (get-in mdata [single-organ :description])]
+        [:p "Results can be printed out for patients to take home."]
 
         [:> bs/Row
          [:> bs/Col {:md 4}
@@ -70,15 +70,17 @@
 
        [home-section
         [:h2 "How does it work?"]
-        [:p "This tool takes details about a patient's cancer, such as tumor size, and produces results personlised for them."]]
+        (ui/fixup-markup (get-in mdata [single-organ :how-does-it-work]))]
 
        [home-section
-        [:h2 "The tool will show"]
-        [:p "The risk of your cancer coming back (known as recurrence or metastasising)"]]
+        [:h2 "What does the tool show?"]
+        [:p "The tool will show the risk of your cancer coming back (recurrence) or spreading to other parts of the
+             body (metastasis). If recurrence occurs there are several options for treatment, which your oncology team
+             will discuss with you."]]
 
        [home-section
         [:h2 "Who is this site for?"]
-        [:p "Adults kidney cancer patients who have had surgery to remove their cancer (and their relatives/carers)"]]]
+        [:p (get-in mdata [single-organ :who-is-it-for])]]]
 
       [:> bs/Col {:md 6}
        [home-section
@@ -91,9 +93,8 @@
         [:p " If you want to know more about the data and the models behind the tool read
              the " [:a {:href (ui/href :kcp.views/tech)}  "technical section"] " of this site."]]
        [home-section
-        [:h2 "Use the tool offline"]
-        [:p "You need an internet connection to access the tool for the first time."]
-        [:p "Provided you have visited the site once, you can revisit it from the same browser even if you are offline."]]]
+        [:h2 "Where can I find more information and support?"]
+        (get-in mdata [single-organ :more-information])]]
 
       [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
        (choose-centre-nav mdata)]]]))
@@ -124,7 +125,8 @@
             [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
             [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
             [:p [:b "If you are a patient and you use this site on your own, discuss the results with your urology team."]]]]]
-         (str (string/capitalize (name single-organ)) " Cancer Prediction Tool: Leibovich Score")
+         (str "PREDICT " (string/capitalize (name single-organ)))
+         (get-in mdata [single-organ :label])
          [ui/row
           [ui/col
            [:<> (leila-text mdata)]]]])

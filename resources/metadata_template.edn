@@ -68,7 +68,7 @@
                                                      :stroke "#000"
                                                      :label-fill "#fff"}
                                           :ldsurvival {:label "recurrence"
-                                                       :long-label "patients have a had a recurrence"
+                                                       :long-label "patients have had a recurrence"
                                                        :fill "#ffffff"
                                                        :opacity 0.7
                                                        :stroke-width 1

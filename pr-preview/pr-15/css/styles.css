@@ -7,9 +7,6 @@
     size: 210mm 297mm;
     margin: 0;
   }
-  @bottom-left {
-    content: counter(page) " of " counter(pages);
-  }
   .print-root {
     margin: 10mm;
   }

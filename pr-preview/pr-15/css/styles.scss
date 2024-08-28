@@ -11,9 +11,6 @@
         // clear the default date and title
         margin: 0;
     }
-    @bottom-left {
-        content: counter(page) ' of ' counter(pages);
-    }
     .print-root {
         // add the margins back in...
         margin: 10mm;

@@ -2,6 +2,7 @@
   (:require [re-frame.core :as rf]
             [clojure.edn :as edn]
             ["react-bootstrap" :as bs]
+            [kcp.utils :as utils]
             [kcp.bsio :as bsio]
             [kcp.subs :as subs]
             [kcp.events :as events]
@@ -175,7 +176,8 @@
       [:h4 "Patient Details"]
       [:div {:class-name "form-group"}
        [:label {:for "patient-name"} "Name"]
-       [:input {:type      "text" :class-name "form-control"
+       [:input {:type      "text"
+                :class-name "form-control"
                 :id        "patient-name"
                 :auto-complete "off"
                 :value     (get additional-details :patient-name "")
@@ -193,7 +195,8 @@
 
       [:div {:class-name "form-group"}
        [:label {:for "dob"} "Date of Birth"]
-       [:input {:type      "date" :class-name "form-control"
+       [:input {:type      "date"
+                :class-name "form-control"
                 :id        "dob"
                 :autoComplete "off"
                 :value     (get additional-details :dob "")
@@ -204,12 +207,23 @@
 
       [:div {:class-name "form-group"}
        [:label {:for "clinician-name"} "Name"]
-       [:input {:type      "text" :class-name "form-control"
+       [:input {:type      "text"
+                :class-name "form-control"
                 :id        "clinician-name"
                 :autoComplete "off"
                 :value     (get additional-details :clinician-name "")
                 :on-change #(rf/dispatch [:kcp.events/update-additional-details
                                           {:clinician-name (-> % .-target .-value)}])}]]
+
+      [:div {:class-name "form-group"}
+       [:label {:for "date-of-consultation"} "Date of consultation"]
+       [:input {:type "date"
+                :class-name "form-control"
+                :id "date-of-consultation"
+                :autoComplete "off"
+                :value (get additional-details :consultation-date "")
+                :on-change #(rf/dispatch [:kcp.events/update-additional-details
+                                          {:consultation-date (-> % .-target .-value)}])}]]
       ]]))
 
 
@@ -218,16 +232,20 @@
   "Opens a dialog for collecting additional details, ready for printing."
   [_e]
   (let [cancel-modal (fn []
-                      (rf/dispatch [::events/reset-additional-details])
-                      (hide-handler nil))]
-  (rf/dispatch [::events/modal-data
-                {:show     true
-                 :width    "700px"
-                 :title    "Print, Copy or Save to PDF"
-                 :content  [additional-details-form]
-                 :continue print-or-save-modal
-                 :cancel   cancel-modal
-                 :on-hide  cancel-modal}])))
+                       (rf/dispatch [::events/reset-additional-details])
+                       (hide-handler nil))
+        current-details @(rf/subscribe [::subs/additional-details])]
+    (when (nil? (:consultation-date current-details))
+      (rf/dispatch [::events/update-additional-details
+                    {:consultation-date (utils/to-iso-date-str (js/Date.))}]))
+    (rf/dispatch [::events/modal-data
+                  {:show true
+                   :width "700px"
+                   :title "Print, Copy or Save to PDF"
+                   :content [additional-details-form]
+                   :continue print-or-save-modal
+                   :cancel cancel-modal
+                   :on-hide cancel-modal}])))
 
 
 

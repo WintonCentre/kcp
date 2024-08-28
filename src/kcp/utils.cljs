@@ -5,6 +5,23 @@
             ;[shadow.debug :refer [?->]]
             ))
 
+(defn to-iso-date-str
+  "E.g. 2024-08-28, works with date picker"
+  [date]
+  (-> (.getTime date)
+      (- (* (.getTimezoneOffset date) 60000))
+      (js/Date.)
+      (.toISOString)
+      (.split "T")
+      (first)))
+
+(defn to-locale-date-str [date]
+  (if (nil? date)
+    ""
+    (let [options (clj->js {:day "numeric" :month "long" :year "numeric"})
+          formatted-date (.toLocaleDateString (js/Date. date) "en-GB" options)]
+      formatted-date)))
+
 (defn filled-in?
   "Does a field contain something?"
   [field]

@@ -239,83 +239,84 @@
   []
 
   [:section {:style {:border-bottom "1px #337777 solid"
-                     :margin-bottom  20}}
+                     :margin-bottom 20}}
    [:h3#mathematical-section "Mathematical Section"]
-   [:p "A cox proportional hazards model was adopted. This multiplies a baseline cumulative hazard by a
-        constant hazard ratio for each risk factor."]
-   [:p "Using the example of post-transplant survival, this means that the cumulative hazard of post-transplant
-        death is the product of two components: the baseline hazard (chances of dying for a patient with a baseline set of
-        characteristics at time of transplant) and all the hazard ratios for the risk factors (the increased/decreased risk of
-        death due to changes in these risk factors compared to the baseline characteristics)."]
-   [:p "In the case of post-transplant survival, the cumulative hazard is then translated into a survival function.
-        This is described in mathematical form below. "]
-   [:p "The estimated cumulative hazard for the ith individual  for the event of interest (e.g. death post-transplant), after t days has the form:
+   [:p "A joint modelling, cox proportional hazards approach was adopted to model the risk of recurrence and risk of death due to other causes."]
+   [:p [:b "Leibovich Model"]]
+   [:p "The Leibovich model uses a Cox proportional hazard model as a way of modelling factors which effect an event that
+   may or may not happen over an observation period (such as recurrence or death). Here, the hazard of recurrence is the
+   likelihood that a recurrence will occur soon, conditional on not having experienced a recurrence so far. At its core,
+   this modelling assumes that the hazard is made up of a baseline hazard, which is the same for everyone, multiplied by a fixed amount related to each risk factor."]
+   [:p "In particular, we are interested in the cumulative hazard, which is the total amount of hazard experienced at a given time."]
 
-"]
+   [:p "The estimated cumulative recurrence hazard for a given is given by; "]
    [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
-    [:i "H" [:sub "i"] "(t) " " = H" [:sub "0"] [:span {:style {:margin-right 5}} "(t)"]] " exp" [:i " (" [:b "β . χ"] [:sub "i"] ")"]]
+    [:i "H" [:sub "R"] "(t|X" [:sub "t"] ") = H" [:sub "R0"] "(t) exp(β . X" [:sub "t"] ")"]]
    [:p "where:"]
    [:ul
     [:li [:span {:style {:font-family "serif"}}
-          [:i "H" [:sub "0"] "(t)"]] " is estimated using the " [:a {:href "https://www.tandfonline.com/doi/full/10.1080/10485250500491661"} "Breslow (1972) estimate"]]
-    [:li "The log hazard ratios " [:b [:i "β"]] " are estimated by a multivariate linear regression."]
-    [:li [:i {:style {:font-family "serif"}} [:b "χ"] [:sub "i"]] " represents the set of characteristics for the " [:i {:style {:font-family "serif"}} "i"] "th individual."]]
-   [:p "This can be translated into a survival function through the following equation:"]
-   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
-    [:i "S" [:sub "i"] "(t) "] " = exp" [:i " (-H" [:sub "i"] " (t))"]]
-   [:div ""]
-   [:p "In the case of the ‘Waiting time’ models, we apply an " [:a {:href "competing_risks.pdf" :target "_blank"} "iterative algorithm"] " to calculate the risks of all the competing outcomes."]
+          [:i "H" [:sub "R0"] "(t)"]] " is the estimated baseline hazard from the original Leibovich score" [:sup "1"] " at time " [:i "t"]]
+    [:li "The log hazard ratios " [:i "β"] " are estimated by a multivariate linear regression as described in Table 3 of the original Leibovich paper" [:sup "1"]]
+    [:li [:i {:style {:font-family "serif"}} "X" [:sub "t"]] " are the tumour characteristics for a given patient"]]
 
-   [:p "The phreg function in SAS V.7.1 (SAS Institute, Cary, North Carolina, USA) was used to compute these estimates. "]])
+   [:p "This can be translated into a survival function, which describes the probability of having a recurrence after
+   time " [:i "t"] " through the following equation: "]
+   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
+    [:i "S" [:sub "R"] "(t|X" [:sub "t"] ") "] " = exp" [:i " (-H" [:sub "R"] "(t|X" [:sub "t"] "))"]]
+   [:p "Conversely, the risk function describes the probability of having a recurrence before time " [:i "t"] ", and can be defined as: "]
+   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
+    [:i "R" [:sub "R"] "(t|X"  [:sub "t"] ") "] " = 1 - " [:i "S" [:sub "R"] "(t|X"  [:sub "t"] ")"]]
+   ])
 
 (defn web-development-section
   []
   [:<>
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
-    [:h3#the-web-implementation "The web implementation"]
-    [:p "This tool is a Single Page Application - an SPA. It is a single web page which loads a Javascript application that updates the page according
-        to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser. "]
-    [:p "The application is also a calculator. The Javascript code includes
-        implementations of all the Cox statistical models described above. This means that all inputs, calculations, and result displays are managed
-        without the need for any interaction with another machine. The model calculations run once you have entered all necessary data, and will rerun whenever
-        you change any input. Once you close the browser window or tab, the data is erased, just like in a calculator."]
-    [:p "The tool is also a Progressive Web App - a PWA - which means that in some ways it behaves like an application you might have downloaded onto your phone
-        from an App Store. Once you load the app from the website, it is automatically cached in your browser for future use - offline if need be. You can also install the
-        app so it appears as an icon on your home page. You should be able to find some relevant instructions by searching the internet for 'Install PWA' with your browser's name
-        (e.g. Edge, Safari, Chrome, Firefox), and your operating system (e.g. IOS, Android, MacOS, Windows, Linux)."]]
+    [:h3#the-web-implementation "Web implementation"]
+    [:p "This tool is a Single Page Application (SPA). It is a single web page which loads a Javascript application that
+    updates the page according to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser."]
+    [:p "The application is also a calculator. The Javascript code includes implementations of the Leibovich models described above.
+    This means that all inputs, calculations, and result displays are managed without the need for any interaction with another machine.
+    The model calculations run once you have entered all necessary data, and will rerun whenever you change any input. Once you close the
+    browser window or tab, the data is erased, just like in a calculator."]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom  20}}
     [:h3#the-development-stack "The development stack"]
-    [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript. The most important libraries that it uses
-        are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the developers of these codes. The development system used Shadow-cljs (by Thomas Heller),
-        supported by a number of Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3#testing "Testing"]
-    [:p "The reference for our implementation was a collection of canonical R implementations of the statistical models. We generated a large collection of test inputs and ran these
-       through the R code, collected the results, and then fed the same inputs into our Javascript implementation, and compared the results. "]]
+    [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript.
+    The most important libraries that it uses are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the
+    developers of these codes. The development system used Shadow-cljs (by Thomas Heller), supported by a number of
+    Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
 
    [:h3#browser-compatibility "Browser Compatibility"]
    [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
    [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
    [:p "It does not currently support any other version of Internet Explorer."]])
 
+(defn references-section
+  []
+  [:<>
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom  20}}
+    [:h3#references "References"]
+    [:ol
+     [:li "Leibovich, B. C. et al. Prediction of progression after radical nephrectomy for patients with clear cell renal
+    cell carcinoma: A stratification tool for prospective clinical trials. Cancer "[:b "97"]", 1663–1671 (2003)."]]]])
+
 (defn overview-menu [[route text]]
   [:li {:key (random-uuid)} [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
                                                                 (js-obj "behavior" "smooth"))
                                     :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
 
-(def kidney-tags [["model-development"       "Model development"]
-                  ["waiting-times"          "Waiting Times"]
-                  ["after-deceased-donor"   "Patient and graft survival after a deceased donor kidney transplant"]
-                  ["after-living-donor"     "Patient and graft survival after a living donor kidney transplant"]
-                  ["input-factors"          "Input Factors"]
-                  ["mathematical-section"   "Mathematical Section"]
-                  ["the-web-implementation" "The web implementation"]
-                  ["the-development-stack"  "The development stack"]
-                  ["testing"                "Testing"]
-                  ["browser-compatibility"  "Browser Compatibility"]])
+(def kidney-tags [["model-development" "Model development"]
+                  ["cohort" "Cohort"]
+                  ["model-validation" "Model Validation"]
+                  ["input-factors" "Input Factors"]
+                  ["mathematical-section" "Mathematical Section"]
+                  ["the-web-implementation" "Web implementation"]
+                  ["the-development-stack" "The development stack"]
+                  ["browser-compatibility" "Browser Compatibility"]
+                  ["references" "References"]])
 
 (defn kidney-tech-content
   []
@@ -326,80 +327,80 @@
      [:ul {:style {:list-style-image "url(assets/bullet-plus.png)"
                    :margin-top 10}} (map overview-menu kidney-tags)]]
 
+
     [:h3#model-development "Model development"]
-    [:p "The models behind the tool were developed using UK Transplant Registry (UKTR) data which is held by NHS Blood and Transplant (NHSBT).  The UKTR database contains information on all patients who are listed for transplantation in the UK, and all patients who are transplanted with a solid organ transplant in the UK with follow-up data. "]
-    [:p "NHSBT Statisticians work closely with transplant clinicians to compile a large list of potential variables (e.g. age, primary renal disease) from the UK Transplant Registry to test in their models. Each of these variables are statistically tested and kept in the model if found to have an important relationship with the outcome of interest (e.g. post-transplant survival). These variables are referred to as ‘risk factors’. Some of the models used by the tool are also used regularly by NHSBT in their organ specific annual reports (" [:a {:href "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/" :target "_blank"} "https://www.odt.nhs.uk/statistics-and-reports/organ-specific-reports/"] ") and in other analyses. "]
-    [:p "At the end of the modelling process values were obtained called ‘parameter estimates’ which quantify the estimated impact of each risk factor upon the outcome of interest. Please refer to the Mathematical Section below to see exactly how a change in parameter estimates affects the outcome of interest. There will also be an estimated baseline risk curve plotted over time that represents an ‘average’ patient in the study cohort." [:b " The most common/mean value from the model development dataset for each risk factor is indicated as the baseline value as this value is represented by the baseline curve."] "  The parameter estimates are then used by the tool to essentially shift this baseline curve when the values of the risk factors are changed from the ‘average’ values. This way, the patient can plot a curve for values of the risk factors that are relevant to their own circumstances. For all models, transplant centre was treated as a stratifying factor, i.e. a separate baseline curve was produced for each centre."]
+    [:p "The model (the Leibovich model) behind this tool was developed by a team at the Mayo
+Clinic (Minnesota, USA) between 2000 and 2002. To develop this model, information was
+collected about a group of patients, who had been followed (on average) for 7 years after
+their kidney cancer surgery. This included information (or risk factors) about the patients
+(including their age, gender, whether they smoked, whether they were hypertensive at
+surgery) and risk factors related to their kidney cancer tumour (including stage, lymph node
+involvement, size, grade and necrosis)."]
+    [:p "Each risk factor was statistically tested and used in the model if found to have an important
+relationship with the outcome of interest (metastasis-free survival). The final model includes
+tumour stage, regional lymph node status, tumour size, nuclear grade, and histologic tumour
+necrosis. These are described in detail in the input factors section below."]
+    [:p "The Leibovich model is often used to assign patients a score (ranging from 0 to 11) based on
+their tumour characteristics. These scores are then separated into three risk groups: low risk
+(score 0 – 2), intermediate risk (score 3 – 5) and high risk (score above 6)."]
+    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot
+say what the outcomes for a particular patient will be. Instead, it estimates the probability of
+recurrence in people from the past with similar kidney cancer tumours."]
+    [:p "Further information is provided in the paper published in the journal Cancer, March 2003."]]
 
-    [:p "Although the tool is based on reputable models, it cannot say what the outcomes for a particular patient will be. It can only provide a summary of survival and waiting list outcomes for people in the past with similar characteristics."]
 
-    [:p "This tool has been developed using retrospective registry data. " [:b "Therefore, changes to the Kidney Offering Scheme in 2019 are NOT reflected in these models. "]]
+   [:h3#cohort "Cohort"]
+   [:p "The Leibovich score was developed in a cohort of patients who underwent a radical
+nephrectomy (full removal of the kidney) to treat clear cell renal cell carcinoma (ccRCC)
+between 1970 and 2000. This did not include patients who already had metastatic disease.
+Patients with inherited renal cell carcinoma (including von Hippel-Lindau disease), those
+with tumours in both kidneys (bilateral synchronous tumours), or who were diagnosed with
+Wilms tumour (a different form of kidney cancer) were not included. All included patients
+were over 18 at the time of surgery."]
 
-    [:p "All statistical analyses for this website were generated using SAS Enterprise Guide software, Version 7.1.  SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc., Cary, NC, USA. "]]
 
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
-    [:h3#waiting-times "Waiting Times"]
-    [:p "The dataset used for this model comprised of all adult (aged ≥18 years) first kidney-only registrations (i.e. people joining the transplant waiting list) between 1 January 2010 and 31 December 2015."]
-    [:p "From the point of joining the waiting list, receiving a transplant is one of three competing events (transplant, death on the list, removal from the list) that a patient is ‘at risk’ of. We considered outcome data up to 5 years from listing for all patients in the modelling cohort. A model for ‘time to transplant’, a model for ‘time to death on the list’ and a model for ‘time to removal from the list’ was then developed using Cox Regression (Section 3.1)."]
-    [:p "Each patient in the cohort was assigned to 1 of 4 categories:"]
-    [:ol
-     [:li "Patients who were transplanted with either a living or deceased donor transplant"]
-     [:li "Patients who died on the list whilst awaiting transplantation"]
-     [:li "Patients who were removed from the list prior to transplantation. This could occur for a number of reasons including patient choice or a deterioration in health such that a transplant was no longer suitable."]
-     [:li "Patients who were still waiting on the list. Patients who were suspended were classed as still waiting on the list."]]
-    [:p "The covariates used in the model were those which have previously been shown to have an impact on outcome and those which were thought to be clinically significant."]
-    [:p "Following development of the Cox Proportional hazards models, a numerical approximation algorithm was applied which combined the model results from the time to transplant model with the time to death on the list/removal from the list model. This algorithm enabled the estimated chances of each of the listed outcomes at any particular time up to three years post-listing to be presented side-by-side and the sum of the probabilities of each of these happening at a particular time t to equal 100%."]]
+   [:h3#model-validation "Model Validation"]
+   [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
+since it was first developed. In a recent review, 16 validations were identified with results for
+discrimination in the range 0.67-0.86. More details can be found in this "
+    [:a {:href "https://bjui-journals.onlinelibrary.wiley.com/doi/10.1111/bju.15673" :target "_blank"} "review paper (published in 2021)."]]
 
-   [::section {:style {:border-bottom "1px #337777 solid"
-                       :margin-bottom  20}}
-    [:h3#after-deceased-donor "Patient and graft survival after a deceased donor kidney transplant"]
-    [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only kcp that occurred in the UK between 1 January 2010 and 31 December 2017. Cox proportional hazards models were built where the following 22 factors were tested for inclusion in the models: Donor age, type, cause of death, sex, cmv status, hypertension, BMI, height, weight retrieval creatinine, recipient age, ethnicity, sex diabetic nephropathy as a cause of renal failure, waiting time, matchability, blood group, cold ischaemia time and HLA mismatch. Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Transplant centre was added to the model as a strata."]
+   [:h3#input-factors "Input factors"]
+   [:p "In this section we give an explanation of the input factors considered in this model:"]
 
-    [:p "The post-transplant survival Cox proportional hazards model operates such that each risk factor multiplies the baseline cumulative hazard by a fixed amount known as the hazard ratio or relative risk - essentially the proportional change in mortality risk. This means the cumulative hazard is the product of two components: the baseline hazard (chances of death or graft failure for a patient with a baseline set of characteristics at time of transplant) and the hazard ratios for the risk factors (the increased/decreased risk of death due to changes in these risk factors compared to the baseline characteristics). The cumulative hazard is then translated in to a survival function as described in the mathematical description."]
+   [:p [:b "Primary Tumour Status"] " – The pathological stage of a kidney cancer tumour is a measure
+of its size and how far it has spread"]
+   [:ul
+    [:li "Stage 1a (or pT1a) – the cancer is small (4cm or smaller) and only inside the kidney"]
+    [:li "Stage 1b (or pT1b) – the cancer is small (between 4cm and 7 cm) and only inside the kidney"]
+    [:li "Stage 2a (pT2a) - the cancer is between 7cm and 10cm and only inside the kidney"]
+    [:li "Stage 2b (pT2b) – the cancer is larger than 10cm and only inside the kidney"]
+    [:li "Stage 3a (or pT3a) – the cancer is growing into the fat around the kidney, or into the renal vein"]
+    [:li "Stage 3b (or pT3b) - the cancer is growing into the vena cava in the tummy (abdomen)"]
+    [:li "Stage 3c (or pT3c) - the cancer is growing into the vena cava in the chest, or into the wall of the vena cava."]
+    [:li "Stage 4 (or pT4) - the cancer has spread through the capsule that surrounds the kidney. It may have grown into the adrenal gland."]]
 
-    [:h5 "Five-year deceased donor post-transplant patient survival"]
-    [:p "Post-transplant patient survival was defined as the time from transplant until the time of death. These data were censored at the last known follow-up date post-transplant if this was within 5 years of transplantation. The following factors were found to be significant and included in the model; recipient age, recipient ethnicity, waiting time, recipient primary renal disease, donor age, donor hypertension, HLA MM level."]
-    [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.71. "]
+   [:p [:b "Regional Lymph Node Status"] " – The regional lymph node status indicates if the cancer has
+spread to lymph nodes near the kidney. Lymph nodes are a network of glands found
+throughout the body that drain away waste fluid, waste products and damaged cells. They
+also fight infection."]
+   [:ul
+    [:li "Unknown (pNx) - There are no lymph nodes in the specimen removed at the time of surgery"]
+    [:li "pN0 – No cancer was detected in any lymph nodes"]
+    [:li "pN1 – There are cancer cells in at least one lymph node near the tumour."]]
 
-    [:h5 "Five-year deceased donor post-transplant graft survival"]
-    [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up.  The following factors were found to be significant and included in the model; recipient age, waiting time, graft number, recipient primary renal disease, donor age, donor BMI, donor hypertension, HLA MM level."]
-    [:p "This model was tested for goodness of fit using a concordance statistic (c-statistic) which was found to be 0.63."]]
+   [:p [:b "Tumour Size"] " – The size of the tumour removed during surgery. Whether the tumour is larger
+or smaller than 10cm is most important in the context of recurrence"]
 
-   [::section {:style {:border-bottom "1px #337777 solid"
-                       :margin-bottom  20}}
-    [:h3#after-living-donor "Patient and graft survival after a living donor kidney transplant"]
-    [:p "The patient cohort for these models comprised all adult (aged ≥18 years) first kidney-only kcp that occurred in the UK between 1 January 2010 and 31 December 2015."]
-    [:p "Cox proportional hazards models were built where the following 17 factors were tested for inclusion in the models - "]
-    [:ul
-     [:li "Donor factors: age, sex, relationship to recipient, BMI, ethnicity, status, hypertension, BMI, height, weight retrieval creatinine."]
-     [:li "Recipient factors: age, sex, ethnicity, diabetic nephropathy as a cause of renal failure, waiting time, dialysis status, matchability, blood group, cold ischaemia time, HLA mismatch and graft number. "]
-     [:li "Factors tested were those collected by NHSBT and available on the database and thought to potentially be clinically relevant.  The model was built using a forward-step approach.  Due to fewer numbers, the transplant centre was not included as a strata and national results have been demonstrated."]]
-    [:h5 "Five-year living donor post-transplant graft survival"]
-    [:p "‘Graft survival’ refers to death-censored graft survival and was defined as the time from transplantation to return to long-term kidney replacement therapy or re-transplantation, whichever occurred first. Data were censored at the time of death or at last known follow-up."]
-    [:p "The following factors were found to be significant and included in the model; recipient age, waiting time, matchability, donor age, HLA MM level."]]
+   [:p [:b "Nuclear Grade"] " – The nuclear grade is a scale indicating how much the cancer cells look like normal cells.
+   This is sometimes called the Fuhrman scale. Kidney cancers are graded 1 to 4. Grade 1 is the lowest (the most like
+   normal cells) and grade 4 is the highest (the least like normal cells)"]
 
-   [::section {:style {:border-bottom "1px #337777 solid"
-                       :margin-bottom  20}}
-    [:h3#input-factors "Input factors"]
-    [:p "Explanation of donor and recipient input covariates:"]
-    [:p [:b "Recipient age (years)"] " - Age at point of being actively listed onto the National Kidney Transplant List. This has been divided into categories by decade."]
-    [:p [:b "Sex"] " - Male or female. Note this refers to sex, not gender."]
-    [:p [:b "Recipient ethnicity"] " - Asian, Black Chinese, Mixed, White, Other."]
-    [:p [:b "Recipient waiting time (years)"] " - Time waiting on deceased donor kidney waiting list until time of transplant (active and suspended).  This can serve as a proxy for ‘time on dialysis’ as most patients are either already on dialysis or due to commence dialysis within 6 months at the time of listing for transplantation."]
-    [:p [:b "Previous Kidney Transplant?"] " - Yes or No"]
-    [:p [:b "Highly sensitised (cRF >85%)"] "- any antibodies in the blood – e.g. as a result of pregnancy or a previous organ transplant."]
-    [:p [:b "Blood group"] " - Patient’s blood group: O, A, B, AB"]
-    [:p [:b "Dialysis at registration"] " - Refers to any form of dialysis (peritoneal or haemodialysis) at the time of listing for transplantation."]
-    [:p [:b "Matchability"] " - Whether due to a range of factors, such as blood group, it will be ‘easy’, ‘moderate’, or ‘difficult’ to find a matching organ.  The ODT provides further details on how this is calculated and a tool for calculating matchability for individual patients: https://www.odt.nhs.uk/transplantation/tools-policies-and-guidance/calculators/ "]
-    [:p [:b "Donor age"] " - The age at which the donor donated their organs."]
-    [:p [:b "Donor BMI"] " - Donor BMI as recorded at the donating hospital site. Calculated as weight (kilograms) divided by height (m" [:sup "2"] ")"]
-    [:p [:b "Donor Hypertension"] " - Whether the donor suffered from high blood pressure as recorded by NHSBT on data collection forms at the time of donation."]
-    [:p [:b "HLA MM level"] " - Human Leukocyte Antigen (HLA) matching level.  HLA are proteins located on the surface of white blood cells and other tissues. When people share the same HLA’s, they are said to be a ‘match’. There are may different types of HLA, and the matching can occur to different degrees, hence the different levels of matching. "]
-    [:p [:b "Transplant Centre"] " - This refers to which of the 23 UK adult kidney transplant centres the patient will be receiving their transplant.  (This is not always the dialysis centre at which they are followed up)."]]
+   [:p [:b "Tumour Necrosis"] " – Necrosis means that some of the cancer cells have died."]
 
    (maths-section)
-   (web-development-section)])
+   (web-development-section)
+   (references-section)])
 
 (defn tech-page
   "Display a generic home page.
@@ -409,7 +410,7 @@
         single-organ (ui/get-single-organ mdata)]
 
     (if mdata
-      [ui/page (str "Technical Details for the " (string/capitalize (name single-organ)) " tool")
+      [ui/page (str "Technical Details for PREDICT " (string/capitalize (name single-organ)))
        [ui/row
         (condp = single-organ
           :kidney [kidney-tech-content]

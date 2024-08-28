@@ -842,11 +842,6 @@ factors and the predictions made by this tool are not well understood by researc
 not currently use these factors to make decisions about follow-up care."]]
       :else [:div])))
 
-(defn format-date [date]
-  (let [options (clj->js {:day "numeric" :month "long" :year "numeric"})
-        formatted-date (.toLocaleDateString date "en-GB" options)]
-    formatted-date))
-
 (defn create-printout-details
   "Creates a context object for use in the printout"
   [visualization-context additional-details]
@@ -872,9 +867,9 @@ not currently use these factors to make decisions about follow-up care."]]
                  :header-data {
                                :patient-name (:patient-name additional-details)
                                :nhs-number (:nhs-number additional-details)
-                               :dob (:dob additional-details)
+                               :dob (utils/to-locale-date-str (:dob additional-details))
                                :clinician-name (:clinician-name additional-details)
-                               :date-today (format-date (js/Date.))}
+                               :consultation-date (utils/to-locale-date-str (:consultation-date additional-details))}
                  :more-information (-> visualization-context
                                        :mdata
                                        (get-in [(ui/get-single-organ (:mdata visualization-context))])
@@ -915,7 +910,7 @@ not currently use these factors to make decisions about follow-up care."]]
              [ui/col {:xs 6}
               [:p [:b "Consultant:"] [:br]
                "Name: " (-> printout-details :header-data :clinician-name) [:br]
-               "Date: " (-> printout-details :header-data :date-today) [:br]
+               "Date: " (-> printout-details :header-data :consultation-date) [:br]
                "Signature: "]]]]
            [:hr.rounded { :style {:border-color rgb/theme :margin 0 } }]]])
 

@@ -1,0 +1,1 @@
+{:key ("uk" nil nil nil nil nil nil nil nil), :name ("UK" nil nil nil nil nil nil nil nil), :link ("https://www.openstreetmap.org/#map=6/54.910/-3.432" nil nil nil nil nil nil nil nil), :image ("assets/kidney/osm_logo.svg" nil nil nil nil nil nil nil nil), :description ("UK" nil nil nil nil nil nil nil nil), :explanation ("Leibovich Score" nil nil nil nil nil nil nil nil)}

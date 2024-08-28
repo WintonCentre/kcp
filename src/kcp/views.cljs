@@ -454,13 +454,10 @@
           [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]]
 
          [:h4 "Cookies and Privacy Notice"]
-         [:p "All cookies " [:u "are disabled"] " on this website."]
-         [:p "No identifiable user data is collected by the app. The data that you enter in your web browser is not transferred to any other
-              system, and it is erased once you close the application window. "]
-         [:p "This website uses Matomo to analyze traffic and help us to improve your user experience. The default data listed " [:a {:href "https://matomo.org/faq/general/faq_18254/"} " here "] "is anonymized as part of its processing."]
-         [:p "This data is only processed by us, Matomo and their web hosting platforms. You can read more information about Matomo’s Privacy Policy on " [:a {:href "https://matomo.org/privacy-policy/"} " their website"] "."]
-         [:p "If you print or save pages containing user entered data then you are responsible
-              for protecting the data in those copies."]
+         [:p "This website does not use cookies."]
+         [:p "No identifiable user data is stored by this website. The data that you enter in your web browser is
+not transferred to any other system, and it is erased once you close the application window."]
+         [:p "If you print or save pages containing user entered data, then you are responsible for protecting the data in those copies."]
          [:p "The Data Protection Officer for this tool is " [:a {:href "mailto:dpo@admin.cam.ac.uk"} "dpo@admin.cam.ac.uk"] "."]]]]
       [ui/loading])))
 

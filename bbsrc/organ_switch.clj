@@ -33,10 +33,7 @@
                    :validate [#(#{"kidney" "lung"} %) "kidney | lung"]]
                   ["-h" "--help"]])
 
-(def matomo-site-id
-  {"kidney" 6
-   "lung" 7}
-  )
+
 
 (def abbreviations (edn/read-string (slurp (io/resource "abbreviations.edn"))))
 (defn get-organ-lookups
@@ -63,20 +60,17 @@
       (spit "resources/public/metadata.txt" x)))
   )
 
-(defn set-matomo-site-id
-  "Change the matomo site id in index.html to the right one for the organ.
-   NB. we could do the same for the site title to avoid assigning it dynamically."
-  [organ]
-  (->>
-   (-> (slurp "resources/index.html.template")
-       (str/replace #"\['setSiteId', 'n'\]" (str "['setSiteId', '" (get matomo-site-id organ) "']")))
-   (spit "resources/public/index.html")))
+(defn create-index
+  "Apply variables to the index template, currently not used... retained for future use"
+  [_organ]
+  (let [template (slurp "resources/index.html.template")]
+    (spit "resources/public/index.html" template)))
 
 (defn -main [& _args]
   (let [options (parse-opts *command-line-args* cli-options)
         organ (get-in options [:options :organ])]
     (set-metadata organ)
-    (set-matomo-site-id organ)
+    (create-index organ)
     ))
 
 

@@ -172,6 +172,7 @@
 
       [:h3 "Additional Information"]
       [:p "All of the following inputs are optional."]
+      [:p "Your personal data will not be stored by this website."]
 
       [:h4 "Patient Details"]
       [:div {:class-name "form-group"}

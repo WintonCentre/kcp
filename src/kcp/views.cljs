@@ -849,6 +849,7 @@ not currently use these factors to make decisions about follow-up care."]]
         time-index (get-in visualization-context [:tool-mdata :printout :time-index] nil)
         fs-by-year-in-plot-order (:fs-by-year-in-plot-order visualization-context)
         details {
+                 :selection (utils/reorder-map (:inputs visualization-context) (:fmaps visualization-context))
                  :risk-score total-score
                  :risk-description (cond
                                      (<= total-score 2) "low risk"
@@ -925,7 +926,7 @@ not currently use these factors to make decisions about follow-up care."]]
           [ui/col {:xs 12}
            (let [total-score (:risk-score printout-details)]
              [:h4 {:class-name "text-decoration-underline"}
-              (str "RESULTS: " (str/upper-case (:risk-description printout-details)) " Leibovich Score: " total-score)])]])
+              (str "RESULTS: " (str/upper-case (:risk-description printout-details)) " Leibovich Score " total-score)])]])
 
 
        (if-let [tool-centre-bundle tcb]
@@ -1038,18 +1039,25 @@ not currently use these factors to make decisions about follow-up care."]]
                [:h3 "Further details"]
 
                [:div
+
                 (into [:<>]
                       (map
-                        (fn [[_ stage-data]] ^{:key (:factor stage-data)}
-                          [:div
-                           [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
+                        (fn [[level-id stage-id]]
+                          (let [stage-data (get-in tcb-fmaps [level-id])
+                                level-data (get-in stage-data [:levels stage-id])]
+                            [:div
+                             [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
 
-                           [:p {:style {:color "#007bff"}} [:b (get-in (:fully-qualified-level-name tool-mdata)
-                                                                       [(:factor stage-data) (:level stage-data)]
-                                                                       (:level-name stage-data))]
-                            (when-let [sub-text (:sub-text stage-data)]
-                              (str " - " sub-text))]])
-                        tcb-fmaps))]]
+                             (let [description (get-in (:printout-level-name tool-mdata)
+                                                       [level-id stage-id]
+                                                       (:level-name level-data))]
+                               [:p {:class-name "ml-5" :style {:color "#007bff"}} (first description) [:b (second description)] (get description 2 "")
+                                (when-let [sub-text (:sub-text level-data)]
+                                  (str " - " sub-text))]
+                               )
+                             ]))
+                        (:selection printout-details)))
+                ]]
 
               [ui/col {:xs 12 :class-name "d-none d-print-block boxed" :style {:padding "16px 16px 0"}}
                [:h5 "MORE INFORMATION AND SUPPORT:"]

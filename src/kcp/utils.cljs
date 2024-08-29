@@ -15,6 +15,12 @@
       (.split "T")
       (first)))
 
+(defn reorder-map [initial reference]
+  "Given an `initial` map, recreate it according to the key order of the `reference` map"
+  (into (array-map)
+        (for [k (keys reference)]
+          [k (get initial k)])))
+
 (defn to-locale-date-str [date]
   (if (nil? date)
     ""

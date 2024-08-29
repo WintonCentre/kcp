@@ -519,7 +519,7 @@
                                         (concat (map (juxt :x :y0) tops)
                                                 (map (juxt :x :y1) (reverse tops))))]))]
     [:g {:key 1
-         :transform "translate(100 0)"}
+         :transform (if slimline "translate(200 0)" "translate(100 0)") }
      [:rect {:key 1
              :class-name (:inner styles)
              :x 0
@@ -531,7 +531,7 @@
      ;;
      [:g {:transform "translate(-10,0)"}
       (into [:g {:opacity 1
-                 :transform "translate(2,0)"}]
+                 :transform "translate(15,0)"}]
             (for [dk data-keys]
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]
@@ -632,8 +632,12 @@
                                       width))
                            :height (get-in tool-mdata [:area :svg-height])}
                    :aspect-ratio (aspect-ratio svg-width svg-height)
-                   :margin {:top 0 :right 10 :bottom 0 :left 0}
-                   :padding {:top 40, :right 20, :bottom 100, :left 20}
+                   :margin (if slimline
+                             {:top 0 :right 0 :bottom 0 :left 0}
+                             {:top 0 :right 10 :bottom 0 :left 0})
+                   :padding (if slimline
+                              {:top 40, :right -30, :bottom 100, :left -20}
+                              {:top 40, :right 20, :bottom 100, :left 20})
                    :x-domain [0 15]
                    :x-ticks 10
                    :y-domain [1 0]

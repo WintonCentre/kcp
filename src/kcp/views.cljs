@@ -301,7 +301,8 @@
     [:h3#references "References"]
     [:ol
      [:li "Leibovich, B. C. et al. Prediction of progression after radical nephrectomy for patients with clear cell renal
-    cell carcinoma: A stratification tool for prospective clinical trials. Cancer "[:b "97"]", 1663–1671 (2003)."]]]])
+    cell carcinoma: A stratification tool for prospective clinical trials. Cancer "[:b "97"]", 1663–1671 (2003)."]
+     [:li "Usher-Smith, J.A., et al. Risk models for recurrence and survival after kidney cancer: a systematic review. BJU Int, 130: 562-579. (2022)"]]]])
 
 (defn overview-menu [[route text]]
   [:li {:key (random-uuid)} [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
@@ -346,7 +347,7 @@ their tumour characteristics. These scores are then separated into three risk gr
     [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot
 say what the outcomes for a particular patient will be. Instead, it estimates the probability of
 recurrence in people from the past with similar kidney cancer tumours."]
-    [:p "Further information is provided in the paper published in the journal Cancer, March 2003."]]
+    [:p "Further information is provided in the " [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "development paper (published 2003)"] "."]]
 
 
    [:h3#cohort "Cohort"]

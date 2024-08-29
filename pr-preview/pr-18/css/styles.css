@@ -2,6 +2,22 @@
   text-decoration: underline;
 }
 
+#kidney-t-stage .toggler {
+  flex: 0 0 25%;
+}
+
+#kidney-n-stage .toggler {
+  flex: 0 0 33.333333%;
+}
+
+@media (max-width: 1440px) {
+  #kidney-t-stage .toggler {
+    flex: 0 0 50%;
+  }
+  #kidney-n-stage .toggler {
+    flex: 0 0 100%;
+  }
+}
 @media print {
   @page {
     size: 210mm 297mm;

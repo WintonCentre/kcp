@@ -78,12 +78,26 @@
                                                        :stroke "#000"
                                                        :label-fill "#000000"}}
                                :plot-order [:ldsurvival :residual]
-                               :fully-qualified-level-name {:histologic-tumor-necrosis {:No "No necrosis"
-                                                                                        :Yes "Necrosis found"}
-                                                            :nuclear-grade {:1 "Grade 1"
-                                                                            :2 "Grade 2"
-                                                                            :3 "Grade 3"
-                                                                            :4 "Grade 4"}}
+                               :printout-level-name {:t-stage {:pT1a ["Your tumour stage is " "pT1a"]
+                                                               :pT1b ["Your tumour stage is " "pT1b"]
+                                                               :pT2a ["Your tumour stage is " "pT2a"]
+                                                               :pT2b ["Your tumour stage is " "pT2b"]
+                                                               :pT3a ["Your tumour stage is " "pT3a"]
+                                                               :pT3b ["Your tumour stage is " "pT3b"]
+                                                               :pT3c ["Your tumour stage is " "pT3c"]
+                                                               :pT4 ["Your tumour stage is " "pT4"]}
+                                                     :n-stage {:pNx ["Your regional lymph node status is " "unknown"]
+                                                               :pN0 ["Your regional lymph node status is " "pN0"]
+                                                               :pN1 ["Your regional lymph node status is " "pN1"]}
+                                                     :tumor-size {
+                                                                  :cm-<10 ["Your tumour is " "less than 10 cm " "in size"]
+                                                                  :cm->=10 ["Your tumour is " "greater than 10 cm " "in size"]}
+                                                     :histologic-tumor-necrosis {:No ["Your tumour had " "no necrosis"]
+                                                                                 :Yes ["Your tumour " "had necrosis"]}
+                                                     :nuclear-grade {:1 ["Your nuclear grade is " "1"]
+                                                                     :2 ["Your nuclear grade is " "2"]
+                                                                     :3 ["Your nuclear grade is " "3"]
+                                                                     :4 ["Your nuclear grade is " "4"]}}
                                :printout {
                                           :time-index 5
                                           :description "over the next 5 years"}

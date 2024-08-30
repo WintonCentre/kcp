@@ -2,15 +2,15 @@
   text-decoration: underline;
 }
 
-#kidney-t-stage .toggler {
-  flex: 0 0 25%;
+@media screen {
+  #kidney-t-stage .toggler {
+    flex: 0 0 25%;
+  }
+  #kidney-n-stage .toggler {
+    flex: 0 0 33.333333%;
+  }
 }
-
-#kidney-n-stage .toggler {
-  flex: 0 0 33.333333%;
-}
-
-@media (max-width: 1440px) {
+@media screen and (max-width: 1440px) {
   #kidney-t-stage .toggler {
     flex: 0 0 50%;
   }

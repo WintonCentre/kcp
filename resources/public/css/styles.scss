@@ -5,26 +5,28 @@
 
 // fixes for KCP-42 - each button in the group should be the same size as the other
 // (not a source of pride, but it's simple and it works well enough...)
-#kidney-t-stage {
-    .toggler {
-        flex:  0 0 25%;
-    }
-}
-#kidney-n-stage {
-    .toggler {
-        flex:  0 0 33.333333%;
-    }
-}
-
-@media (max-width: 1440px) {
+@media screen {
     #kidney-t-stage {
         .toggler {
-            flex:  0 0 50%;
+            flex: 0 0 25%;
         }
     }
     #kidney-n-stage {
         .toggler {
-            flex:  0 0 100%;
+            flex: 0 0 33.333333%;
+        }
+    }
+
+    @media (max-width: 1440px) {
+        #kidney-t-stage {
+            .toggler {
+                flex: 0 0 50%;
+            }
+        }
+        #kidney-n-stage {
+            .toggler {
+                flex: 0 0 100%;
+            }
         }
     }
 }

@@ -17,6 +17,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Check tag format
+        if: github.base_ref == 'main'
+        run: |
+          sh validate_tag.sh
+
       - name: Set up Java 11
         uses: actions/setup-java@v3
         with:
@@ -52,6 +57,7 @@ jobs:
           bb config
           bb kidney
           npm run build
+          sh build_number.sh
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1

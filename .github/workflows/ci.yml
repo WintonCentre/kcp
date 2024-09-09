@@ -42,6 +42,7 @@ jobs:
           bb config
           bb kidney
           npm run build
+          sh build_number.sh
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3

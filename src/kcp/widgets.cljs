@@ -116,10 +116,13 @@
      [:section {:class-name "print-modal"}
 
       [:h1 "Print"]
-      [:p "Press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
+      [:p {:style {:margin-bottom 0}} "Press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
                                   :style {:margin-right 5}}
                     "Print"] #_[:b "Print"] "and the browser print dialogue box will appear. For best results, "
-       [:b "do not"] " enable the option which prints background graphics."]
+       [:b "do not"] " enable"]
+      [:ul
+       [:li "the print background graphics option"]
+       [:li "the print headers and footers option (Safari)."]]
       [:h1 "Copy"]
       [:p "The "  [:> bs/Button {:variant "primary" :on-click close-modal-and-copy
                                  :style {:margin-right 5}}

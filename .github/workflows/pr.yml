@@ -62,6 +62,15 @@ jobs:
           npm run build
           sh build_number.sh
 
+      - name: Run UI tests
+        run: |
+          npm run build-tests
+          npm run test:ci
+
+      - name: Run configuration tests
+        run: |
+          clojure -X:test-cfg
+
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
         with:

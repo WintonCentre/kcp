@@ -10,16 +10,16 @@
  The configuration edn readers are in a separate workspace (alias cfg) to those that read the spreadsheet."
 
   (:require
-   [aero.core :as aero]
-   [dk.ative.docjure.spreadsheet :as xls] ;; This dependency prevents us from using babashka
-   [clojure.java.io :as io]
-   [clojure.string :as string]
-   [clojure.stacktrace :as stack]
-   [clojure.core.memoize :as memo]
-   [clojure.set :as st]
-   [kcp.config-utils :as utils]
-   [kcp.transforms :as xf]
-   [kcp.shared :refer [underscore]])
+    [aero.core :as aero]
+    [dk.ative.docjure.spreadsheet :as xls]                  ;; This dependency prevents us from using babashka
+    [clojure.java.io :as io]
+    [clojure.string :as string]
+    [clojure.stacktrace :as stack]
+    [clojure.core.memoize :as memo]
+    [clojure.set :as st]
+    [kcp.config-utils :as utils]
+    [kcp.transforms :as xf]
+    [kcp.shared :refer [underscore]])
   (:gen-class))
 
 (def slash "OS independent file path separator" java.io.File/separator)
@@ -105,13 +105,7 @@
 (defn get-centres
   "Retrieve a list of distinct centres from a spreadsheet"
   [organ]
-  ["UK"]
-  #_(->> (get-row-maps organ :waiting-baseline-cifs)
-       (map :centre)
-       (distinct)
-       (remove nil?)
-       (remove #(= ":centre" %))
-       (sort)))
+  ["UK"])
 
 (get-centres :kidney)
 
@@ -130,8 +124,8 @@
   "get a list of tools attached to sheets. Used by configuration tests"
   [organ]
   (st/intersection
-   (into #{} (:key (get-col-maps organ :tools)))
-   (into #{} (keys (get-bundle organ)))))
+    (into #{} (:key (get-col-maps organ :tools)))
+    (into #{} (keys (get-bundle organ)))))
 
 (comment
   (def organ "test fixture" :lung)
@@ -141,13 +135,6 @@
   (get-tools :kidney)
   (st/intersection #{:tools :post-transplant :centres :waiting} #{:post-transplant :guidance :waiting}))
 
-(defn- select-columns
-  "Return selected columns of a spreadsheet"
-  [organ sheet-key & columns]
-  (->> (get-row-maps organ sheet-key)
-       (map (apply juxt columns))
-       (map #(map utils/maybe-key %))))
-
 (defn centre-row-maps
   "Return row-maps, filtered by centre. If centre is nil, return all"
   [organ sheet-key centre]
@@ -155,8 +142,8 @@
         row-maps (->> (get-row-maps organ sheet-key)
                       (map (fn [ms]
                              (into {} (map
-                                       (fn [[k v]] [k (xf/unstring-key v)])
-                                       ms)))))
+                                        (fn [[k v]] [k (xf/unstring-key v)])
+                                        ms)))))
         header-map (first row-maps)
         header-set (into #{} (keys header-map))
         f #(do (tap> %)
@@ -198,7 +185,7 @@
         ; In case the server barfs at serving .edn, make them .txt instead
         suffix (if (= suf "edn") "txt" suf)]
     (str (get-in (memo-config organ) [:export (keyword (str suf "-path"))])
-         (if  centre
+         (if centre
            (str slash (underscore centre)) "")
          (if tool-key (str slash (underscore (name tool-key))) "")
          (if (or centre tool-key) (str "." suffix) (str "/all." suffix)))))
@@ -211,7 +198,6 @@
 
 (comment
   (bundle-path :kidney "UK" :ldsurvival)
-  ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
 
   (bundle-path :kidney "Bristol" :survival))
 
@@ -241,13 +227,10 @@
 
 (comment
   (centre-row-maps :kidney "ldsurvival-baseline-cifs" :UK)
-  ;; => ({:centre :centre, :days :days, :cif-ldsurvival :cif-ldsurvival})
 
   (collect-mapped-tool-bundle :kidney :UK :ldsurvival)
-  ;; => {:ldsurvival-baseline-cifs (), :ldsurvival-baseline-vars ({:factor :age, :level :40+, :optional :no} {:factor :months-waiting, :level :mw-<=6, :optional :no} {:factor :diabetes, :level :no, :optional :no} {:factor :hla-mismatch, :level :3, :optional :no}), :ldsurvival-inputs {:info-box? (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil "[:<>\n[:p \"HLA stands for Human Leukocyte Antigen.\"]\n[:p \"HLA are proteins on the surface of white blood cells and other tissues.\"]\n[:p \"When people have the same HLAs they are said to be a match. There are many different types of HLAs so matching can be to differing degrees.  Patients can match ‘a lot’ or ‘a little’.\"]\n[:p \"HLA mismatch means how likely a patient is to be matched based on these HLA proteins\"]\n[:p [:b \"Level 1\"] \" 000\"]\n[:p [:b \"Level 2\"] \" [0 DR and 0/1 B] or [1 DR and 0 B]\"]\n[:p [:b \"Level 3\"] \" [0 DR and 2 B] or [1 DR and 1 B]\"]\n[:p [:b \"Level 4\"] \" [1 DR and 2 B] or [2 DR]\"]\n]" nil nil nil nil nil), :level-name ("18 - 29" "30 - 39" "40 - 49" "50 - 59" "60 or over" nil "up to 6 months" "6 months to a year" "1 to 2 years" "2 years or more" nil "Diabetes" "PCKD" "Glomerulonephritis" "Other" nil "⓵ (000)" "⓶ (100, 010, 110, 200, 210, 001,101, 201)" "⓷ (020, 120, 220, 011, 111, 211)" "⓸ (021, 121, 221, 002, 102, 202, 012, 112, 212, 022, 122, 222)" "Unknown" nil), :beta-ldsurvival (-0.91329 -0.74681 0.0 0.25157 1.11962 nil 0.0 0.19494 0.33312 0.72515 nil 0.0 0.63358 0.63358 0.63358 nil 0.20284 0.07945 0.0 -0.31232 -0.31232 nil), :type (:v-radio nil nil nil nil nil :v-radio nil nil nil nil :v-radio nil nil nil nil :v-radio nil nil nil nil nil), :sub-text (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), "Things to consider" (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil), :level (:18+ :30+ :40+ :50+ :60+ nil :mw-<=6 :mw-<=12 :mw-<=24 :mw-24+ nil :yes :pckd :glo :other nil :1 :2 :3 :4 :unknown nil), :r-name ("rage_1" "rage_2" "rage_3" "rage_4" "rage_5" nil "wait_1" "wait_2" "wait_3" "wait_4" nil "diabetes_0" "diabetes_1" "diabetes_1" "diabetes_1" nil "hla_1" "hla_2" "hla_3" "hla_4" nil nil), :factor (:age :age :age :age :age nil :months-waiting :months-waiting :months-waiting :months-waiting nil :diabetes :diabetes :diabetes :diabetes nil :hla-mismatch :hla-mismatch :hla-mismatch :hla-mismatch :hla-mismatch nil), :optional (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil :1 :1 :1 :1 :1 nil), :boxed (nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil :yes :yes :yes :yes :yes nil), :order (10.0 10.0 10.0 10.0 10.0 nil 30.0 30.0 30.0 30.0 nil 20.0 20.0 20.0 20.0 nil 40.0 40.0 40.0 40.0 40.0 nil), :factor-name ("Age" nil nil nil nil nil "Waiting time" nil nil nil nil "Primary kidney disease" nil nil nil nil "HLA mismatch level" nil nil nil nil nil)}}
 
   (collect-mapped-tool-bundle :kidney nil nil)
-  ;; => {:centres {:key ("uk"), :name ("UK"), :link ("https://www.openstreetmap.org/#map=6/54.910/-3.432"), :image ("assets/kidney/osm_logo.svg"), :description (nil), :explanation ("This is the adult transplant centre where the patient will be receiving their transplant.  This is not always the same as the dialysis follow-up centre.")}}
   )
 
 (defn write-edn-bundle
@@ -262,13 +245,12 @@
   ([organ centre tool-key]
 
    (let [path (bundle-path organ centre tool-key)
-         f (io/file path)]
-     (io/make-parents f)
-     (spit f (collect-mapped-tool-bundle organ centre tool-key)))))
+         file (io/file path)]
+     (io/make-parents file)
+     (spit file (collect-mapped-tool-bundle organ centre tool-key)))))
 
 (comment
   (bundle-path :kidney "UK" :ldsurvival)
-  ;; => "resources/public/kidney/edn/UK/ldsurvival.txt"
   )
 
 (defn write-sheet
@@ -284,7 +266,7 @@
   "Exports the set of EDN files needed by the app that are derived from the spreadsheets configured in config.edn"
   []
 
-  (doseq [organ [:kidney] ;[:lung :kidney]
+  (doseq [organ [:kidney]                                   ;[:lung :kidney]
           sheet [:tools :centres]]
 
     (write-sheet organ sheet)
@@ -299,16 +281,12 @@
                             ;; todo - this isn't a generalised test for the special case handling for all-centre models
                             (if (contains? #{:ldsurvival} tool-key) "UK" centre)
                             tool-key))))))
-  
-  
+
+
 
 
 (comment
   (get-centres :kidney)
-  ;; => ["UK"]
-
-
-
   0)
 
 
@@ -329,7 +307,7 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 (comment
   (main)
 
-  ) ; Run this
+  )                                                         ; Run this
 
 (comment
 
@@ -391,10 +369,8 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
 
   (get-row-maps :lung :waiting-baseline-vars)
   (get-row-maps :kidney :waiting-baseline-vars)
-  ; [{:baseline-factor ":baseline-factor", :baseline-level ":baseline-level"} {:baseline-factor ":age", :baseline-level ":50+"} {:baseline-factor ":sex", :baseline-level ":male"} {:baseline-factor ":ethincity", :baseline-level ":white"} {:baseline-factor ":dialysis", :baseline-level ":yes"} {:baseline-factor ":diabetes", :baseline-level ":no"} {:baseline-factor ":sensitised", :baseline-level ":no"} {:baseline-factor ":blood-group", :baseline-level ":O"} {:baseline-factor ":matchability", :baseline-level ":easy"} {:baseline-factor ":graft", :baseline-level ":first-graft"}]
 
   (get-row-maps :kidney :waiting-inputs)
-  ; [{:beta-transplant ":beta-transplant", :beta-death ":beta-death", :info-box? ":info-box?", :beta-removal ":beta-removal", :beta-all-reasons ":beta-all-reasons", :type ":type", :sub-text ":sub-text", :level ":level", :button-labels ":button-labels", :factor ":factor", :label ":label"} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type ":dropdown", :sub-text nil, :level "[:centre-keys]", :button-labels "[:centre-labels]", :factor ":centre", :label "Transplant Centre"} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? "Male", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "Sex", :level ":male", :button-labels "Male", :factor ":sex", :label "Sex"} {:beta-transplant -0.06289, :beta-death -0.10852, :info-box? "Female", :beta-removal 0.01097, :beta-all-reasons -0.10876, :type nil, :sub-text nil, :level ":female", :button-labels "Female", :factor ":sex", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.60387, :beta-death -1.43819, :info-box? nil, :beta-removal -0.99622, :beta-all-reasons 0.3303, :type ":dropdown", :sub-text "Age (years)", :level ":18+", :button-labels "18 - 29 ", :factor ":age", :label "Age (years)"} {:beta-transplant 0.46442, :beta-death -1.04978, :info-box? nil, :beta-removal -0.75824, :beta-all-reasons 0.22041, :type nil, :sub-text nil, :level ":30+", :button-labels "30 - 39", :factor ":age", :label nil} {:beta-transplant 0.26097, :beta-death -0.57859, :info-box? nil, :beta-removal -0.43028, :beta-all-reasons 0.09241, :type nil, :sub-text nil, :level ":40+", :button-labels "40 - 49", :factor ":age", :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type nil, :sub-text nil, :level ":50+", :button-labels "50 - 59", :factor ":age", :label nil} {:beta-transplant -0.28334, :beta-death 0.09774, :info-box? nil, :beta-removal 0.66553, :beta-all-reasons -0.03388, :type nil, :sub-text nil, :level ":60+", :button-labels "60 - 69", :factor ":age", :label nil} {:beta-transplant -0.77722, :beta-death 0.13967, :info-box? nil, :beta-removal 1.56677, :beta-all-reasons 0.11484, :type nil, :sub-text nil, :level ":70+", :button-labels "70 +", :factor ":age", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? ":yes", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":white", :button-labels "White", :factor ":ethnicity", :label "Ethnicity"} {:beta-transplant -0.01539, :beta-death -0.26636, :info-box? nil, :beta-removal -0.13979, :beta-all-reasons -0.09953, :type nil, :sub-text nil, :level ":non-white", :button-labels "Non-white", :factor ":ethnicity", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":O", :button-labels "O", :factor ":blood-group", :label "Blood group"} {:beta-transplant 0.54305, :beta-death -0.19369, :info-box? nil, :beta-removal -0.19443, :beta-all-reasons 0.57296, :type nil, :sub-text nil, :level ":A", :button-labels "A", :factor ":blood-group", :label nil} {:beta-transplant 0.00727, :beta-death 0.03454, :info-box? nil, :beta-removal -0.03596, :beta-all-reasons 0.00578, :type nil, :sub-text nil, :level ":B", :button-labels "B", :factor ":blood-group", :label nil} {:beta-transplant 0.54305, :beta-death -0.19369, :info-box? nil, :beta-removal -0.19443, :beta-all-reasons 0.57296, :type nil, :sub-text nil, :level ":AB", :button-labels "AB", :factor ":blood-group", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? ":yes", :beta-removal 0.0, :beta-all-reasons 0.0, :type ":dropdown", :sub-text "match score 1-3", :level ":easy", :button-labels "easy", :factor ":matchability", :label "Matchability group"} {:beta-transplant -0.28893, :beta-death 0.09036, :info-box? nil, :beta-removal 0.09631, :beta-all-reasons -0.29547, :type nil, :sub-text "match score 4-6", :level ":moderate", :button-labels "moderate", :factor ":matchability", :label nil} {:beta-transplant -0.61033, :beta-death 0.14314, :info-box? nil, :beta-removal 0.2109, :beta-all-reasons -0.62205, :type nil, :sub-text "match score 7-10", :level ":difficult", :button-labels "difficult", :factor ":matchability", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "No previous graft", :level ":first", :button-labels "first", :factor ":graft", :label "Graft number"} {:beta-transplant -0.35381, :beta-death 0.46463, :info-box? nil, :beta-removal -0.10169, :beta-all-reasons -0.32497, :type nil, :sub-text "Replacing previous graft", :level ":re-graft", :button-labels "re-graft", :factor ":graft", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":yes", :button-labels "Yes", :factor ":dialysis", :label "Dialysis at registration?"} {:beta-transplant 0.29132, :beta-death -0.50041, :info-box? nil, :beta-removal -0.31226, :beta-all-reasons 0.11702, :type nil, :sub-text nil, :level ":no", :button-labels "No", :factor ":dialysis", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.0, :type ":radio", :sub-text "cRF less than 85%", :level ":no", :button-labels "No", :factor ":sensitised", :label "Highly sensitised?"} {:beta-transplant -0.74768, :beta-death 0.33496, :info-box? nil, :beta-removal 0.32677, :beta-all-reasons -0.56793, :type nil, :sub-text "cRF 85% or more", :level ":yes", :button-labels "Yes", :factor ":sensitised", :label nil} {:beta-transplant nil, :beta-death nil, :info-box? nil, :beta-removal nil, :beta-all-reasons nil, :type nil, :sub-text nil, :level nil, :button-labels nil, :factor nil, :label nil} {:beta-transplant 0.0, :beta-death 0.86605, :info-box? nil, :beta-removal 0.18723, :beta-all-reasons 0.0, :type ":radio", :sub-text nil, :level ":no", :button-labels "No", :factor ":diabetes", :label "Primary renal disease - diabetes?"} {:beta-transplant -0.32635, :beta-death 0.0, :info-box? nil, :beta-removal 0.0, :beta-all-reasons 0.05058, :type nil, :sub-text "?", :level ":yes", :button-labels "Yes", :factor ":diabetes", :label nil} nil nil nil nil nil] 
 
   (get-col-maps :kidney :waiting-baseline-vars)
   (get-col-maps :kidney :waiting-inputs)
@@ -404,12 +380,12 @@ When processing a new version of the xlsx spreadsheets, run `lein check` first t
   (remove nil? (:name (get-col-maps :kidney :centres)))
 
   (rest (get-row-maps :kidney :survival-baseline-cifs))
-  (centre-row-maps :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Belfast")
-  (centre-columns :kidney :survival-baseline-cifs  "Guy's")
+  (centre-row-maps :kidney :survival-baseline-cifs "Belfast")
+  (centre-columns :kidney :survival-baseline-cifs "Belfast")
+  (centre-columns :kidney :survival-baseline-cifs "Guy's")
   (centre-columns :kidney :waiting-baseline-cifs "Belfast")
   (get-bundle :kidney :waiting)
-  (centre-row-maps :kidney :ldsurvival-baseline-cifs  "UK")
+  (centre-row-maps :kidney :ldsurvival-baseline-cifs "UK")
 
   (get-bundle :kidney :ldsurvival)
   (get-bundle :lung :waiting)

@@ -61,7 +61,7 @@
                                :label "Survival - living donor"
                                :inputs {:header [:div
                                                  [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour. That means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
-                               :outcomes {:residual {:label "no recurrence"
+                               :outcomes {:residual {:label "Survival with no recurrence"
                                                      :long-label "patients have had no recurrence"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
@@ -70,14 +70,24 @@
                                                      :stroke-width 1
                                                      :stroke "#000"
                                                      :label-fill "#fff"}
-                                          :ldsurvival {:label "recurrence"
+                                          :ldsurvival {:label "Kidney cancer recurrence"
                                                        :long-label "patients have had a recurrence"
-                                                       :fill "#ffffff"
+                                                       :fill "#104A64"
                                                        :opacity 0.7
                                                        :stroke-width 1
                                                        :stroke "#000"
-                                                       :label-fill "#000000"}}
-                               :plot-order [:ldsurvival :residual]
+                                                       :label-fill "#fff"}
+                                          :ldsurvival-competing-mortality {
+                                           :label "Death from other causes"
+                                           :long-label "patients have died from other causes"
+                                           :fill "#827f7f"
+                                           :background-color "#827f7f"
+                                           :color "#fff"
+                                           :opacity 0.7
+                                           :stroke-width 1
+                                           :stroke "#000"
+                                           :label-fill "#000000"}}
+                               :plot-order [:ldsurvival :residual :ldsurvival-competing-mortality]
                                :printout-level-name {:t-stage {:pT1a ["Your tumour stage is " "pT1a"]
                                                                :pT1b ["Your tumour stage is " "pT1b"]
                                                                :pT2a ["Your tumour stage is " "pT2a"]

@@ -183,7 +183,7 @@
          {:type      "text"
           :value     good
           :id        (when key (str (namespace key) "-" (name key)))
-        ; :on-click mutate
+          :autoComplete "off"
           :on-change mutate
           :style     {:width "58px"
                       :height "38px"

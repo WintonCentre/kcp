@@ -217,7 +217,7 @@
                      :stroke-opacity 1
                      :stroke-width 0
                      :stroke "#fa0"}]
-          [".outer" {:fill "#CCC"
+          [".outer" {:fill "#e0dede"
                      :stroke-opacity 1
                      :stroke "#ccc"}]
 

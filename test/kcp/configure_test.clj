@@ -101,117 +101,33 @@
   (testing "All widget types have a Label"
     (doseq [organ organs
             tool (c/get-tools organ)]
-      (check-widget-labels organ tool))
-    #_(check-widget-labels :kidney :graft)
-    #_(check-widget-labels :kidney :survival)))
+      (check-widget-labels organ tool))))
 
-(defn check-baseline-cif-data
+(defn is-sheet-complete
+  "Given a sheet, ensure that there are no 'holes', i.e. for each row there are values for each column."
   [organ sheet centre]
   (let [col-data (mapv (comp vec rest) (c/centre-columns organ sheet centre))]
     (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
     (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
 
 (deftest baseline-cifs-should-not-be-empty
-  (testing "Lung baseline-cifs should be consistent"
+  (testing "kidney baseline-cifs should be consistent"
     (doseq [organ organs
             centre (c/get-centres organ)
             tool (c/get-tools organ)]
-      (check-baseline-cif-data organ (keyword (str (name tool) "-baseline-cifs")) centre))))
+      (is-sheet-complete organ (keyword (str (name tool) "-baseline-cifs")) centre))))
+
+(deftest baseline-cifs-should-not-be-empty
+  (testing "kidney competing-mortality should be consistent"
+    (doseq [organ organs
+            centre (c/get-centres organ)
+            tool (c/get-tools organ)]
+      (is-sheet-complete organ (keyword (str (name tool) "-competing-mortality")) centre))))
 
 (comment
-  (def organ :lung)
-  (c/get-bundle :lung)
-  ;; => {:centres [:centres],
-  ;;     :tools [:tools],
-  ;;     :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs],
-  ;;     :post-transplant [:post-transplant-baseline-cifs :post-transplant-baseline-vars :post-transplant-inputs]}
-
   (c/get-bundle :kidney)
-  ;; => {:centres [:centres],
-  ;;     :tools [:tools],
-  ;;     :waiting [:waiting-baseline-cifs :waiting-baseline-vars :waiting-inputs],
-  ;;     :graft [:graft-baseline-cifs :graft-baseline-vars :graft-inputs],
-  ;;     :survival [:survival-baseline-cifs :survival-baseline-vars :survival-inputs],
-  ;;     :ldgraft [:ldgraft-baseline-cifs :ldgraft-baseline-vars :ldgraft-inputs],
-  ;;     :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]}
-
-
-  (c/get-col-maps :lung :tools)
-  ;; => {:description
-  ;;     ("for possible outcomes while waiting for a transplant "
-  ;;      "survival expectations after a lung transplant"
-  ;;      "a page of guidance"),
-  ;;     :table (nil nil nil),
-  ;;     :key (:waiting :post-transplant :guidance),
-  ;;     :guidance (nil nil nil),
-  ;;     :icons (nil nil nil),
-  ;;     :chart (nil nil nil),
-  ;;     :label ("Waiting times" "Survival post transplant" "Background Guidance"),
-  ;;     :area (nil nil nil),
-  ;;     :text (nil nil nil)}
-
-
-  ;; => {:key (:waiting :survival :graft :ldsurvival :ldgraft :guidance),
-  ;;     :label
-  ;;     ("Waiting times"
-  ;;      "Patient survival"
-  ;;      "Graft survival "
-  ;;      "Living donor patient survival"
-  ;;      "Living donor graft survival"
-  ;;      "Background Guidance"),
-  ;;     :description ("for possible outcomes" "over time" "over time" "over time" "over time" "a page of guidance")}
-
-  (str :foo "-bar")
-  ;; => ":foo-bar"
+  (c/get-col-maps :kidney :tools)
 
   (def organ :kidney)
   (def sheet :survival-baseline-cifs)
-  (def centre "St George's")
-  (def col-data (mapv rest (c/centre-columns organ sheet centre)))
-  (seq ["St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"
-        "St George's"])
-
-  (deftest untrimmed-centres
-    (testing "untrimmed centres in spreadsheet should work")
-    (is (> (count (c/centre-row-maps :kidney :survival-baseline-cifs "Bristol"))
-           1) "no match on Bristol because spreadsheet adds a space to it"))
-
-  ;---- LUNG
-  (defn check-baseline-cif-data
-    [organ sheet centre]
-    (let [col-data (mapv rest (c/centre-columns organ sheet centre))]
-      (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
-      (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
-
-  (deftest lung-baseline-cifs-should-not-be-empty
-    (testing "Lung baseline-cifs should be consistent"
-      (doseq [centre (c/get-centres :lung)
-              tool ["waiting" "post-transplant" "from-listing"]]
-        (check-baseline-cif-data :lung (keyword (str tool "-baseline-cifs")) centre))))
-
-  (deftest kidney-baseline-cifs-should-not-be-empty
-    (testing "Kidney baseline-cifs should be consistent"
-      (doseq [centre (c/get-centres :kidney)
-              tool ["waiting" "graft" "survival"]]
-        (check-baseline-cif-data :kidney (keyword (str tool "-baseline-cifs")) centre)))))
+  )

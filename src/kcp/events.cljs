@@ -144,6 +144,7 @@
 ;; It may be more efficient to do this processing at configuration time
 ;;
 
+; todo jack: this is likely where the problem is
 (rf/reg-event-fx
  ::store-bundle-inputs
  (fn

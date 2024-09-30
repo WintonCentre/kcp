@@ -12,9 +12,7 @@
 (defn get-all-bundles
   "Subscribe to the collection of bundles"
   []
-  ;(js/alert @(rf/subscribe [::subs/bundles]))
   @(rf/subscribe [::subs/bundles]))
-;; => #'kcp.bundles/get-all-bundles
 
 
 (defn get-bundle

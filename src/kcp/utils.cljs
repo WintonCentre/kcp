@@ -1,9 +1,56 @@
 (ns kcp.utils
   (:require [clojure.string :as str]
-            [clojure.edn :as edn]
-            [clojure.set :as set]
-            ;[shadow.debug :refer [?->]]
             ))
+
+(defn merge-vectors [vec1 vec2]
+  (mapv (fn [[k v1] [_ v2]]
+          [k (concat v1 v2)])
+        vec1 vec2))
+
+(defn filter-by-timestamps
+  [timestamps data]
+  (filter #(contains? timestamps (first %)) data))
+
+(defn filter-parallel-data [data query]
+  "Requires all query parameters to match for a row to be returned. E.g.
+  query { 'Age' 25, 'sex' 'M' } requires both 25 and male. Assumes data is a collection of parallel arrays, like:
+  { 'Age' [25, 26, ...], 'SomeParameter' [v1, v2, ...] }"
+  (if (or (nil? data) (nil? query))
+    {}
+    (let [keys (keys data)
+          n (count (get data (first keys)))
+          indices (filter
+                    (fn [idx]
+                      (every? (fn [[k v]]
+                                (= v (nth (get data k) idx)))
+                              query))
+                    (range n))]
+      (into {}
+            (map (fn [k]
+                   (let [filtered-values (mapv #(nth (get data k) %) indices)]
+                     [k filtered-values]))
+                 keys)))))
+
+(defn reformat-mortality-data [dict]
+  (vec (for [year (range 11)]
+         [(* 12 year) (get dict (str "Year" year) [0])])))
+
+(defn calculate-overall-risk [values]
+  (- 1 (reduce * (map (fn [v] (- 1 v)) values))))
+
+(defn re-weight-values [overall-risk values]
+  (let [sum (reduce + values)]
+    (mapv #(* overall-risk (/ % sum)) values)))
+
+(defn normalize-vectors [vectors]
+  "Given a vector of [timestamp [risk1, risk2, ...]] returns re-weighted vectors"
+  (mapv (fn [[timestamp values]]
+          (let [overall-risk (calculate-overall-risk values)]
+            ; avoid divide by 0
+            (if (zero? overall-risk)
+              [timestamp values]
+              [timestamp (re-weight-values overall-risk values)])))
+        vectors))
 
 (defn to-iso-date-str
   "E.g. 2024-08-28, works with date picker"

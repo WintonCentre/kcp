@@ -26,7 +26,6 @@
                  :bottom           -14}}
    [fs/full-screen-wrapper options]])
 
-
 (defn create-visualization-context
   "Creates a bundle of context used in all visualizations"
   [{:keys [organ centre tool selected-vis]}]
@@ -37,66 +36,69 @@
         inputs @(rf/subscribe [::subs/inputs])
         mdata @(rf/subscribe [::subs/mdata])
         tool-mdata (get-in mdata [organ :tools tool])
-        context {:organ organ
-                 :centre centre
-                 :tool tool
-                 :mdata mdata
-                 :tool-mdata tool-mdata
-                 :data-styles (get tool-mdata :outcomes)
-                 :day day
-                 :bundle bundle
-                 :fmaps fmaps
-                 :S0 S0
-                 :all-S0 all-S0
-                 :outcomes outcomes
-                 :outcome-keys outcome-keys
-                 :base-outcome-keys base-outcome-keys
-                 :timed-outcome-keys timed-outcome-keys
-                 :beta-keys beta-keys
-                 :cohort-dates @(rf/subscribe [::subs/cohort-dates])
-                 :inputs inputs
-                 :selected-vis selected-vis
-                 :total-score (+
-                                (get-in fmaps [:t-stage :levels (get-in inputs [:t-stage]) :score])
-                                (get-in fmaps [:n-stage :levels (get-in inputs [:n-stage]) :score])
-                                (get-in fmaps [:tumor-size :levels (get-in inputs [:tumor-size]) :score])
-                                (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
-                                (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
+        mortality-data (utils/reformat-mortality-data (utils/filter-parallel-data
+                                                  (:ldsurvival-competing-mortality bundle)
+                                                  {"Age" (js/parseInt (get-in inputs [:age-at-surgery])),
+                                                   "Sex" (if (= (get-in inputs [:sex]) :Male) "M" "F")}))
 
-                 :plot-order (as-> (:plot-order (get-in mdata [organ :tools tool])) x
-                                   (vis/move-to-start x :residual)
-                                   (vis/move-to-end x :removal)
-                                   (vis/move-to-end x :death))
+        sample-days (range 0 121 12)
+        S0 (utils/filter-by-timestamps (set sample-days) S0)
+        all-S0 (utils/filter-by-timestamps (set sample-days) all-S0)
+
+        context {:organ              organ
+                 :centre             centre
+                 :tool               tool
+                 :mdata              mdata
+                 :tool-mdata         tool-mdata
+                 :data-styles        (get tool-mdata :outcomes)
+                 :day                day
+                 :bundle             bundle
+                 :fmaps              fmaps
+                 :S0                 S0
+                 :all-S0             all-S0
+                 :outcomes           outcomes
+                 :outcome-keys       outcome-keys
+                 :base-outcome-keys  base-outcome-keys
+                 :timed-outcome-keys timed-outcome-keys
+                 :beta-keys          beta-keys
+                 :cohort-dates       @(rf/subscribe [::subs/cohort-dates])
+                 :inputs             inputs
+                 :selected-vis       selected-vis
+                 :total-score        (+
+                                       (get-in fmaps [:t-stage :levels (get-in inputs [:t-stage]) :score])
+                                       (get-in fmaps [:n-stage :levels (get-in inputs [:n-stage]) :score])
+                                       (get-in fmaps [:tumor-size :levels (get-in inputs [:tumor-size]) :score])
+                                       (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
+                                       (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
+
+                 :plot-order         (as-> (:plot-order (get-in mdata [organ :tools tool])) x
+                                           (vis/move-to-start x :residual)
+                                           (vis/move-to-end x :removal)
+                                           (vis/move-to-end x :death))
                  }
 
 
         inputs (:inputs context)
         required-inputs (keys (:fmaps context))
         fulfilled-inputs (select-keys inputs required-inputs)
-        missing #_false (< (count fulfilled-inputs) (count required-inputs))
+        missing (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
         overlay (if missing :missing (if unknowns :unknowns nil))
         context (assoc context :input-state
-                               {:inputs inputs
-                                :required-inputs required-inputs
+                               {:inputs           inputs
+                                :required-inputs  required-inputs
                                 :fulfilled-inputs fulfilled-inputs
-                                :missing missing
-                                :unknowns unknowns
-                                :overlay overlay})
+                                :missing          missing
+                                :unknowns         unknowns
+                                :overlay          overlay})
 
         ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
         ;; Switching s0 is enough
         s0 all-S0
         s0-for-day (model/S0-for-day s0 day)
         sum-betas (map #(fac/sum-beta-xs context %) beta-keys)
-        cox? (model/use-cox-adjusted? tool)
-        F (if cox?
-            (model/cox-adjusted s0 sum-betas)
-            (model/cox-only s0 sum-betas))
-
-        sample-days (map
-                      utils/year->day
-                      (if s0 (range (inc (utils/day->year (first (last s0))))) []))
+        F (utils/normalize-vectors (utils/merge-vectors (model/cox-only s0 sum-betas) mortality-data))
+        sample-days sample-days
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys (:plot-order context) fs-by-year)
 
@@ -104,7 +106,6 @@
                       [:sum-betas sum-betas]
                       [:s0 s0]
                       [:s0-for-day s0-for-day]
-                      [:cox? cox?]
                       [:F F]
                       [:fs-by-year-in-plot-order fs-by-year-in-plot-order])]
     context))

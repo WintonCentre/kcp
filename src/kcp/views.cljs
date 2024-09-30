@@ -1046,7 +1046,11 @@ not currently use these factors to make decisions about follow-up care."]]
                           (let [stage-data (get-in tcb-fmaps [level-id])
                                 level-data (get-in stage-data [:levels stage-id])]
                             [:div
-                             [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
+                             (let [info-box (-> stage-data :info-box edn/read-string second)]
+                               [:p
+                                [:b (:factor-name stage-data)]
+                                (when info-box
+                                  (str " - " info-box))])
 
                              (let [description (get-in (:printout-level-name tool-mdata)
                                                        [level-id stage-id]
@@ -1057,7 +1061,8 @@ not currently use these factors to make decisions about follow-up care."]]
                                )
                              ]))
                         (:selection printout-details)))
-                ]]
+                ]
+               ]
 
               [ui/col {:xs 12 :class-name "d-none d-print-block boxed" :style {:padding "16px 16px 0"}}
                [:h5 "MORE INFORMATION AND SUPPORT:"]

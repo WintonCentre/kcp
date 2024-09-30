@@ -139,6 +139,8 @@
                     :on-click    #(update-value value nmin nmax dps increment on-change)}
       (if (pos? increment) "+" "–")]]))
 
+; todo jack: we're missing the validation note
+; todd jack: in print, the age is showing as editable...
 ;;
 ;; This will need more work if used in production.
 ;;                                                             
@@ -183,7 +185,7 @@
          {:type      "text"
           :value     good
           :id        (when key (str (namespace key) "-" (name key)))
-        ; :on-click mutate
+          :autoComplete "off"
           :on-change mutate
           :style     {:width "58px"
                       :height "38px"

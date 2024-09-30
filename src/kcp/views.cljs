@@ -38,13 +38,13 @@
   [mdata]
   (let [single-organ (ui/get-single-organ mdata)]
     (map (fn [organ]
-           [:div {:key (get-in mdata [organ :text])
+           [:div {:key   (get-in mdata [organ :text])
                   :style {:margin-bottom 20}}
-            [ui/button {:id (str (name organ) "-button")
+            [ui/button {:id         (str (name organ) "-button")
                         :class-name "btn-lg"
-                        :variant "primary"
-                        :style {:font-size "1.5em"}
-                        :on-click #(rf/dispatch [::events/navigate ::organ-centre-tool-tab-inputs {:organ organ :centre "uk" :tool "ldsurvival" :tab "icons" :inputs "-"}])}
+                        :variant    "primary"
+                        :style      {:font-size "1.5em"}
+                        :on-click   #(rf/dispatch [::events/navigate ::organ-centre-tool-tab-inputs {:organ organ :centre "uk" :tool "ldsurvival" :tab "icons" :inputs "-"}])}
              (if single-organ
                "Start the tool"
                ;"Choose your transplant centre"
@@ -86,7 +86,7 @@
         [:p "The tool cannot take into account everything about you.  For example it does not currently ask
              about other health conditions you may have."]
         [:p " If you want to know more about the data and the models behind the tool read
-             the " [:a {:href (ui/href :kcp.views/tech)}  "technical section"] " of this site."]]
+             the " [:a {:href (ui/href :kcp.views/tech)} "technical section"] " of this site."]]
        [home-section
         [:h2 "Where can I find more information and support?"]
         (get-in mdata [single-organ :more-information])]]
@@ -103,14 +103,13 @@
         route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
         organ (get-in route [:path-params :organ])]
-                                        ;(locals)
     (if mdata
       (if-let [organ (or single-organ organ)]
         [ui/decorated-page
-         [:div {:style {:width "calc(100% + 30px)"
-                        :background-color "#337777"; "#E0E0E8"
-                        :margin-left "-15px"
-                        :padding "15px"}}
+         [:div {:style {:width            "calc(100% + 30px)"
+                        :background-color "#337777"         ; "#E0E0E8"
+                        :margin-left      "-15px"
+                        :padding          "15px"}}
           [ui/row
            [ui/col {:md 4}
             [:img (if (= organ :lung)
@@ -138,7 +137,7 @@
         mobile (<= window-width ui/mobile-break)]
 
     [ui/card-page
-     "Choose your transplant centre" ; todo: configure
+     "Choose your transplant centre"                        ; todo: configure
      (if-not centres
        [:div "loading /" organ " centres"]
        (if-not mdata
@@ -148,14 +147,14 @@
                tools (utils/get-tools mdata organ)
                centre-card (fn [centre]
                              [ui/centre-card mobile
-                              {:img-src (:image centre)
-                               :organ organ
-                               :link [::organ-centre {:organ organ :centre (name (:key centre))}]
-                               :centre (:key centre)
+                              {:img-src  (:image centre)
+                               :organ    organ
+                               :link     [::organ-centre {:organ organ :centre (name (:key centre))}]
+                               :centre   (:key centre)
                                :hospital (:description centre)
-                               :width 200
-                               :tools tools
-                               :mdata mdata}])]
+                               :width    200
+                               :tools    tools
+                               :mdata    mdata}])]
            (into (ui/centre-card-deck mobile)
                  (map centre-card centres)))))]))
 
@@ -173,8 +172,8 @@
         (condp = single-organ
           :kidney [:> bs/Col
                    [:p "Leibovich Model (" [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "https://doi.org/10.1002/cncr.11234"] ")."]
-                   [:p "Systematic review of models predicting recurrence after kidney cancer surgery (" [:a {:href "https://doi.org/10.1111/bju.15673"
-                            :target "_blank"} "https://doi.org/10.1111/bju.15673"] ")."]]
+                   [:p "Systematic review of models predicting recurrence after kidney cancer surgery (" [:a {:href   "https://doi.org/10.1111/bju.15673"
+                                                                                                              :target "_blank"} "https://doi.org/10.1111/bju.15673"] ")."]]
           :else [ui/col [:p "None."]])]]
       [ui/loading])))
 
@@ -183,7 +182,7 @@
   [:<>
 
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                      :margin-bottom 20}}
     [:h4 "Overview"]
     [:p "The tool takes information about your tumour, including the size and stage, and makes a prediction based on
          what happened to people in the past who had similar tumours. For example, how many people 'like you'
@@ -201,7 +200,7 @@
      information into the tool, the calculator looks at this model and produces results."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                      :margin-bottom 20}}
     [:h4 "Who is this site for?"]
     [:p "The tool is suitable for patients with clear cell renal cell carcinoma (ccRCC) who are over 18 years old and
          have had surgery to treat kidney cancer (such as a partial or radical nephrectomy). This tool is not suitable
@@ -265,14 +264,14 @@
     [:i "S" [:sub "R"] "(t|X" [:sub "t"] ") "] " = exp" [:i " (-H" [:sub "R"] "(t|X" [:sub "t"] "))"]]
    [:p "Conversely, the risk function describes the probability of having a recurrence before time " [:i "t"] ", and can be defined as: "]
    [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
-    [:i "R" [:sub "R"] "(t|X"  [:sub "t"] ") "] " = 1 - " [:i "S" [:sub "R"] "(t|X"  [:sub "t"] ")"]]
+    [:i "R" [:sub "R"] "(t|X" [:sub "t"] ") "] " = 1 - " [:i "S" [:sub "R"] "(t|X" [:sub "t"] ")"]]
    ])
 
 (defn web-development-section
   []
   [:<>
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                      :margin-bottom 20}}
     [:h3#the-web-implementation "Web implementation"]
     [:p "This tool is a Single Page Application (SPA). It is a single web page which loads a Javascript application that
     updates the page according to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser."]
@@ -281,7 +280,7 @@
     The model calculations run once you have entered all necessary data, and will rerun whenever you change any input. Once you close the
     browser window or tab, the data is erased, just like in a calculator."]]
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                      :margin-bottom 20}}
     [:h3#the-development-stack "The development stack"]
     [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript.
     The most important libraries that it uses are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the
@@ -297,17 +296,17 @@
   []
   [:<>
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                      :margin-bottom 20}}
     [:h3#references "References"]
     [:ol
      [:li "Leibovich, B. C. et al. Prediction of progression after radical nephrectomy for patients with clear cell renal
-    cell carcinoma: A stratification tool for prospective clinical trials. Cancer "[:b "97"]", 1663–1671 (2003)."]
+    cell carcinoma: A stratification tool for prospective clinical trials. Cancer " [:b "97"] ", 1663–1671 (2003)."]
      [:li "Usher-Smith, J.A., et al. Risk models for recurrence and survival after kidney cancer: a systematic review. BJU Int, 130: 562-579. (2022)"]]]])
 
 (defn overview-menu [[route text]]
   [:li {:key (random-uuid)} [:span {:on-click #(.scrollIntoView (.getElementById js/document route)
                                                                 (js-obj "behavior" "smooth"))
-                                    :style {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
+                                    :style    {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
 
 (def kidney-tags [["model-development" "Model development"]
                   ["cohort" "Cohort"]
@@ -323,10 +322,10 @@
   []
   [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom  20}}
+                      :margin-bottom 20}}
     [:section
      [:ul {:style {:list-style-image "url(assets/bullet-plus.png)"
-                   :margin-top 10}} (map overview-menu kidney-tags)]]
+                   :margin-top       10}} (map overview-menu kidney-tags)]]
 
 
     [:h3#model-development "Model development"]
@@ -429,8 +428,8 @@ or smaller than 10cm is most important in the context of recurrence"]
       [ui/page (str " Legal ")
        [ui/row
         [:> bs/Col
-         [:section  {:style {:border-bottom "1px #337777 solid"
-                             :margin-bottom  20}}
+         [:section {:style {:border-bottom "1px #337777 solid"
+                            :margin-bottom 20}}
           [:h4 "Disclaimer"]
           [:p "You MUST read the information below before using the tool."]
           [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed by a team at the Mayo
@@ -464,18 +463,18 @@ not transferred to any other system, and it is erased once you close the applica
       [ui/loading])))
 
 (def guidances
-  {:percent "What does a percentage look like?"
-   :visits "Visits to hospital after transplant"
-   :donors "Donor Decisions"
-   :medications "Medications after Transplant Surgery"
-   :window "The Window"
-   :graft-failure "What are my options if my new kidney fails?"
-   :lung-numbers "Lung kcp - 2019 - 2020 numbers"
+  {:percent        "What does a percentage look like?"
+   :visits         "Visits to hospital after transplant"
+   :donors         "Donor Decisions"
+   :medications    "Medications after Transplant Surgery"
+   :window         "The Window"
+   :graft-failure  "What are my options if my new kidney fails?"
+   :lung-numbers   "Lung kcp - 2019 - 2020 numbers"
    :kidney-numbers "Kidney kcp - 2019 - 2020 numbers"})
 
 (defmulti show-guidance
-  "Render the selected background info"
-  :info-key)
+          "Render the selected background info"
+          :info-key)
 
 (defmethod show-guidance :visits []
   [:<>
@@ -529,16 +528,16 @@ Here are typical donor characteristics you might be asked to think about."]
         Transplantation is offered when you are ill enough to need it,
         but well enough to survive the surgery.  We call this the ‘window of opportunity’."]
    [:> bs/Image {:fluid true
-                 :src "assets/The_Window.png"
+                 :src   "assets/The_Window.png"
                  :async true}]])
 
 (defmethod show-guidance :graft-failure []
   [:<>
    [:h3 (:graft-failure guidances)]
-   [ui/row {:style {:display :flex
+   [ui/row {:style {:display         :flex
                     :justify-content "start"
-                    :flex-wrap "wrap"
-                    :margin-top 20}}
+                    :flex-wrap       "wrap"
+                    :margin-top      20}}
     [ui/col {:xs 6}
      [:h5 "Acute Rejections"]
      [:i "When to seek medical advice"]
@@ -593,7 +592,7 @@ Here are typical donor characteristics you might be asked to think about."]
    [ui/row
     [ui/col {:sm 12}
      [:p " See page 4 of "
-      [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
+      [:a {:href   "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
            :target "_blank"}
        "this PDF document for local numbers"]]]]])
 
@@ -601,7 +600,7 @@ Here are typical donor characteristics you might be asked to think about."]
   [:<>
    [:h3 (:lung-numbers guidances)]
    [:p "For further detail, please see "
-    [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf"
+    [:a {:href   "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19874/nhsbt-annual-report-on-cardiothoracic-organ-transplantation-201920.pdf"
          :target "_blank"} "the annual report"] "."]
    [ui/row
     [ui/col {:sm 12} [:h3 "Numbers on the waiting list"]]]
@@ -664,7 +663,7 @@ Here are typical donor characteristics you might be asked to think about."]
    [ui/row
     [ui/col {:sm 12}
      [:p " See page 4 of "
-      [:a {:href "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
+      [:a {:href   "https://nhsbtdbe.blob.core.windows.net/umbraco-assets-corp/19191/section-5-kidney-activity.pdf"
            :target "_blank"}
        "this PDF document for local numbers"]]]]])
 
@@ -680,66 +679,66 @@ Here are typical donor characteristics you might be asked to think about."]
         randomise-icons @(rf/subscribe [::subs/randomise-icons])]
     [:<>
      [:h3 (a-percentage (:percent guidances) percent)]
-     [ui/row {:style {:display :flex
+     [ui/row {:style {:display         :flex
                       :justify-content "start"
-                      :flex-wrap "wrap"}}
+                      :flex-wrap       "wrap"}}
       [ui/col
-       [:div {:sm 3 :style {:display :flex
+       [:div {:sm 3 :style {:display         :flex
                             :justify-content "flex-start"
-                            :flex-wrap "wrap"}}
-        [:div {:style {:display :flex
-                       :flex-direction "row"
-                       :width 140
+                            :flex-wrap       "wrap"}}
+        [:div {:style {:display         :flex
+                       :flex-direction  "row"
+                       :width           140
                        :justify-content "space-between"
-                       :margin-bottom 5
-                       :margin-right 5}}
-         [:> bs/Button {:style {:width 55 :height 50
-                                :margin-right 5}
+                       :margin-bottom   5
+                       :margin-right    5}}
+         [:> bs/Button {:style    {:width        55 :height 50
+                                   :margin-right 5}
                         :disabled (zero? percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent -1])} "- 1"]
-         [:> bs/Button {:style {:width 55   :height 50}
+         [:> bs/Button {:style    {:width 55 :height 50}
                         :disabled (= 100 percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent 1])} "+ 1"]]
-        [:div {:style {:display :flex
-                       :width 140
+        [:div {:style {:display         :flex
+                       :width           140
                        :justify-content "space-between"
-                       :margin-bottom 5
-                       :margin-right 5}}
-         [:> bs/Button {:style {:width 55
-                                :height 50
-                                :margin-right 5}
+                       :margin-bottom   5
+                       :margin-right    5}}
+         [:> bs/Button {:style    {:width        55
+                                   :height       50
+                                   :margin-right 5}
                         :disabled (zero? percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent -10])} "-10"]
-         [:> bs/Button {:style {:width 55 :height 50}
+         [:> bs/Button {:style    {:width 55 :height 50}
                         :disabled (= 100 percent)
                         :on-click #(rf/dispatch [::events/inc-guidance-percent 10])} "+10"]]]
        (ui/randomise-query-panel "Randomised? ")]
       [ui/col {:sm 9}
        (let [order (shuffle (concat (range percent) (range -1 (- percent 101) -1)))]
          (into
-          [:<>
-           (map
-            (fn [j]
-              [ui/row {:key (str "icon-row-" j)}
-               [ui/col
-                (into [:<>
-                       (map (fn [i]
-                              [ui/open-icon
-                               {:key (str "icon-col-" i)
-                                :color (if (neg? (if randomise-icons
-                                                   (order (- 100 (+ 10 (* j 10) (- i))))
-                                                   (- percent (- 101 (+ 10 (* j 10) (- i))))))
-                                         "#CCC"
-                                         "#488")
-                                #_(if (< (- 100 (+ 10 (* j 10) (- i))) percent) "#488" "#CCC")
-                                :padding "4px 5px"} "person"]) (range 10))])]])
-            (range 10))]))]]]))
+           [:<>
+            (map
+              (fn [j]
+                [ui/row {:key (str "icon-row-" j)}
+                 [ui/col
+                  (into [:<>
+                         (map (fn [i]
+                                [ui/open-icon
+                                 {:key     (str "icon-col-" i)
+                                  :color   (if (neg? (if randomise-icons
+                                                       (order (- 100 (+ 10 (* j 10) (- i))))
+                                                       (- percent (- 101 (+ 10 (* j 10) (- i))))))
+                                             "#CCC"
+                                             "#488")
+                                  #_(if (< (- 100 (+ 10 (* j 10) (- i))) percent) "#488" "#CCC")
+                                  :padding "4px 5px"} "person"]) (range 10))])]])
+              (range 10))]))]]]))
 
 (defn useful-info-button
   [{:keys [active event label]}]
-  [:> bs/Button {:style {:width "100%"}
-                 :variant (if active "secondary" "outline-secondary")
-                 :active active
+  [:> bs/Button {:style    {:width "100%"}
+                 :variant  (if active "secondary" "outline-secondary")
+                 :active   active
                  :on-click #(rf/dispatch event)}
    label])
 
@@ -755,58 +754,58 @@ Here are typical donor characteristics you might be asked to think about."]
     [ui/row {:style {:margin "40px 10px" :min-height "calc(100vh - 490px"}}
      (cond
        (= organ :kidney) [ui/col {:md 4}
-                          [:h3  "Useful information"] ; :todo
+                          [:h3 "Useful information"]        ; :todo
 
                           [:> bs/ButtonGroup {:vertical true}
                            [useful-info-button {:active (= :percent selected)
-                                                :event [::events/guidance :percent]
-                                                :label sample-percentage}]
+                                                :event  [::events/guidance :percent]
+                                                :label  sample-percentage}]
                            [useful-info-button {:active (= :visits selected)
-                                                :event [::events/guidance :visits]
-                                                :label (:visits guidances)}]
+                                                :event  [::events/guidance :visits]
+                                                :label  (:visits guidances)}]
                            [useful-info-button {:active (= :kidney-numbers selected)
-                                                :event [::events/guidance :kidney-numbers]
-                                                :label (:kidney-numbers guidances)}]
+                                                :event  [::events/guidance :kidney-numbers]
+                                                :label  (:kidney-numbers guidances)}]
                            [useful-info-button {:active (= :medications selected)
-                                                :event [::events/guidance :medications]
-                                                :label (:medications guidances)}]
+                                                :event  [::events/guidance :medications]
+                                                :label  (:medications guidances)}]
                            [useful-info-button {:active (= :graft-failure selected)
-                                                :event [::events/guidance :graft-failure]
+                                                :event  [::events/guidance :graft-failure]
 
-                                                :label (:graft-failure guidances)}]]]
+                                                :label  (:graft-failure guidances)}]]]
 
        (= organ :lung) [ui/col {:md 4}
-                        [:h3  "Useful information"]
+                        [:h3 "Useful information"]
                         [:> bs/ButtonGroup {:vertical true}
                          [useful-info-button {:active (= selected :percent)
-                                              :event [::events/guidance :percent]
-                                              :label sample-percentage}]
+                                              :event  [::events/guidance :percent]
+                                              :label  sample-percentage}]
                          [useful-info-button {:active (= selected :visits)
-                                              :event [::events/guidance :visits]
-                                              :label (:visits guidances)}]
+                                              :event  [::events/guidance :visits]
+                                              :label  (:visits guidances)}]
                          [useful-info-button {:active (= selected :lung-numbers)
-                                              :event [::events/guidance :lung-numbers]
-                                              :label (:lung-numbers guidances)}]
+                                              :event  [::events/guidance :lung-numbers]
+                                              :label  (:lung-numbers guidances)}]
                          [useful-info-button {:active (= selected :donors)
-                                              :event [::events/guidance :donors]
-                                              :label (:donors guidances)}]
+                                              :event  [::events/guidance :donors]
+                                              :label  (:donors guidances)}]
                          [useful-info-button {:active (= selected :medications)
-                                              :event [::events/guidance :medications]
-                                              :label (:medications guidances)}]
+                                              :event  [::events/guidance :medications]
+                                              :label  (:medications guidances)}]
                          [useful-info-button {:active (= selected :window)
-                                              :event [::events/guidance :window]
-                                              :label (:window guidances)}]]])
+                                              :event  [::events/guidance :window]
+                                              :label  (:window guidances)}]]])
      [ui/col {:md 8}
       [:div {:style {:margin-top 40}}
        (show-guidance {:info-key @(rf/subscribe [::subs/guidance])})
        [:> bs/Row
-        [:> bs/Col {:md {:span 5}
-                    :style {:border "3px solid #336677"
+        [:> bs/Col {:md    {:span 5}
+                    :style {:border        "3px solid #336677"
                             :border-radius 3
-                            :padding-top 20
-                            :margin-left 15
-                            :margin-right 10
-                            :margin-top 30}}
+                            :padding-top   20
+                            :margin-left   15
+                            :margin-right  10
+                            :margin-top    30}}
          [:p [:b [:span {:style {:color "red"}} (ui/open-icon "wrench")] " UNDER CONSTRUCTION!"]]
          [:p "Please tell us what you would like to see here, and do let us know of any errors that need correction."]
          [:p [:b [:span {:style {:color "#336677"}} (ui/open-icon "envelope-closed")]
@@ -849,12 +848,12 @@ not currently use these factors to make decisions about follow-up care."]]
         time-index (get-in visualization-context [:tool-mdata :printout :time-index] nil)
         fs-by-year-in-plot-order (:fs-by-year-in-plot-order visualization-context)
         details {
-                 :selection (utils/reorder-map (:inputs visualization-context) (:fmaps visualization-context))
-                 :risk-score total-score
-                 :risk-description (cond
-                                     (<= total-score 2) "low risk"
-                                     (>= total-score 6) "high risk"
-                                     :default "intermediate risk")
+                 :selection                (utils/reorder-map (:inputs visualization-context) (:fmaps visualization-context))
+                 :risk-score               total-score
+                 :risk-description         (cond
+                                             (<= total-score 2) "low risk"
+                                             (>= total-score 6) "high risk"
+                                             :default "intermediate risk")
                  :risk-at-print-time-index (if (empty? fs-by-year-in-plot-order)
                                              nil
                                              (-> fs-by-year-in-plot-order
@@ -863,17 +862,17 @@ not currently use these factors to make decisions about follow-up care."]]
                                                  :int-fs
                                                  ; HACK: hardcoded against plot order... ideally this would be keyed
                                                  second))
-                 :time-index-description (get-in visualization-context [:tool-mdata :printout :description] "")
-                 :header-data {
-                               :patient-name (:patient-name additional-details)
-                               :nhs-number (:nhs-number additional-details)
-                               :dob (utils/to-locale-date-str (:dob additional-details))
-                               :clinician-name (:clinician-name additional-details)
-                               :consultation-date (utils/to-locale-date-str (:consultation-date additional-details))}
-                 :more-information (-> visualization-context
-                                       :mdata
-                                       (get-in [(ui/get-single-organ (:mdata visualization-context))])
-                                       :more-information)}]
+                 :time-index-description   (get-in visualization-context [:tool-mdata :printout :description] "")
+                 :header-data              {
+                                            :patient-name      (:patient-name additional-details)
+                                            :nhs-number        (:nhs-number additional-details)
+                                            :dob               (utils/to-locale-date-str (:dob additional-details))
+                                            :clinician-name    (:clinician-name additional-details)
+                                            :consultation-date (utils/to-locale-date-str (:consultation-date additional-details))}
+                 :more-information         (-> visualization-context
+                                               :mdata
+                                               (get-in [(ui/get-single-organ (:mdata visualization-context))])
+                                               :more-information)}]
     details)
   )
 
@@ -899,7 +898,7 @@ not currently use these factors to make decisions about follow-up care."]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
           [:div.d-none.d-print-block.print-header
-           [:div {:style { :padding "30px 30px 0 30px" }}
+           [:div {:style {:padding "30px 30px 0 30px"}}
             [:img {:src "assets/nhs-left-align_scaled.svg" :style {:display "block" :width "3cm" :margin-left "auto" :margin-right 0}}]
             [ui/row
              [ui/col {:xs 6}
@@ -912,10 +911,10 @@ not currently use these factors to make decisions about follow-up care."]]
                "Name: " (-> printout-details :header-data :clinician-name) [:br]
                "Date: " (-> printout-details :header-data :consultation-date) [:br]
                "Signature: "]]]]
-           [:hr.rounded { :style {:border-color rgb/theme :margin 0 } }]]])
+           [:hr.rounded {:style {:border-color rgb/theme :margin 0}}]]])
 
        (when (= tab "test")
-         [results/results-panel { :bare true :vis-context vis-context :centre-info centre-info }])
+         [results/results-panel {:bare true :vis-context vis-context :centre-info centre-info}])
 
 
        (when-not @(rf/subscribe [::subs/missing-inputs])
@@ -940,8 +939,8 @@ not currently use these factors to make decisions about follow-up care."]]
             ;; Inputs panel
             ;;;
             (when-not is-full-screen
-              [ui/col {:md 6
-                       :style {:margin-top 10}
+              [ui/col {:md         6
+                       :style      {:margin-top 10}
                        :class-name "col-print-6 boxed"}
 
                (when-let [input-header (get-in tool-mdata [:inputs :header])]
@@ -952,42 +951,42 @@ not currently use these factors to make decisions about follow-up care."]]
 
                 (into [:<>]
                       (map
-                       (fn [[k w]] ^{:key (:factor w)}
-                         [:div {:style {:margin-top 0
-                                        :margin-bottom -5
-                                        :margin-left -15
-                                        :padding 5
-                                        :display "relative"
-                                        :outline-bottom (when (some? (:boxed w)) boxed-border)
-                                        :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
-                          [:div {:style {:position "relative"
-                                         :padding-right 5}}
-                           (when (= k first-boxed)
-                             [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items  "center"}}
-                              [:> bs/Col {:xs 6
-                                          :style {:display "flex" :justify-content "flex-end"}}
-                               [:span {:style {:text-align "right"}}
-                                boxed-text]]])
-                           (widg/widget (assoc w :model tool))]
-                          [:div {:style {:height 10}}]])
+                        (fn [[k w]] ^{:key (:factor w)}
+                          [:div {:style {:margin-top       0
+                                         :margin-bottom    -5
+                                         :margin-left      -15
+                                         :padding          5
+                                         :display          "relative"
+                                         :outline-bottom   (when (some? (:boxed w)) boxed-border)
+                                         :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
+                           [:div {:style {:position      "relative"
+                                          :padding-right 5}}
+                            (when (= k first-boxed)
+                              [:> bs/Row {:style {:padding-top 0 :display "flex" :align-items "center"}}
+                               [:> bs/Col {:xs    6
+                                           :style {:display "flex" :justify-content "flex-end"}}
+                                [:span {:style {:text-align "right"}}
+                                 boxed-text]]])
+                            (widg/widget (assoc w :model tool))]
+                           [:div {:style {:height 10}}]])
 
-                       tcb-fmaps))]
+                        tcb-fmaps))]
                [:<>
                 [:p.d-print-none {:style {:margin-top "15px"}} "This tool cannot take into account all the factors about you that might affect the result. We hope to include more in the future."]
                 [:p.d-print-none "Click below to find out more about factors that may affect the likelihood of kidney cancer coming back but are not included the tool."]
                 [:p
-                 [:> bs/Button {:id "factors-considered"
-                                :size "md"
-                                :variant "primary"
-                                :title "Factors considered but not included"
-                                :style {:margin-left 0}
+                 [:> bs/Button {:id       "factors-considered"
+                                :size     "md"
+                                :variant  "primary"
+                                :title    "Factors considered but not included"
+                                :style    {:margin-left 0}
                                 :on-click (fn [_e]
                                             (rf/dispatch [::events/modal-data
-                                                          {:show true
-                                                           :title "Important factors not included in the tool"
+                                                          {:show    true
+                                                           :title   "Important factors not included in the tool"
                                                            :content (factors-not-included mdata)
                                                            :on-hide widg/hide-handler
-                                                           :ok widg/hide-handler}]))}
+                                                           :ok      widg/hide-handler}]))}
                   [:span "Show important factors not included in the tool"]]]]])
 
             ;;;
@@ -1004,64 +1003,63 @@ not currently use these factors to make decisions about follow-up care."]]
               (:rest-of-page tool-mdata)]
 
              (when-not @(rf/subscribe [::subs/missing-inputs]) [:section.d-none.d-print-block {:style {:margin-top 10}}
-              [:p "Based on the details of your tumour, you are at "
-               [:b (:risk-description printout-details)] (str " of your cancer coming back or
+                                                                [:p "Based on the details of your tumour, you are at "
+                                                                 [:b (:risk-description printout-details)] (str " of your cancer coming back or
               spreading. When we consider the details of your tumour the estimated risk of your cancer coming back
               (recurrence) or spreading to other parts of the body
               (metastasis) " (:time-index-description printout-details) " is " (:risk-at-print-time-index printout-details) "%.")]
-              [:p "In other words, " [:b (str "the cancer will come back or spread " (:time-index-description printout-details)
-                   " in about " (:risk-at-print-time-index printout-details) " out of 100 patients with the same tumour as you.")]]])
+                                                                [:p "In other words, " [:b (str "the cancer will come back or spread " (:time-index-description printout-details)
+                                                                                                " in about " (:risk-at-print-time-index printout-details) " out of 100 patients with the same tumour as you.")]]])
 
              [widg/print-or-save]]
 
             (when-not @(rf/subscribe [::subs/missing-inputs])
               [:div [ui/col {:class-name "flex-fill d-none d-print-flex" :style {:margin-top "10px"}}
-               [ui/col {:xs 12 :style {:padding 0}} [:p "The following images show that risk in different ways. They also
+                     [ui/col {:xs 12 :style {:padding 0}} [:p "The following images show that risk in different ways. They also
              show the estimated risk of the cancer coming back or spreading between 1 year and 10 years."]]]
 
-              [ui/col {:class-name "flex-fill d-none d-print-flex"}
-               [ui/col {:xs 6 :style {:padding 0}} [vis/icon-array vis-context {:disable-mobile true}]]
-               [ui/col {:xs 1 :style {:padding 0}}]
-               [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
+               [ui/col {:class-name "flex-fill d-none d-print-flex"}
+                [ui/col {:xs 6 :style {:padding 0}} [vis/icon-array vis-context {:disable-mobile true}]]
+                [ui/col {:xs 1 :style {:padding 0}}]
+                [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
 
                [ui/col {:class-name "flex-fill d-none d-print-flex"}
                 [ui/col {:xs 8 :style {:padding 0 :margin-top -20}} [vis/table vis-context]]
 
                 [ui/col {:xs 3 :style {:padding 0}}
-                 [:svg {:style {:width "180px" :border "2px solid"}
-                        :viewBox "0 0 270 160"
+                 [:svg {:style               {:width "180px" :border "2px solid"}
+                        :viewBox             "0 0 270 160"
                         :preserveAspectRatio "xMinYMin meet"}
                   [:rect {:width "100%" :height "100%" :fill "#CCC"}]
                   [:g {:transform "translate(7 -20)"}
                    (vis/svg-outcome-legend (:plot-order vis-context) (:data-styles vis-context))]]]]
 
-              [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}
-               [:h3 "Further details"]
+               [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}
+                [:h3 "Further details"]
+                [:div
+                 (into [:<>]
+                       (map
+                         (fn [[level-id stage-id]]
+                           (let [stage-data (get-in tcb-fmaps [level-id])
+                                 level-data (get-in stage-data [:levels stage-id])
+                                 description (get-in (:printout-level-name tool-mdata)
+                                                     [level-id stage-id])]
+                             (when description
+                               [:div
+                                [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
+                                [:p {:class-name "ml-5" :style {:color "#007bff"}}
+                                 (first description)
+                                 [:b (second description)]
+                                 (get description 2 "")
+                                 (when-let [sub-text (:sub-text level-data)]
+                                   (str " - " sub-text))]
+                                ])))
+                         (:selection printout-details)))
+                 ]]
 
-               [:div
-
-                (into [:<>]
-                      (map
-                        (fn [[level-id stage-id]]
-                          (let [stage-data (get-in tcb-fmaps [level-id])
-                                level-data (get-in stage-data [:levels stage-id])]
-                            [:div
-                             [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
-
-                             (let [description (get-in (:printout-level-name tool-mdata)
-                                                       [level-id stage-id]
-                                                       (:level-name level-data))]
-                               [:p {:class-name "ml-5" :style {:color "#007bff"}} (first description) [:b (second description)] (get description 2 "")
-                                (when-let [sub-text (:sub-text level-data)]
-                                  (str " - " sub-text))]
-                               )
-                             ]))
-                        (:selection printout-details)))
-                ]]
-
-              [ui/col {:xs 12 :class-name "d-none d-print-block boxed" :style {:padding "16px 16px 0"}}
-               [:h5 "MORE INFORMATION AND SUPPORT:"]
-               (:more-information printout-details)]])])
+               [ui/col {:xs 12 :class-name "d-none d-print-block boxed" :style {:padding "16px 16px 0"}}
+                [:h5 "MORE INFORMATION AND SUPPORT:"]
+                (:more-information printout-details)]])])
 
          (if (= tool :guidance)
            [guidance organ]
@@ -1089,15 +1087,15 @@ not currently use these factors to make decisions about follow-up care."]]
         mdata @(rf/subscribe [::subs/mdata])
         tools (utils/get-tools mdata organ)]
 
-    (tool-page {:organ organ
+    (tool-page {:organ         organ
                 :organ-centres organ-centres
-                :centre centre
-                :tool :waiting
-                :tool-name "waiting"
-                :mdata mdata
-                :tools tools
-                :organ-name organ-name
-                :centre-name centre-name})
+                :centre        centre
+                :tool          :waiting
+                :tool-name     "waiting"
+                :mdata         mdata
+                :tools         tools
+                :organ-name    organ-name
+                :centre-name   centre-name})
     ))
 
 
@@ -1113,15 +1111,15 @@ not currently use these factors to make decisions about follow-up care."]]
         [organ centre tool] (map keyword p-names)
         tools (utils/get-tools mdata organ)]
 
-    (tool-page {:organ organ
+    (tool-page {:organ         organ
                 :organ-centres organ-centres
-                :centre centre
-                :tool tool
-                :tool-name tool-name
-                :mdata mdata
-                :tools tools
-                :organ-name organ-name
-                :centre-name centre-name})))
+                :centre        centre
+                :tool          tool
+                :tool-name     tool-name
+                :mdata         mdata
+                :tools         tools
+                :organ-name    organ-name
+                :centre-name   centre-name})))
 
 (defn organ-centre-tool-tab
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
@@ -1135,15 +1133,15 @@ not currently use these factors to make decisions about follow-up care."]]
         [organ centre tool] (map keyword p-names)
         tools (utils/get-tools mdata organ)]
     ;(js/console.log "views 1170 path-params" (:path-params route) )
-    (tool-page {:organ organ
+    (tool-page {:organ         organ
                 :organ-centres organ-centres
-                :centre centre
-                :tool tool
-                :tool-name tool-name
-                :mdata mdata
-                :tools tools
-                :organ-name organ-name
-                :centre-name centre-name})))
+                :centre        centre
+                :tool          tool
+                :tool-name     tool-name
+                :mdata         mdata
+                :tools         tools
+                :organ-name    organ-name
+                :centre-name   centre-name})))
 
 (defn organ-centre-tool-tab-inputs
   "A home page for an organ at a centre. It should offer links to the available tools, pre-configured
@@ -1159,29 +1157,29 @@ not currently use these factors to make decisions about follow-up care."]]
         tool-name (if (nil? tool-name) :waiting tool-name)
         [organ centre tool] (map keyword p-names)
         tools (utils/get-tools mdata organ)]
-    #_(?-> {:route route
-            :db-inputs db-inputs
-            :path-inputs path-inputs
-            :organ organ
+    #_(?-> {:route         route
+            :db-inputs     db-inputs
+            :path-inputs   path-inputs
+            :organ         organ
             :organ-centres organ-centres
-            :centre centre
-            :tool tool
-            :tool-name tool-name
-            :mdata mdata
-            :tools tools
-            :organ-name organ-name
-            :centre-name centre-name} ::param-check)
+            :centre        centre
+            :tool          tool
+            :tool-name     tool-name
+            :mdata         mdata
+            :tools         tools
+            :organ-name    organ-name
+            :centre-name   centre-name} ::param-check)
     (rf/dispatch [::events/selected-inputs-vis path-inputs tab])
 
-    [tool-page {:organ organ
+    [tool-page {:organ         organ
                 :organ-centres organ-centres
-                :centre centre
-                :tool tool
-                :tool-name tool-name
-                :mdata mdata
-                :tools tools
-                :organ-name organ-name
-                :centre-name centre-name}]))
+                :centre        centre
+                :tool          tool
+                :tool-name     tool-name
+                :mdata         mdata
+                :tools         tools
+                :organ-name    organ-name
+                :centre-name   centre-name}]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1227,15 +1225,15 @@ not currently use these factors to make decisions about follow-up care."]]
           (swap! index inc)
 
           (let [the-input (hash-map :t-stage t-stage :n-stage n-stage :tumor-size tumor-size :nuclear-grade nuclear-grade :histologic-tumor-necrosis histologic-tumor-necrosis)
-                env {:organ organ :centre centre :tool tool :mdata @(rf/subscribe [::subs/mdata]) :day @(rf/subscribe [::subs/test-day]) :bundle bundle :fmaps fmaps
-                     :S0 S0 :all-S0 all-S0 :outcomes outcomes :outcome-keys outcome-keys :base-outcome-keys base-outcome-keys :beta-keys beta-keys
+                env {:organ        organ :centre centre :tool tool :mdata @(rf/subscribe [::subs/mdata]) :day @(rf/subscribe [::subs/test-day]) :bundle bundle :fmaps fmaps
+                     :S0           S0 :all-S0 all-S0 :outcomes outcomes :outcome-keys outcome-keys :base-outcome-keys base-outcome-keys :beta-keys beta-keys
                      :cohort-datas @(rf/subscribe [::subs/cohort-dates]) :inputs the-input :selected-vis "area"}
                 total-score (+
-                             (get-in env [:fmaps :t-stage :levels t-stage :score])
-                             (get-in env [:fmaps :n-stage :levels n-stage :score])
-                             (get-in env [:fmaps :tumor-size :levels tumor-size :score])
-                             (get-in env [:fmaps :nuclear-grade :levels nuclear-grade :score])
-                             (get-in env [:fmaps :histologic-tumor-necrosis :levels histologic-tumor-necrosis :score]))
+                              (get-in env [:fmaps :t-stage :levels t-stage :score])
+                              (get-in env [:fmaps :n-stage :levels n-stage :score])
+                              (get-in env [:fmaps :tumor-size :levels tumor-size :score])
+                              (get-in env [:fmaps :nuclear-grade :levels nuclear-grade :score])
+                              (get-in env [:fmaps :histologic-tumor-necrosis :levels histologic-tumor-necrosis :score]))
                 sum-betas (map #(fac/sum-beta-xs env %) beta-keys)
                 F (model/cox-only s0 sum-betas)
                 env (conj env [:sum-betas sum-betas] [:s0 s0] [:s0-for-day s0-for-day] [:F F])
@@ -1290,18 +1288,18 @@ not currently use these factors to make decisions about follow-up care."]]
                                                                                   :int-fs-year-one (:int-fs (second (nth fs-by-year-in-plot-order 1)))
                                                                                   :int-fs-year-five (:int-fs (second (nth fs-by-year-in-plot-order 5)))
                                                                                   :int-fs-year-ten (:int-fs (second (nth fs-by-year-in-plot-order 10)))))
-                ) ;end of cond
-              ) ;end of when
+                )                                           ;end of cond
+              )                                             ;end of when
 
             (if (= @index 448)
               (rf/dispatch [::events/collection-of-all-scors @collection-of-all-scors]))
 
-            ) ;end of let
-          ) ;end of do
-        ) ;end of for
+            )                                               ;end of let
+          )                                                 ;end of do
+        )                                                   ;end of for
 
 
-      (let [scors-collection    @(rf/subscribe [::subs/collection-of-all-scors])
+      (let [scors-collection @(rf/subscribe [::subs/collection-of-all-scors])
             wrong-labels-all-scors (atom {:one   {:year-one [] :year-five [] :year-ten []}
                                           :two   {:year-one [] :year-five [] :year-ten []}
                                           :three {:year-one [] :year-five [] :year-ten []}
@@ -1329,24 +1327,24 @@ not currently use these factors to make decisions about follow-up care."]]
 
             (do
               (if (and
-                   (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score @index)))))
-                   (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score @index))))))
+                    (<= (nth (:int-fs-year-one each) 1) (:max (:year-one (second (nth error-range-for-score @index)))))
+                    (>= (nth (:int-fs-year-one each) 1) (:min (:year-one (second (nth error-range-for-score @index))))))
                 (swap! correct-labels-all-scors update-in [x :year-one] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-one each) 1)))
-                (swap! wrong-labels-all-scors   update-in [x :year-one] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-one each) 1)))
+                (swap! wrong-labels-all-scors update-in [x :year-one] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-one each) 1)))
                 )
 
               (if (and
-                   (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score @index)))))
-                   (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score @index))))))
+                    (<= (nth (:int-fs-year-five each) 1) (:max (:year-five (second (nth error-range-for-score @index)))))
+                    (>= (nth (:int-fs-year-five each) 1) (:min (:year-five (second (nth error-range-for-score @index))))))
                 (swap! correct-labels-all-scors update-in [x :year-five] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-five each) 1)))
-                (swap! wrong-labels-all-scors   update-in [x :year-five] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-five each) 1)))
+                (swap! wrong-labels-all-scors update-in [x :year-five] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-five each) 1)))
                 )
 
               (if (and
-                   (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score @index)))))
-                   (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score @index))))))
+                    (<= (nth (:int-fs-year-ten each) 1) (:max (:year-ten (second (nth error-range-for-score @index)))))
+                    (>= (nth (:int-fs-year-ten each) 1) (:min (:year-ten (second (nth error-range-for-score @index))))))
                 (swap! correct-labels-all-scors update-in [x :year-ten] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-ten each) 1)))
-                (swap! wrong-labels-all-scors   update-in [x :year-ten] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-ten each) 1)))
+                (swap! wrong-labels-all-scors update-in [x :year-ten] conj (hash-map :inputs (:set-of-inputs each) :the-label (nth (:int-fs-year-ten each) 1)))
                 )
 
               (rf/dispatch [::events/wrong-labels-all-scors @wrong-labels-all-scors])
@@ -1360,8 +1358,7 @@ not currently use these factors to make decisions about follow-up care."]]
 
           )
 
-
-        ) ;end of let
+        )                                                   ;end of let
 
 
       (let [wrong @(rf/subscribe [::subs/wrong-labels-all-scors])
@@ -1375,20 +1372,20 @@ not currently use these factors to make decisions about follow-up care."]]
         [:div
          [:div {:style {:padding-top "10px"}}
           [ui/button {:class-name "btn-lg"
-                      :variant "primary"
-                      :style {:font-size "1.5em"}
-                      :on-click #(rf/dispatch [::events/select-table-year :year-one])}
+                      :variant    "primary"
+                      :style      {:font-size "1.5em"}
+                      :on-click   #(rf/dispatch [::events/select-table-year :year-one])}
            "year 1"]
           [ui/button {:class-name "btn-lg"
-                      :variant "primary"
-                      :style {:font-size "1.5em"}
-                      :on-click #(rf/dispatch [::events/select-table-year :year-five])}
+                      :variant    "primary"
+                      :style      {:font-size "1.5em"}
+                      :on-click   #(rf/dispatch [::events/select-table-year :year-five])}
            "year 5"]
 
           [ui/button {:class-name "btn-lg"
-                      :variant "primary"
-                      :style {:font-size "1.5em"}
-                      :on-click #(rf/dispatch [::events/select-table-year :year-ten])}
+                      :variant    "primary"
+                      :style      {:font-size "1.5em"}
+                      :on-click   #(rf/dispatch [::events/select-table-year :year-ten])}
            "year 10"]]
 
          [:div
@@ -1423,10 +1420,10 @@ not currently use these factors to make decisions about follow-up care."]]
 
                     [:td {:style {:border "1px solid black" :padding "12px" :padding-left "25px" :text-align "left" :width "1000px"}}
                      "histologic-tumor-necrsis: " [:span {:style {:color "blue"}} (nth (string/split (:histologic-tumor-necrosis (:inputs x)) #":") 1)]
-                     ", nuclear-grade: "          [:span {:style {:color "blue"}} (nth (string/split (:nuclear-grade             (:inputs x)) #":") 1)]
-                     ", t-stage: "                [:span {:style {:color "blue"}} (nth (string/split (:t-stage                   (:inputs x)) #":") 1)]
-                     ", n-stage: "                [:span {:style {:color "blue"}} (nth (string/split (:n-stage                   (:inputs x)) #":") 1)]
-                     ", tumor-size: "             [:span {:style {:color "blue"}} (nth (string/split (:tumor-size                (:inputs x)) #":") 1)]
+                     ", nuclear-grade: " [:span {:style {:color "blue"}} (nth (string/split (:nuclear-grade (:inputs x)) #":") 1)]
+                     ", t-stage: " [:span {:style {:color "blue"}} (nth (string/split (:t-stage (:inputs x)) #":") 1)]
+                     ", n-stage: " [:span {:style {:color "blue"}} (nth (string/split (:n-stage (:inputs x)) #":") 1)]
+                     ", tumor-size: " [:span {:style {:color "blue"}} (nth (string/split (:tumor-size (:inputs x)) #":") 1)]
                      ]
 
                     [:td {:style {:border "1px solid black" :padding "12px" :text-align "center" :color "red"}}
@@ -1437,53 +1434,53 @@ not currently use these factors to make decisions about follow-up care."]]
                     [:td {:style {:border "1px solid black" :padding "12px" :text-align "center" :color "green"}}
                      (cond
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 0)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 0)))))) (str "0")
+                         (<= (:the-label x) (:max (year (second (nth error-range 0)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 0)))))) (str "0")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 1)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 1)))))) (str "1")
+                         (<= (:the-label x) (:max (year (second (nth error-range 1)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 1)))))) (str "1")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 2)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 2)))))) (str "2")
+                         (<= (:the-label x) (:max (year (second (nth error-range 2)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 2)))))) (str "2")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 3)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 3)))))) (str "3")
+                         (<= (:the-label x) (:max (year (second (nth error-range 3)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 3)))))) (str "3")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 4)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 4)))))) (str "4")
+                         (<= (:the-label x) (:max (year (second (nth error-range 4)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 4)))))) (str "4")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 5)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 5)))))) (str "5")
+                         (<= (:the-label x) (:max (year (second (nth error-range 5)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 5)))))) (str "5")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 6)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 6)))))) (str "6")
+                         (<= (:the-label x) (:max (year (second (nth error-range 6)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 6)))))) (str "6")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 7)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 7)))))) (str "7")
+                         (<= (:the-label x) (:max (year (second (nth error-range 7)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 7)))))) (str "7")
                        (and
-                        (<= (:the-label x) (:max (year (second (nth error-range 8)))))
-                        (>= (:the-label x) (:min (year (second (nth error-range 8)))))) (str "8")
+                         (<= (:the-label x) (:max (year (second (nth error-range 8)))))
+                         (>= (:the-label x) (:min (year (second (nth error-range 8)))))) (str "8")
                        :else (str "none")
                        )]
 
-                    ]                 ;end of tr
+                    ]                                       ;end of tr
 
-                   )                  ;end of for
+                   )                                        ;end of for
 
-                 ]                    ;end of table
-                )                     ;end of if
+                 ]                                          ;end of table
+                )                                           ;end of if
 
-              )                       ;end of do
+              )                                             ;end of do
             )
           ]
 
-         ] ;end of div
-        ) ;end of let
-      ] ;end of div tag above the ui/page tag
+         ]                                                  ;end of div
+        )                                                   ;end of let
+      ]                                                     ;end of div tag above the ui/page tag
 
 
      (let [path (paths/organ-centre-name-tool "kidney" "UK" "ldsurvival")]
        (rf/dispatch [::events/load-bundles [path [:bundles :kidney :uk :ldsurvival]]]))
 
-     ] ;end of ui/page tag
+     ]                                                      ;end of ui/page tag
     ))

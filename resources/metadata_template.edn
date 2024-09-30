@@ -61,10 +61,22 @@
                                :label "Survival - living donor"
                                :inputs {:header [:div
                                                  [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour. That means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
+                               ; todo jack: the colors on these need changing
                                :outcomes {:residual {:label "no recurrence"
                                                      :long-label "patients have had no recurrence"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
+                                                     :color "#fff"
+                                                     :opacity 0.7
+                                                     :stroke-width 1
+                                                     :stroke "#000"
+                                                     :label-fill "#fff"}
+                                          :ldsurvival-competing-mortality {
+                                                     ; todo jack: use the correct labels
+                                                     :label "death"
+                                                     :long-label "patients have died from other causes"
+                                                     :fill "#9c0500"
+                                                     :background-color "#9c0500"
                                                      :color "#fff"
                                                      :opacity 0.7
                                                      :stroke-width 1
@@ -77,7 +89,7 @@
                                                        :stroke-width 1
                                                        :stroke "#000"
                                                        :label-fill "#000000"}}
-                               :plot-order [:ldsurvival :residual]
+                               :plot-order [:ldsurvival :residual :ldsurvival-competing-mortality]
                                :printout-level-name {:t-stage {:pT1a ["Your tumour stage is " "pT1a"]
                                                                :pT1b ["Your tumour stage is " "pT1b"]
                                                                :pT2a ["Your tumour stage is " "pT2a"]

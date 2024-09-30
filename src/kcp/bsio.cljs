@@ -177,7 +177,6 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    Not yet a reusable component as ony the parts we use are configured.
    To cancel the dialogue use the top-right close button."
   [data-f]
-  ;(locals)
   (let [{:keys [title content cancel continue on-hide print copy save ok paste width on-show ] :as data} @(data-f)]
     (when data
       [:> bs/Modal {:show true 

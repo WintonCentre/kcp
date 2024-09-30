@@ -13,18 +13,18 @@
 (comment
 
   (def inputs
-    {:beta-transplant '(0 -0.06289 nil 0.60387 0.46442 0.26097 0 -0.28334 -0.77722 nil 0 -0.01539 nil 0 0.54305 0.00727 0.54305 nil 0 -0.28893 -0.61033 nil 0 -0.35381 nil 0 0.29132 nil 0 -0.74768 nil 0 -0.32635 nil nil nil nil nil nil nil nil nil nil)
-     :beta-death '(0 -0.10852 nil -1.43819 -1.04978 -0.57859 0 0.09774 0.13967 nil 0 -0.26636 nil 0 -0.19369 0.03454 -0.19369 nil 0 0.09036 0.14314 nil 0 0.46463 nil 0 -0.50041 nil 0 0.33496 nil 0.86605 0 nil nil nil nil nil nil nil nil nil nil)
-     :info-box? '("Male" "Female" nil nil nil nil nil nil nil nil :yes nil nil nil nil nil nil nil :yes nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
-     :beta-removal '(0 0.01097 nil -0.99622 -0.75824 -0.43028 0 0.66553 1.56677 nil 0 -0.13979 nil 0 -0.19443 -0.03596 -0.19443 nil 0 0.09631 0.2109 nil 0 -0.10169 nil 0 -0.31226 nil 0 0.32677 nil 0.18723 0 nil nil nil nil nil nil nil nil nil nil)
-     :level-name '("Male" "Female" nil "18 - 29"  "30 - 39" "40 - 49" "50 - 59" "60 - 69" "70 +" nil "White" "Non-white" nil "O" "A" "B" "AB" nil "easy" "moderate" "difficult" nil "first" "re-graft" nil "Yes" "No" nil "No" "Yes" nil "No" "Yes" nil nil nil nil nil nil nil nil nil nil)
+    {:beta-transplant  '(0 -0.06289 nil 0.60387 0.46442 0.26097 0 -0.28334 -0.77722 nil 0 -0.01539 nil 0 0.54305 0.00727 0.54305 nil 0 -0.28893 -0.61033 nil 0 -0.35381 nil 0 0.29132 nil 0 -0.74768 nil 0 -0.32635 nil nil nil nil nil nil nil nil nil nil)
+     :beta-death       '(0 -0.10852 nil -1.43819 -1.04978 -0.57859 0 0.09774 0.13967 nil 0 -0.26636 nil 0 -0.19369 0.03454 -0.19369 nil 0 0.09036 0.14314 nil 0 0.46463 nil 0 -0.50041 nil 0 0.33496 nil 0.86605 0 nil nil nil nil nil nil nil nil nil nil)
+     :info-box?        '("Male" "Female" nil nil nil nil nil nil nil nil :yes nil nil nil nil nil nil nil :yes nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)
+     :beta-removal     '(0 0.01097 nil -0.99622 -0.75824 -0.43028 0 0.66553 1.56677 nil 0 -0.13979 nil 0 -0.19443 -0.03596 -0.19443 nil 0 0.09631 0.2109 nil 0 -0.10169 nil 0 -0.31226 nil 0 0.32677 nil 0.18723 0 nil nil nil nil nil nil nil nil nil nil)
+     :level-name       '("Male" "Female" nil "18 - 29" "30 - 39" "40 - 49" "50 - 59" "60 - 69" "70 +" nil "White" "Non-white" nil "O" "A" "B" "AB" nil "easy" "moderate" "difficult" nil "first" "re-graft" nil "Yes" "No" nil "No" "Yes" nil "No" "Yes" nil nil nil nil nil nil nil nil nil nil)
      :beta-all-reasons '(0 -0.10876 nil 0.3303 0.22041 0.09241 0 -0.03388 0.11484 nil 0 -0.09953 nil 0 0.57296 0.00578 0.57296 nil 0 -0.29547 -0.62205 nil 0 -0.32497 nil 0 0.11702 nil 0 -0.56793 nil 0 0.05058 nil nil nil nil nil nil nil nil nil nil)
-     :type '(:radio nil nil :dropdown nil nil nil nil nil nil :radio nil nil :radio nil nil nil nil :dropdown nil nil nil :radio nil nil :radio nil nil :radio nil nil :radio nil nil nil nil nil nil nil nil nil nil nil)
-     :sub-text '("Sex" nil nil "Age (years)" nil nil nil nil nil nil nil nil nil nil nil nil nil nil "match score 1-3" "match score 4-6" "match score 7-10" nil "No previous graft" "Replacing previous graft" nil nil nil nil "cRF less than 85%" "cRF 85% or more" nil nil "?" nil nil nil nil nil nil nil nil nil nil)
-     :level '(:male :female nil :18+ :30+ :40+ :50+ :60+ :70+ nil :white :non-white nil :O :A :B :AB nil :easy :moderate :difficult nil :first :re-graft nil :yes :no nil :no :yes nil :no :yes nil nil nil nil nil nil nil nil nil nil)
-     :factor '(:sex :sex nil :age :age :age :age :age :age nil :ethnicity :ethnicity nil :blood-group :blood-group :blood-group :blood-group nil :matchability :matchability :matchability nil :graft :graft nil :dialysis :dialysis nil :sensitised :sensitised nil :diabetes :diabetes nil nil nil nil nil nil nil nil nil nil)
-     :order '(1 1 nil 1.2 1.2 1.2 1.2 1.2 1.2 nil 1.3 1.3 nil 1.4 1.4 1.4 1.4 nil 1.5 1.5 1.5 nil 1.6 1.6 nil 1.7 1.7 nil 1.8 1.8 nil 1.9 1.9 nil nil nil nil nil nil nil nil nil nil)
-     :factor-name '("Sex" nil nil "Age (years)" nil nil nil nil nil nil "Ethnicity" nil nil "Blood group" nil nil nil nil "Matchability group" nil nil nil "Graft number" nil nil "Dialysis at registration?" nil nil "Highly sensitised?" nil nil "Primary renal disease - diabetes?" nil nil nil nil nil nil nil nil nil nil nil)})
+     :type             '(:radio nil nil :dropdown nil nil nil nil nil nil :radio nil nil :radio nil nil nil nil :dropdown nil nil nil :radio nil nil :radio nil nil :radio nil nil :radio nil nil nil nil nil nil nil nil nil nil nil)
+     :sub-text         '("Sex" nil nil "Age (years)" nil nil nil nil nil nil nil nil nil nil nil nil nil nil "match score 1-3" "match score 4-6" "match score 7-10" nil "No previous graft" "Replacing previous graft" nil nil nil nil "cRF less than 85%" "cRF 85% or more" nil nil "?" nil nil nil nil nil nil nil nil nil nil)
+     :level            '(:male :female nil :18+ :30+ :40+ :50+ :60+ :70+ nil :white :non-white nil :O :A :B :AB nil :easy :moderate :difficult nil :first :re-graft nil :yes :no nil :no :yes nil :no :yes nil nil nil nil nil nil nil nil nil nil)
+     :factor           '(:sex :sex nil :age :age :age :age :age :age nil :ethnicity :ethnicity nil :blood-group :blood-group :blood-group :blood-group nil :matchability :matchability :matchability nil :graft :graft nil :dialysis :dialysis nil :sensitised :sensitised nil :diabetes :diabetes nil nil nil nil nil nil nil nil nil nil)
+     :order            '(1 1 nil 1.2 1.2 1.2 1.2 1.2 1.2 nil 1.3 1.3 nil 1.4 1.4 1.4 1.4 nil 1.5 1.5 1.5 nil 1.6 1.6 nil 1.7 1.7 nil 1.8 1.8 nil 1.9 1.9 nil nil nil nil nil nil nil nil nil nil)
+     :factor-name      '("Sex" nil nil "Age (years)" nil nil nil nil nil nil "Ethnicity" nil nil "Blood group" nil nil nil nil "Matchability group" nil nil nil "Graft number" nil nil "Dialysis at registration?" nil nil "Highly sensitised?" nil nil "Primary renal disease - diabetes?" nil nil nil nil nil nil nil nil nil nil nil)})
 
   (pprint (->> inputs
                (map-of-vs->v-of-maps)
@@ -77,18 +77,18 @@
   (join "-" (drop 1 (split (name k) "-"))))
 
 (comment
-  (get-outcomes  {:beta-transplant 1 :beta-waiting 2 :beta-all-reasons 3})
+  (get-outcomes {:beta-transplant 1 :beta-waiting 2 :beta-all-reasons 3})
   ; => '("transplant" "waiting")
 
   (prefix-outcome-key "beta" :transplant)
-; => :beta-transplant
+  ; => :beta-transplant
 
   (prefix-outcomes-keys "beta" '("transplant" "waiting"))
-; => '(:beta-transplant :beta-waiting)
+  ; => '(:beta-transplant :beta-waiting)
 
   (remove-prefix-key :beta-transplant-name)
   ;=> "transplant-name"
-)
+  )
 
 
 (defn level-maps
@@ -101,35 +101,25 @@
                                        %))))
        (map (fn [m] (update m :level #(if (string? %)
                                         (edn/read-string %)
-                                        %))))
-       #_(map #(assoc % :label (:level-name %)))))
+                                        %))))))
 
 (defn master-f-map
   "Given a collection of f-maps all relating to the same factor, return a master f-map
    containing nested detail relating to levels"
   [organ f-maps]
   (let [f-map (first f-maps)
-        #_#_categorical-levels (group-by :level (filter (comp keyword? :level) (level-maps (:factor f-map) f-maps)))]
+        ; levels are f-map levels in spreadsheet order
+        levels  (map (fn [[k [v]]] [k v])
+                        (group-by :level (level-maps (:factor f-map) f-maps)))
+        factor-key (keyword organ (xf/unstring-key (:factor f-map)))]
 
     (assoc f-map
-           ; todo: :factor-key is probably no longer necessary, though it is currently used.
-           :factor-key (keyword organ (xf/unstring-key (:factor f-map)))
-
-           ; levels are f-map levels in spreadsheet order
-           :levels (into {} (map (fn [[k [v]]] [k v])
-                                 (group-by :level (level-maps (:factor f-map) f-maps))))
-           #_(cond
-               (keyword? (:level f-map))
-               (into {} (map (fn [[k [v]]] [k v])
-                             (group-by :level (level-maps (:factor f-map) f-maps))))
-
-               :else
-               "spline levels not implemented yet"))))
+      :factor-key factor-key
+      :levels (into {} levels))))
 
 (defn master-f-maps
   "Preprocess an inputs sheet before storing it"
   [organ inputs]
-  ;(println "RAW INPUTS" (keys inputs))
   (->> inputs
        ; change to vector of maps form
        (map-of-vs->v-of-maps)
@@ -205,13 +195,9 @@
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
   [env factor]
-  #_(js/alert factor)
-  #_(js/alert (:inputs env))
-                                        ;(locals)
-  (if-let [level (factor (select-keys env [:centre]))] ;; in-case factor is :centre
+  (if-let [level (factor (select-keys env [:centre]))]      ;; in-case factor is :centre
     level
     (when-let [level (factor (:inputs env))]
-      #_(js/alert level)
       level)))
 
 ;; We no longer have any cross-over factors
@@ -247,15 +233,15 @@
   (?-> master-fmap ::master-fmap)
   (cond
 
-                                        ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre.
-                                        ; We need to separate these components into a seq like [:d-gp :centre]
-                                        ; Find the level of each e.g. [:copd :birm]
-                                        ; And encode this as a single level e.g. :copd*birm
-                                        ;
-                                        ;
-                                        ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
-                                        ;     But we no longer have any cross overs
-                                        ;
+    ; If the factor contains a "*" it's a cross-over factor with 2 components like :d-gp*centre.
+    ; We need to separate these components into a seq like [:d-gp :centre]
+    ; Find the level of each e.g. [:copd :birm]
+    ; And encode this as a single level e.g. :copd*birm
+    ;
+    ;
+    ; CHECK FOR CROSS OVERS FIRST AS OTHERWISE THEY WILL APPEAR AS CATEGORICALS
+    ;     But we no longer have any cross overs
+    ;
     (is-cross-over? factor)
     (try
       (let [level-key (lookup-cross-over-factor-level env factor)
@@ -264,27 +250,27 @@
       (catch :default _e
         [factor nil 0]))
 
-                                        ; Simple categorical levels.
-                                        ; Lookup the level and use that to lookup the beta
-                                        ; x will be 1 if the factor has been entered, else 0
+    ; Simple categorical levels.
+    ; Lookup the level and use that to lookup the beta
+    ; x will be 1 if the factor has been entered, else 0
     (is-categorical? env factor)
     (let [level-key (lookup-simple-factor-level env factor)
           beta (lookup-simple-beta master-fmap level-key beta-outcome-key)]
       #_(js/alert level-key)
       [factor level-key beta])
 
-                                        ; Splined numeric inputs are defined by a spline function and its parameters defined in
-                                        ; the master-fmap's :level - such as '[:spline :x :beta1 :beta2 :beta3]'
-                                        ; This indicates that the raw value x, must be processed by a call to the function spline
-                                        ; of the form '(spline x beta1 beta2 beta3).
-                                        ; x is the raw input value for this factor
-                                        ; The beta parameters can be located in the master factor map :levels using the
-                                        ; keywords :beta1, :beta2, :beta3, and a knowledge of the required outcome
-                                        ; ("transplant" "removal" "death").
-                                        ;  - First locate the corresponding level map in :levels
-                                        ;  - Then find the beta(s) from the :beta-outcome column for the relevant outcome
-                                        ;    (e.g. from :beta-transplant)
-                                        ; (get-in master-f-map [])
+    ; Splined numeric inputs are defined by a spline function and its parameters defined in
+    ; the master-fmap's :level - such as '[:spline :x :beta1 :beta2 :beta3]'
+    ; This indicates that the raw value x, must be processed by a call to the function spline
+    ; of the form '(spline x beta1 beta2 beta3).
+    ; x is the raw input value for this factor
+    ; The beta parameters can be located in the master factor map :levels using the
+    ; keywords :beta1, :beta2, :beta3, and a knowledge of the required outcome
+    ; ("transplant" "removal" "death").
+    ;  - First locate the corresponding level map in :levels
+    ;  - Then find the beta(s) from the :beta-outcome column for the relevant outcome
+    ;    (e.g. from :beta-transplant)
+    ; (get-in master-f-map [])
     (is-spline? env factor)
     (let [;[_ bundle _] env
           baseline-vars (:baseline-vars bundle)
@@ -298,7 +284,7 @@
                      (map beta-outcome-key))
           x0 (factor baseline-vars)
 
-                                        ; If an input is not yet available, use the baseline value
+          ; If an input is not yet available, use the baseline value
           x (if-let [x* (lookup-numeric-input env factor)] x* x0)
           ]
       [factor [:spline knots betas] (spline knots betas x0 x)])
@@ -311,7 +297,7 @@
           x (if-let [x* (lookup-numeric-input env factor)] x* x0)
           x-x0 (- x x0)
           beta-x-x0 (* beta x-x0)]
-                                        ;(tap> [::is-numeric? [env factor]])
+      ;(tap> [::is-numeric? [env factor]])
       [factor beta x0 beta-x-x0])
 
     :else
@@ -334,7 +320,7 @@
 (comment
   (def bundle (bun/get-bundle :lung :new :waiting))
 
-                                        ;inputs
+  ;inputs
   (def inputs* {:lung {:age "30", :sex :male, :blood-group :B, :in-hosp :no, :ethnicity :white, :fvc "3", :bmi "30", :pred :pred-1-14, :thoracotomy :no, :bilirubin "3", :nyha-class :nyha-2, :d-gp :pf}})
 
   (def path-params {:organ :lung, :centre :birm, :tool :waiting})
@@ -346,9 +332,9 @@
   (def master-fmaps (:fmaps bundle))
   (def master-fmap (get-in bundle [:fmaps :d-gp*centre]))
   (def master-fmap-level (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm]))
-                                        ;=> {:beta-transplant -0.10624, :beta-death -0.35576, :info-box? nil, :beta-removal 0.11786, :level-name "PF and Birmingham", :beta-all-reasons -0.45309, :type :none, :sub-text nil, :level :pf*birm, :factor :d-gp*centre, :order -1, :factor-name nil}
+  ;=> {:beta-transplant -0.10624, :beta-death -0.35576, :info-box? nil, :beta-removal 0.11786, :level-name "PF and Birmingham", :beta-all-reasons -0.45309, :type :none, :sub-text nil, :level :pf*birm, :factor :d-gp*centre, :order -1, :factor-name nil}
   (def master-fmap-level-transplant (get-in bundle [:fmaps :d-gp*centre :levels :pf*birm :beta-transplant]))
-                                        ;=> -0.10624
+  ;=> -0.10624
 
   (:centre (:path-params env))
 
@@ -367,10 +353,10 @@
   (lookup-simple-factor-level env :bmi)
   (lookup-simple-factor-level env :pred)
 
-                                        ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
+  ; FAIL! but then :d-gp*centre is NOT a simple factor, it's a crossover. So actually OK!
   (lookup-simple-factor-level env :d-gp*centre)
 
-                                        ; So we need to call this instead...
+  ; So we need to call this instead...
 
   #_(lookup-cross-over-factor-level env :d-gp*centre)
 
@@ -378,9 +364,9 @@
   (selected-beta-x env :pred master-fmap :beta-transplant)
   (selected-beta-x env :ethnicity master-fmap :beta-transplant)
 
-                                        ;(selected-beta-xs env :beta-transplant)
+  ;(selected-beta-xs env :beta-transplant)
   (sum-beta-xs env :beta-transplant)
-                                        ;=>
+  ;=>
   #_([:d-gp*centre :pf*birm -0.10624]
      [:age [:spline '(21 44 56 63) '(0.00507 -0.0004272 0.00192)]]
      [:pred :pred-1-14 0.15256]

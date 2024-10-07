@@ -114,7 +114,6 @@
                         (group-by :level (level-maps (:factor f-map) f-maps)))
         factor-key (keyword organ (xf/unstring-key (:factor f-map)))]
 
-    (println factor-key "  - " levels)
     (assoc f-map
       :factor-key factor-key
       :levels (into {} levels))))

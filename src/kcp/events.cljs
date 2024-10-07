@@ -229,6 +229,7 @@
    (assoc db :selected-vis selection)))
 
 
+; todo jack: part 1
 (rf/reg-event-db
  ;; Takes inputs and the view selection from the route, and enters them in the db
  ::selected-inputs-vis

@@ -24,7 +24,7 @@
   [lookups]
   (rel/map-invert lookups))
 
-(defn db-to-URI
+(defn db-to-URI                                             ; todo jack: part 2
   "Compress a db inputs map into a URI parameter string.
    There are no characters in the string that require special URL encoding."
   [lookups m]

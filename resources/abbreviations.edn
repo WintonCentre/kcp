@@ -1,21 +1,28 @@
-{:abbreviations {:kidney {:t-stage                    ["T" {:pT1a "1"
-                                                            :pT1b "2"
-                                                            :pT2a "3"
-                                                            :pT2b "3"
-                                                            :pT3a "4"
-                                                            :pT3b "5"
-                                                            :pT3c "6"
-                                                            :pT4  "7"}]
-                          :n-stage                    ["N" {:pNx "1"
-                                                            :pN0 "2"
-                                                            :pN1 "3"
-                                                            :pN2 "4"}]
-                          :tumor-size                 ["S" {:cm-<10  "1"
-                                                            :cm->=10 "2"}]
-                          :nuclear-grade              ["G" {:1 "1"
-                                                            :2 "2"
-                                                            :3 "3"
-                                                            :4 "4"}]
-                          :histologic-tumor-necrosis  ["H" {:No "n"
-                                                            :Yes "y"}]}}}
+{:abbreviations {:kidney {
+                          :t-stage                   [
+                                                      "T" {:pT1a "1"
+                                                           :pT1b "2"
+                                                           :pT2a "3"
+                                                           :pT2b "3"
+                                                           :pT3a "4"
+                                                           :pT3b "5"
+                                                           :pT3c "6"
+                                                           :pT4  "7"}]
+                          :n-stage                   ["N" {:pNx "1"
+                                                           :pN0 "2"
+                                                           :pN1 "3"
+                                                           :pN2 "4"}]
+                          :tumor-size                ["S" {:cm-<10  "1"
+                                                           :cm->=10 "2"}]
+                          :nuclear-grade             ["G" {:1 "1"
+                                                           :2 "2"
+                                                           :3 "3"
+                                                           :4 "4"}]
+                          :histologic-tumor-necrosis ["H" {:No  "n"
+                                                           :Yes "y"}]
+
+                          :age-at-surgery            ["A"]
+                          :sex                       ["X" {:Male   "m"
+                                                           :Female "f"}]
+                          }}}
                           

@@ -40,7 +40,6 @@
                                     "yarn.lock" "package-lock.json" "out" "report.html"])
          install* (shell (string/join " " (cons "npm install" *command-line-args*)))
          shadow-cljs-server (shell "shadow-cljs server")
-         share-xlsx (shell "bb -f bb_scripts/upload_xlsx.clj") ;; publish .xslx files to dropbox
          lint-subs (shell "bb -f bb_scripts/re_frame_subscriptions.clj")
          run-tests (shell "bb --file ./test_runner.clj")
          lung (shell "bb --file ./bbsrc/organ_switch.clj -g lung")

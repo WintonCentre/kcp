@@ -182,7 +182,9 @@
          outcome-keys (remove #(= :days %) timed-outcome-keys)
          outcomes (fac/get-outcomes* (first baseline-cifs))
          beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
-         base-outcome-keys (map keyword outcomes)
+         ; todo jack: ...
+         ;base-outcome-keys (map keyword outcomes)
+        base-outcome-keys [:ldsurvival :ldsurvival-competing-mortality]
 
          ;; Use SO+ if calculating with ALL data points
          S0+ (map (fn [bc] [(:days bc)

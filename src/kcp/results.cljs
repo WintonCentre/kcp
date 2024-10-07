@@ -27,6 +27,13 @@
    [fs/full-screen-wrapper options]])
 
 
+; todo jack: remove
+(defn pad-with-garbage [v]
+  (let [random-garbage 0.1]                                 ; not so random
+    (map (fn [[num [inner-num]]]
+           [num [inner-num random-garbage]])
+         v)))
+
 (defn create-visualization-context
   "Creates a bundle of context used in all visualizations"
   [{:keys [organ centre tool selected-vis]}]
@@ -90,9 +97,10 @@
         s0-for-day (model/S0-for-day s0 day)
         sum-betas (map #(fac/sum-beta-xs context %) beta-keys)
         cox? (model/use-cox-adjusted? tool)
-        F (if cox?
+        ; todo jack: bastardize here
+        F (pad-with-garbage (if cox?
             (model/cox-adjusted s0 sum-betas)
-            (model/cox-only s0 sum-betas))
+            (model/cox-only s0 sum-betas)))
 
         sample-days (map
                       utils/year->day

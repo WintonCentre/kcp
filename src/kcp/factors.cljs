@@ -196,13 +196,9 @@
     The raw level is always returned - it may need further processing e.g. by a spline.
    If the factor is not found or it does not yet have a level, returns nil."
   [env factor]
-  #_(js/alert factor)
-  #_(js/alert (:inputs env))
-  ;(locals)
   (if-let [level (factor (select-keys env [:centre]))]      ;; in-case factor is :centre
     level
     (when-let [level (factor (:inputs env))]
-      #_(js/alert level)
       level)))
 
 ;; We no longer have any cross-over factors

@@ -103,7 +103,6 @@
         route @(rf/subscribe [::subs/current-route])
         single-organ (ui/get-single-organ mdata)
         organ (get-in route [:path-params :organ])]
-    ;(locals)
     (if mdata
       (if-let [organ (or single-organ organ)]
         [ui/decorated-page

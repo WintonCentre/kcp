@@ -51,11 +51,6 @@
     ;;     weekly for first month;
     ;;     then monthly for 1st quarter;
     ;;     then by quarter
-    (concat W1S0
-            (mapv last (partition-by (fn [[day _H]] (utils/day->week day)) M1S0))
-            (mapv last (partition-by (fn [[day _H]] (utils/day->month day)) Q1S0))
-            (mapv last (partition-by (fn [[day _H]] (utils/day->quarter day)) Qs)))))
-
   ;; for (i in 1:(dim(smoothed_cent)[1]-1)){
   ;;   h_tx[i] <- smoothed_cent$capHtx[i+1] - smoothed_cent$capHtx[i]
   ;;   p_tx[i] <- h_tx[i] * capS[i]
@@ -73,6 +68,11 @@
 
   ;; out <- cbind(smoothed_cent, capS, capF_rem, capF_tx, sumall)
 
+    (concat W1S0
+            (mapv last (partition-by (fn [[day _H]] (utils/day->week day)) M1S0))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->month day)) Q1S0))
+            (mapv last (partition-by (fn [[day _H]] (utils/day->quarter day)) Qs)))))
+
 (defn cox-adjusted
   "survival-data is a a vector of [day survival-by-outcomes].
    survival-by-outcome is a vector of survivals for each outcome.
@@ -86,7 +86,6 @@
     (loop [SD survival-data
            s 1
            f (map (constantly 0) sum-beta-xs)
-                                        ;_sumall 1
            result [[0 f]]]
       (let [[_days S] (first SD)
             SD+ (rest SD)]
@@ -98,13 +97,10 @@
                 p (map #(* s %) delta-h)
                 f+ (map + f p)
                 s+ (- s (apply + p))
-                                        ;sumall+ (+ s (apply + f))
                 ]
-                                        ;(locals)
             (recur SD+
                    s+
                    f+
-                                        ;sumall+
                    (conj result [days+ f+])))
           result)))))
 

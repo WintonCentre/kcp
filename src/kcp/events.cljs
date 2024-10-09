@@ -144,6 +144,7 @@
 ;; It may be more efficient to do this processing at configuration time
 ;;
 
+; todo jack: this is likely where the problem is
 (rf/reg-event-fx
  ::store-bundle-inputs
  (fn
@@ -181,7 +182,9 @@
          outcome-keys (remove #(= :days %) timed-outcome-keys)
          outcomes (fac/get-outcomes* (first baseline-cifs))
          beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
-         base-outcome-keys (map keyword outcomes)
+         ; todo jack: ...
+         ;base-outcome-keys (map keyword outcomes)
+        base-outcome-keys [:ldsurvival :ldsurvival-competing-mortality]
 
          ;; Use SO+ if calculating with ALL data points
          S0+ (map (fn [bc] [(:days bc)
@@ -228,6 +231,7 @@
    (assoc db :selected-vis selection)))
 
 
+; todo jack: part 1
 (rf/reg-event-db
  ;; Takes inputs and the view selection from the route, and enters them in the db
  ::selected-inputs-vis

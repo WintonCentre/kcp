@@ -20,11 +20,7 @@
                levels))
             abbreviations)))
 
-(defn invert-lookups
-  [lookups]
-  (rel/map-invert lookups))
-
-(defn db-to-URI
+(defn db-to-URI                                             ; todo jack: part 2
   "Compress a db inputs map into a URI parameter string.
    There are no characters in the string that require special URL encoding."
   [lookups m]
@@ -44,13 +40,14 @@
 ;;   (def ilookups (:ilookups @(rf/subscribe [::subs/mdata])))
 ;;   )
 
-(defn URI-to-db
+(defn URI-to-db                                             ; todo jack: for sure unit tests for both
   "Expand a URI compressed input parameter string into a db inputs map"
   [ilookups s]
   (condp = s
     "" {}
     "-" {}
-    (into {} (map ilookups (mapv #(str/join "" %) (partition 2 2 s))))))
+    (let [split (partition 3 s)]
+      (into {} (map ilookups (mapv #(str/join "" %) split))))))
 
 (comment
   (def test-data {:age ["A" {:18+ "2"

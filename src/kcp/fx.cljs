@@ -40,7 +40,6 @@
  (fn [organs]
    ;; We now only ever have ONE organ - so just take the first
    (let [organ (first organs)]
-     ;(locals)
      (goog.object.set js/document "title"
                       (condp = organ
                         :kidney "Kidney kcp"

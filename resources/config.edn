@@ -20,5 +20,5 @@
  ;
  :bundles #profile {:kidney {:centres [:centres]
                              :tools [:tools]
-                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs]}}}
+                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs :ldsurvival-competing-mortality]}}}
                             

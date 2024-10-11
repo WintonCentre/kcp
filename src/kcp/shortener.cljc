@@ -13,16 +13,12 @@
    See test-data below for an example abbreviations form."
   [abbreviations]
   (into {} (mapcat
-            (fn [[long-factor-k [short-factor-k levels]]]
-              (mapv
-               (fn [[long-level short-level]]
-                 [[long-factor-k long-level] (str short-factor-k short-level)])
-               levels))
-            abbreviations)))
-
-(defn invert-lookups
-  [lookups]
-  (rel/map-invert lookups))
+             (fn [[long-factor-k [short-factor-k levels]]]
+               (mapv
+                 (fn [[long-level short-level]]
+                   [[long-factor-k long-level] (str short-factor-k short-level)])
+                 levels))
+             abbreviations)))
 
 (defn db-to-URI
   "Compress a db inputs map into a URI parameter string.
@@ -35,22 +31,14 @@
       (str/join (mapcat lookups m))
       "-")))
 
-;; (comment
-;;   "A2SfBaDyEaMeGrdpsn"
-;;   (def s "A2SfBaDyEaMeGrdpsn")
-;;   (partition 2 2 s)
-;;   (require '[re-frame.core :as rf])
-;;   (require '[kcp.subs :as subs])
-;;   (def ilookups (:ilookups @(rf/subscribe [::subs/mdata])))
-;;   )
-
 (defn URI-to-db
   "Expand a URI compressed input parameter string into a db inputs map"
   [ilookups s]
   (condp = s
     "" {}
     "-" {}
-    (into {} (map ilookups (mapv #(str/join "" %) (partition 2 2 s))))))
+    (let [split (partition 3 s)]
+      (into {} (map ilookups (mapv #(str/join "" %) split))))))
 
 (comment
   (def test-data {:age ["A" {:18+ "2"
@@ -59,14 +47,14 @@
                              :50+ "5"
                              :60+ "6"}]})
 
-  (def lookups (make-lookups test-data))    ; forward lookup table
-  (def ilookups (rel/map-invert lookups))   ; backwards lookup table
+  (def lookups (make-lookups test-data))                    ; forward lookup table
+  (def ilookups (rel/map-invert lookups))                   ; backwards lookup table
   (db-to-URI lookups {})
   ;; => "-"
 
   (db-to-URI lookups nil)
   ;; => "-"
-  
+
   (db-to-URI lookups {:age :40+})
   (db-to-URI lookups {})
   ;; => "Bbl3"

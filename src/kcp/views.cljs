@@ -185,36 +185,35 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h4 "Overview"]
-    [:p "The tool takes information about your tumour, including the size and stage, and makes a prediction based on
-         what happened to people in the past who had similar tumours. For example, how many people 'like you'
-         had a kidney cancer recurrence within one year of surgery."]
+    [:p "The tool takes information about your tumour, including the size and stage, and information
+    about you, including your age and sex, and uses people who had these same characteristics to
+    predict what might happen to you. For example, how many people 'like you' had their kidney
+    cancer recur within one year of surgery. It also uses UK national estimates of your risk of dying from other causes."]
 
     [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
 
-    [:p "It is important to remember that the tool does not consider everything about you, for example, whether you have
-         other health conditions which might impact your outcome. The tool requires some medical information about your
-          kidney cancer and will be less accurate if you do not have all the correct information."]
+    [:p "It’s important to remember that the tool does not take into account everything about you, for
+    example, whether you have other health conditions which might impact your outcome."]
 
     [:p "If you want to know more about the models and data behind the tools, please read the "
      [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "
-     "Data about kidney cancer patients were used to create the statistical model (the Leibovich model). When you enter
-     information into the tool, the calculator looks at this model and produces results."]]
+     "Data about kidney cancer patients and the UK general population were
+     used to create the statistical model. When you enter information into the tool, the calculator
+     looks at the models and produces results."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h4 "Who is this site for?"]
-    [:p "The tool is suitable for patients with clear cell renal cell carcinoma (ccRCC) who are over 18 years old and
-         have had surgery to treat kidney cancer (such as a partial or radical nephrectomy). This tool is not suitable
-         for individuals with a diagnosis of metastatic kidney cancer or those with known hereditary kidney cancer
-         syndromes such as Von Hippel-Lindau Disease (VHL)."]
+    [:p "The tool is suitable for patients with clear cell renal cell carcinoma (ccRCC) who are over 18
+years old and have had a kidney removed (underwent a radical neprectomy). More details
+about the development cohort are available in the " [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "]
     [:p "The tool should be used initially by patients alongside their oncologist, urologist or specialist nurses."]]
 
    [:h4 "Who developed the tool?"]
-   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and by
-        researchers in the Department of Public Health and Primary Care at the University of
-        Cambridge. Patients, members of the public, doctors and nurses have been involved in the
-        design of this tool. The tool uses the Leibovich model which was built by a team at the Mayo
-        Clinic (Minnesota, USA)."]])
+   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and
+   displays the Leibovich model built by a team at the Mayo Medical School and Mayo Clinic,
+   USA. This has then been adjusted by the Predict Kidney team at the University of Cambridge
+   to include the risk of dying from other causes."]])
 
 
 

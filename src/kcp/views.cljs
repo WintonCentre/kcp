@@ -267,6 +267,12 @@ about the development cohort are available in the " [:a {:href (ui/href :kcp.vie
    [:p "Conversely, the risk function describes the probability of having a recurrence before time " [:i "t"] ", and can be defined as: "]
    [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
     [:i "R" [:sub "R"] "(t|X" [:sub "t"] ") "] " = 1 - " [:i "S" [:sub "R"] "(t|X" [:sub "t"] ")"]]
+
+   [:p [:b "Leibovich Plus Model"]]
+   [:p "The Leibovich model only captures the risk of recurrence in people who are still alive
+   at time " [:i "t"] ". We have adapted this to produce a relative estimate of recurrence risk
+   alongside the competing risk of death from other causes. This is referred to as the
+   Leibovich Plus model. "]
    ])
 
 (defn web-development-section
@@ -345,10 +351,15 @@ necrosis. These are described in detail in the input factors section below."]
     [:p "The Leibovich model is often used to assign patients a score (ranging from 0 to 11) based on
 their tumour characteristics. These scores are then separated into three risk groups: low risk
 (score 0 – 2), intermediate risk (score 3 – 5) and high risk (score above 6)."]
-    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot
-say what the outcomes for a particular patient will be. Instead, it estimates the probability of
-recurrence in people from the past with similar kidney cancer tumours."]
-    [:p "Further information is provided in the " [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "development paper (published 2003)"] "."]]
+    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot say
+    what the outcomes for a particular patient will be. Instead, it estimates the probability of recurrence
+    in people from the past with similar kidney cancer tumours and the probability of death based on people in the
+    UK/England of the same age and sex. Further information is provided in the "
+    [:a {:href (ui/href :kcp.views/pubs)} "paper published"] " in the journal Cancer, March 2003. "]
+    [:p "The Leibovich model has been adapted by the Predict Kidney team at the University of Cambridge,
+    to create the Leibovich Plus model. The adjusted model uses data from the Office for National Statistics
+    (projected period life tables for England for 2024). This provides estimated survival rates for the
+    UK/English general population by age and sex, based on historic data and trends."]]
 
 
    [:h3#cohort "Cohort"]
@@ -364,8 +375,8 @@ were over 18 at the time of surgery."]
    [:h3#model-validation "Model Validation"]
    [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
 since it was first developed. In a recent review, 16 validations were identified with results for
-discrimination in the range 0.67-0.86. More details can be found in this "
-    [:a {:href "https://bjui-journals.onlinelibrary.wiley.com/doi/10.1111/bju.15673" :target "_blank"} "review paper (published in 2021)."]]
+discrimination in the range 0.67-0.86. More details can be found in a review paper from 2021 (see the "
+    [:a {:href (ui/href :kcp.views/pubs)} "publication section"] ")."]
 
    [:h3#input-factors "Input factors"]
    [:p "In this section we give an explanation of the input factors considered in this model:"]
@@ -399,6 +410,9 @@ or smaller than 10cm is most important in the context of recurrence"]
    normal cells) and grade 4 is the highest (the least like normal cells)"]
 
    [:p [:b "Tumour Necrosis"] " – Necrosis means that some of the cancer cells have died."]
+
+   [:p [:b "Age (years)"] " – The age at surgery. This is used to predict the risk of death from other causes."]
+   [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]
 
    (maths-section)
    (web-development-section)

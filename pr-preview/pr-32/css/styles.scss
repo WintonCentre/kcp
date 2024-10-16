@@ -1,0 +1,299 @@
+//@use "sass:color";
+.text-decoration-underline {
+    text-decoration: underline;
+}
+
+// fixes for KCP-42 - each button in the group should be the same size as the other
+// (not a source of pride, but it's simple and it works well enough...)
+@media screen {
+    #kidney-t-stage {
+        .toggler {
+            flex: 0 0 25%;
+        }
+    }
+    #kidney-n-stage {
+        .toggler {
+            flex: 0 0 33.333333%;
+        }
+    }
+
+    @media (max-width: 1440px) {
+        #kidney-t-stage {
+            .toggler {
+                flex: 0 0 50%;
+            }
+        }
+        #kidney-n-stage {
+            .toggler {
+                flex: 0 0 100%;
+            }
+        }
+    }
+}
+
+
+// printing fixes for chrome in particular
+@media print {
+    @page {
+        size: 210mm 297mm;
+        // clear the default date and title
+        margin: 0;
+    }
+    .print-root {
+        // add the margins back in...
+        margin: 10mm;
+    }
+    .print-header {
+        position: fixed;
+        top: 0;
+        left: 10mm;
+        right: 10mm;
+        height: 5cm;
+    }
+    .print-body {
+        margin-top: 5cm;
+    }
+    .page-break {
+        page-break-before: always;
+        // recreate the margins that were removed
+        margin-top: 6cm;
+    }
+    .col-print-6 {
+        width: 50%
+    }
+    .lblprint {
+        color: #000;
+    }
+    .to-left {
+        left: 0 !important;
+    }
+    .tborder {
+        border-left: 1rem solid;
+    }
+    .no-printed-border {
+        border: 0 !important;
+    }
+    hr.rounded {
+        border-top: 8px solid #bbb;
+        border-radius: 5px;
+    }
+    .active,
+    h1,
+    h2 {
+        color: black !important;
+    }
+    .footer,
+    .more,
+    .btn-waiting,
+    .btn-outline-graft,
+    .btn-outline-survival {
+        display: none;
+    }
+    #reset,
+    #print-button,
+    #factors-considered {
+        display: none;
+    }
+    /* Hiding input buttons that were not selected (so that all tools fit on one page */
+    label[class="toggler btn btn-outline-secondary"] {
+        display: none;
+    }
+    .nav-item {
+        display: none;
+    }
+    /* Making icons more visible in "Useful information" */
+    .oi.oi-person[style*="color: rgb(204, 204, 204); padding: 4px 5px;"] {
+        color: rgb(250, 250, 250) !important;
+    }
+    .boxed {
+        border: 1px solid #333333;
+    }
+    svg {
+        border: 2px solid rgb(102, 102, 102);
+    }
+}
+
+@media screen {
+    .footer {
+        display: flex;
+        flex-direction: column;
+    }
+    hr.rounded {
+        display: none;
+    }
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: rgba(0, 0, 0, .5);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, .7);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: rgba(255, 255, 255, 1);
+}
+
+// Background variants
+$vis-background: #cccccc;
+$primary: #336677;
+.btn-primary {
+    background-color: $primary;
+    border-radius: 16px;
+    //font-weight: bold !important;
+    font-size: 1.2rem;
+    color: white;
+    margin-right: 25px;
+    &:hover {
+        color: white;
+    }
+}
+
+.btn-danger {
+    background-color: red;
+    border-radius: 16px;
+    //font-weight: bold !important;
+    font-size: 1.2rem;
+    color: white;
+    margin-right: 25px;
+    &:hover {
+        color: white;
+    }
+}
+
+// Tool variant colours
+$header: #337777;
+$waiting: #4866CB;
+$graft: #0491d8;
+$survival: rgb(0, 151, 156);
+$usefulinfo: rgb(12, 40, 44);
+$removed: #FFEECC;
+$removed-darker: #DBCDB1;
+@mixin selected($variant, $colour) {
+    .btn-#{$variant} {
+        background-color: $colour;
+        border: 4px solid #fff;
+        border-radius: 18px;
+        //font-weight: bold !important;
+        font-size: 1.2rem;
+        //outline: 4px solid orange;
+        color: white;
+        margin-right: 25px;
+        &:hover {
+            color: white;
+        }
+    }
+}
+
+@mixin unselected($variant, $colour) {
+    .btn-outline-#{$variant} {
+        background-color: /*#ffffff88;*/
+        rgb($colour, 0.4); //color.adjust($colour, $lightness: +40%);
+        border: 4px solid #ffffff66; //color.adjust($colour, $lightness: +40%);
+        border-radius: 18px;
+        font-size: 1.2rem;
+        color: #fff; //color.adjust($colour, $blackness: +10%);
+        margin-right: 25px;
+        &:hover {
+            color: #fff;
+            background-color: $colour; //color.adjust($colour, $lightness: +35%);
+        }
+    }
+}
+
+//@include selected("primary", $primary);
+@include unselected("primary", $primary);
+@include selected("waiting", $waiting);
+@include unselected("waiting", $waiting);
+@include selected("survival", $survival);
+@include unselected("survival", $survival);
+@include selected("graft", $graft);
+@include unselected("graft", $graft);
+@include selected("usefulinfo", $usefulinfo);
+@include unselected("usefulinfo", $usefulinfo);
+.centre-header-link {
+    color: #FFE599 !important;
+    font-weight: bold;
+    cursor: pointer;
+    &:hover {
+        color: #fff !important;
+        text-decoration: underline !important;
+    }
+}
+
+.toggler {
+    margin: 5px;
+    padding: 7px;
+    &:hover {
+        color: #fff;
+        background-color: #88998898 !important;
+    }
+    //outline: 10px dashed orange;
+}
+
+.more {
+    background-color: #ffffff; //color.adjust($colour, $lightness: +40%);
+    border: 3px solid #9C9CFF; //rgba(0, 0, 255, 0.329);
+    border-radius: 5px;
+    font-size: 1em;
+    color: rgba(0, 0, 255, 1); //color.adjust($colour, $blackness: +10%);
+    margin-left: 15px;
+    padding: 0 7px;
+    align-self: center;
+    //text-decoration-style: underline;
+    //box-shadow: 1px 1px black;
+    &:hover {
+        background-color: #9C9CFF;
+        color: white;
+    }
+    //outline: 10px dashed orange;
+}
+
+.nav-item {
+    .dropdown-menu {
+        border: 1px solid white;
+        border-radius: 0px;
+        margin: 0;
+        padding: 0;
+        a.dropdown-item {
+            color: white;
+            background-color: $header;
+            &:hover {
+                color: $header;
+                background-color: white;
+            }
+        }
+    }
+}
+
+.home-section {
+    // reduce size of h1,h2,h3...
+    margin-top: 10px;
+    h2 {
+        font-size: 1.6em;
+    }
+    h3 {
+        font-size: 1.4em;
+    }
+    h4 {
+        font-size: 1.2em;
+    }
+}
+
+.print-modal {
+    h1 {
+        font-size: 1.8rem;
+    }
+}
+
+.modal-footer button.btn.btn-secondary {
+    border: 3px solid grey;
+    border-radius: 25px;
+    background-color: #fff;
+    color: #000;
+}
+
+.btn-group-toggle>.btn input[type=radio] {
+    display: none;
+}

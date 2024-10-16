@@ -165,6 +165,7 @@
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
+        ons-uri "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/li\nfeexpectancies/bulletins/pastandprojecteddatafromtheperiodandcohortlifetables/2020\nbaseduk1981to2070"
         single-organ (ui/get-single-organ mdata)]
 
     (if mdata
@@ -174,7 +175,8 @@
           :kidney [:> bs/Col
                    [:p "Leibovich Model (" [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "https://doi.org/10.1002/cncr.11234"] ")."]
                    [:p "Systematic review of models predicting recurrence after kidney cancer surgery (" [:a {:href   "https://doi.org/10.1111/bju.15673"
-                                                                                                              :target "_blank"} "https://doi.org/10.1111/bju.15673"] ")."]]
+                                                                                                              :target "_blank"} "https://doi.org/10.1111/bju.15673"] ")."]
+                   [:p "ONS period life tables (" [:a {:href ons-uri :target "_blank"} ons-uri] ")."]]
           :else [ui/col [:p "None."]])]]
       [ui/loading])))
 

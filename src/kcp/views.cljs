@@ -432,17 +432,17 @@ or smaller than 10cm is most important in the context of recurrence"]
                             :margin-bottom 20}}
           [:h4 "Disclaimer"]
           [:p "You MUST read the information below before using the tool."]
-          [:p [:b "IMPORTANT NOTICE: "] "The tool uses statistical models developed by a team at the Mayo
-              Clinic (Minnesota, USA). It is not showing what will happen to you, it is showing what
-              happened to people like you, in the past. It’s important to remember that the tool does not take
-              into account everything about you, for example, whether you have other health conditions which
-              might impact your outcome. Patients should always consult their own urologist, oncologist, or
-              specialist nurse, who will be able to discuss the results in a more personalised context."]
+          [:p [:b "IMPORTANT NOTICE: "] "The tool uses a statistical model developed by a team at the Mayo
+          Medical School and Mayo Clinic, USA and adjusted by the Predict Kidney team at the
+          University of Cambridge. It is not showing you what will happen to you, it is showing you what
+          happened to people like you, in the past. It’s important to remember that the tool does not take
+          into account everything about you, for example, whether you have other health conditions which
+          might impact your outcome. Patients should always consult their own urologist, oncologist or
+          specialist nurse, who will be able to discuss the results in a more personalised context."]
           [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not
-              intended as a substitute for professional medical advice and counselling. This tool is a reference
-              guide only and cannot replace standard clinical counselling. Please read the technical details for
-              the model derivation and context. By accessing and using this tool, you acknowledge and agree
-              to the following terms."]
+          intended as a substitute for professional medical advice and counselling. This tool is a reference
+          guide only and cannot replace standard clinical counselling. Please read the " [:a {:href (ui/href :kcp.views/tech)} "technical details"]
+           " for the model derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
           [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the
                disclaimer above or for private study or for non-commercial research with this notice intact."]
           [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or

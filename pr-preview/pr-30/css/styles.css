@@ -1,0 +1,330 @@
+.text-decoration-underline {
+  text-decoration: underline;
+}
+
+@media screen {
+  #kidney-t-stage .toggler {
+    flex: 0 0 25%;
+  }
+  #kidney-n-stage .toggler {
+    flex: 0 0 33.333333%;
+  }
+}
+@media screen and (max-width: 1440px) {
+  #kidney-t-stage .toggler {
+    flex: 0 0 50%;
+  }
+  #kidney-n-stage .toggler {
+    flex: 0 0 100%;
+  }
+}
+@media print {
+  @page {
+    size: 210mm 297mm;
+    margin: 0;
+  }
+  .print-root {
+    margin: 10mm;
+  }
+  .print-header {
+    position: fixed;
+    top: 0;
+    left: 10mm;
+    right: 10mm;
+    height: 5cm;
+  }
+  .print-body {
+    margin-top: 5cm;
+  }
+  .page-break {
+    page-break-before: always;
+    margin-top: 6cm;
+  }
+  .col-print-6 {
+    width: 50%;
+  }
+  .lblprint {
+    color: #000;
+  }
+  .to-left {
+    left: 0 !important;
+  }
+  .tborder {
+    border-left: 1rem solid;
+  }
+  .no-printed-border {
+    border: 0 !important;
+  }
+  hr.rounded {
+    border-top: 8px solid #bbb;
+    border-radius: 5px;
+  }
+  .active,
+  h1,
+  h2 {
+    color: black !important;
+  }
+  .footer,
+  .more,
+  .btn-waiting,
+  .btn-outline-graft,
+  .btn-outline-survival {
+    display: none;
+  }
+  #reset,
+  #print-button,
+  #factors-considered {
+    display: none;
+  }
+  /* Hiding input buttons that were not selected (so that all tools fit on one page */
+  label[class="toggler btn btn-outline-secondary"] {
+    display: none;
+  }
+  .nav-item {
+    display: none;
+  }
+  /* Making icons more visible in "Useful information" */
+  .oi.oi-person[style*="color: rgb(204, 204, 204); padding: 4px 5px;"] {
+    color: rgb(250, 250, 250) !important;
+  }
+  .boxed {
+    border: 1px solid #333333;
+  }
+  svg {
+    border: 2px solid rgb(102, 102, 102);
+  }
+}
+@media screen {
+  .footer {
+    display: flex;
+    flex-direction: column;
+  }
+  hr.rounded {
+    display: none;
+  }
+}
+.navbar-light .navbar-nav .nav-link {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: rgb(255, 255, 255);
+}
+
+.btn-primary {
+  background-color: #336677;
+  border-radius: 16px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-primary:hover {
+  color: white;
+}
+
+.btn-danger {
+  background-color: red;
+  border-radius: 16px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-danger:hover {
+  color: white;
+}
+
+.btn-outline-primary {
+  background-color: rgba(51, 102, 119, 0.4);
+  border: 4px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #336677;
+}
+
+.btn-waiting {
+  background-color: #4866CB;
+  border: 4px solid #fff;
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-waiting:hover {
+  color: white;
+}
+
+.btn-outline-waiting {
+  background-color: rgba(72, 102, 203, 0.4);
+  border: 4px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-waiting:hover {
+  color: #fff;
+  background-color: #4866CB;
+}
+
+.btn-survival {
+  background-color: rgb(0, 151, 156);
+  border: 4px solid #fff;
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-survival:hover {
+  color: white;
+}
+
+.btn-outline-survival {
+  background-color: rgba(0, 151, 156, 0.4);
+  border: 4px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-survival:hover {
+  color: #fff;
+  background-color: rgb(0, 151, 156);
+}
+
+.btn-graft {
+  background-color: #0491d8;
+  border: 4px solid #fff;
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-graft:hover {
+  color: white;
+}
+
+.btn-outline-graft {
+  background-color: rgba(4, 145, 216, 0.4);
+  border: 4px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-graft:hover {
+  color: #fff;
+  background-color: #0491d8;
+}
+
+.btn-usefulinfo {
+  background-color: rgb(12, 40, 44);
+  border: 4px solid #fff;
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: white;
+  margin-right: 25px;
+}
+.btn-usefulinfo:hover {
+  color: white;
+}
+
+.btn-outline-usefulinfo {
+  background-color: rgba(12, 40, 44, 0.4);
+  border: 4px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-right: 25px;
+}
+.btn-outline-usefulinfo:hover {
+  color: #fff;
+  background-color: rgb(12, 40, 44);
+}
+
+.centre-header-link {
+  color: #FFE599 !important;
+  font-weight: bold;
+  cursor: pointer;
+}
+.centre-header-link:hover {
+  color: #fff !important;
+  text-decoration: underline !important;
+}
+
+.toggler {
+  margin: 5px;
+  padding: 7px;
+}
+.toggler:hover {
+  color: #fff;
+  background-color: rgba(136, 153, 136, 0.5960784314) !important;
+}
+
+.more {
+  background-color: #ffffff;
+  border: 3px solid #9C9CFF;
+  border-radius: 5px;
+  font-size: 1em;
+  color: rgb(0, 0, 255);
+  margin-left: 15px;
+  padding: 0 7px;
+  align-self: center;
+}
+.more:hover {
+  background-color: #9C9CFF;
+  color: white;
+}
+
+.nav-item .dropdown-menu {
+  border: 1px solid white;
+  border-radius: 0px;
+  margin: 0;
+  padding: 0;
+}
+.nav-item .dropdown-menu a.dropdown-item {
+  color: white;
+  background-color: #337777;
+}
+.nav-item .dropdown-menu a.dropdown-item:hover {
+  color: #337777;
+  background-color: white;
+}
+
+.home-section {
+  margin-top: 10px;
+}
+.home-section h2 {
+  font-size: 1.6em;
+}
+.home-section h3 {
+  font-size: 1.4em;
+}
+.home-section h4 {
+  font-size: 1.2em;
+}
+
+.print-modal h1 {
+  font-size: 1.8rem;
+}
+
+.modal-footer button.btn.btn-secondary {
+  border: 3px solid grey;
+  border-radius: 25px;
+  background-color: #fff;
+  color: #000;
+}
+
+.btn-group-toggle > .btn input[type=radio] {
+  display: none;
+}
+
+/*# sourceMappingURL=styles.css.map */

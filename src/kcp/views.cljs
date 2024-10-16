@@ -238,6 +238,11 @@ about the development cohort are available in the " [:a {:href (ui/href :kcp.vie
          :else [:div])]
       [ui/loading])))
 
+(defn inline-math
+  "Provides an element with consistent style for math 'stuff'TM"
+  [& elements]
+  (into [:i {:class-name "inline-math"}] elements))
+
 (defn maths-section
   []
 
@@ -245,30 +250,60 @@ about the development cohort are available in the " [:a {:href (ui/href :kcp.vie
                      :margin-bottom 20}}
    [:h3#mathematical-section "Mathematical Section"]
    [:p "A joint modelling, cox proportional hazards approach was adopted to model the risk of recurrence and risk of death due to other causes."]
+
    [:p [:b "Leibovich Model"]]
-   [:p "The Leibovich model uses a Cox proportional hazard model as a way of modelling factors which effect an event that
-   may or may not happen over an observation period (such as recurrence or death). Here, the hazard of recurrence is the
-   likelihood that a recurrence will occur soon, conditional on not having experienced a recurrence so far. At its core,
-   this modelling assumes that the hazard is made up of a baseline hazard, which is the same for everyone, multiplied by a fixed amount related to each risk factor."]
-   [:p "In particular, we are interested in the cumulative hazard, which is the total amount of hazard experienced at a given time."]
+   [:p "The Leibovich model uses a Cox proportional hazard model as a way of modelling
+   factors which effect an event (such as a recurrence of kidney cancer) that may or may
+   not happen over a certain amount of time. The hazard of recurrence is the likelihood
+   that a recurrence will occur at a particular time, conditional on not having
+   experienced a recurrence so far. The hazard is made up of a baseline hazard, which is
+   the same for everyone, multiplied by a fixed amount related the risk factors (which is
+   different for different people)."]
+   [:p "In this tool, we use the cumulative hazard, which is the total amount of hazard
+experienced from the start date (kidney cancer surgery) up to a given time."]
 
-   [:p "The estimated cumulative recurrence hazard for a given is given by; "]
-   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
-    [:i "H" [:sub "R"] "(t|X" [:sub "t"] ") = H" [:sub "R0"] "(t) exp(β . X" [:sub "t"] ")"]]
-   [:p "where:"]
-   [:ul
-    [:li [:span {:style {:font-family "serif"}}
-          [:i "H" [:sub "R0"] "(t)"]] " is the estimated baseline hazard from the original Leibovich score" [:sup "1"] " at time " [:i "t"]]
-    [:li "The log hazard ratios " [:i "β"] " are estimated by a multivariate linear regression as described in Table 3 of the original Leibovich paper" [:sup "1"]]
-    [:li [:i {:style {:font-family "serif"}} "X" [:sub "t"]] " are the tumour characteristics for a given patient"]]
+   [:p "The estimated cumulative recurrence hazard is given by:"]
+   [:div {:class-name "inline-math" :style {:display "flex" :justify-content "center" :margin-bottom 20}}
+    (inline-math "H" [:sub "R"] "(t|X" [:sub "P"] ") = H" [:sub "R0"] "(t) exp(β . X" [:sub "P"] ")")]
 
-   [:p "This can be translated into a survival function, which describes the probability of having a recurrence after
-   time " [:i "t"] " through the following equation: "]
-   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
-    [:i "S" [:sub "R"] "(t|X" [:sub "t"] ") "] " = exp" [:i " (-H" [:sub "R"] "(t|X" [:sub "t"] "))"]]
-   [:p "Conversely, the risk function describes the probability of having a recurrence before time " [:i "t"] ", and can be defined as: "]
-   [:div {:style {:display "flex" :justify-content "center" :font-family "serif" :margin-bottom 20}}
-    [:i "R" [:sub "R"] "(t|X" [:sub "t"] ") "] " = 1 - " [:i "S" [:sub "R"] "(t|X" [:sub "t"] ")"]]
+   [:p (inline-math "H" [:sub "R0"] "(t)") " is the estimated baseline cumulative hazard at a time " (inline-math "t") ". "
+    (inline-math "βX" [:sub "P"]) " is the linear predictor "
+    (inline-math "βX" [:sub "P"] " = β" [:sub "1"] "X" [:sub "P1"] " + " "β" [:sub "2"] "X" [:sub "P2"] " + ... + β" [:sub "n"] "X" [:sub "n"])
+    ", where the pathological risk factors " (inline-math "X" [:sub "Pn"]) " are the tumour stage, grade, size, lymph node status and necrosis and " (inline-math "β" [:sub "n"])
+    " their respective coefficients."]
+
+   [:p "This can be converted to the probability of metastasis free survival (no kidney cancer recurrence) at a time " (inline-math "t")
+    ", " (inline-math "S" [:sub "R"] "(t|X" [:sub "P"] ")") ", and the probability of recurrence at a time " (inline-math "t")
+    ", " (inline-math "R" [:sub "R"] "(t|X" [:sub "P"] ")") ", as follows:"]
+
+   [:div {:class-name "inline-math" :style {:display "flex" :justify-content "center" :margin-bottom 20}}
+    (inline-math "R" [:sub "R"] "(t|X" [:sub "P"] ") = 1 - S" [:sub "R"] "(t|X" [:sub "P"] ") = 1 - exp(-H" [:sub "R"] "(t|X" [:sub "P"] "))")]
+
+
+   [:p [:b "Leibovich Plus Model"]]
+   [:p "The Leibovich model only captures the risk of recurrence in people who are still alive at time "
+    (inline-math "t") ". We have adapted this to produce a relative estimate of recurrence risk
+   alongside the competing risk of death from other causes. This is referred to as the Leibovich Plus model."]
+
+   [:p "To estimate the risk of death from causes other than kidney cancer we have used
+   English national data (published by the office for national statistics) which predicts
+   the expected numbers of deaths each year for people in the general population
+   depending on their age and sex. We can then calculate the absolute risk of
+   “competing mortality” (death from other causes) risk at time " (inline-math "t") ", "
+    (inline-math "(R" [:sub "CM"] "(t|X" [:sub "D"] ")") ", where " (inline-math "X" [:sub "D"]) " are the patient demographic factors (age and sex)."]
+
+   [:p "This is then combined with the probability of recurrence at time " (inline-math "t") ", "
+    (inline-math "R" [:sub "R"] "(t|X" [:sub "P"] ") ") " (described in the previous section) to generate a combined overall
+   risk of an event " (inline-math "R" [:sub "OE"] "(t|X)") ", which is the probability of either event (recurrence of kidney cancer or
+death from other causes) happening by time " (inline-math "t") ". "]
+   [:div {:class-name "inline-math" :style {:display "flex" :justify-content "center" :margin-bottom 20}}
+    (inline-math "R" [:sub "OE"] "(t|X) = 1 - (1 - R" [:sub "R"] "(t|X" [:sub "P"] ")) * (1 - R" [:sub "CM"] "(t|X" [:sub "D"] ") ") ")"]
+
+   [:p "The combined risk is then redistributed to give the cumulative risk of recurrence "
+    (inline-math "CR" [:sub "R"] "(t|X)") " and the cumulative risk of death from other causes "
+    (inline-math "CR" [:sub "CM"] "(t|X)") ". This is based on how much of a person’s risk comes from their risk of
+    recurrence and how much from their risk of death from other causes. These - " (inline-math "CR" [:sub "R"] "(t|X)")
+    " and " (inline-math "CR" [:sub "CM"] "(t|X)") " - are the values displayed by the PREDICT-Kidney tool."]
    ])
 
 (defn web-development-section
@@ -347,10 +382,15 @@ necrosis. These are described in detail in the input factors section below."]
     [:p "The Leibovich model is often used to assign patients a score (ranging from 0 to 11) based on
 their tumour characteristics. These scores are then separated into three risk groups: low risk
 (score 0 – 2), intermediate risk (score 3 – 5) and high risk (score above 6)."]
-    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot
-say what the outcomes for a particular patient will be. Instead, it estimates the probability of
-recurrence in people from the past with similar kidney cancer tumours."]
-    [:p "Further information is provided in the " [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "development paper (published 2003)"] "."]]
+    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot say
+    what the outcomes for a particular patient will be. Instead, it estimates the probability of recurrence
+    in people from the past with similar kidney cancer tumours and the probability of death based on people in
+    England of the same age and sex. Further information is provided in the "
+     [:a {:href (ui/href :kcp.views/pubs)} "paper published"] " in the journal Cancer, March 2003. "]
+    [:p "The Leibovich model has been adapted by the Predict Kidney team at the University of Cambridge,
+    to create the Leibovich Plus model. The adjusted model uses data from the Office for National Statistics
+    (projected period life tables for England for 2024). This provides estimated survival rates for the
+    English general population by age and sex, based on historic data and trends."]]
 
 
    [:h3#cohort "Cohort"]
@@ -366,8 +406,8 @@ were over 18 at the time of surgery."]
    [:h3#model-validation "Model Validation"]
    [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
 since it was first developed. In a recent review, 16 validations were identified with results for
-discrimination in the range 0.67-0.86. More details can be found in this "
-    [:a {:href "https://bjui-journals.onlinelibrary.wiley.com/doi/10.1111/bju.15673" :target "_blank"} "review paper (published in 2021)."]]
+discrimination in the range 0.67-0.86. More details can be found in a review paper from 2021 (see the "
+    [:a {:href (ui/href :kcp.views/pubs)} "publication section"] ")."]
 
    [:h3#input-factors "Input factors"]
    [:p "In this section we give an explanation of the input factors considered in this model:"]
@@ -401,6 +441,9 @@ or smaller than 10cm is most important in the context of recurrence"]
    normal cells) and grade 4 is the highest (the least like normal cells)"]
 
    [:p [:b "Tumour Necrosis"] " – Necrosis means that some of the cancer cells have died."]
+
+   [:p [:b "Age (years)"] " – The age at surgery. This is used to predict the risk of death from other causes."]
+   [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]
 
    (maths-section)
    (web-development-section)

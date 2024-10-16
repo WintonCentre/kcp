@@ -69,9 +69,10 @@
 
        [home-section
         [:h2 "What does the tool show?"]
-        [:p "The tool will show the risk of your cancer coming back (recurrence) or spreading to other parts of the
-             body (metastasis). If recurrence occurs there are several options for treatment, which your oncology team
-             will discuss with you."]]
+        [:p "The tool will show the risk of your cancer coming back (recurrence) or spreading to other parts of the body (metastasis).
+        It will also show an estimate of your risk of death from other causes over the next 10 years based on data from
+        people of the same age and sex. If your cancer comes back there are several options for treatment,
+        which your oncology team will discuss with you."]]
 
        [home-section
         [:h2 "Who is this site for?"]

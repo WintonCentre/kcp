@@ -61,7 +61,7 @@
                                :label "Survival - living donor"
                                :inputs {:header [:div
                                                  [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
-                               :outcomes {:residual {:label "Survival with no recurrence"
+                               :outcomes {:residual {:label "Survival, no recurrence"
                                                      :long-label "patients have had no recurrence"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"

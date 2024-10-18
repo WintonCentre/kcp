@@ -37,9 +37,9 @@
         mdata @(rf/subscribe [::subs/mdata])
         tool-mdata (get-in mdata [organ :tools tool])
         mortality-data (utils/reformat-mortality-data (utils/filter-parallel-data
-                                                  (:ldsurvival-competing-mortality bundle)
-                                                  {"Age" (js/parseInt (get-in inputs [:age-at-surgery])),
-                                                   "Sex" (if (= (get-in inputs [:sex]) :Male) "M" "F")}))
+                                                        (:ldsurvival-competing-mortality bundle)
+                                                        {"Age" (js/parseInt (get-in inputs [:age-at-surgery])),
+                                                         "Sex" (if (= (get-in inputs [:sex]) :Male) "M" "F")}))
 
         sample-days (range 0 121 12)
         S0 (utils/filter-by-timestamps (set sample-days) S0)
@@ -70,11 +70,7 @@
                                        (get-in fmaps [:tumor-size :levels (get-in inputs [:tumor-size]) :score])
                                        (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
                                        (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
-
-                 :plot-order         (as-> (:plot-order (get-in mdata [organ :tools tool])) x
-                                           (vis/move-to-start x :residual)
-                                           (vis/move-to-end x :removal)
-                                           (vis/move-to-end x :death))
+                 :plot-order         (:plot-order (get-in mdata [organ :tools tool]))
                  }
 
 

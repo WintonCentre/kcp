@@ -109,7 +109,7 @@
                         :position-f #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
 
   ([plot-order data-styles {:keys [width height string-value-f position-f]
-                            :or {width 255 height 60}}]
+                            :or {width 320 height 60}}]
    (into [:<>]
          (map (fn [i data-key]
                 (let [styles (data-styles data-key)
@@ -117,8 +117,7 @@
                   [:g {:transform (position-f i)
                        :key (str data-key "-" i)}
                    [:rect (merge {:x 0 :y 0 :width width :height height}
-                                 (ui/svg-styles styles)
-                                 #_(dissoc styles :label-fill))]
+                                 (ui/svg-styles styles))]
                    (into [:<>]
                          (map-indexed
                            (fn [line label-text]
@@ -729,7 +728,7 @@
                        (into [:<>]
                              (map-indexed
                                (fn [i outcome-label]
-                                 [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")}
+                                 [:text {:transform (str "translate (20," (+ (* 15 i) 15) ")")}
                                   (str (if (zero? i) (int-fs k)) " " outcome-label)])
                                outcome-labels)))])]
 
@@ -890,7 +889,7 @@
                                      #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
                                      :height "100%"
                                      :position "relative"}}
-              (str (nth int-fs j) "%") " of " long-label]]])])]]))
+              (str (nth int-fs j) "%") " " long-label]]])])]]))
 
 (defn text-render
   "If we took an example of 100 transplant patients, who input the same information as you into the tool, we would expect:

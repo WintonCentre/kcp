@@ -8,7 +8,7 @@
             [kcp.events :as events]
             [kcp.numeric-input :as num]
             [kcp.copy-image :as snap]
-            ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+    ;[shadow.debug :refer [locals ?> ?-> ?->>]]
             ))
 
 (defn key->id
@@ -20,45 +20,45 @@
   (js/console.log "Bad widget type" msg))
 
 (defmulti widget
-  "Create a widget component of a given type.
-   The first argument is the widget map, and the value of its :type slot determines the 
-   widget type. If it's a keyword, dispatch on that. If it's a string, read it into a map and dispatch on that map's :type.
-   This allows us to add parameters to the widget inside the type column in the spreadsheet."
-  ;:type
-  (fn [m]
-    (if (keyword? (:type m))
-      (:type m)
-      (try
-        (let [ms (edn/read-string (:type m))]
-          (if (and (map? ms) (= (:type ms) :numeric))
-            :numeric
-            (do 
-              (bad-widget-type ":type :numeric should be like {:type :numeric :dps 0 :min 0 :max 100}" )
-              (js/console.log "culprit is: " (pr-str m))
-              :unsupported)))
-        (catch :default _e
-          (bad-widget-type "Invalid type")
-          :unsupported))))
-  :default :unsupported)
+          "Create a widget component of a given type.
+           The first argument is the widget map, and the value of its :type slot determines the
+           widget type. If it's a keyword, dispatch on that. If it's a string, read it into a map and dispatch on that map's :type.
+           This allows us to add parameters to the widget inside the type column in the spreadsheet."
+          ;:type
+          (fn [m]
+            (if (keyword? (:type m))
+              (:type m)
+              (try
+                (let [ms (edn/read-string (:type m))]
+                  (if (and (map? ms) (= (:type ms) :numeric))
+                    :numeric
+                    (do
+                      (bad-widget-type ":type :numeric should be like {:type :numeric :dps 0 :min 0 :max 100}")
+                      (js/console.log "culprit is: " (pr-str m))
+                      :unsupported)))
+                (catch :default _e
+                  (bad-widget-type "Invalid type")
+                  :unsupported))))
+          :default :unsupported)
 
 (comment
   (map? nil)
   (edn/read-string "{:a 1}")
   (nil? (edn/read-string "{:a}"))
   )
-  
+
 ; Create a radio-button-group widget given a widget inputs map - for example:
 (comment
   (def widget-inputs-map
     "Example of a widget-inputs-map"
     {:factor-key :kidney/sex
-     :levels [{:level :male
-               :level-name "Male"}
-              {:level :female
-               :level-name "Female"}]
-     :default :male
-     :optional :no
-     :type :radio}))
+     :levels     [{:level      :male
+                   :level-name "Male"}
+                  {:level      :female
+                   :level-name "Female"}]
+     :default    :male
+     :optional   :no
+     :type       :radio}))
 
 ; factors with a nil type field have no widget
 (defmethod widget nil [_]
@@ -87,26 +87,26 @@
   (goog.object.set canvas "style" "max-width: 90%; margin-left: 5%")
 
   (rf/dispatch [::events/modal-data
-                {:show true
-                 :title nil
-                 :content [:div {:id "snap"
+                {:show    true
+                 :title   nil
+                 :content [:div {:id    "snap"
                                  :style {:margin-bottom 15
-                                         :text-align "center"
-                                         :font-size "120%"}}
+                                         :text-align    "center"
+                                         :font-size     "120%"}}
                            [:b [:i "Use the context menu (try right-click or control-click on the image below) to copy or save"]]]
-                 :paste (partial snap/show-screen-shot canvas)
-                 :cancel hide-handler
+                 :paste   (partial snap/show-screen-shot canvas)
+                 :cancel  hide-handler
                  :on-hide hide-handler
-                 :ok hide-handler}]))
+                 :ok      hide-handler}]))
 
-(defn close-modal-and-copy 
-  "Close the print dialog and throw ip a screenshot." 
+(defn close-modal-and-copy
+  "Close the print dialog and throw ip a screenshot."
   [_e]
   (hide-handler _e)
   (js/setTimeout (fn [_e]
                    (snap/take-screen-shot
-                    {:from-element (js/document.querySelector "#capture")
-                     :done show-canvas-modal})) 200))
+                     {:from-element (js/document.querySelector "#capture")
+                      :done         show-canvas-modal})) 200))
 
 (defn print-modal-content
   "What to say in the print modal"
@@ -117,22 +117,22 @@
 
       [:h1 "Print"]
       [:p {:style {:margin-bottom 0}} "Press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
-                                  :style {:margin-right 5}}
-                    "Print"] #_[:b "Print"] "and the browser print dialogue box will appear. For best results, "
+                                                              :style   {:margin-right 5}}
+                                                "Print"] #_[:b "Print"] "and the browser print dialogue box will appear. For best results, "
        [:b "do not"] " enable"]
       [:ul
        [:li "the print background graphics option"]
        [:li "the print headers and footers option (Safari)."]]
       [:h1 "Copy"]
-      [:p "The "  [:> bs/Button {:variant "primary" :on-click close-modal-and-copy
-                                 :style {:margin-right 5}}
-                   "Copy"] #_[:b "Copy"] " button displays a small screenshot which can be
+      [:p "The " [:> bs/Button {:variant "primary" :on-click close-modal-and-copy
+                                :style   {:margin-right 5}}
+                  "Copy"] #_[:b "Copy"] " button displays a small screenshot which can be
          saved, copied to the clipboard, or printed using the usual browser controls. The copied image will be full browser window size so you may wish to adjust this for
          best results."]
       [:p "The copy feature does not work well in Internet Explorer."]
       [:h1 "Save to PDF"]
       [:p "If you prefer a PDF, press " [:> bs/Button {:variant "primary" :on-click close-modal-and-print
-                                                       :style {:margin-right 5}}
+                                                       :style   {:margin-right 5}}
                                          "Print"] " and select \"Save to PDF\" in the browser print dialogue."]]]))
 
 
@@ -143,25 +143,25 @@
   "Main Print, Copy or Save modal popup"
   [_e]
   (rf/dispatch [::events/modal-data
-                {:show true
-                 :width "700px"
-                 :title "Print, Copy or Save to PDF"
+                {:show    true
+                 :width   "700px"
+                 :title   "Print, Copy or Save to PDF"
                  :content (print-modal-content)
-                ; :ok hide-handler
-                 :print close-modal-and-print
+                 ; :ok hide-handler
+                 :print   close-modal-and-print
                  #_(fn [_e]
-                   (hide-handler _e)
-                       ; delay the print dialog so it doesn't screen capture this modal.
-                       ; todo: Is there a better event we can hang the js/print on? 
-                   (js/setTimeout js/print, 200))
-                 :copy close-modal-and-copy
+                     (hide-handler _e)
+                     ; delay the print dialog so it doesn't screen capture this modal.
+                     ; todo: Is there a better event we can hang the js/print on?
+                     (js/setTimeout js/print, 200))
+                 :copy    close-modal-and-copy
                  #_(fn [_e]
-                        ; Add screen capture logic here 
-                         (hide-handler _e)
-                         (js/setTimeout (fn [_e]
-                                          (snap/take-screen-shot
-                                           {:from-element (js/document.querySelector "#capture")
-                                            :done show-canvas-modal})) 200))
+                     ; Add screen capture logic here
+                     (hide-handler _e)
+                     (js/setTimeout (fn [_e]
+                                      (snap/take-screen-shot
+                                        {:from-element (js/document.querySelector "#capture")
+                                         :done         show-canvas-modal})) 200))
                  :on-hide hide-handler}]))
 
 
@@ -180,54 +180,54 @@
       [:h4 "Patient Details"]
       [:div {:class-name "form-group"}
        [:label {:for "patient-name"} "Name"]
-       [:input {:type      "text"
-                :class-name "form-control"
-                :id        "patient-name"
+       [:input {:type          "text"
+                :class-name    "form-control"
+                :id            "patient-name"
                 :auto-complete "off"
-                :value     (get additional-details :patient-name "")
-                :on-change #(rf/dispatch [:kcp.events/update-additional-details
-                                          {:patient-name (-> % .-target .-value)}])}]]
+                :value         (get additional-details :patient-name "")
+                :on-change     #(rf/dispatch [:kcp.events/update-additional-details
+                                              {:patient-name (-> % .-target .-value)}])}]]
 
       [:div {:class-name "form-group"}
        [:label {:for "nhs-number"} "NHS Number"]
-       [:input {:type      "text" :class-name "form-control"
-                :id        "nhs-number"
+       [:input {:type         "text" :class-name "form-control"
+                :id           "nhs-number"
                 :autoComplete "off"
-                :value     (get additional-details :nhs-number "")
-                :on-change #(rf/dispatch [:kcp.events/update-additional-details
-                                          {:nhs-number (-> % .-target .-value)}])}]]
+                :value        (get additional-details :nhs-number "")
+                :on-change    #(rf/dispatch [:kcp.events/update-additional-details
+                                             {:nhs-number (-> % .-target .-value)}])}]]
 
       [:div {:class-name "form-group"}
        [:label {:for "dob"} "Date of Birth"]
-       [:input {:type      "date"
-                :class-name "form-control"
-                :id        "dob"
+       [:input {:type         "date"
+                :class-name   "form-control"
+                :id           "dob"
                 :autoComplete "off"
-                :value     (get additional-details :dob "")
-                :on-change #(rf/dispatch [:kcp.events/update-additional-details
-                                          {:dob (-> % .-target .-value)}])}]]
+                :value        (get additional-details :dob "")
+                :on-change    #(rf/dispatch [:kcp.events/update-additional-details
+                                             {:dob (-> % .-target .-value)}])}]]
 
       [:h4 "Clinician Details"]
 
       [:div {:class-name "form-group"}
        [:label {:for "clinician-name"} "Name"]
-       [:input {:type      "text"
-                :class-name "form-control"
-                :id        "clinician-name"
+       [:input {:type         "text"
+                :class-name   "form-control"
+                :id           "clinician-name"
                 :autoComplete "off"
-                :value     (get additional-details :clinician-name "")
-                :on-change #(rf/dispatch [:kcp.events/update-additional-details
-                                          {:clinician-name (-> % .-target .-value)}])}]]
+                :value        (get additional-details :clinician-name "")
+                :on-change    #(rf/dispatch [:kcp.events/update-additional-details
+                                             {:clinician-name (-> % .-target .-value)}])}]]
 
       [:div {:class-name "form-group"}
        [:label {:for "date-of-consultation"} "Date of consultation"]
-       [:input {:type "date"
-                :class-name "form-control"
-                :id "date-of-consultation"
+       [:input {:type         "date"
+                :class-name   "form-control"
+                :id           "date-of-consultation"
                 :autoComplete "off"
-                :value (get additional-details :consultation-date "")
-                :on-change #(rf/dispatch [:kcp.events/update-additional-details
-                                          {:consultation-date (-> % .-target .-value)}])}]]
+                :value        (get additional-details :consultation-date "")
+                :on-change    #(rf/dispatch [:kcp.events/update-additional-details
+                                             {:consultation-date (-> % .-target .-value)}])}]]
       ]]))
 
 
@@ -243,19 +243,19 @@
       (rf/dispatch [::events/update-additional-details
                     {:consultation-date (utils/to-iso-date-str (js/Date.))}]))
     (rf/dispatch [::events/modal-data
-                  {:show true
-                   :width "700px"
-                   :title "Print, Copy or Save to PDF"
-                   :content [additional-details-form]
+                  {:show     true
+                   :width    "700px"
+                   :title    "Print, Copy or Save to PDF"
+                   :content  [additional-details-form]
                    :continue print-or-save-modal
-                   :cancel cancel-modal
-                   :on-hide cancel-modal}])))
+                   :cancel   cancel-modal
+                   :on-hide  cancel-modal}])))
 
 
 
 (defmethod widget :reset
   [_w]
-  [:> bs/Row {:style {:display "flex" :align-items  "" :margin-top 5}}
+  [:> bs/Row {:style {:display "flex" :align-items "" :margin-top 5}}
    [:> bs/Col {:xs label-width}]
    [:> bs/Col {:xs widget-width}
     [:span
@@ -274,44 +274,34 @@
         optional? (some? optional)
         info-box (try (edn/read-string info-box?)
                       (catch :default e
-                        {:title [:span {:style {:color "red"}} "Info-box syntax error"]
+                        {:title   [:span {:style {:color "red"}} "Info-box syntax error"]
                          :content [:p "see " factor-name [:br] e]}))]
-;    (locals)
-    [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
-     [:> bs/Col {:xs label-width
+    [:> bs/Row {:style {:display "flex" :align-items "center" :margin-bottom mb}}
+     [:> bs/Col {:xs    label-width
                  :style {:display "flex" :justify-content "flex-end"}}
       [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :margin-bottom mb :line-height 1.2}}
        (:factor-name w)]
       (when info-box?
-        ;(?-> (:info-box? w) ::info-box)
-        [:> bs/Button {:size "sm"
-                       :variant "outline"
+        [:> bs/Button {:size       "sm"
+                       :variant    "outline"
                        :class-name "more"
-                       :title "click for more info"
-                     ;:style {:cursor "pointer"}
-                       :on-click (fn [_e]
-                                   (rf/dispatch [::events/modal-data
-                                                 {:show true
-                                                  :title (get info-box :title (:factor-name w))
-                                                  :content (get info-box :content info-box)
-                                                  ;:content (edn/read-string (:info-box? w))
-                                                  :on-hide hide-handler
-                                                  :ok hide-handler}])
-                                   #_(?-> {:show true
-                                         :title (get info-box :title (:factor-name w))
-                                         :content (get info-box :content info-box)
-                                         #_(str "Some text for " (:factor-name w))
-                                         :on-hide hide-handler
-                                         :ok hide-handler}
-                                        ::radio))}
+                       :title      "click for more info"
+                       :on-click   (fn [_e]
+                                     (rf/dispatch [::events/modal-data
+                                                   {:show    true
+                                                    :title   (get info-box :title (:factor-name w))
+                                                    :content (get info-box :content info-box)
+                                                    :on-hide hide-handler
+                                                    :ok      hide-handler}])
+                                     )}
          [:span "?"]])]
 
      [:> bs/Col {:xs widget-width}
 
-      (bsio/radio-button-group {:id (key->id factor-key)
-                                :vertical vertical
-                                :value-f value-f
-                                :optional optional?
+      (bsio/radio-button-group {:id        (key->id factor-key)
+                                :vertical  vertical
+                                :value-f   value-f
+                                :optional  optional?
                                 :on-change #(rf/dispatch [factor-key
                                                           (keyword %)])
                                 :buttons-f (fn [] (vals levels))
@@ -336,53 +326,69 @@
 (defmethod widget :dropdown
   [{:keys [_factor-name factor-key levels _default _type] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))]
-    
-    [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom mb}}
-     [:> bs/Col {:xs label-width
+
+    [:> bs/Row {:style {:display "flex" :align-items "center" :margin-bottom mb}}
+     [:> bs/Col {:xs    label-width
                  :style {:display "flex" :justify-content "flex-end"}}
-      [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
+      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :line-height 1.2}}
        (:factor-name w)]]
      [:> bs/Col {:xs widget-width}
-      (bsio/dropdown {:id (key->id factor-key)
-                      :value-f value-f
+      (bsio/dropdown {:id        (key->id factor-key)
+                      :value-f   value-f
                       :on-change #(rf/dispatch [factor-key
                                                 (keyword %)])
                       :buttons-f (fn [] (vals levels))})]]))
 
 ; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
-  [{:keys [_factor-name factor-key _factor _levels _default _type _model] :as w}]
+  [{:keys [factor-name factor-key info-box?] :as w}]
   (let [value-f (fn [] @(rf/subscribe [factor-key]))
         numerics (edn/read-string (:type w))]
-    [:> bs/Row {:style {:display "flex" :align-items  "center" :margin-bottom 3}}
-     [:> bs/Col {:xs label-width
-                 :style {:display "flex" :justify-content "flex-end"}}
-      [:> bs/Form.Label {:style {:font-weight "bold"  :text-align "right" :line-height 1.2}}
-       (:factor-name w)]]
-     [:> bs/Col {:xs widget-width
-                 :style {:display "flex"}}
+    [:> bs/Row {:style {:display "flex" :align-items "flex-start"}}
+     [:> bs/Col {:xs    label-width
+                 :style {:display "flex" :justify-content "flex-end" :margin-top 10}}
+      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :line-height 1.2}}
+       factor-name]
+      (when info-box?
+        [:> bs/Button {:size       "sm"
+                       :variant    "outline"
+                       :class-name "more"
+                       :title      "click for more info"
+                       :on-click   (fn [_e]
+                                     (rf/dispatch [::events/modal-data
+                                                   {:show    true
+                                                    :title   (get info-box? :title (:factor-name w))
+                                                    :content (edn/read-string (get info-box? :content info-box?))
+                                                    :on-hide hide-handler
+                                                    :ok      hide-handler}])
+                                     )}
+         [:span "?"]])]
+     [:> bs/Col {:xs    widget-width
+                 :style {:display "flex" :flex-direction "column"}}
       (if (and (map? numerics)
                (every? identity (map numerics [:min :max :dps])))
-        [num/numeric-input {:key factor-key
-                            :value-f value-f
+        [num/numeric-input {:key       factor-key
+                            :value-f   value-f
                             :on-change #(rf/dispatch [factor-key %])
-                            :min (:min numerics) :max (:max numerics) :dps (:dps numerics)
-                            :units (:sub-text w)}]
-        
-        [:div "Check that " (:factor w) " has min, max, and dps parameters"])]]))
+                            :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
+                            :units     (:sub-text w)}]
+
+        [:div "Check that " (:factor w) " has min, max, and dps parameters"])
+      [:i {:style {:margin "4px 0 0 0" :display "block" :font-size "0.8rem"}} "Age must be between 25 and 85 years"]
+      ]]))
 
 (comment
   (def value-f (fn [] @(rf/subscribe [:lung/bmi])))
   (#(rf/dispatch [:lung/bmi %]) 60)
   (value-f)
-  
+
   (widget {:type :radio})
   (widget {:type :foo}))
 
 (defmethod widget :unsupported
   [{:keys [type] :as m}]
-   (js/console.log "unsupported widget-type: "  m)
-  [:div  type " widget badly configured"])
+  (js/console.log "unsupported widget-type: " m)
+  [:div type " widget badly configured"])
 
 (defmethod widget :param
   [_]
@@ -396,23 +402,23 @@
 (comment
   (widget {:factor-key "foo" :type :radio})
 
-  (bsio/radio-button-group {:id "Sex"
-                            :value-k :sex
-                            :value-f (fn [] :male)
+  (bsio/radio-button-group {:id        "Sex"
+                            :value-k   :sex
+                            :value-f   (fn [] :male)
                             :on-change identity
                             :buttons-f (fn [] [{:key :male :value :male :level-namel "Male"}
                                                {:key :female :value :female :level-name "Female"}])})
 
 
-  (bsio/radio-button-group {:id "Sex"
-                            :value-k :sex          ; factor
-                            :value-f (fn [] :male) ; default value? 
-                            :on-change identity    ; e.g. #(rf/dispatch [:set-factor-level %])
-                            :buttons-f (fn [] [{:key :male
-                                                :level :male
+  (bsio/radio-button-group {:id        "Sex"
+                            :value-k   :sex                 ; factor
+                            :value-f   (fn [] :male)        ; default value?
+                            :on-change identity             ; e.g. #(rf/dispatch [:set-factor-level %])
+                            :buttons-f (fn [] [{:key        :male
+                                                :level      :male
                                                 :level-name "Male"}
-                                               {:key :female
-                                                :level :female
+                                               {:key        :female
+                                                :level      :female
                                                 :level-name "Female"}])})
   )
 

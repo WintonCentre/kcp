@@ -7,9 +7,13 @@
           [k (concat v1 v2)])
         vec1 vec2))
 
-(defn filter-by-timestamps
+(defn filter-data-by-timestamps
   [timestamps data]
   (filter #(contains? timestamps (first %)) data))
+
+(defn filter-timestamps-by-data [timestamps data]
+  (let [data-map (into {} data)]
+    (filter (fn [timestamp] (contains? data-map timestamp)) timestamps)))
 
 (defn filter-parallel-data [data query]
   "Requires all query parameters to match for a row to be returned. E.g.

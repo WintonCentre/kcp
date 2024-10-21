@@ -42,8 +42,8 @@
                                                          "Sex" (if (= (get-in inputs [:sex]) :Male) "M" "F")}))
 
         sample-days (range 0 121 12)
-        S0 (utils/filter-by-timestamps (set sample-days) S0)
-        all-S0 (utils/filter-by-timestamps (set sample-days) all-S0)
+        S0 (utils/filter-data-by-timestamps (set sample-days) S0)
+        all-S0 (utils/filter-data-by-timestamps (set sample-days) all-S0)
 
         context {:organ              organ
                  :centre             centre

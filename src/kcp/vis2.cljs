@@ -489,14 +489,12 @@
                                                 cum-fs))))
                                  bin-labels))
 
-        ;;todo: these are no longer quarter year intervals. Rename
         quarter-positions (into []
                                 (map (fn [[time {:keys [fs cum-fs]}]]
-                                       (let [quarter (utils/day->week time)]
                                          (into []
                                                (map (fn [data-key cif cum-cif]
                                                       (let [styles (data-styles data-key)
-                                                            x0 (- (X (+ (* spacing (inc (/ quarter 52))))) (X q-offset))
+                                                            x0 (- (X (+ (* 1.075 spacing (inc (/ time 12))))) (X q-offset))
                                                             x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                             y0 (- (Y cum-cif) (Y cif))]
                                                         {:key    data-key
@@ -504,11 +502,11 @@
                                                          :x      (+ x-mid 15)
                                                          :y0     y0
                                                          :y1     (Y cum-cif)
-                                                         :styles (ui/svg-styles styles) #_(dissoc styles :label-fill)}))
+                                                         :styles (ui/svg-styles styles)}))
                                                     data-keys
                                                     fs
                                                     cum-fs))))
-                                     quarter-series))
+                                     quarter-series)
 
         q-polygon-data (into {} (for [dk data-keys]
                                   [dk (let [tops (for [bp-dks quarter-positions
@@ -592,8 +590,7 @@
                                                        :y      (- y-mid 30)
                                                        :height 40
                                                        :rx     10}
-                                                      (ui/svg-styles styles)
-                                                      #_(dissoc styles :label-fill))]
+                                                      (ui/svg-styles styles))]
                                         [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                          (str int-fs "%")]])))
                                  (range)
@@ -606,15 +603,12 @@
 (defn area-chart
   "Draw the area chart"
   [{:keys [organ tool base-outcome-keys s0 F] :as env} {:keys [slimline] :as display-options}]
-  ;(?-> s0 ::s0)
-  (?-> env ::env)
   (let [year-days (map
                     utils/year->day
                     (range (inc (utils/day->year (first (last s0))))))
 
         fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-        quarter-days (range 120)
-        _ (?-> quarter-days ::quarter-days)
+        quarter-days (utils/filter-timestamps-by-data (range 120) F)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)

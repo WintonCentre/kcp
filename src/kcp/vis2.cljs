@@ -74,9 +74,9 @@
                                           (zipmap (range) err-pc-fs))]
                        (recur (update int-pc-fs (first adjust) (if (pos? sum-err-pc-fs) dec inc)))))))]
 
-    {:fs ordered-fs
-     :cum-fs (reductions + ordered-fs)
-     :int-fs int-fs
+    {:fs         ordered-fs
+     :cum-fs     (reductions + ordered-fs)
+     :int-fs     int-fs
      :cum-int-fs (reductions + int-fs)}))
 
 (defn fs-time-series
@@ -106,23 +106,23 @@
   ([plot-order data-styles]
    (svg-outcome-legend plot-order data-styles
                        {:string-value-f (constantly "")
-                        :position-f #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
+                        :position-f     #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
 
   ([plot-order data-styles {:keys [width height string-value-f position-f]
-                            :or {width 320 height 60}}]
+                            :or   {width 320 height 60}}]
    (into [:<>]
          (map (fn [i data-key]
                 (let [styles (data-styles data-key)
                       label-texts (if (string? (:label styles)) [(:label styles)] (:label styles))]
                   [:g {:transform (position-f i)
-                       :key (str data-key "-" i)}
+                       :key       (str data-key "-" i)}
                    [:rect (merge {:x 0 :y 0 :width width :height height}
                                  (ui/svg-styles styles))]
                    (into [:<>]
                          (map-indexed
                            (fn [line label-text]
-                             [:text {:x 10 :y (+ 40 (* 25 line) (- (* 14 (dec (count label-texts)))))
-                                     :fill (:label-fill styles)
+                             [:text {:x         10 :y (+ 40 (* 25 line) (- (* 14 (dec (count label-texts)))))
+                                     :fill      (:label-fill styles)
                                      :font-size 25}
                               (str label-text (string-value-f i))])
                            label-texts))]))
@@ -150,9 +150,9 @@
         [ui/test-day-selector "Results for test day:"]
         [:> bs/Row
          [:> bs/Col
-          [:> bs/Table {:striped true
+          [:> bs/Table {:striped  true
                         :bordered true
-                        :hover true}
+                        :hover    true}
            [:thead [outcome-tr 1005 outcomes]]
            (into [:tbody
 
@@ -205,20 +205,20 @@
   "Add default values to outcome styles"
   [styles]
   (let [{:keys [fill stroke opacity stroke-width]
-         :or {fill "#41af6b"
-              stroke "#fff"
-              stroke-width 1
-              opacity 0.7}} styles]
+         :or   {fill         "#41af6b"
+                stroke       "#fff"
+                stroke-width 1
+                opacity      0.7}} styles]
     {:fill fill :stroke stroke :stroke-width stroke-width :opacity opacity}))
 
 (defstyle styles
-          [".inner" {:fill "none"
+          [".inner" {:fill           "none"
                      :stroke-opacity 1
-                     :stroke-width 0
-                     :stroke "#fa0"}]
-          [".outer" {:fill "#e0dede"
+                     :stroke-width   0
+                     :stroke         "#fa0"}]
+          [".outer" {:fill           "#e0dede"
                      :stroke-opacity 1
-                     :stroke "#ccc"}]
+                     :stroke         "#ccc"}]
 
           [".transplant" (bar-style {:fill "#41af6b"})]
           [".all-reasons" (bar-style {:fill "#4866cb"})]
@@ -230,7 +230,7 @@
           [".Survived" (bar-style {:fill "#664488"})]
           [".graft" (bar-style {:fill "#00AA44"})]
           [".annotation" {:font-size "13pt"}]
-          [".arrow" {:stroke "#000"
+          [".arrow" {:stroke       "#000"
                      :stroke-width "1.5px"}])
 
 (defn pairwise-stagger
@@ -265,8 +265,8 @@
     (map-indexed
       (fn [row line]
         [:text {:key line
-                :x (+ x0 (:x-offset bin-label))
-                :y (+ (:y-offset bin-label) (* 35 row)) :font-size font-size}
+                :x   (+ x0 (:x-offset bin-label))
+                :y   (+ (:y-offset bin-label) (* 35 row)) :font-size font-size}
          line])
       (:line bin-label))))
 
@@ -295,11 +295,11 @@
                                                 h (- (Y cum-cif) (Y (- cum-cif cif)))]
                                             (when (not (js/isNaN y0))
                                               [:g
-                                               [:rect (merge {:key data-key
-                                                              :x x0
-                                                              :y y0
-                                                              :width bar-width
-                                                              :height h
+                                               [:rect (merge {:key        data-key
+                                                              :x          x0
+                                                              :y          y0
+                                                              :width      bar-width
+                                                              :height     h
                                                               :data-title cif}
                                                              (ui/svg-styles styles))]])))
                                         data-keys
@@ -336,14 +336,14 @@
                                                         (if (odd? i) 18 -54)
                                                         (if (< cif 1) -20 -30))
                                                       " 10)")}
-                                     [:rect (merge {:x (- x-mid 5)
-                                                    :width (cond
-                                                             (>= cif 1) 90
-                                                             (< cif 0.10) 70
-                                                             :else 70)
-                                                    :y (- y-mid 30)
+                                     [:rect (merge {:x      (- x-mid 5)
+                                                    :width  (cond
+                                                              (>= cif 1) 90
+                                                              (< cif 0.10) 70
+                                                              :else 70)
+                                                    :y      (- y-mid 30)
                                                     :height 40
-                                                    :rx 10}
+                                                    :rx     10}
                                                    (ui/svg-styles styles))]
                                      [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                       (str int-fs "%")]])))
@@ -394,12 +394,12 @@
                  :bar-width (get-in tool-mdata [:bars :width])
                  :font-size (get-in tool-mdata [:bars :font-size]))]
     [:g {:key 1}
-     [:rect {:key 1
+     [:rect {:key        1
              :class-name (:inner styles)
-             :x 0
-             :y 0
-             :width 1000
-             :height 600}]
+             :x          0
+             :y          0
+             :width      1000
+             :height     600}]
 
      [:g {:key "bin-labels"}
       [draw-bin-labels params]]
@@ -421,14 +421,14 @@
 
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10 :margin-right 10 :margin-bottom 10}}
-      [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:bars :svg-width])
-                                              :height (get-in tool-mdata [:bars :svg-height])}
-                                      :margin (get-in tool-mdata [:bars :svg-margin])
-                                      :padding (get-in tool-mdata [:bars :svg-padding])
+      [svgc/svg-container (-> (space {:outer    {:width  (get-in tool-mdata [:bars :svg-width])
+                                                 :height (get-in tool-mdata [:bars :svg-height])}
+                                      :margin   (get-in tool-mdata [:bars :svg-margin])
+                                      :padding  (get-in tool-mdata [:bars :svg-padding])
                                       :x-domain [0 14]
-                                      :x-ticks 10
+                                      :x-ticks  10
                                       :y-domain [1 0]
-                                      :y-ticks 10})
+                                      :y-ticks  10})
                               (assoc :styles styles)
                               (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
@@ -478,11 +478,11 @@
                                                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
                                                         x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                         y0 (- (Y cum-cif) (Y cif))]
-                                                    {:key data-key
-                                                     :time time
-                                                     :x (+ x-mid 15)
-                                                     :y0 y0
-                                                     :y1 (Y cum-cif)
+                                                    {:key    data-key
+                                                     :time   time
+                                                     :x      (+ x-mid 15)
+                                                     :y0     y0
+                                                     :y1     (Y cum-cif)
                                                      :styles (ui/svg-styles styles)}))
                                                 data-keys
                                                 fs
@@ -499,11 +499,11 @@
                                                             x0 (- (X (+ (* spacing (inc (/ quarter 52))))) (X q-offset))
                                                             x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                             y0 (- (Y cum-cif) (Y cif))]
-                                                        {:key data-key
-                                                         :time time
-                                                         :x (+ x-mid 15)
-                                                         :y0 y0
-                                                         :y1 (Y cum-cif)
+                                                        {:key    data-key
+                                                         :time   time
+                                                         :x      (+ x-mid 15)
+                                                         :y0     y0
+                                                         :y1     (Y cum-cif)
                                                          :styles (ui/svg-styles styles) #_(dissoc styles :label-fill)}))
                                                     data-keys
                                                     fs
@@ -517,25 +517,25 @@
                                                    (select-keys bp-dk [:x :y0 :y1]))]
                                         (concat (map (juxt :x :y0) tops)
                                                 (map (juxt :x :y1) (reverse tops))))]))]
-    [:g {:key 1
-         :transform (if slimline "translate(200 0)" "translate(100 0)") }
-     [:rect {:key 1
+    [:g {:key       1
+         :transform (if slimline "translate(200 0)" "translate(100 0)")}
+     [:rect {:key        1
              :class-name (:inner styles)
-             :x 0
-             :y 0
-             :width (- 1000 (if slimline 280 0))
-             :height 600}]
+             :x          0
+             :y          0
+             :width      (- 1000 (if slimline 280 0))
+             :height     600}]
      ;;
      ;; Plot areas
      ;;
      [:g {:transform "translate(-10,0)"}
-      (into [:g {:opacity 1
+      (into [:g {:opacity   1
                  :transform "translate(15,0)"}]
             (for [dk data-keys]
-              [:polygon {:key dk
+              [:polygon {:key    dk
                          :points (for [[x y] (dk q-polygon-data)]
                                    (str x "," y " "))
-                         :style (ui/svg-styles (data-styles dk))}]))
+                         :style  (ui/svg-styles (data-styles dk))}]))
 
       ; draw labels at yearly intervals
       (into [:g {:key 2}]
@@ -552,7 +552,7 @@
             (map
               (fn [bp]
                 (let [x (:x (first bp))]
-                  [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
+                  [:line {:x1    x :x2 x :y1 (Y 0) :y2 (Y 1)
                           :style {:stroke "#fff" :stroke-width 3}}])))
             bar-positions)]
 
@@ -584,14 +584,14 @@
                                                            (if (odd? i) 18 -54)
                                                            (if (< cif 1) -20 -30))
                                                          " 10)")}
-                                        [:rect (merge {:x (- x-mid 5)
-                                                       :width (cond
-                                                                (>= cif 1) 90
-                                                                (< cif 0.10) 70
-                                                                :else 70)
-                                                       :y (- y-mid 30)
+                                        [:rect (merge {:x      (- x-mid 5)
+                                                       :width  (cond
+                                                                 (>= cif 1) 90
+                                                                 (< cif 0.10) 70
+                                                                 :else 70)
+                                                       :y      (- y-mid 30)
                                                        :height 40
-                                                       :rx 10}
+                                                       :rx     10}
                                                       (ui/svg-styles styles)
                                                       #_(dissoc styles :label-fill))]
                                         [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
@@ -625,22 +625,22 @@
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10 :margin-right 10}}
       [svgc/svg-container
-       (-> (space {:outer {:width (let [width (get-in tool-mdata [:area :svg-width])]
-                                    (if slimline
-                                      (- width 280)
-                                      width))
-                           :height (get-in tool-mdata [:area :svg-height])}
+       (-> (space {:outer        {:width  (let [width (get-in tool-mdata [:area :svg-width])]
+                                            (if slimline
+                                              (- width 280)
+                                              width))
+                                  :height (get-in tool-mdata [:area :svg-height])}
                    :aspect-ratio (aspect-ratio svg-width svg-height)
-                   :margin (if slimline
-                             {:top 0 :right 0 :bottom 0 :left 0}
-                             {:top 0 :right 10 :bottom 0 :left 0})
-                   :padding (if slimline
-                              {:top 40, :right -30, :bottom 100, :left -20}
-                              {:top 40, :right 20, :bottom 100, :left 20})
-                   :x-domain [0 15]
-                   :x-ticks 10
-                   :y-domain [1 0]
-                   :y-ticks 10})
+                   :margin       (if slimline
+                                   {:top 0 :right 0 :bottom 0 :left 0}
+                                   {:top 0 :right 10 :bottom 0 :left 0})
+                   :padding      (if slimline
+                                   {:top 40, :right -30, :bottom 100, :left -20}
+                                   {:top 40, :right 20, :bottom 100, :left 20})
+                   :x-domain     [0 15]
+                   :x-ticks      10
+                   :y-domain     [1 0]
+                   :y-ticks      10})
            (assoc :styles styles)
            (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
@@ -651,21 +651,21 @@
             (if slimline nil (svg-outcome-legend plot-order data-styles))
             [:g {:transform (if slimline "" "translate(280 0)")}
 
-             (stacked-area-chart {:X X
-                                  :Y Y
-                                  :year-series fs-by-year-in-plot-order
+             (stacked-area-chart {:X              X
+                                  :Y              Y
+                                  :year-series    fs-by-year-in-plot-order
                                   :quarter-series fs-by-quarter-in-plot-order
-                                  :data-keys plot-order
-                                  :tool-mdata tool-mdata
-                                  :data-styles data-styles} display-options)]]))]
+                                  :data-keys      plot-order
+                                  :tool-mdata     tool-mdata
+                                  :data-styles    data-styles} display-options)]]))]
       [:section {:style {:margin-top 25}}
        (:post-section tool-mdata)]]]))
 
 (defn h-and-s
   "render a head and shoulders icon"
   [{:keys [key fill scale]
-    :or {fill "red" scale "0.2"}}]
-  [:g {:key key
+    :or   {fill "red" scale "0.2"}}]
+  [:g {:key       key
        :transform (str "scale(" scale ")") :style {:fill fill}}
    [:path {:d (str "M4 0c-1.1 0-2 1.12-2 2.5s.9 2.5 2 2.5 2-1.12 2-2.5-.9-2.5-2-2.5z"
                    "m-2.09 5c-1.06.05-1.91.92-1.91 2v1h8v-1c0-1.08-.84-1.95-1.91-2-.54.61-1.28 1-2.09 1-.81 0-1.55-.39-2.09-1z")}]])
@@ -697,13 +697,13 @@
         icon-order (into [] (range 100))]
 
     [:div
-     [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                             :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
-                                     :margin (get-in tool-mdata [:icons :svg-margin])
-                                     :padding (get-in tool-mdata [:icons :svg-padding])
-                                     :x-ticks 10
+     [svgc/svg-container (-> (space {:outer    {:width  (get-in tool-mdata [:icons :svg-width])
+                                                :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
+                                     :margin   (get-in tool-mdata [:icons :svg-margin])
+                                     :padding  (get-in tool-mdata [:icons :svg-padding])
+                                     :x-ticks  10
                                      :y-domain [300 0]
-                                     :y-ticks 10})
+                                     :y-ticks  10})
                              (assoc :styles styles)
                              (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
@@ -714,13 +714,13 @@
                           time-index (:time-index label)
                           [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
 
-                [:g {:key (str "lab-" label-index)
+                [:g {:key       (str "lab-" label-index)
                      :transform "translate (0, 10)"}
                  [:g {:key 1}
                   (for [k (range (count plot-order))
                         :let [outcome-key (plot-order k)
                               outcome (get-in tool-mdata [:outcomes outcome-key])]]
-                    [:g {:key (str "outk-" k)
+                    [:g {:key       (str "outk-" k)
                          :transform (str "translate (" (* label-index 250) ", " (- (* k 36) 20) ")")}
                      [h-and-s {:scale 2 :fill (:fill outcome)}]
                      (let [s (:label outcome)
@@ -736,14 +736,14 @@
                   (for [i (range 10)
                         j (range 10)
                         :let [ordinal (icon-order (+ j (* 10 i)))]]
-                    [:g {:key (str "i-" j "-" i)
+                    [:g {:key       (str "i-" j "-" i)
                          :transform (str "translate(" (* j 22) " " (* i 22) ")")}
                      [h-and-s
                       {:scale 2 :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])]
 
                  [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 370)")}
                   [:text {:font-size "1.2em"
-                          :x 20} (get-in label [:line 0])]]])))]]))
+                          :x         20} (get-in label [:line 0])]]])))]]))
 ;
 (defn stacked-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
@@ -754,29 +754,29 @@
         labels (get-in tool-mdata [:icons :labels])
         icon-order (into [] (range 100))]
 
-    [ui/col {:sm 12
+    [ui/col {:sm    12
              :style {:padding 0}}
      (for [i (range (count labels))
            :let [label (nth labels i)
                  time-index (:time-index label)
                  [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
        [ui/row {:style {:padding "0px 0px"}
-                :key (str "year-" time-index)}
+                :key   (str "year-" time-index)}
         [ui/col {:key 1}
 
          [:h4 {:style {:margin-top 20}}
           (let [line (:line label)]
             (if (sequential? line) (map str line) line))]
 
-         [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                                 :height (get-in tool-mdata [:icons :svg-height])}
+         [svgc/svg-container (-> (space {:outer        {:width  (get-in tool-mdata [:icons :svg-width])
+                                                        :height (get-in tool-mdata [:icons :svg-height])}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (get-in tool-mdata [:icons :svg-margin])
-                                         :padding (get-in tool-mdata [:icons :svg-padding])
-                                         :x-domain [0 300]
-                                         :x-ticks 10
-                                         :y-domain [300 0]
-                                         :y-ticks 10})
+                                         :margin       (get-in tool-mdata [:icons :svg-margin])
+                                         :padding      (get-in tool-mdata [:icons :svg-padding])
+                                         :x-domain     [0 300]
+                                         :x-ticks      10
+                                         :y-domain     [300 0]
+                                         :y-ticks      10})
                                  (assoc :styles styles)
                                  (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
@@ -786,7 +786,7 @@
               (for [k (range (count plot-order))
                     :let [outcome-key (plot-order k)
                           outcome (get-in tool-mdata [:outcomes outcome-key])]]
-                [:g {:key (str "outk-" k)
+                [:g {:key       (str "outk-" k)
                      :transform (str "translate (" 10 ", " (+ (* k 45) 20) ")")}
                  [h-and-s {:scale 2 :fill (:fill outcome)}]
                  (let [s (:label outcome)
@@ -801,11 +801,11 @@
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]
-               [:g {:key (str "i-" j "-" i)
+               [:g {:key       (str "i-" j "-" i)
                     :transform (str "translate(" (+ 300 (* j 22)) " " (+ 20 (* i 22)) ")")}
                 [h-and-s
                  {:scale 2
-                  :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
+                  :fill  (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
 
 (defn move-item
   "Returns a-vector with all items (if any) moved to the start or the end depending on whether
@@ -853,10 +853,10 @@
   [year-series tool-mdata plot-order data-styles]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
-    [:> bs/Table {:style {:margin-top 20
-                          :border "3px solid #666"}
+    [:> bs/Table {:style      {:margin-top 20
+                               :border     "3px solid #666"}
                   :responsive "xl"
-                  :bordered true}
+                  :bordered   true}
      [:thead
       [:tr
        (for [i years
@@ -864,7 +864,7 @@
                    line (:line label)
                    line (if (sequential? line) (map str line) line)]]
          [:th {:style {:border-bottom "3px solid #666"}
-               :key (str "y-" i)} line])]]
+               :key   (str "y-" i)} line])]]
      [:tbody#result-table
       (for [j (range (count plot-order))
             :let [style ((nth plot-order j) data-styles)
@@ -877,18 +877,18 @@
                :let [label (nth labels i)
                      time-index (:time-index label)
                      [_ {:keys [int-fs]}] (nth year-series time-index)]]
-           [:td {:key (str "r-" i)
+           [:td {:key   (str "r-" i)
                  :style {:margin 0 :padding 0}}
             [:div {:style {:position "relative"
-                           :width "100%"
-                           :height "100%"}}
-             [:div.lblprint {:id (str (name (plot-order j)) "-" i)
-                             :data-year time-index
+                           :width    "100%"
+                           :height   "100%"}}
+             [:div.lblprint {:id         (str (name (plot-order j)) "-" i)
+                             :data-year  time-index
                              :data-value (nth int-fs j)
-                             :style {:margin 0 :padding 15
-                                     #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
-                                     :height "100%"
-                                     :position "relative"}}
+                             :style      {:margin 0 :padding 15
+                                          #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
+                                          :height "100%"
+                                          :position "relative"}}
               (str (nth int-fs j) "%") " " long-label]]])])]]))
 
 (defn text-render
@@ -943,23 +943,23 @@
 
     [:section {:id "uri-result"}
      (pr-str
-       {:organ (name organ)
-        :tool (name tool)
+       {:organ      (name organ)
+        :tool       (name tool)
         :clj-inputs fulfilled-inputs
-        :r-inputs (into {}
-                        (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
-        :result (mapv
-                  (fn [i]
-                    (let [label (nth labels i)
-                          time-index (:time-index label)]
-                      (assoc (into {}
-                                   (map
-                                     (fn [j]
-                                       (let [[_ {:keys [int-fs fs]}] (nth year-series time-index)]
-                                         [(nth plot-order j) (* 100 (nth fs #_int-fs j))]))
-                                     (range (count plot-order))))
-                        :year time-index)))
-                  (range (count years)))})]))
+        :r-inputs   (into {}
+                          (map #(str/split % "_") (conj r-params (str "cent_" (:name centre-info)))))
+        :result     (mapv
+                      (fn [i]
+                        (let [label (nth labels i)
+                              time-index (:time-index label)]
+                          (assoc (into {}
+                                       (map
+                                         (fn [j]
+                                           (let [[_ {:keys [int-fs fs]}] (nth year-series time-index)]
+                                             [(nth plot-order j) (* 100 (nth fs #_int-fs j))]))
+                                         (range (count plot-order))))
+                            :year time-index)))
+                      (range (count years)))})]))
 
 (defn text
   "a text results view"

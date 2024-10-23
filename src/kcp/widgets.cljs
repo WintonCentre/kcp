@@ -8,7 +8,6 @@
             [kcp.events :as events]
             [kcp.numeric-input :as num]
             [kcp.copy-image :as snap]
-            [reagent.core :as rc]
             [clojure.string :as str]
             ))
 
@@ -358,54 +357,57 @@
 
 
 ; todo jack: still a bug with clearing the value, it goes to 25...
-; todo jack: we're getting some sort of blur event (or the control is getting yeeted) on valid edit by keyboard
-; todo jack: ofc, it's getting fucking yeeted, I think this requires element ids to fix?
-; it appears to be once the router updates it the redraws all the controls (even though they're the same...)
-; good news... it's only this component
-; bad news... probably requires restructuring the wrapper to fix it
+; that behavior sorta makes sense, but we now need to clamp values to the range for it to be consistent
+; todo jack: emit a edit state reset event on navigating either to or from the tool
 
 ; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
-  [{:keys [_factor-name factor-key _factor _levels _default _type _model] :as w}]
-  (let [user-edit (rc/atom "")]
-    (println "todo jack: jesus i fucking hate clojure")
-    (rc/as-element [(fn []
-                      (let [
+  [{:keys [factor-name factor-key _factor _levels _default _type _model] :as w}]
+  (let [
+        ; todo jack: do we want an empty string here?
+        user-edit (get @(rf/subscribe [::subs/edit-state]) factor-name "")
+        ; todo jack
+        value-f (fn []
+                  (if (not-empty user-edit)
+                    user-edit
+                    @(rf/subscribe [factor-key])))
+        numerics (edn/read-string (:type w))]
+    (println "value-f: " (value-f) user-edit)
+    [:> bs/Row {:style {:display "flex" :align-items "center" :margin-bottom 3}}
+     [:> bs/Col {:xs    label-width
+                 :style {:display "flex" :justify-content "flex-end"}}
+      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :line-height 1.2}}
+       (:factor-name w)]]
+     [:> bs/Col {:xs    widget-width
+                 :style {:display "flex"}}
+      (if (and (map? numerics)
+               (every? identity (map numerics [:min :max :dps])))
+        [num/numeric-input {:key       factor-key
+                            :value-f   value-f
                             ; todo jack
-                            value-f (fn []
-                                      (if (not-empty @user-edit)
-                                        @user-edit
-                                        @(rf/subscribe [factor-key])))
-                            numerics (edn/read-string (:type w))]
-                        (println "value-f: " (value-f) @user-edit)
-                        [:> bs/Row {:style {:display "flex" :align-items "center" :margin-bottom 3}}
-                         [:> bs/Col {:xs    label-width
-                                     :style {:display "flex" :justify-content "flex-end"}}
-                          [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :line-height 1.2}}
-                           (:factor-name w)]]
-                         [:> bs/Col {:xs    widget-width
-                                     :style {:display "flex"}}
-                          (if (and (map? numerics)
-                                   (every? identity (map numerics [:min :max :dps])))
-                            [num/numeric-input {:key       factor-key
-                                                :value-f   value-f
-                                                ; todo jack
-                                                :on-change #(cond
-                                                              (str/includes? % ":") (do
-                                                                                      (println "SAD invalid input:" %)
-                                                                                      (reset! user-edit %)
-                                                                                      (println "just checking...:" @user-edit))
-                                                              (= % (value-f)) (println "value didn't change")
-                                                              :else (do
-                                                                      (println "edit considered valid, clearing user edit...")
-                                                                      (reset! user-edit "")
-                                                                      (rf/dispatch [factor-key %])
-                                                                      )
-                                                              )
-                                                :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
-                                                :units     (:sub-text w)}]
+                            :on-change #(cond
+                                          (str/includes? % ":") (do
+                                                                  (println "SAD invalid input:" %)
+                                                                  ; todo jack
+                                                                  (rf/dispatch [::events/update-edit-state {factor-name %}])
+                                                                  ;(reset! user-edit %)
+                                                                  (println "just checking...:" user-edit))
+                                          (= % (value-f)) (println "value didn't change")
+                                          :else (do
+                                                  (println "edit considered valid, clearing user edit..." )
+                                                  ; todo jack
+                                                  ;(reset! user-edit "")
+                                                  (println "[v]just checking...:" user-edit ", " @(rf/subscribe [factor-key]))
+                                                  (rf/dispatch [::events/update-edit-state {factor-name ""}])
+                                                  (println "[v]just checking...:" user-edit ", " @(rf/subscribe [factor-key]))
+                                                  (rf/dispatch [factor-key %])
+                                                  (println "[v]just checking...:" user-edit ", " @(rf/subscribe [factor-key]))
+                                                  )
+                                          )
+                            :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
+                            :units     (:sub-text w)}]
 
-                            [:div "Check that " (:factor w) " has min, max, and dps parameters"])]]))])))
+        [:div "Check that " (:factor w) " has min, max, and dps parameters"])]]))
 
 (comment
   (def value-f (fn [] @(rf/subscribe [:lung/bmi])))

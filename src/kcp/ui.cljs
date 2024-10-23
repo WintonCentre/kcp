@@ -134,11 +134,10 @@ in the routes table."
          [:> bs/Navbar.Brand {:href home-url} [:img {:src logo :style {:height 40 :width 40} :alt "Organ logo"}]]
          ; Site name below
          [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
-                          ;:organ (name organ)
+                          :on-click #(rf/dispatch [::events/reset-edit-state])
                           :href (str (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"}) "/bars/-")}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
-             ;(str (get-in mdata [single-organ :label]) " Transplant Tool")
              (str "PREDICT Kidney")
              "Development Site")]]
          [:> bs/Navbar.Toggle {:aria-controls "basic-navbar-nav"}]
@@ -189,12 +188,7 @@ in the routes table."
                                  (:name centre)])
                               (filter #(not= (:name %) "UK") centres)))))))]
           [:> bs/Nav {:class "ml-auto"
-                      :style {:height "100%" :vertical-align "middle"}}
-
-           #_[:> bs/Button {:href (str "mailto:" (-> mdata single-organ :contact-email)
-                                       "?subject=" (-> mdata single-organ :contact-email-subject)
-                                       "&body=" (-> mdata single-organ :contact-email-body))}
-              :variant "info" "✉️ " [:span {:style {:margin-left 10}} "Feedback"]]]]])
+                      :style {:height "100%" :vertical-align "middle"}}]]])
       [loading])))
 
 (comment

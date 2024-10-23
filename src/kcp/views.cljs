@@ -44,7 +44,9 @@
                         :class-name "btn-lg"
                         :variant    "primary"
                         :style      {:font-size "1.5em"}
-                        :on-click   #(rf/dispatch [::events/navigate ::organ-centre-tool-tab-inputs {:organ organ :centre "uk" :tool "ldsurvival" :tab "icons" :inputs "-"}])}
+                        :on-click   #(do
+                                       (rf/dispatch [::events/reset-edit-state])
+                                       (rf/dispatch [::events/navigate ::organ-centre-tool-tab-inputs {:organ organ :centre "uk" :tool "ldsurvival" :tab "icons" :inputs "-"}]))}
              (if single-organ
                "Start the tool"
                ;"Choose your transplant centre"
@@ -969,7 +971,8 @@ not currently use these factors to make decisions about follow-up care."]]
                                            :style {:display "flex" :justify-content "flex-end"}}
                                 [:span {:style {:text-align "right"}}
                                  boxed-text]]])
-                            (widg/widget (assoc w :model tool))]
+                            (widg/widget (assoc w :model tool))
+                            ]
                            [:div {:style {:height 10}}]])
 
                         tcb-fmaps))]

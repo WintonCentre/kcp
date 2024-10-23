@@ -8,7 +8,7 @@
             [kcp.events :as events]
             [kcp.numeric-input :as num]
             [kcp.copy-image :as snap]
-    ;[shadow.debug :refer [locals ?> ?-> ?->>]]
+            [clojure.string :as str]
             ))
 
 (defn key->id
@@ -342,7 +342,12 @@
 ; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
   [{:keys [factor-name factor-key info-box?] :as w}]
-  (let [value-f (fn [] @(rf/subscribe [factor-key]))
+  (let [
+        user-edit (get @(rf/subscribe [::subs/edit-state]) factor-name "")
+        value-f (fn []
+                  (if (not-empty user-edit)
+                    (str user-edit ":" user-edit)
+                    @(rf/subscribe [factor-key])))
         numerics (edn/read-string (:type w))]
     [:> bs/Row {:style {:display "flex" :align-items "flex-start"}}
      [:> bs/Col {:xs    label-width
@@ -369,7 +374,18 @@
                (every? identity (map numerics [:min :max :dps])))
         [num/numeric-input {:key       factor-key
                             :value-f   value-f
-                            :on-change #(rf/dispatch [factor-key %])
+                            :on-change #(cond
+                                          (or (nil? %) (str/includes? % ":") (empty? %))
+                                          (do
+                                            (rf/dispatch [::events/update-edit-state {factor-name (if (nil? %) "" %)}])
+                                            (rf/dispatch [factor-key nil]))
+
+                                          (= % (value-f)) nil ; nothing changed
+
+                                          :else (do
+                                                  (rf/dispatch [::events/update-edit-state {factor-name ""}])
+                                                  (rf/dispatch [factor-key %]))
+                                          )
                             :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
                             :units     (:sub-text w)}]
 

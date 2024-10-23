@@ -270,6 +270,16 @@
     (assoc db :additional-details {})))
 
 (rf/reg-event-db
+  ::update-edit-state
+  (fn [db [_ control-state]]
+    (update db :edit-state merge control-state)))
+
+(rf/reg-event-db
+  ::reset-edit-state
+  (fn [db _]
+    (assoc db :edit-state {})))
+
+(rf/reg-event-db
   ::modal-data
   (fn [db [_ data]]
     (assoc db :modal-data data)))

@@ -61,7 +61,7 @@
   (num-to-str 4.4 1)
   (num-to-str 4.4 2))
 
-(defn validate-input [value nmin nmax step]
+(defn get-validated-input [value nmin nmax step]
   (let [value (str-to-num value)
         nmin (if (fn? nmin) (nmin) nmin)
         nmax (if (fn? nmax) (nmax) nmax)                   ;(if (keyword? nmax) @(input-cursor nmax) nmax)
@@ -85,16 +85,16 @@
       )))
 
 (comment
-  (validate-input "4." 0 100 0.1)
-  (validate-input "4.45" 0 100 0.1)
+  (get-validated-input "4." 0 100 0.1)
+  (get-validated-input "4.45" 0 100 0.1)
 
   (str-to-num "4.3")
   (str-to-num "4.")
   (str-to-num "4"))
 
 (defn handle-inc [value on-change nmin nmax dps increment] ; 
-  (let [v (validate-input value nmin nmax increment)]
-    (on-change (num-to-str v dps))))
+  (let [value (get-validated-input value nmin nmax increment)]
+    (on-change (num-to-str value dps))))
 
 
 (defn handle-typed-input [value-f nmin nmax dps on-change e]
@@ -102,7 +102,7 @@
     (if (re-matches #"\s*\d*\.?\d*\s*" value)               ; todo: should this be d+ rather than d*?
       (when (not=  value (value-f))
         (on-change (if (not= (str-to-num value) (str-to-num (value-f)))
-                     (num-to-str (validate-input (str-to-num value) nmin nmax 0) dps)
+                     (num-to-str (get-validated-input (str-to-num value) nmin nmax 0) dps)
                      value)))
 
       (on-change ""))                                        ; todo: should this be nil or ##NaN?
@@ -110,12 +110,12 @@
 
 
 (comment
-  (validate-input (str-to-num 4.4) 0 100 0)
-  (num-to-str (validate-input (str-to-num "4.4") 0 100 0))
-  (validate-input 4.4 0 100 1)
+  (get-validated-input (str-to-num 4.4) 0 100 0)
+  (num-to-str (get-validated-input (str-to-num "4.4") 0 100 0))
+  (get-validated-input 4.4 0 100 1)
   (js/Math.round (- (/ (js/Math.log 0.01) (js/Math.log 10))))
 
-  (num-to-str (validate-input (str-to-num "4.1") 0 100 0) 10)
+  (num-to-str (get-validated-input (str-to-num "4.1") 0 100 0) 10)
   (re-matches #"\s*\d*\.?\d*\s*" "6")                       ;"6"
   (re-matches #"\s*\d*\.?\d*\s*" "")                        ;""
   (re-matches #"\s*\d*\.?\d*\s*" "0.7")                     ;"0.7"
@@ -146,7 +146,6 @@
   [{:keys [key _id value-f on-change min max dps units] 
     :as props}]
 
-  ;(println "KEY " (type key) " ID " id)
   (let [[good bad] (split (value-f) #":")
         value (str-to-num good)
         nmin (str-to-num (if (fn? min) (min) min))
@@ -158,6 +157,7 @@
                   max
                   dps
                   on-change e))]
+    (println "bad good: " bad good)
     [:> bs/Row {:style {:align-items "baseline"}}
      [:> bs/Col {:xs 9}
       [:div {:class       "numeric-input"

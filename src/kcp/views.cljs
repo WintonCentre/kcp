@@ -969,7 +969,9 @@ not currently use these factors to make decisions about follow-up care."]]
                                            :style {:display "flex" :justify-content "flex-end"}}
                                 [:span {:style {:text-align "right"}}
                                  boxed-text]]])
-                            (widg/widget (assoc w :model tool))]
+                            ; todo jack: required here...
+                            (widg/widget (assoc w :model tool))
+                            ]
                            [:div {:style {:height 10}}]])
 
                         tcb-fmaps))]

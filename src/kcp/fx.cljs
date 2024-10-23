@@ -46,6 +46,7 @@
                         :else "Metadata Error"))
      (rf/dispatch [:kcp.events/load-and-transpose-centres [(paths/centres-path organ) [:organ-centres organ]]]))))
 
+; todo jack: I think our problem is here - definitely!
 (defn reg-factor
   "Register simple db subscription and event on a factor. Duplicate registrations are possible and will cause a console warning
    on startup. The final registration overwrites any previous ones. This function can be used to register db keys at run-time.
@@ -56,10 +57,6 @@
   (let [ref-k (keyword (name organ-k) (name factor-k))]
     (rf/reg-sub ref-k (fn [db] (get-in db [:inputs factor-k])))
     (rf/reg-event-db ref-k (fn [db [_ v]]
-    ;(rf/reg-event-fx ref-k (fn [{:keys [db]} [_ v]]
-                             ;; re-route to the URL with the newly changed input
-                             ;(?-> (-> db :mdata :ilookups) ::metadata)
-
                              (let [path (-> db :current-route :path-params)
                                    path-inputs (:inputs path)
                                    lookups (-> db :mdata :lookups)
@@ -77,7 +74,6 @@
                                                  (assoc path
                                                         :tab (:tab path)
                                                         :inputs inputs)])
-                                   (assoc-in db [:inputs factor-k] v)
 
                                    ; We should be doing this in a reg-event-fx rather than a reg-event-db,
                                    ; but it fails. Why?
@@ -88,8 +84,7 @@
                                                               :inputs inputs)]]]
                                       :db (assoc-in db [:inputs factor-k] v)}))
 
-                               (assoc-in db [:inputs factor-k] v)
-                               #_{:db (assoc-in db [:inputs factor-k] v)})))
+                               (assoc-in db [:inputs factor-k] v))))
 
     #_(rf/reg-event-db ref-k (fn [db [_ v]]
     ;; todo: this works, but better to use rf/reg-event-fx here since we must now side-effect a navigation

@@ -76,9 +76,9 @@
                   val-2))]
 
     (cond
+      (or (= step 1) (= step -1) ) (max nmin (min val-2 nmax))
       (nil? value) nil
       (js/isNaN value) nmin
-      (or (= step 1) (= step -1) ) (max nmin (min val-2 nmax))
       :else val-3
       )))
 

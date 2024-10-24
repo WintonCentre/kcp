@@ -44,6 +44,8 @@
 
 (rf/reg-sub ::additional-details (fn [db] (:additional-details db)))
 
+(rf/reg-sub ::edit-state (fn [db] (:edit-state db)))
+
 (rf/reg-sub ::missing-inputs (fn [db] (:missing-inputs db)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

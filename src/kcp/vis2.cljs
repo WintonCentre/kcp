@@ -604,6 +604,7 @@
                                  int-fs)))))
                 bin-labels))]))
 
+; todo jack: going back to a url appears to be broken (nil handling?)
 ; todo jack: the input is different, the old one was by quarters, this is now taking months...
 ; definitely a problem here (or more likely in context gen...)
 (defn area-chart
@@ -616,7 +617,7 @@
                     (range (inc (utils/day->year (first (last s0))))))
 
         fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-        quarter-days (range 120)
+        quarter-days (range 121)
         _ (?-> quarter-days ::quarter-days)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)

@@ -349,30 +349,18 @@
                                                 (keyword %)])
                       :buttons-f (fn [] (vals levels))})]]))
 
-; todo jack: not overly keen on this name - though actually I think it probably is literally correct
-(defn valid-change? [new-value current-value]
-  (println "value validation: (new, current)" new-value current-value)
-  (and (not= new-value current-value)
-       (not (some #(= \: %) (str new-value)))))
-
-
-; todo jack: still a bug with clearing the value, it goes to 25...
-; that behavior sorta makes sense, but we now need to clamp values to the range for it to be consistent
 ; todo jack: emit a edit state reset event on navigating either to or from the tool
 
 ; Note that the numeric-input arguments min, mapx, dps etc. come from the map encoded as a string inside the type column
 (defmethod widget :numeric
   [{:keys [factor-name factor-key _factor _levels _default _type _model] :as w}]
   (let [
-        ; todo jack: do we want an empty string here?
         user-edit (get @(rf/subscribe [::subs/edit-state]) factor-name "")
-        ; todo jack
         value-f (fn []
                   (if (not-empty user-edit)
                     user-edit
                     @(rf/subscribe [factor-key])))
         numerics (edn/read-string (:type w))]
-    (println "value-f: " (value-f) user-edit)
     [:> bs/Row {:style {:display "flex" :align-items "center" :margin-bottom 3}}
      [:> bs/Col {:xs    label-width
                  :style {:display "flex" :justify-content "flex-end"}}
@@ -384,25 +372,15 @@
                (every? identity (map numerics [:min :max :dps])))
         [num/numeric-input {:key       factor-key
                             :value-f   value-f
-                            ; todo jack
                             :on-change #(cond
-                                          (str/includes? % ":") (do
-                                                                  (println "SAD invalid input:" %)
-                                                                  ; todo jack
-                                                                  (rf/dispatch [::events/update-edit-state {factor-name %}])
-                                                                  ;(reset! user-edit %)
-                                                                  (println "just checking...:" user-edit))
-                                          (= % (value-f)) (println "value didn't change")
-                                          :else (do
-                                                  (println "edit considered valid, clearing user edit..." )
-                                                  ; todo jack
-                                                  ;(reset! user-edit "")
-                                                  (println "[v]just checking...:" user-edit ", " @(rf/subscribe [factor-key]))
-                                                  (rf/dispatch [::events/update-edit-state {factor-name ""}])
-                                                  (println "[v]just checking...:" user-edit ", " @(rf/subscribe [factor-key]))
-                                                  (rf/dispatch [factor-key %])
-                                                  (println "[v]just checking...:" user-edit ", " @(rf/subscribe [factor-key]))
-                                                  )
+                                          (or (nil? %) (str/includes? % ":"))
+                                          (do (rf/dispatch [::events/update-edit-state {factor-name (if (nil? %) "" %)}])
+                                              (rf/dispatch [factor-key nil]))
+
+                                          (= % (value-f)) nil ; nothing changed
+
+                                          :else (do (rf/dispatch [::events/update-edit-state {factor-name ""}])
+                                                    (rf/dispatch [factor-key %]))
                                           )
                             :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
                             :units     (:sub-text w)}]

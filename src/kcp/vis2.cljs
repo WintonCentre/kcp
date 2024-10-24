@@ -531,7 +531,7 @@
      ;;
      [:g {:transform "translate(-10,0)"}
       (into [:g {:opacity 1
-                 :transform "translate(15,0)"}]
+                 :transform "translate(2,0)"}]
             (for [dk data-keys]
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]

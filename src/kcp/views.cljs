@@ -1022,7 +1022,9 @@ not currently use these factors to make decisions about follow-up care."]]
               [ui/col {:class-name "flex-fill d-none d-print-flex"}
                [ui/col {:xs 6 :style {:padding 0}} [vis/icon-array vis-context {:disable-mobile true}]]
                [ui/col {:xs 1 :style {:padding 0}}]
-               [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
+               ; todo jack: put this back, you need to debug this one too... (in principle it's just offset, tho...)
+               ;[ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]
+               ]
 
                [ui/col {:class-name "flex-fill d-none d-print-flex"}
                 [ui/col {:xs 8 :style {:padding 0 :margin-top -20}} [vis/table vis-context]]

@@ -604,6 +604,8 @@
                                  int-fs)))))
                 bin-labels))]))
 
+; todo jack: the input is different, the old one was by quarters, this is now taking months...
+; definitely a problem here (or more likely in context gen...)
 (defn area-chart
   "Draw the area chart"
   [{:keys [organ tool base-outcome-keys s0 F] :as env} {:keys [slimline] :as display-options}]

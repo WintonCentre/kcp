@@ -115,7 +115,7 @@
                    max
                    dps
                    on-change e))]
-    [:> bs/Row {:style {:align-items "baseline"}}
+    [:> bs/Row {:style {:align-items "baseline"} :class "d-print-none"}
      [:> bs/Col {:xs 9}
       [:div {:class       "numeric-input"
              :style       {:min-width     "100px"

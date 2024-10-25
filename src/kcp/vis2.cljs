@@ -722,8 +722,8 @@
                         :let [outcome-key (plot-order k)
                               outcome (get-in tool-mdata [:outcomes outcome-key])]]
                     [:g {:key (str "outk-" k)
-                         :transform (str "translate (" (* label-index 250) ", " (- (* k 36) 20) ")")}
-                     [h-and-s {:scale 2 :fill (:fill outcome)}]
+                         :transform (str "translate (" (* label-index 250) ", " (- (* k 42) 20) ")")}
+                     [:g {:transform "translate(0, 8)"} [h-and-s {:scale 2 :fill (:fill outcome)}]]
                      (let [s (:label outcome)
                            outcome-labels (if (vector? s) s [s])]
                        (into [:<>]
@@ -886,7 +886,7 @@
              [:div.lblprint {:id (str (name (plot-order j)) "-" i)
                              :data-year time-index
                              :data-value (nth int-fs j)
-                             :style {:margin 0 :padding 15
+                             :style      {:margin 0 :padding 7
                                      #_#_:background-image #_(apply utils/fill-data-url #_fill [30 144 245]) (str "url(" (apply utils/fill-data-url fill) ")")
                                      :height "100%"
                                      :position "relative"}}
@@ -934,7 +934,7 @@
         data-styles (get tool-mdata :outcomes)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
 
-    [:section {:style {:margin-right 10 :margin-bottom 20}}
+    [:section {:style {:margin-right 10 :margin-bottom 20} :class "clear-bottom-margin-print"}
      (table-render fs-by-year-in-plot-order tool-mdata plot-order data-styles)]))
 
 (defn test-render

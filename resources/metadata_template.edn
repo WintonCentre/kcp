@@ -62,7 +62,7 @@
                                :inputs {:header [:div
                                                  [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
                                :outcomes {:residual {:label ["Survival with" "no recurrence"]
-                                                     :long-label "patients have had no recurrence"
+                                                     :long-label "patients are living cancer free"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
                                                      :color "#fff"
@@ -87,7 +87,7 @@
                                            :stroke-width 1
                                            :stroke "#000"
                                            :label-fill "#000000"}}
-                               :plot-order [:ldsurvival :residual :ldsurvival-competing-mortality]
+                               :plot-order [:ldsurvival-competing-mortality :ldsurvival :residual ]
                                :printout-level-name {:t-stage {:pT1a ["Your tumour stage is " "pT1a"]
                                                                :pT1b ["Your tumour stage is " "pT1b"]
                                                                :pT2a ["Your tumour stage is " "pT2a"]

@@ -1014,9 +1014,8 @@ not currently use these factors to make decisions about follow-up care."]]
                                            :style {:display "flex" :justify-content "flex-end"}}
                                 [:span {:style {:text-align "right"}}
                                  boxed-text]]])
-                            (widg/widget (assoc w :model tool))
-                            ]
-                           [:div {:style {:height 10}}]])
+                            (widg/widget (assoc w :model tool))]
+                           [:div {:style {:height 10} :class "d-print-none"}]])
 
                         tcb-fmaps))]
                [:<>
@@ -1053,9 +1052,9 @@ not currently use these factors to make decisions about follow-up care."]]
              (when-not @(rf/subscribe [::subs/missing-inputs]) [:section.d-none.d-print-block {:style {:margin-top 10}}
                                                                 [:p "Based on the details of your tumour, you are at "
                                                                  [:b (:risk-description printout-details)] (str " of your cancer coming back or
-              spreading. When we consider the details of your tumour the estimated risk of your cancer coming back
-              (recurrence) or spreading to other parts of the body
-              (metastasis) " (:time-index-description printout-details) " is " (:risk-at-print-time-index printout-details) "%.")]
+              spreading. Other people of the same age and sex, with the same type of tumour, had a risk of their cancer coming back
+              (recurrence) or spreading to other parts of the body (metastasis) " (:time-index-description printout-details) " is ")
+                                                                 [:b (str (:risk-at-print-time-index printout-details) "%")] "."]
                                                                 [:p "In other words, " [:b (str "the cancer will come back or spread " (:time-index-description printout-details)
                                                                                                 " in about " (:risk-at-print-time-index printout-details) " out of 100 patients with the same tumour as you.")]]])
 
@@ -1072,11 +1071,11 @@ not currently use these factors to make decisions about follow-up care."]]
                 [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
 
                [ui/col {:class-name "flex-fill d-none d-print-flex"}
-                [ui/col {:xs 8 :style {:padding 0 :margin-top -20}} [vis/table vis-context]]
+                [ui/col {:xs 8 :style {:padding 0 :margin-top -20 :margin-bottom -20}} [vis/table vis-context]]
 
                 [ui/col {:xs 3 :style {:padding 0}}
-                 [:svg {:style               {:width "180px" :border "2px solid"}
-                        :viewBox             "0 0 270 160"
+                 [:svg {:style               {:width "240px" :border "2px solid"}
+                        :viewBox             "0 0 340 240"
                         :preserveAspectRatio "xMinYMin meet"}
                   [:rect {:width "100%" :height "100%" :fill "#CCC"}]
                   [:g {:transform "translate(7 -20)"}

@@ -390,7 +390,22 @@
                             :units     (:sub-text w)}]
 
         [:div "Check that " (:factor w) " has min, max, and dps parameters"])
-      [:i {:style {:margin "4px 0 0 0" :display "block" :font-size "0.8rem"}} "Age must be between 25 and 85 years"]
+      ; HACK - duplicated rules, the color should be from config
+      [:div {:style {:border          "3px solid rgb(204, 204, 204)"
+                     :margin-top      "5px"
+                     :border-radius   "5px"
+                     :padding         "1px"}
+                     :class "d-none d-print-block"}
+       [:label {
+                :class "toggler btn active btn-outline-secondary"
+                :style {
+                        :display          "block"
+                        :border-radius    "0px"
+                        :margin           "0px"
+                        :background-color "rgb(51, 119, 119)"}}
+        (str (value-f))]]
+      ; HACK - this should come from config
+      [:i {:class-name "d-print-none" :style {:margin "4px 0 0 0" :display "block" :font-size "0.8rem"}} "Age must be between 25 and 85 years"]
       ]]))
 
 (comment

@@ -39,6 +39,15 @@
         // clear the default date and title
         margin: 0;
     }
+    .clear-margin-print {
+        margin: 0 !important;
+    }
+    .clear-bottom-margin-print {
+        margin-bottom: 0 !important;
+    }
+    .clear-padding-print {
+        padding: 0 !important;
+    }
     .print-root {
         // add the margins back in...
         margin: 10mm;
@@ -56,7 +65,11 @@
     .page-break {
         page-break-before: always;
         // recreate the margins that were removed
-        margin-top: 6cm;
+        // this was originally margin but there seems to be a bug in chrome that prevents it applying
+        padding-top: 6cm;
+    }
+    .toggler {
+        padding: 0 !important;
     }
     .col-print-6 {
         width: 50%

@@ -56,7 +56,8 @@
     .page-break {
         page-break-before: always;
         // recreate the margins that were removed
-        margin-top: 6cm;
+        // this was originally margin but there seems to be a bug in chrome that prevents it applying
+        padding-top: 6cm;
     }
     .col-print-6 {
         width: 50%

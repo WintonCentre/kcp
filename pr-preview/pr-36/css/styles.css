@@ -38,7 +38,7 @@
   }
   .page-break {
     page-break-before: always;
-    margin-top: 6cm;
+    padding-top: 6cm;
   }
   .col-print-6 {
     width: 50%;

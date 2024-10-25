@@ -23,6 +23,15 @@
     size: 210mm 297mm;
     margin: 0;
   }
+  .clear-margin-print {
+    margin: 0 !important;
+  }
+  .clear-bottom-margin-print {
+    margin-bottom: 0 !important;
+  }
+  .clear-padding-print {
+    padding: 0 !important;
+  }
   .print-root {
     margin: 10mm;
   }
@@ -39,6 +48,9 @@
   .page-break {
     page-break-before: always;
     padding-top: 6cm;
+  }
+  .toggler {
+    padding: 0 !important;
   }
   .col-print-6 {
     width: 50%;

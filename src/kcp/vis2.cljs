@@ -467,7 +467,7 @@
         spacing (get-in tool-mdata [:area :spacing])
         bin-labels (get-in tool-mdata [:area :labels])
         font-size (get-in tool-mdata [:area :font-size])
-        offset 1.85
+        offset 1.8
         q-offset 1.86
         bar-positions (into []
                             (map (fn [bin-label]
@@ -531,7 +531,7 @@
      ;;
      [:g {:transform "translate(-10,0)"}
       (into [:g {:opacity 1
-                 :transform "translate(15,0)"}]
+                 :transform "translate(2,0)"}]
             (for [dk data-keys]
               [:polygon {:key dk
                          :points (for [[x y] (dk q-polygon-data)]
@@ -614,7 +614,7 @@
                     (range (inc (utils/day->year (first (last s0))))))
 
         fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
-        quarter-days (range 120)
+        quarter-days (range 121)
         _ (?-> quarter-days ::quarter-days)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)

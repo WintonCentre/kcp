@@ -103,7 +103,7 @@
     display: none;
   }
 }
-.equation {
+.inline-math {
   font-family: "serif";
 }
 .navbar-light .navbar-nav .nav-link {

@@ -730,7 +730,7 @@
                              (map-indexed
                                (fn [i outcome-label]
                                  [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")}
-                                  (str (if (zero? i) (int-fs k)) " " outcome-label)])
+                                  (utils/string-split (utils/localize-plural (if (zero? i) (int-fs k)) outcome-label))]) ; todo jack:
                                outcome-labels)))])]
 
                  [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 120)")}

@@ -61,9 +61,9 @@
                                :label "Survival - living donor"
                                :inputs {:header [:div
                                                  [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
-                               :outcomes {:residual {:label {:0 "are living cancer free"
-                                                             :1 "is living cancer free"
-                                                             :n "are living cancer free"}
+                               :outcomes {:residual {:label {:0 "$1 are living cancer\nfree"
+                                                             :1 "$1 is living cancer\nfree"
+                                                             :n "$1 are living cancer\nfree"}
                                                      :long-label "patients are living cancer free"
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
@@ -72,9 +72,9 @@
                                                      :stroke-width 1
                                                      :stroke "#000"
                                                      :label-fill "#fff"}
-                                          :ldsurvival {:label {:0 "kidney cancer recurrences"
-                                                               :1 "kidney cancer recurrence"
-                                                               :n "kidney cancer recurrences"}
+                                          :ldsurvival {:label {:0 "$1 kidney cancer\nrecurrences"
+                                                               :1 "$1 kidney cancer\nrecurrence"
+                                                               :n "$1 kidney cancer\nrecurrences"}
                                                        :long-label "patients have had a recurrence"
                                                        :fill "#104A64"
                                                        :opacity 0.7
@@ -82,7 +82,8 @@
                                                        :stroke "#000"
                                                        :label-fill "#fff"}
                                           :ldsurvival-competing-mortality {
-                                           :label "Death from other causes"
+                                           ; todo jack
+                                           ;:label "$1 Death from other causes"
                                            :long-label "patients have died from other causes"
                                            :fill "#827f7f"
                                            :background-color "#827f7f"

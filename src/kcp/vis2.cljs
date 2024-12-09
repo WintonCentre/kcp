@@ -698,53 +698,59 @@
         icon-order (into [] (range 100))]
 
     [:div
-     [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                             :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
-                                     :margin (get-in tool-mdata [:icons :svg-margin])
-                                     :padding (get-in tool-mdata [:icons :svg-padding])
-                                     :x-ticks 10
+     [svgc/svg-container (-> (space {:outer    {:width  (get-in tool-mdata [:icons :svg-width])
+                                                :height (+ 90 (get-in tool-mdata [:icons :svg-height]))}
+                                     :margin   (get-in tool-mdata [:icons :svg-margin])
+                                     :padding  (get-in tool-mdata [:icons :svg-padding])
+                                     :x-ticks  10
                                      :y-domain [300 0]
-                                     :y-ticks 10})
+                                     :y-ticks  10})
                              (assoc :styles styles)
                              (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
       (fn [_x _y _X _Y]
-        (into [:g {:transform "translate(20,40),scale(1.42)"}]
+        (into [:g {:transform "translate(20,60),scale(1.42)"}]
               (for [label-index (range (count labels))
                     :let [label (nth labels label-index)
                           time-index (:time-index label)
+                          display-labels (reduce #(-> (if (nil? (get-in tool-mdata [:outcomes %2 :label])) %1 (conj %1 %2))) [] plot-order)
                           [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
 
-                [:g {:key (str "lab-" label-index)
+                [:g {:key       (str "lab-" label-index)
                      :transform "translate (0, 10)"}
                  [:g {:key 1}
                   (for [k (range (count plot-order))
                         :let [outcome-key (plot-order k)
+                              display-index  (.indexOf display-labels outcome-key)
                               outcome (get-in tool-mdata [:outcomes outcome-key])]]
-                    [:g {:key (str "outk-" k)
-                         :transform (str "translate (" (* label-index 250) ", " (- (* k 42) 20) ")")}
-                     [:g {:transform "translate(0, 8)"} [h-and-s {:scale 2 :fill (:fill outcome)}]]
-                     (let [s (:label outcome)
-                           outcome-labels (if (vector? s) s [s])]
-                       (into [:<>]
-                             (map-indexed
-                               (fn [i outcome-label]
-                                 [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")}
-                                  (utils/string-split (utils/localize-plural (if (zero? i) (int-fs k)) outcome-label))]) ; todo jack:
-                               outcome-labels)))])]
 
-                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 120)")}
+                    (if (nil? (:label outcome))
+                      [:<> {:key (str "outk-" k)}]
+                      [:g {:key       (str "outk-" k)
+                           :transform (str "translate (" (* label-index 250) ", " (- (* display-index 42) 20) ")")}
+                       [:g {:transform "translate(0, 8)"} [h-and-s {:scale 2 :fill (:fill outcome)}]]
+                       (let [s (:label outcome)
+                             outcome-label-lines (utils/string-split (utils/localize-plural (int-fs k) s))]
+                         (into [:<>]
+                               (map-indexed
+                                 (fn [i outcome-label-line]
+                                   [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")}
+                                    outcome-label-line])
+                                 outcome-label-lines)))]
+                      ))]
+
+                 [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 80)")}
                   (for [i (range 10)
                         j (range 10)
                         :let [ordinal (icon-order (+ j (* 10 i)))]]
-                    [:g {:key (str "i-" j "-" i)
+                    [:g {:key       (str "i-" j "-" i)
                          :transform (str "translate(" (* j 22) " " (* i 22) ")")}
                      [h-and-s
                       {:scale 2 :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])]
 
-                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 370)")}
+                 [:g {:key 3 :transform (str "translate(" (* label-index 250) ", 340)")}
                   [:text {:font-size "1.2em"
-                          :x 20} (get-in label [:line 0])]]])))]]))
+                          :x         20} (get-in label [:line 0])]]])))]]))
 ;
 (defn stacked-icon-array
   "Render stacked icon arrays - one for each timeperiod of interest - called a year at the moment."
@@ -753,31 +759,32 @@
         svg-height (get-in tool-mdata [:icons :svg-height])
         plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
+        display-labels (reduce #(-> (if (nil? (get-in tool-mdata [:outcomes %2 :label])) %1 (conj %1 %2))) [] plot-order)
         icon-order (into [] (range 100))]
 
-    [ui/col {:sm 12
+    [ui/col {:sm    12
              :style {:padding 0}}
      (for [i (range (count labels))
            :let [label (nth labels i)
                  time-index (:time-index label)
                  [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
        [ui/row {:style {:padding "0px 0px"}
-                :key (str "year-" time-index)}
+                :key   (str "year-" time-index)}
         [ui/col {:key 1}
 
          [:h4 {:style {:margin-top 20}}
           (let [line (:line label)]
             (if (sequential? line) (map str line) line))]
 
-         [svgc/svg-container (-> (space {:outer {:width (get-in tool-mdata [:icons :svg-width])
-                                                 :height (get-in tool-mdata [:icons :svg-height])}
+         [svgc/svg-container (-> (space {:outer        {:width  (get-in tool-mdata [:icons :svg-width])
+                                                        :height (get-in tool-mdata [:icons :svg-height])}
                                          :aspect-ratio (aspect-ratio svg-width svg-height)
-                                         :margin (get-in tool-mdata [:icons :svg-margin])
-                                         :padding (get-in tool-mdata [:icons :svg-padding])
-                                         :x-domain [0 300]
-                                         :x-ticks 10
-                                         :y-domain [300 0]
-                                         :y-ticks 10})
+                                         :margin       (get-in tool-mdata [:icons :svg-margin])
+                                         :padding      (get-in tool-mdata [:icons :svg-padding])
+                                         :x-domain     [0 300]
+                                         :x-ticks      10
+                                         :y-domain     [300 0]
+                                         :y-ticks      10})
                                  (assoc :styles styles)
                                  (#(assoc % :aspect-ratio (aspect-ratio (:width (:inner %)) (:height (:inner %))))))
 
@@ -786,27 +793,32 @@
              [:g {:key 1}
               (for [k (range (count plot-order))
                     :let [outcome-key (plot-order k)
+                          display-index (.indexOf display-labels outcome-key)
                           outcome (get-in tool-mdata [:outcomes outcome-key])]]
-                [:g {:key (str "outk-" k)
-                     :transform (str "translate (" 10 ", " (+ (* k 45) 20) ")")}
-                 [h-and-s {:scale 2 :fill (:fill outcome)}]
-                 (let [s (:label outcome)
-                       outcome-labels (if (vector? s) s [s])]
-                   (into [:<>]
-                         (map-indexed
-                           (fn [i outcome-label]
-                             [:text {:transform (str "translate(30," (+ 15 (* i 18)) ")")}
-                              (str (if (zero? i) (str (int-fs k) " ") "") outcome-label)])
-                           outcome-labels)))])]
+
+                (if (nil? (:label outcome))
+                  [:<> {:key (str "outk-" k)}]
+                  [:g {:key       (str "outk-" k)
+                       :transform (str "translate (" 10 ", " (+ (* display-index 45) 20) ")")}
+                   [h-and-s {:scale 2 :fill (:fill outcome)}]
+                   (let [s (:label outcome)
+                         label-lines (utils/string-split (utils/localize-plural (int-fs k) s))]
+                     (into [:<>]
+                           (map-indexed
+                             (fn [i label-line]
+                               [:text {:transform (str "translate(30," (+ 15 (* i 18)) ")")}
+                                label-line])
+                             label-lines)))])
+                )]
 
              (for [i (range 10)
                    j (range 10)
                    :let [ordinal (icon-order (+ j (* 10 i)))]]
-               [:g {:key (str "i-" j "-" i)
+               [:g {:key       (str "i-" j "-" i)
                     :transform (str "translate(" (+ 300 (* j 22)) " " (+ 20 (* i 22)) ")")}
                 [h-and-s
                  {:scale 2
-                  :fill (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
+                  :fill  (:fill (ordinal-mdata ordinal cum-int-fs tool-mdata))}]])])]]])]))
 
 (defn move-item
   "Returns a-vector with all items (if any) moved to the start or the end depending on whether

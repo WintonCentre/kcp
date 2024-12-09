@@ -259,3 +259,30 @@
 (comment
   (fill-data-url 255 128 50)
   )
+
+
+(defn localize-plural
+  "Returns the localized string for pluralization.
+  Takes as arguments the count, a map of plural forms (or just a string), and optional substitutions."
+  [count plural-forms & substitutions]
+  (if (nil? plural-forms)
+    ""
+    (let [form (if (string? plural-forms)
+                 plural-forms
+                 (cond
+                   (and (= count 0) (:0 plural-forms)) (:0 plural-forms)
+                   (and (= count 1) (:1 plural-forms)) (:1 plural-forms)
+                   :else (:n plural-forms)))
+          ; the first is special, always the number
+          form-with-count (str/replace form #"\$1" (str count))]
+      (reduce (fn [acc [idx placeholder]]
+                (str/replace acc (re-pattern (str "\\$" (+ 2 idx))) placeholder))
+              form-with-count
+              (map-indexed vector substitutions)))))
+
+(defn string-split
+  "Splits the input string by newline characters. Returns a vector of substrings."
+  [maybe-string]
+  (if (string? maybe-string)
+    (str/split maybe-string #"\n")
+    []))

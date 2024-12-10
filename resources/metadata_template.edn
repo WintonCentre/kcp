@@ -66,6 +66,7 @@
                                                              :n "$1 are living cancer\nfree"
                                                              :nil "Survival with\nno recurrence"}
                                                      :long-label "patients are living cancer free"
+                                                     :hidein #{}
                                                      :fill "#00979C"
                                                      :background-color "#00979C"
                                                      :color "#fff"
@@ -76,16 +77,18 @@
                                           :ldsurvival {:label {:0 "$1 kidney cancer\nrecurrences"
                                                                :1 "$1 kidney cancer\nrecurrence"
                                                                :n "$1 kidney cancer\nrecurrences"
-                                                               :nil "Kidney cancer\nrecurrence"
-                                                               }
+                                                               :nil "Kidney cancer\nrecurrence"}
                                                        :long-label "patients have had a recurrence"
+                                                       :hidein #{}
                                                        :fill "#104A64"
                                                        :opacity 0.7
                                                        :stroke-width 1
                                                        :stroke "#000"
                                                        :label-fill "#fff"}
                                           :ldsurvival-competing-mortality {
+                                           :label "Death from\nother causes"
                                            :long-label "patients have died from other causes"
+                                           :hidein #{:icon-array :chart-labels}
                                            :fill "#827f7f"
                                            :background-color "#827f7f"
                                            :color "#fff"

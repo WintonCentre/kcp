@@ -111,7 +111,7 @@
   ([plot-order data-styles {:keys [width height string-value-f position-f]
                             :or   {width 255 height 60}}]
 
-   (let [display-labels (reduce #(-> (if (nil? (get-in data-styles [%2 :label])) %1 (conj %1 %2))) [] plot-order)]
+   (let [display-labels (reduce #(-> (if (contains? (get-in data-styles [%2 :hidein]) :plot-legend) %1 (conj %1 %2))) [] plot-order)]
      (into [:<>]
            (map (fn [i data-key]
                   (let [styles (data-styles data-key)
@@ -320,7 +320,7 @@
 
 (defn draw-percents
   [{:keys [bin-labels spacing offset time-series data-count bar-width data-keys data-styles X Y]}]
-  (let [missing-labels (map #(nil? (get-in data-styles [% :label])) data-keys)]
+  (let [hidden-labels (map #(contains? (get-in data-styles [% :hidein]) :chart-labels) data-keys)]
     (into [:g {:key 3 :style {:opacity 1}}]
           (map (fn [bar-index bin-label]
 
@@ -329,7 +329,7 @@
                        (nth time-series (:time-index bin-label))
                        x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                        x-mid (+ x0 (/ bar-width 2) -0)
-                       staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs) missing-labels)]
+                       staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs) hidden-labels)]
                    (into [:g {:key bar-index}]
                          (conj
                            (map (fn [i data-key cif cum-cif int-fs]
@@ -341,7 +341,7 @@
                                             (- (Y cum-cif) (Y (- cum-cif cif)))
                                             (- (Y 0) (Y cif)))
                                         y-mid (+ y0 (/ h 2))]
-                                    (when (not (nil? (:label styles)))
+                                    (when (not (contains? (:hidein styles) :chart-labels))
                                       [:g
                                        {:transform (str "translate("
                                                         (if (staggers i)
@@ -475,7 +475,7 @@
   [{:keys [X Y year-series quarter-series data-keys tool-mdata data-styles]} {:keys [slimline]}]
 
   (let [data-count (count data-keys)
-        missing-labels (map #(nil? (get-in tool-mdata [:outcomes % :label])) data-keys)
+        hidden-labels (map #(contains? (get-in tool-mdata [:outcomes % :hidein]) :chart-labels) data-keys)
         ;;
         ;; for 3 years
         bar-width (get-in tool-mdata [:area :width])
@@ -580,7 +580,7 @@
                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
                         [time {:keys [fs cum-fs int-fs]}] (nth year-series bar-index)
-                        staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs) missing-labels)]
+                        staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs) hidden-labels)]
 
                     (into [:g {:key time}]
                           (conj
@@ -593,7 +593,7 @@
                                              (- (Y cum-cif) (Y (- cum-cif cif)))
                                              (- (Y 0) (Y cif)))
                                          y-mid (+ y0 (/ h 2))]
-                                     (when (get-in data-styles [data-key :label])
+                                     (when (not (contains? (get-in data-styles [data-key :hidein]) :chart-labels))
                                        [:g
                                         {:transform (str "translate("
                                                          (if (staggers i)
@@ -727,7 +727,7 @@
               (for [label-index (range (count labels))
                     :let [label (nth labels label-index)
                           time-index (:time-index label)
-                          display-labels (reduce #(-> (if (nil? (get-in tool-mdata [:outcomes %2 :label])) %1 (conj %1 %2))) [] plot-order)
+                          display-labels (reduce #(-> (if (contains? (get-in tool-mdata [:outcomes %2 :hidein]) :icon-array) %1 (conj %1 %2))) [] plot-order)
                           [_ {:keys [int-fs cum-int-fs]}] (nth year-series time-index)]]
 
                 [:g {:key       (str "lab-" label-index)
@@ -738,7 +738,7 @@
                               display-index (.indexOf display-labels outcome-key)
                               outcome (get-in tool-mdata [:outcomes outcome-key])]]
 
-                    (if (nil? (:label outcome))
+                    (if (contains? (:hidein outcome) :icon-array)
                       [:<> {:key (str "outk-" k)}]
                       [:g {:key       (str "outk-" k)
                            :transform (str "translate (" (* label-index 250) ", " (- (* display-index 42) 20) ")")}
@@ -773,7 +773,7 @@
         svg-height (get-in tool-mdata [:icons :svg-height])
         plot-order (:plot-order tool-mdata)
         labels (get-in tool-mdata [:icons :labels])
-        display-labels (reduce #(-> (if (nil? (get-in tool-mdata [:outcomes %2 :label])) %1 (conj %1 %2))) [] plot-order)
+        display-labels (reduce #(-> (if (contains? (get-in tool-mdata [:outcomes %2 :hidein]) :icon-array) %1 (conj %1 %2))) [] plot-order)
         icon-order (into [] (range 100))]
 
     [ui/col {:sm    12
@@ -810,7 +810,7 @@
                           display-index (.indexOf display-labels outcome-key)
                           outcome (get-in tool-mdata [:outcomes outcome-key])]]
 
-                (if (nil? (:label outcome))
+                (if (contains? (:hidein outcome) :icon-array)
                   [:<> {:key (str "outk-" k)}]
                   [:g {:key       (str "outk-" k)
                        :transform (str "translate (" 10 ", " (+ (* display-index 45) 20) ")")}

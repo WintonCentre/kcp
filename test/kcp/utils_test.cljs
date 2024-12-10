@@ -35,7 +35,8 @@
                     :n "$1 kidney cancer recurrences"}
         with-substitutions {:0 "There are no $1 kidney cancer recurrences affecting $2"
                             :1 "There is $1 kidney cancer recurrence affecting $2"
-                            :n "There are $1 kidney cancer recurrences affecting $2"}
+                            :n "There are $1 kidney cancer recurrences affecting $2"
+                            :nil "I am special, but still allow interpolation $1"}
         fallback {:n "$1 kidney cancer recurrences"}]
 
     (testing "Basic pluralization without additional arguments"
@@ -47,7 +48,9 @@
       (is (= (utils/localize-plural 0 with-substitutions "hospital A")
              "There are no 0 kidney cancer recurrences affecting hospital A"))
       (is (= (utils/localize-plural 0 with-substitutions)
-             "There are no 0 kidney cancer recurrences affecting $2")))
+             "There are no 0 kidney cancer recurrences affecting $2"))
+      (is (= (utils/localize-plural nil with-substitutions "potato")
+             "I am special, but still allow interpolation potato")))
 
     (testing "fallback"
       (is (= (utils/localize-plural 0 fallback "hospital A")

@@ -200,14 +200,14 @@
                               :display   (when (= (:selected-vis vis-context) "test") "none")}}
             [:h1 (cond
                    (<= total-score 2) [:div {:style {:color "#ff9933"}}
-                                       [:h2 "Low Risk"]
-                                       [:h6 (str "Leibovich Score: " total-score)]]
+                                       [:h5 "Low Risk"]
+                                       [:h5 (str "Leibovich Score: " total-score " out of 11")]]
                    (>= total-score 6) [:div {:style {:color "#ff4000"}}
-                                       [:h2 "High Risk"]
-                                       [:h6 (str "Leibovich Score: " total-score)]]
+                                       [:h5 "High Risk"]
+                                       [:h5 (str "Leibovich Score: " total-score " out of 11")]]
                    :default [:div {:style {:color "#ff751a"}}
-                             [:h2 "Intermediate Risk"]
-                             [:h6 (str "Leibovich Score: " total-score)]])]
+                             [:h5 "Intermediate Risk"]
+                             [:h5 (str "Leibovich Score: " total-score " out of 11")]])]
 
             [ui/tabs {:variant    "pills" :default-active-key (:selected-vis vis-context)
                       :active-key (:selected-vis vis-context)

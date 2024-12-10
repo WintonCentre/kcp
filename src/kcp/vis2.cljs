@@ -106,29 +106,36 @@
   ([plot-order data-styles]
    (svg-outcome-legend plot-order data-styles
                        {:string-value-f (constantly "")
-                        :position-f #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
+                        :position-f     #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
 
   ([plot-order data-styles {:keys [width height string-value-f position-f]
-                            :or {width 255 height 60}}]
-   (into [:<>]
-         (map (fn [i data-key]
-                (let [styles (data-styles data-key)
-                      label-texts (if (string? (:label styles)) [(:label styles)] (:label styles))]
-                  [:g {:transform (position-f i)
-                       :key (str data-key "-" i)}
-                   [:rect (merge {:x 0 :y 0 :width width :height height}
-                                 (ui/svg-styles styles)
-                                 #_(dissoc styles :label-fill))]
-                   (into [:<>]
-                         (map-indexed
-                           (fn [line label-text]
-                             [:text {:x 10 :y (+ 40 (* 25 line) (- (* 14 (dec (count label-texts)))))
-                                     :fill (:label-fill styles)
-                                     :font-size 25}
-                              (str label-text (string-value-f i))])
-                           label-texts))]))
-              (range)
-              plot-order))))
+                            :or   {width 255 height 60}}]
+
+   (let [display-labels (reduce #(-> (if (nil? (get-in data-styles [%2 :label])) %1 (conj %1 %2))) [] plot-order)]
+     (into [:<>]
+           (map (fn [i data-key]
+                  (let [styles (data-styles data-key)
+                        display-index  (.indexOf display-labels data-key)
+                        label-lines (utils/string-split (utils/localize-plural nil (:label styles)))]
+
+                    (if (nil? (:label styles))
+                      [:<> {:key (str data-key "-" i)}]
+                      [:g {:transform (position-f display-index)
+                           :key       (str data-key "-" i)}
+                       [:rect (merge {:x 0 :y 0 :width width :height height} (ui/svg-styles styles))]
+                       (into [:<>]
+                             (map-indexed
+                               (fn [line label-line]
+                                 [:text {:x         10 :y (+ 40 (* 25 line) (- (* 14 (dec (count label-lines)))))
+                                         :fill      (:label-fill styles)
+                                         :font-size 25}
+                                  (str label-line (string-value-f i))])
+                               label-lines))]
+                      )
+                    ))
+                (range)
+                plot-order)))
+   ))
 
 ;; test-rig
 
@@ -330,7 +337,7 @@
                                           (- (Y cum-cif) (Y (- cum-cif cif)))
                                           (- (Y 0) (Y cif)))
                                       y-mid (+ y0 (/ h 2))]
-                                  (when true                ;(> cif 0.005)
+                                  (when (not (nil? (:label styles)))
                                     [:g
                                      {:transform (str "translate("
                                                       (if (staggers i)
@@ -347,7 +354,8 @@
                                                     :rx 10}
                                                    (ui/svg-styles styles))]
                                      [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
-                                      (str int-fs "%")]])))
+                                      (str int-fs "%")]]
+                                    )))
                               (range)
                               data-keys
                               fs
@@ -407,7 +415,8 @@
      [:g {:key "bars"}
       [draw-bars params]]
      [:g {:key "percents"}
-      [draw-percents params]]]))
+      [draw-percents params]]
+     ]))
 
 (defn bar-chart
   "Draw the bar chart"
@@ -479,11 +488,11 @@
                                                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset))
                                                         x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                         y0 (- (Y cum-cif) (Y cif))]
-                                                    {:key data-key
-                                                     :time time
-                                                     :x (+ x-mid 15)
-                                                     :y0 y0
-                                                     :y1 (Y cum-cif)
+                                                    {:key    data-key
+                                                     :time   time
+                                                     :x      (+ x-mid 15)
+                                                     :y0     y0
+                                                     :y1     (Y cum-cif)
                                                      :styles (ui/svg-styles styles)}))
                                                 data-keys
                                                 fs
@@ -500,11 +509,11 @@
                                                             x0 (- (X (+ (* spacing (inc (/ quarter 52))))) (X q-offset))
                                                             x-mid (+ x0 (/ bar-width 2) (- (X 0.2)))
                                                             y0 (- (Y cum-cif) (Y cif))]
-                                                        {:key data-key
-                                                         :time time
-                                                         :x (+ x-mid 15)
-                                                         :y0 y0
-                                                         :y1 (Y cum-cif)
+                                                        {:key    data-key
+                                                         :time   time
+                                                         :x      (+ x-mid 15)
+                                                         :y0     y0
+                                                         :y1     (Y cum-cif)
                                                          :styles (ui/svg-styles styles) #_(dissoc styles :label-fill)}))
                                                     data-keys
                                                     fs
@@ -518,25 +527,25 @@
                                                    (select-keys bp-dk [:x :y0 :y1]))]
                                         (concat (map (juxt :x :y0) tops)
                                                 (map (juxt :x :y1) (reverse tops))))]))]
-    [:g {:key 1
-         :transform (if slimline "translate(200 0)" "translate(100 0)") }
-     [:rect {:key 1
+    [:g {:key       1
+         :transform (if slimline "translate(200 0)" "translate(100 0)")}
+     [:rect {:key        1
              :class-name (:inner styles)
-             :x 0
-             :y 0
-             :width (- 1000 (if slimline 280 0))
-             :height 600}]
+             :x          0
+             :y          0
+             :width      (- 1000 (if slimline 280 0))
+             :height     600}]
      ;;
      ;; Plot areas
      ;;
      [:g {:transform "translate(-10,0)"}
-      (into [:g {:opacity 1
+      (into [:g {:opacity   1
                  :transform "translate(2,0)"}]
             (for [dk data-keys]
-              [:polygon {:key dk
+              [:polygon {:key    dk
                          :points (for [[x y] (dk q-polygon-data)]
                                    (str x "," y " "))
-                         :style (ui/svg-styles (data-styles dk))}]))
+                         :style  (ui/svg-styles (data-styles dk))}]))
 
       ; draw labels at yearly intervals
       (into [:g {:key 2}]
@@ -553,7 +562,7 @@
             (map
               (fn [bp]
                 (let [x (:x (first bp))]
-                  [:line {:x1 x :x2 x :y1 (Y 0) :y2 (Y 1)
+                  [:line {:x1    x :x2 x :y1 (Y 0) :y2 (Y 1)
                           :style {:stroke "#fff" :stroke-width 3}}])))
             bar-positions)]
 
@@ -578,23 +587,22 @@
                                              (- (Y cum-cif) (Y (- cum-cif cif)))
                                              (- (Y 0) (Y cif)))
                                          y-mid (+ y0 (/ h 2))]
-                                     (when true             ;(> cif 0.005)
+                                     (when (get-in data-styles [data-key :label])
                                        [:g
                                         {:transform (str "translate("
                                                          (if (staggers i)
                                                            (if (odd? i) 18 -54)
                                                            (if (< cif 1) -20 -30))
                                                          " 10)")}
-                                        [:rect (merge {:x (- x-mid 5)
-                                                       :width (cond
-                                                                (>= cif 1) 90
-                                                                (< cif 0.10) 70
-                                                                :else 70)
-                                                       :y (- y-mid 30)
+                                        [:rect (merge {:x      (- x-mid 5)
+                                                       :width  (cond
+                                                                 (>= cif 1) 90
+                                                                 (< cif 0.10) 70
+                                                                 :else 70)
+                                                       :y      (- y-mid 30)
                                                        :height 40
-                                                       :rx 10}
-                                                      (ui/svg-styles styles)
-                                                      #_(dissoc styles :label-fill))]
+                                                       :rx     10}
+                                                      (ui/svg-styles styles))]
                                         [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
                                          (str int-fs "%")]])))
                                  (range)

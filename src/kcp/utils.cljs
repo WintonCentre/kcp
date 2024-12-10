@@ -270,13 +270,14 @@
     (let [form (if (string? plural-forms)
                  plural-forms
                  (cond
+                   (and (nil? count) (:0 plural-forms)) (:nil plural-forms)
                    (and (= count 0) (:0 plural-forms)) (:0 plural-forms)
                    (and (= count 1) (:1 plural-forms)) (:1 plural-forms)
                    :else (:n plural-forms)))
-          ; the first is special, always the number
-          form-with-count (str/replace form #"\$1" (str count))]
+          form-with-count (if (nil? count) form (str/replace form #"\$1" (str count)))
+          offset (if (nil? count) 1 2)]
       (reduce (fn [acc [idx placeholder]]
-                (str/replace acc (re-pattern (str "\\$" (+ 2 idx))) placeholder))
+                (str/replace acc (re-pattern (str "\\$" (+ offset idx))) placeholder))
               form-with-count
               (map-indexed vector substitutions)))))
 

@@ -244,10 +244,13 @@
 (defn pairwise-stagger
   "returns a monoid for a given stagger threshold. The monoid calculates an array of booleans which indicates
    whether labels should be staggered by looking at heights of labels in adjacent pairs."
-  [threshold]
+  [threshold hidden-labels]
   (fn
     [staggers [i [f1 f2]]]
-    (if (and f2 (< (+ f1 f2) threshold))
+    (if (and
+          f2
+          (< (+ f1 f2) threshold)
+          (not (nth hidden-labels i)))
       (-> staggers
           (assoc i true)
           (assoc (inc i) true))
@@ -261,8 +264,8 @@
 
    This function returns a vector indicating which of the f labels should be staggered.
   "
-  [threshold fs]
-  (reduce (pairwise-stagger threshold)
+  [threshold fs hidden-labels]
+  (reduce (pairwise-stagger threshold hidden-labels)
           []
           (zipmap (range) (partition-all 2 1 fs))))
 
@@ -317,52 +320,54 @@
 
 (defn draw-percents
   [{:keys [bin-labels spacing offset time-series data-count bar-width data-keys data-styles X Y]}]
-  (into [:g {:key 3 :style {:opacity 1}}]
-        (map (fn [bar-index bin-label]
+  (let [missing-labels (map #(nil? (get-in data-styles [% :label])) data-keys)]
+    (into [:g {:key 3 :style {:opacity 1}}]
+          (map (fn [bar-index bin-label]
 
-               ;draw single bar and label
-               (let [[_ {:keys [fs cum-fs int-fs]}]
-                     (nth time-series (:time-index bin-label))
-                     x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
-                     x-mid (+ x0 (/ bar-width 2) -0)
-                     staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs))]
-                 (into [:g {:key bar-index}]
-                       (conj
-                         (map (fn [i data-key cif cum-cif int-fs]
-                                (let [styles (data-styles data-key)
+                 ;draw single bar and label
+                 (let [[_ {:keys [fs cum-fs int-fs]}]
+                       (nth time-series (:time-index bin-label))
+                       x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
+                       x-mid (+ x0 (/ bar-width 2) -0)
+                       staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs) missing-labels)]
+                   (into [:g {:key bar-index}]
+                         (conj
+                           (map (fn [i data-key cif cum-cif int-fs]
+                                  (let [styles (data-styles data-key)
 
-                                      y0 (if (> data-count 1)
-                                           (- (Y cum-cif) (Y cif)) (Y cif))
-                                      h (if (> data-count 1)
-                                          (- (Y cum-cif) (Y (- cum-cif cif)))
-                                          (- (Y 0) (Y cif)))
-                                      y-mid (+ y0 (/ h 2))]
-                                  (when (not (nil? (:label styles)))
-                                    [:g
-                                     {:transform (str "translate("
-                                                      (if (staggers i)
-                                                        (if (odd? i) 18 -54)
-                                                        (if (< cif 1) -20 -30))
-                                                      " 10)")}
-                                     [:rect (merge {:x      (- x-mid 5)
-                                                    :width  (cond
-                                                              (>= cif 1) 90
-                                                              (< cif 0.10) 70
-                                                              :else 70)
-                                                    :y      (- y-mid 30)
-                                                    :height 40
-                                                    :rx     10}
-                                                   (ui/svg-styles styles))]
-                                     [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
-                                      (str int-fs "%")]]
-                                    )))
-                              (range)
-                              data-keys
-                              fs
-                              cum-fs
-                              int-fs)))))
-             (range)
-             bin-labels)))
+                                        y0 (if (> data-count 1)
+                                             (- (Y cum-cif) (Y cif)) (Y cif))
+                                        h (if (> data-count 1)
+                                            (- (Y cum-cif) (Y (- cum-cif cif)))
+                                            (- (Y 0) (Y cif)))
+                                        y-mid (+ y0 (/ h 2))]
+                                    (when (not (nil? (:label styles)))
+                                      [:g
+                                       {:transform (str "translate("
+                                                        (if (staggers i)
+                                                          (if (odd? i) 18 -54)
+                                                          (if (< cif 1) -20 -30))
+                                                        " 10)")}
+                                       [:rect (merge {:x      (- x-mid 5)
+                                                      :width  (cond
+                                                                (>= cif 1) 90
+                                                                (< cif 0.10) 70
+                                                                :else 70)
+                                                      :y      (- y-mid 30)
+                                                      :height 40
+                                                      :rx     10}
+                                                     (ui/svg-styles styles))]
+                                       [:text {:x x-mid :y y-mid :font-size 30 :fill (:label-fill styles)}
+                                        (str int-fs "%")]]
+                                      )))
+                                (range)
+                                data-keys
+                                fs
+                                cum-fs
+                                int-fs)))))
+               (range)
+               bin-labels))
+    ))
 
 (defn tool-metadata
   [env organ tool]
@@ -470,6 +475,7 @@
   [{:keys [X Y year-series quarter-series data-keys tool-mdata data-styles]} {:keys [slimline]}]
 
   (let [data-count (count data-keys)
+        missing-labels (map #(nil? (get-in tool-mdata [:outcomes % :label])) data-keys)
         ;;
         ;; for 3 years
         bar-width (get-in tool-mdata [:area :width])
@@ -574,7 +580,7 @@
                         x0 (- (X (+ (* spacing (inc bar-index)))) (X offset) 10)
                         x-mid (+ x0 (/ bar-width 2) -0)
                         [time {:keys [fs cum-fs int-fs]}] (nth year-series bar-index)
-                        staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs))]
+                        staggers (label-staggers 0.12 (map #(if (nil? %) 0 %) fs) missing-labels)]
 
                     (into [:g {:key time}]
                           (conj

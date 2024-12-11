@@ -90,7 +90,7 @@
   }
   /* Hiding input buttons that were not selected (so that all tools fit on one page */
   label[class="toggler btn btn-outline-secondary"] {
-    display: none;
+    display: none !important;
   }
   .nav-item {
     display: none;

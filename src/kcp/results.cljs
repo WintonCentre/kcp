@@ -71,6 +71,7 @@
                                        (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
                                        (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
                  :plot-order         (:plot-order (get-in mdata [organ :tools tool]))
+                 :label-order        (:label-order (get-in mdata [organ :tools tool]))
                  }
 
 

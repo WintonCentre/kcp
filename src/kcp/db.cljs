@@ -6,6 +6,7 @@
    :guidance-percent   22
    :randomise-icons    true
    :missing-inputs     true
+   :show-results       false
    :edit-state         {}
    :additional-details {}
    ; Move these to the spreadsheet

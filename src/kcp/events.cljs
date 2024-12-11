@@ -260,6 +260,11 @@
         (assoc-in data-path (edn/read-string response)))))
 
 (rf/reg-event-db
+  ::show-results
+  (fn [db [_]]
+    (assoc db :show-results true)))
+
+(rf/reg-event-db
   ::update-additional-details
   (fn [db [_ details]]
     (update db :additional-details merge details)))

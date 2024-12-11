@@ -2,26 +2,25 @@
   (:require
     [clojure.edn :as edn]
     [clojure.string :as string]
-    [kcp.vis2 :as vis]
-    [re-frame.core :as rf]
-    ["react-bootstrap" :as bs]
+    [clojure.string :as str]
     [kcp.bsio :as bsio]
+    ["react-bootstrap" :as bs]
     [kcp.bundles :as bun]
-    [kcp.utils :as utils]
-    [kcp.subs :as subs]
     [kcp.events :as events]
-    [kcp.ui :as ui]
-    [kcp.paths :as paths]
-    [kcp.widgets :as widg]
-    [kcp.results :as results]
-    [kcp.print-fills :as prf]
-    [kcp.rgb :as rgb]
     [kcp.factors :as fac]
     [kcp.model :as model]
+    [kcp.paths :as paths]
+    [kcp.print-fills :as prf]
+    [kcp.results :as results]
+    [kcp.rgb :as rgb]
+    [kcp.subs :as subs]
+    [kcp.ui :as ui]
+    [kcp.utils :as utils]
+    [kcp.vis2 :as vis]
+    [kcp.widgets :as widg]
     [medley.core :as medl]
-    [shadow.debug :refer [locals ?> ?-> ?->>]]
-    [clojure.string :as str]
-    [svg.container :as svgc]))
+    [re-frame.core :as rf]
+    [shadow.debug :refer [?-> ?->> ?> locals]]))
 
 (defn home-section
   [& content]
@@ -884,9 +883,9 @@ not currently use these factors to make decisions about follow-up care."]]
                  :selection                (utils/reorder-map (:inputs visualization-context) (:fmaps visualization-context))
                  :risk-score               total-score
                  :risk-description         (cond
-                                             (<= total-score 2) "low risk"
-                                             (>= total-score 6) "high risk"
-                                             :default "intermediate risk")
+                                             (<= total-score 2) "Low Risk"
+                                             (>= total-score 6) "High Risk"
+                                             :default "Intermediate Risk")
                  :risk-at-print-time-index (if (empty? fs-by-year-in-plot-order)
                                              nil
                                              (-> fs-by-year-in-plot-order
@@ -957,8 +956,10 @@ not currently use these factors to make decisions about follow-up care."]]
             "PREDICT Kidney is a prognostic tool to predict recurrence in patients surgically treated for non-metastatic kidney cancer"]]
           [ui/col {:xs 12}
            (let [total-score (:risk-score printout-details)]
-             [:h4 {:class-name "text-decoration-underline"}
-              (str "RESULTS: " (str/upper-case (:risk-description printout-details)) " Leibovich Score " total-score)])]])
+             [:<>
+              [:h5 {:class-name "text-decoration-underline"}
+               (str "Results: " (:risk-description printout-details) ", " "Leibovich Score " total-score " out of 11")]
+              ])]])
 
 
        (if-let [tool-centre-bundle tcb]
@@ -1035,14 +1036,15 @@ not currently use these factors to make decisions about follow-up care."]]
               [results/results-panel {:vis-context vis-context}]
               (:rest-of-page tool-mdata)]
 
-             (when-not @(rf/subscribe [::subs/missing-inputs]) [:section.d-none.d-print-block {:style {:margin-top 10}}
-                                                                [:p "Based on the details of your tumour, you are at "
-                                                                 [:b (:risk-description printout-details)] (str " of your cancer coming back or
-              spreading. Other people of the same age and sex, with the same type of tumour, had a risk of their cancer coming back
-              (recurrence) or spreading to other parts of the body (metastasis) " (:time-index-description printout-details) " is ")
-                                                                 [:b (str (:risk-at-print-time-index printout-details) "%")] "."]
-                                                                [:p "In other words, " [:b (str "the cancer will come back or spread " (:time-index-description printout-details)
-                                                                                                " in about " (:risk-at-print-time-index printout-details) " out of 100 patients with the same tumour as you.")]]])
+             (when-not @(rf/subscribe [::subs/missing-inputs])
+               [:section.d-none.d-print-block {:style {:margin-top 10}}
+                [:p "Based on the details of your tumour, you are at "
+                 [:b (str/lower-case (:risk-description printout-details))]
+                 (str " of your cancer coming back or spreading. The estimated risk of the cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the "
+                      (:time-index-description printout-details)) " is " [:b (str (:risk-at-print-time-index printout-details) "%")]
+                 " based on what has happened previously to people of the same age and sex and with the same type of tumour."]
+                [:p "In other words, " [:b (str "the cancer will come back or spread in the " (:time-index-description printout-details)
+                                                " in about " (:risk-at-print-time-index printout-details) " out of 100 patients of the same age and sex with a similar tumour.")]]])
 
              [widg/print-or-save]]
 
@@ -1056,16 +1058,18 @@ not currently use these factors to make decisions about follow-up care."]]
                 [ui/col {:xs 1 :style {:padding 0}}]
                 [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
 
-               [ui/col {:class-name "flex-fill d-none d-print-flex"}
-                [ui/col {:xs 8 :style {:padding 0 :margin-top -20 :margin-bottom -20}} [vis/table vis-context]]
+               (let [vis-context (update vis-context :label-order #(vec (remove #{:ldsurvival-competing-mortality} %)))]
+                 [ui/col {:class-name "flex-fill d-none d-print-flex"}
+                  [ui/col {:xs 8 :style {:padding 0 :margin-top -20 :margin-bottom -20}} [vis/table vis-context]]
 
-                [ui/col {:xs 3 :style {:padding 0}}
-                 [:svg {:style               {:width "240px" :border "2px solid"}
-                        :viewBox             "0 0 340 240"
-                        :preserveAspectRatio "xMinYMin meet"}
-                  [:rect {:width "100%" :height "100%" :fill "#CCC"}]
-                  [:g {:transform "translate(7 -20)"}
-                   (vis/svg-outcome-legend (:label-order vis-context) (:data-styles vis-context))]]]]
+                  [ui/col {:xs 3 :style {:padding 0}}
+                   [:svg {:style               {:width "240px" :border "2px solid"}
+                          :viewBox             "0 0 300 160"
+                          :preserveAspectRatio "xMinYMin meet"}
+                    [:rect {:width "100%" :height "100%" :fill "#CCC"}]
+                    [:g {:transform "translate(20 -20)"}
+                     (vis/svg-outcome-legend (:label-order vis-context) (:data-styles vis-context))]]]])
+
 
                [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}
                 [:h3 "Further details"]

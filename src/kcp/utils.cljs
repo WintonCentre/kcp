@@ -69,7 +69,7 @@
           [k (get initial k)])))
 
 (defn to-locale-date-str [date]
-  (if (nil? date)
+  (if (or (nil? date) (js/isNaN (.getTime (js/Date. date))))
     ""
     (let [options (clj->js {:day "numeric" :month "long" :year "numeric"})
           formatted-date (.toLocaleDateString (js/Date. date) "en-GB" options)]

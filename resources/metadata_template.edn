@@ -116,7 +116,7 @@
                                                                      :4 ["Your nuclear grade is " "4"]}}
                                :printout {
                                           :time-index 5
-                                          :description "in the 5 years following surgery of "}
+                                          :description "5 years following surgery"}
                                :bars {:width 150
                                       :spacing 3.2
                                       :font-size 30

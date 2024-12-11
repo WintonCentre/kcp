@@ -331,6 +331,10 @@
   font-size: 1.8rem;
 }
 
+.more-info-list {
+  margin-top: 10px;
+}
+
 .modal-footer button.btn.btn-secondary {
   border: 3px solid grey;
   border-radius: 25px;

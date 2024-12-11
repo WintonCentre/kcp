@@ -106,7 +106,7 @@
                                                                :pT3b ["Your tumour stage is " "pT3b"]
                                                                :pT3c ["Your tumour stage is " "pT3c"]
                                                                :pT4 ["Your tumour stage is " "pT4"]}
-                                                     :n-stage {:pNx ["Your regional lymph node status is " "unknown"]
+                                                     :n-stage {:pNx ["Your regional lymph node status is " "Not requiring investigation"]
                                                                :pN0 ["Your regional lymph node status is " "pN0"]
                                                                :pN1 ["Your regional lymph node status is " "pN1"]}
                                                      :tumor-size {
@@ -200,8 +200,7 @@
                                :pre-section [:<>
                                              [:h3 "What does this show?"]
                                              [:section
-                                              [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer)."]
-                                              [:p "It is not a prediction of what will happen to you. It is an estimate."]
+                                              [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer). It is not a prediction of what will happen to you. It is an estimate."]
                                               ]]
                                :rest-of-page [:section
                                               [:h3 "Why does the display stop at year 10?"]

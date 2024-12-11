@@ -1,5 +1,6 @@
 (ns kcp.results
   (:require [kcp.bundles :as bun]
+            ["react-bootstrap" :as bs]
             [kcp.events :as events]
             [kcp.factors :as fac]
             [kcp.fullscreen :as fs]
@@ -36,6 +37,7 @@
         inputs @(rf/subscribe [::subs/inputs])
         mdata @(rf/subscribe [::subs/mdata])
         tool-mdata (get-in mdata [organ :tools tool])
+        show-results @(rf/subscribe [::subs/show-results])
         mortality-data (utils/reformat-mortality-data (utils/filter-parallel-data
                                                         (:ldsurvival-competing-mortality bundle)
                                                         {"Age" (js/parseInt (get-in inputs [:age-at-surgery])),
@@ -80,7 +82,7 @@
         fulfilled-inputs (select-keys inputs required-inputs)
         missing (< (count fulfilled-inputs) (count required-inputs))
         unknowns (some #(= (get inputs %) :unknown) required-inputs)
-        overlay (if missing :missing (if unknowns :unknowns nil))
+        overlay (if missing :missing (if unknowns :unknowns (if show-results nil :hide-results)))
         context (assoc context :input-state
                                {:inputs           inputs
                                 :required-inputs  required-inputs
@@ -136,6 +138,7 @@
                          :border           (str "3px solid " (condp = overlay
                                                                :missing "rgb(255,0,0)"
                                                                :unknowns "teal"
+                                                               :hide-results "#CCC"
                                                                nil "#CCC"))
                          :border-radius    5
                          :margin-top       30
@@ -143,6 +146,22 @@
                          :padding          "20px 5px 5px 15px"
                          :position         "relative"}}
            (condp = overlay
+             :hide-results [:div {:style {:z-index          500
+                                          :background-color rgb/theme
+                                          :padding          0
+                                          :position         "absolute"
+                                          :top              0
+                                          :right            0
+                                          :bottom           0
+                                          :left             0
+                                          :display          "flex"
+                                          :align-items      "center"
+                                          :justify-content  "center"}}
+
+                            [:> bs/Button {:size     "lg"
+                                           :variant  "secondary"
+                                           :on-click #(rf/dispatch [::events/show-results])}
+                             "Show results"]]
              :missing [:<>
                        [:div {:style {:z-index          1000
                                       :color            "rgb(255,0,0)"

@@ -93,19 +93,23 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
            (map (fn [{:keys [level-name level]}]
                   [:> bs/ToggleButton {:type "checkbox"
                                        :class-name "toggler"
-                                       :key level :disabled false
+                                       :key level
+                                       :disabled false
                                        :value level
                                        :style {:border-radius 0
+                                               :display "flex"
+                                               :justify-content "center"
+                                               :align-items "center"
                                                :margin 0
                                                :color (when (highlight? level) "#00B")
                                                :font-weight (when (highlight? level) "bold")
                                                :background-color (if (highlight? level)
                                                                    "#fec"
-                                                                   (if (= level value) 
-                                                                     rgb/theme 
+                                                                   (if (= level value)
+                                                                     rgb/theme
                                                                      "#fff"))}
                                        :variant "outline-secondary"}
-                   level-name])
+                   [:span level-name]])
                 buttons)))])
 
 (defn dropdown

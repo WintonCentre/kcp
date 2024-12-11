@@ -103,8 +103,8 @@
   "Take a seq of outcome keys in plot order and render a styled legend.
    The 3-arity version allows an option map where a value and a custom position can be
    specified - both are functions of the integer plot-order of the series."
-  ([plot-order data-styles]
-   (svg-outcome-legend plot-order data-styles
+  ([label-order data-styles]
+   (svg-outcome-legend label-order data-styles
                        {:string-value-f (constantly "")
                         :position-f     #(str "translate(0 " (+ 30 (* 80 %)) ")")}))
 
@@ -432,7 +432,8 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        plot-order (:plot-order tool-mdata)]
+        plot-order (:plot-order tool-mdata)
+        label-order (:label-order tool-mdata)]
 
     [:> bs/Row
      [:> bs/Col {:style {:margin-top 10 :margin-right 10 :margin-bottom 10}}
@@ -451,7 +452,7 @@
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
 
            [:g
-            (svg-outcome-legend plot-order data-styles)
+            (svg-outcome-legend label-order data-styles)
             [:g {:transform "translate(280 0)"}
              [stacked-bar-chart (assoc env
                                   :X X
@@ -634,6 +635,7 @@
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
+        label-order (:label-order tool-mdata)
         svg-width (if slimline 780 1060)
         svg-height 660]
 
@@ -663,7 +665,7 @@
          (let [fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)
                fs-by-quarter-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-quarter)]
            [:g
-            (if slimline nil (svg-outcome-legend plot-order data-styles))
+            (if slimline nil (svg-outcome-legend label-order data-styles))
             [:g {:transform (if slimline "" "translate(280 0)")}
 
              (stacked-area-chart {:X              X
@@ -929,7 +931,7 @@
   After 3 years	75  of them to have received a transplant
 		  3  of them to still be waiting for a transplant
 		22  of them to have died or been removed from the list"
-  [year-series tool-mdata plot-order data-styles]
+  [year-series tool-mdata order data-styles]
   (let [labels (get-in tool-mdata [:table :labels])
         years (range (count labels))]
     [:div {:style {:margin-top 20}}
@@ -939,8 +941,8 @@
                   line (:line label)
                   line (if (sequential? line) (map str line) line)]]
         [:div {:key (str "y-" i) :style {:margin-bottom 20}} [:div {:style {:font-weight "bold" :font-size "1.5em"}} line]
-         (for [j (range (count plot-order))
-               :let [style ((nth plot-order j) data-styles)
+         (for [j (range (count order))
+               :let [style ((nth order j) data-styles)
                      long-label (:long-label style)]]
            [:div {:key (str "c-" j)}
             (let [label (nth labels i)
@@ -950,7 +952,7 @@
 
 (defn table
   "render a table results view"
-  [{:keys [organ tool base-outcome-keys s0 F plot-order] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F label-order] :as env}]
 
   (let [sample-days (map
                       utils/year->day
@@ -958,11 +960,10 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        plot-order (as-> plot-order x (move-to-end x :ldsurvival-competing-mortality))
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+        fs-by-year-in-label-order (fs-time-series base-outcome-keys label-order fs-by-year)]
 
     [:section {:style {:margin-right 10 :margin-bottom 20} :class "clear-bottom-margin-print"}
-     (table-render fs-by-year-in-plot-order tool-mdata plot-order data-styles)]))
+     (table-render fs-by-year-in-label-order tool-mdata label-order data-styles)]))
 
 (defn test-render
   [year-series tool-mdata plot-order fulfilled-inputs r-params centre-info organ tool]
@@ -991,7 +992,7 @@
 
 (defn text
   "a text results view"
-  [{:keys [organ tool base-outcome-keys s0 F plot-order] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F label-order] :as env}]
 
   (let [sample-days (map
                       utils/year->day
@@ -999,11 +1000,10 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        plot-order (as-> plot-order x (move-to-end x :ldsurvival-competing-mortality))
-        fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)]
+        fs-by-year-in-label-order (fs-time-series base-outcome-keys label-order fs-by-year)]
 
     [:section
-     (text-render fs-by-year-in-plot-order tool-mdata plot-order data-styles)]))
+     (text-render fs-by-year-in-label-order tool-mdata label-order data-styles)]))
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"

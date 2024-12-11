@@ -1079,7 +1079,7 @@ not currently use these factors to make decisions about follow-up care."]]
                         :preserveAspectRatio "xMinYMin meet"}
                   [:rect {:width "100%" :height "100%" :fill "#CCC"}]
                   [:g {:transform "translate(7 -20)"}
-                   (vis/svg-outcome-legend (:plot-order vis-context) (:data-styles vis-context))]]]]
+                   (vis/svg-outcome-legend (:label-order vis-context) (:data-styles vis-context))]]]]
 
                [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}
                 [:h3 "Further details"]

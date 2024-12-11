@@ -96,7 +96,8 @@
                                            :stroke-width 1
                                            :stroke "#000"
                                            :label-fill "#000000"}}
-                               :plot-order [:ldsurvival-competing-mortality :ldsurvival :residual ]
+                               :plot-order  [:ldsurvival-competing-mortality :ldsurvival :residual]
+                               :label-order [:ldsurvival :residual :ldsurvival-competing-mortality]
                                :printout-level-name {:t-stage {:pT1a ["Your tumour stage is " "pT1a"]
                                                                :pT1b ["Your tumour stage is " "pT1b"]
                                                                :pT2a ["Your tumour stage is " "pT2a"]

@@ -204,7 +204,7 @@
     [:p "The tool is suitable for patients with clear cell renal cell carcinoma (ccRCC) who are over 18
 years old and have had a kidney removed (underwent a radical neprectomy). More details
 about the development cohort are available in the " [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "]
-    [:p "The tool should be used initially by patients alongside their oncologist, urologist or specialist nurses."]]
+    [:p "The tool should be used initially by patients alongside their oncologist, urologist or specialist nurse."]]
 
    [:h4 "Who developed the tool?"]
    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and
@@ -319,16 +319,17 @@ death from other causes) happening by time " (inline-math "t") ". "]
     developers of these codes. The development system used Shadow-cljs (by Thomas Heller), supported by a number of
     Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
 
-   [:h3#browser-compatibility "Browser Compatibility"]
-   [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
-   [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
-   [:p "It does not currently support any other version of Internet Explorer."]])
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
+    [:h3#browser-compatibility "Browser Compatibility"]
+    [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
+    [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
+    [:p "It does not currently support any other version of Internet Explorer."]]])
 
 (defn references-section
   []
   [:<>
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom 20}}
+   [:section {:style {:margin-bottom 20}}
     [:h3#references "References"]
     [:ol
      [:li "Leibovich, B. C. et al. Prediction of progression after radical nephrectomy for patients with clear cell renal
@@ -340,26 +341,11 @@ death from other causes) happening by time " (inline-math "t") ". "]
                                                                 (js-obj "behavior" "smooth"))
                                     :style    {:color :#1F6BC4 :font-size 18 :cursor :pointer}} text]])
 
-(def kidney-tags [["model-development" "Model development"]
-                  ["cohort" "Cohort"]
-                  ["model-validation" "Model Validation"]
-                  ["input-factors" "Input Factors"]
-                  ["mathematical-section" "Mathematical Section"]
-                  ["the-web-implementation" "Web implementation"]
-                  ["the-development-stack" "The development stack"]
-                  ["browser-compatibility" "Browser Compatibility"]
-                  ["references" "References"]])
-
 (defn kidney-tech-content
   []
   [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:section
-     [:ul {:style {:list-style-image "url(assets/bullet-plus.png)"
-                   :margin-top       10}} (map overview-menu kidney-tags)]]
-
-
     [:h3#model-development "Model development"]
     [:p "The model (the Leibovich model) behind this tool was developed by a team at the Mayo
 Clinic (Minnesota, USA) between 2000 and 2002. To develop this model, information was
@@ -375,33 +361,40 @@ necrosis. These are described in detail in the input factors section below."]
     [:p "The Leibovich model is often used to assign patients a score (ranging from 0 to 11) based on
 their tumour characteristics. These scores are then separated into three risk groups: low risk
 (score 0 – 2), intermediate risk (score 3 – 5) and high risk (score above 6)."]
-    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot say
-    what the outcomes for a particular patient will be. Instead, it estimates the probability of recurrence
-    in people from the past with similar kidney cancer tumours and the probability of death based on people in
-    England of the same age and sex. Further information is provided in the "
+    [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot say what the outcomes
+    for a particular patient will be. Instead, it estimates the probability of recurrence in people from the past with
+    similar kidney cancer tumours. Further information is provided in the "
      [:a {:href (ui/href :kcp.views/pubs)} "paper published"] " in the journal Cancer, March 2003. "]
-    [:p "The Leibovich model has been adapted by the Predict Kidney team at the University of Cambridge,
-    to create the Leibovich Plus model. The adjusted model uses data from the Office for National Statistics
-    (projected period life tables for England for 2024). This provides estimated survival rates for the
-    English general population by age and sex, based on historic data and trends."]]
+    [:p "The Leibovich model has been adapted by the Predict Kidney team at the University of Cambridge, to create the
+    Leibovich Plus model. The adjusted model uses data from the Office for National Statistics (projected period life
+    tables for England for 2024). This provides estimated survival rates for the English general population by age and
+    sex, based on historic data and trends. This version of the model calculates the risk of recurrence adjusted for
+    the expected risk of death from other causes for people of the same age and sex living in England. The risk of death
+    from other causes is displayed in the visualisations alongside the risk of recurrence and likelihood of surviving cancer-free."]]
 
 
-   [:h3#cohort "Cohort"]
-   [:p "The Leibovich score was developed in a cohort of patients who underwent a radical
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
+    [:h3#cohort "Cohort"]
+    [:p "The Leibovich score was developed in a cohort of patients who underwent a radical
 nephrectomy (full removal of the kidney) to treat clear cell renal cell carcinoma (ccRCC)
 between 1970 and 2000. This did not include patients who already had metastatic disease.
 Patients with inherited renal cell carcinoma (including von Hippel-Lindau disease), those
 with tumours in both kidneys (bilateral synchronous tumours), or who were diagnosed with
 Wilms tumour (a different form of kidney cancer) were not included. All included patients
-were over 18 at the time of surgery."]
+were over 18 at the time of surgery."]]
 
 
-   [:h3#model-validation "Model Validation"]
-   [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
+    [:h3#model-validation "Model Validation"]
+    [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
 since it was first developed. In a recent review, 16 validations were identified with results for
 discrimination in the range 0.67-0.86. More details can be found in a review paper from 2021 (see the "
-    [:a {:href (ui/href :kcp.views/pubs)} "publication section"] ")."]
+     [:a {:href (ui/href :kcp.views/pubs)} "publication section"] ")."]]
 
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
    [:h3#input-factors "Input factors"]
    [:p "In this section we give an explanation of the input factors considered in this model:"]
 
@@ -436,7 +429,7 @@ or smaller than 10cm is most important in the context of recurrence"]
    [:p [:b "Tumour Necrosis"] " – Necrosis means that some of the cancer cells have died."]
 
    [:p [:b "Age (years)"] " – The age at surgery. This is used to predict the risk of death from other causes."]
-   [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]
+   [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]
 
    (maths-section)
    (web-development-section)

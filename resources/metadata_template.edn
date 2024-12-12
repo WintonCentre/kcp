@@ -42,8 +42,7 @@
  :kidney {:text "Kidney"
           :label "Predicting recurrence and risk of death in patients treated with surgery for non-metastatic kidney cancer"
           :description "This is a tool to predict the risk of cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the 10 years following surgery for kidney cancer. This tool also factors in how likely a patient is to die of other causes in the next ten years, based on their current age and their sex. The aim of the tool is to support conversations between patients and their clinical team about the risk of recurrence when planning follow-up care. Results can be printed out for patients to take home."
-          :how-does-it-work [:p "The tool uses a modified version of the Leibovich score, called Leibovich-Plus. For more information on this score please read the " [:a {:href :kcp.views/tech} "technical section"] " of this site."]
-          :who-is-it-for "This site is for adults who have had surgery to remove a kidney cancer that has not spread beyond the kidney at the time of surgery. It should not be used for those with a diagnosis of metastatic kidney cancer or those with known hereditary cancer syndromes such as Von Hippel-Lindau Disease (VHL)."
+          :who-is-it-for "This site is for adults who have had surgery to remove a kidney cancer that has not spread beyond the kidney at the time of surgery. It should only be used following a diagnosis of clear cell renal cell carcinoma (ccRCC). It should not be used for those with a diagnosis of metastatic kidney cancer or those with known hereditary cancer syndromes such as Von Hippel-Lindau Disease (VHL)."
           :more-information [:div
                              [:p.d-print-none "More information about kidney cancer and available support services is available from "
                               [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "Kidney Cancer UK"] ", "
@@ -54,9 +53,6 @@
                               [:li "Cancer Research UK - " [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "https://www.cancerresearchuk.org/about-cancer/kidney-cancer"]]
                               [:li "Macmillan - " [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer"]]]]
           :tool-order [:ldsurvival :guidance]
-          :contact-email "kidneykcp@statslab.cam.ac.uk"
-          :contact-email-subject "Kidney kcp tool"
-          :contact-email-body "Please give us your feedback here. If you would like a reply please say so. If you are reporting a technical issue then it’s always useful to tell us the browser (e.g. Edge, Safari, Chrome, Firefox) and operating system (e.g. Windows, MacOS, Android, IOS) and if possible include a screen shot of the problem."
           :tools {:ldsurvival {:button-type "survival"
                                :label "Survival - living donor"
                                :inputs {:header [:div

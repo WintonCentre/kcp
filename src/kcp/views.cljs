@@ -61,20 +61,13 @@
       [:> bs/Col {:md 6}
        [home-section
         [:h2 "What does this site do?"]
-        [:p (get-in mdata [single-organ :description])]
-        [:p "Results can be printed out for patients to take home."]]
-
-
-       [home-section
-        [:h2 "How does it work?"]
-        (ui/fixup-markup (get-in mdata [single-organ :how-does-it-work]))]
+        [:p (get-in mdata [single-organ :description])]]
 
        [home-section
         [:h2 "What does the tool show?"]
-        [:p "The tool will show the risk of your cancer coming back (recurrence) or spreading to other parts of the body (metastasis).
+        [:p "The tool will show the estimated risk of your cancer coming back (recurrence) or spreading to other parts of the body (metastasis).
         It will also show an estimate of your risk of death from other causes over the next 10 years based on data from
-        people of the same age and sex. If your cancer comes back there are several options for treatment,
-        which your oncology team will discuss with you."]]
+        people of the same age and sex. If your cancer comes back there are several options for treatment, which your clinical team will discuss with you."]]
 
        [home-section
         [:h2 "Who is this site for?"]
@@ -82,12 +75,12 @@
 
       [:> bs/Col {:md 6}
        [home-section
-        [:h2 "Overview"]
-        [:p "It takes the information you enter and shows what happened to people “like you” in the past. "
-         [:b " It is not showing what will happen to you in the future, it is showing what happened to people
-              like you in the past."]]
-        [:p "The tool cannot take into account everything about you.  For example it does not currently ask
-             about other health conditions you may have."]
+        [:h2 "How does it work?"]
+        [:p "The tool takes the information you enter and shows what happened to people “like you” in the past.
+        It is not showing what will happen to you in the future, it is showing what happened to people of the
+        same age and sex with similar kidney cancers in the past."]
+        [:p "The tool uses a modified version of the Leibovich score, called Leibovich-Plus to estimate your risk. It does
+        not take into account everything about you. For example, it does not ask about other health conditions you may have. "]
         [:p " If you want to know more about the data and the models behind the tool read
              the " [:a {:href (ui/href :kcp.views/tech)} "technical section"] " of this site."]]
        [home-section

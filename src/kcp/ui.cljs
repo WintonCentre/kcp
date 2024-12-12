@@ -212,11 +212,9 @@ in the routes table."
       [:div {:style {:display "flex" :flex-direction "column" :justify-content "center" :align-items "center" :max-width 900}}
        [:div {:style {:padding 0 :display "flex" :flex-direction "row" :align-items "top" :justify-content "center"}}
         [:img {:src "assets/crest.png" :async true :style {:height 40 :width 37 :margin-right 30} :alt "University of Cambridge Crest"}]
-        [:p {:style {:text-align "center"}} "The tool was developed by the Winton Centre for Risk and Evidence
-       Communication and by researchers in the Department of Public Health and Primary Care at the
-       University of Cambridge. Patients, members of the public, doctors and nurses have been involved
-       in the design of this tool."]]]]
-     ;[:div {:style {:background-color "black" :margin  " -15px"}}]
+        [:p {:style {:text-align "center"}} "The tool was developed by the Winton Centre for Risk and Evidence Communication
+        and researchers at the University of Cambridge (Department of Public Health and Primary Care, and Department of Surgery).
+        Patients, members of the public, doctors and nurses have been involved in the design of this tool."]]]]
      [:div {:style {:padding 10 :font-size "12px" :color "#9E9E9E" :background-color "black"
                     :display "flex" :flex-direction "column" :justify-content "center" :align-items "center"}}
       ;;
@@ -233,11 +231,7 @@ in the routes table."
       [:div {:style {:text-align "center"}}
        [:a {:style {:color "inherit"}
             :href (href :kcp.views/legal)} "Privacy & Data Protection"]
-       #_" | "
-       #_[:a {:style {:color "inherit"}
-              :href (href :kcp.views/legal)} "Disclaimer"]
-       " | "
-       (str "✉️ " (-> mdata single-organ :contact-email))]
+       ]
       [:div "v-0.0-0.00-0-hash"]]]))
 
 (defn root-component

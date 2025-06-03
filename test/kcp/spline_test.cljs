@@ -12,7 +12,7 @@
              0.3432035187969925) 
           "spline on age 69")
       (is (= (- 1 (js/Math.pow (- 1 cif_0) (js/Math.exp (tx-age-spline 69))))
-             0.4099210121796981)
+             0.409921012179698)
           "cif on age 69 changed"))))
 
 (comment

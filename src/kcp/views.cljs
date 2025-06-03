@@ -1058,7 +1058,7 @@ not currently use these factors to make decisions about follow-up care."]]
                 [ui/col {:xs 1 :style {:padding 0}}]
                 [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
 
-               (let [vis-context (update vis-context :label-order #(vec (remove #{:ldsurvival-competing-mortality} %)))]
+               (let [vis-context (assoc vis-context :hidden-labels #{:ldsurvival-competing-mortality})]
                  [ui/col {:class-name "flex-fill d-none d-print-flex"}
                   [ui/col {:xs 8 :style {:padding 0 :margin-top -20 :margin-bottom -20}} [vis/table vis-context]]
 

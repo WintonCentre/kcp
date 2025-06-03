@@ -952,7 +952,7 @@
 
 (defn table
   "render a table results view"
-  [{:keys [organ tool base-outcome-keys s0 F label-order] :as env}]
+  [{:keys [organ tool base-outcome-keys s0 F label-order hidden-labels] :as env}]
 
   (let [sample-days (map
                       utils/year->day
@@ -960,10 +960,11 @@
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
-        fs-by-year-in-label-order (fs-time-series base-outcome-keys label-order fs-by-year)]
+        fs-by-year-in-label-order (fs-time-series base-outcome-keys label-order fs-by-year)
+        filtered-label-order (reduce #(if (contains? hidden-labels %2) %1 (conj %1 %2)) [] label-order)]
 
     [:section {:style {:margin-right 10 :margin-bottom 20} :class "clear-bottom-margin-print"}
-     (table-render fs-by-year-in-label-order tool-mdata label-order data-styles)]))
+     (table-render fs-by-year-in-label-order tool-mdata filtered-label-order data-styles)]))
 
 (defn test-render
   [year-series tool-mdata plot-order fulfilled-inputs r-params centre-info organ tool]

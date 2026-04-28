@@ -33,7 +33,7 @@
             [babashka.tasks :as tasks]))
 
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
-(add-classpath "bbsrc:src:resources")
+(add-classpath (clojure.string/join java.io.File/pathSeparator ["bbsrc" "src" "resources"]))
 (require  '[babashka.fs :as fs])
 ;(require '[clojure.test :as t :refer [deftest testing is are]])
 

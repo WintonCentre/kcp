@@ -21,7 +21,7 @@
    ))
 
 ;; We add the classpath here so we can access it easily from the Calva Babashka REPL.
-(add-classpath "bbsrc:src:resources")
+(add-classpath (clojure.string/join java.io.File/pathSeparator ["bbsrc" "src" "resources"]))
 (require '[kcp.shortener :as short]) ; gain access to the .cljc 
 
 ;;;

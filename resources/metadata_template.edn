@@ -64,11 +64,11 @@
                                                                                         "The tool uses the PREDICT Kidney model to estimate your risk. It uses information about your kidney cancer, alongside other information about you (such as your age and other health conditions). It does not take into account everything about you."]}
                                                :inputs              {:header [:div
                                                                               [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
-                                               :outcomes            {:residual  {:label            {:0   "$1 are living cancer\nfree"
-                                                                                                    :1   "$1 is living cancer\nfree"
-                                                                                                    :n   "$1 are living cancer\nfree"
-                                                                                                    :nil "Survival with\nno recurrence"}
-                                                                                 :long-label       "patients are living cancer free"
+                                               :outcomes            {:residual  {:label            {:0   "$1 are alive"
+                                                                                                    :1   "$1 are alive"
+                                                                                                    :n   "$1 are alive"
+                                                                                                    :nil "Survival"}
+                                                                                 :long-label       "patients are alive"
                                                                                  :hidein           #{}
                                                                                  :fill             "#00979C"
                                                                                  :background-color "#00979C"
@@ -77,10 +77,10 @@
                                                                                  :stroke-width     1
                                                                                  :stroke           "#000"
                                                                                  :label-fill       "#fff"}
-                                                                     :rcc-death {:label        {:0   "$1 kidney cancer\ndeaths"
-                                                                                                :1   "$1 kidney cancer\ndeath"
-                                                                                                :n   "$1 kidney cancer\ndeaths"
-                                                                                                :nil "Kidney cancer\ndeath"}
+                                                                     :rcc-death {:label        {:0   "$1 deaths from\nkidney cancer"
+                                                                                                :1   "$1 death from\nkidney cancer"
+                                                                                                :n   "$1 deaths from\nkidney cancer"
+                                                                                                :nil "Death from kidney\ncancer"}
                                                                                  :long-label   "patients have died from kidney cancer"
                                                                                  :hidein       #{}
                                                                                  :fill         "#104A64"
@@ -88,9 +88,12 @@
                                                                                  :stroke-width 1
                                                                                  :stroke       "#000"
                                                                                  :label-fill   "#fff"}
-                                                                     :oc-death  {:label            "Death from\nother causes"
+                                                                     :oc-death  {:label            {:0   "$1 deaths from\nother causes"
+                                                                                                    :1   "$1 death from\nother causes"
+                                                                                                    :n   "$1 deaths from\nother causes"
+                                                                                                    :nil "Death from\nother causes"}
                                                                                  :long-label       "patients have died from other causes"
-                                                                                 :hidein           #{:icon-array :chart-labels}
+                                                                                 :hidein           #{:chart-labels}
                                                                                  :fill             "#827f7f"
                                                                                  :background-color "#827f7f"
                                                                                  :color            "#fff"
@@ -100,13 +103,11 @@
                                                                                  :label-fill       "#000000"}}
                                                :plot-order          [:oc-death :rcc-death :residual]
                                                :label-order         [:rcc-death :residual :oc-death]
-                                               :printout-level-name {:t-stage                   {:pT1a ["Your tumour stage is " "pT1a"]
-                                                                                                 :pT1b ["Your tumour stage is " "pT1b"]
-                                                                                                 :pT2a ["Your tumour stage is " "pT2a"]
-                                                                                                 :pT2b ["Your tumour stage is " "pT2b"]
-                                                                                                 :pT3a ["Your tumour stage is " "pT3a"]
-                                                                                                 :pT3b ["Your tumour stage is " "pT3b"]
-                                                                                                 :pT3c ["Your tumour stage is " "pT3c"]
+                                               :printout-level-name {:t-stage                   {
+                                                                                                 ; we need to retain the symbols from ldsurvival for url mapping to work
+                                                                                                 :pT1a ["Your tumour stage is " "pT1"]
+                                                                                                 :pT2a ["Your tumour stage is " "pT2"]
+                                                                                                 :pT3a ["Your tumour stage is " "pT3"]
                                                                                                  :pT4  ["Your tumour stage is " "pT4"]}
                                                                      :n-stage                   {:pNx ["Your regional lymph node status is " "Not requiring investigation"]
                                                                                                  :pN0 ["Your regional lymph node status is " "pN0"]
@@ -210,10 +211,8 @@
 
                                   :ldsurvival {:button-type         "survival"
                                                :label               "Survival - living donor"
-                                               :model               :cox-ph
+                                               :model               :model1
                                                :home-label          "Leibovich-Plus"
-                                               ; todo junie: `:description` has become an array of strings, it was originally a string
-                                               ;             fix the usages (in templates)
                                                :intro               {:description      ["This is a tool to predict the risk of cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the 10 years following surgery for kidney cancer. This tool also factors in how likely a patient is to die of other causes in the next ten years, based on their current age and their sex. The aim of the tool is to support conversations between patients and their clinical team about the risk of recurrence when planning follow-up care. Results can be printed out for patients to take home."]
                                                                      :what-does-it-show "The tool will show the estimated risk of your cancer coming back (recurrence) or spreading to other parts of the body (metastasis). It will also show an estimate of your risk of death from other causes over the next 10 years based on data from people of the same age and sex. If your cancer comes back there are several options for treatment, which your clinical team will discuss with you."
                                                                      :who-is-it-for    "This site is for adults who have had surgery to remove a kidney cancer that has not spread beyond the kidney at the time of surgery. It should only be used following a diagnosis of clear cell renal cell carcinoma (ccRCC). It should not be used for those with a diagnosis of metastatic kidney cancer or those with known hereditary cancer syndromes such as Von Hippel-Lindau Disease (VHL)."

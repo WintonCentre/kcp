@@ -2,8 +2,11 @@
   (:require [kcp.configure :as c]
             [kcp.config-utils :as utils]
             [clojure.test :as t :refer [deftest is testing]]
-            [clojure.string :refer [starts-with?]]
-            [clojure.spec.alpha :as s]))
+            [clojure.string :as string :refer [starts-with?]]
+            [clojure.spec.alpha :as s]
+            [clojure.set :as st]
+            [aero.core :as aero]
+            [clojure.java.io :as io]))
 
 
 (deftest utils
@@ -23,7 +26,8 @@
 
 (def bundle-specs {:kidney (s/keys :req-un [::centres
                                             ::tools
-                                            ::ldsurvival]
+                                            ::ldsurvival
+                                            ::pkm]
                                    :opt-un [::sheets])})
 
 ; A bundle is a sequence of spreadsheets represented by keywords
@@ -68,14 +72,16 @@
 
 (defn check-factors
   "Baseline var keywords should agree with input factor keywords"
-  [organ sheet-prefix]
-  (let [sheet1 (keyword (str (name sheet-prefix) "-baseline-vars"))
-        sheet2 (keyword (str (name sheet-prefix) "-inputs"))
-        b-factors (:factor (c/get-col-maps organ sheet1))
-        i-factors (distinct (:factor (c/get-col-maps organ sheet2)))]
-    (is (= (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) b-factors))
-           (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) i-factors)))
-        [:check-factors organ sheet-prefix])))
+  [organ tool]
+  (let [bundle (get (c/get-bundle organ) tool)
+        sheet1 (first (filter #(string/ends-with? (name %) "-baseline-vars") bundle))
+        sheet2 (first (filter #(string/ends-with? (name %) "-inputs") bundle))]
+    (when (and sheet1 sheet2)
+      (let [b-factors (:factor (c/get-col-maps organ sheet1))
+            i-factors (distinct (:factor (c/get-col-maps organ sheet2)))]
+        (is (= (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) b-factors))
+               (into #{} (remove #(or (nil? %) (starts-with? % ":centre")) i-factors)))
+            [:check-factors organ tool])))))
 
 (deftest check-organ-factors
   (testing "apart from :centre, factors in baseline-vars should agree with those in inputs"
@@ -91,10 +97,12 @@
         [:in organ sheet (:factor row) (:level row)])))
 
 (defn check-widget-labels
-  [organ sheet-prefix]
-  (let [sheet (keyword (str (name sheet-prefix) "-inputs"))
-        rows (c/get-row-maps organ sheet)]
-    (mapv (partial check-levels-are-named organ sheet) rows)))
+  [organ tool]
+  (let [bundle (get (c/get-bundle organ) tool)
+        sheet (first (filter #(string/ends-with? (name %) "-inputs") bundle))]
+    (when sheet
+      (let [rows (c/get-row-maps organ sheet)]
+        (mapv (partial check-levels-are-named organ sheet) rows)))))
 
 
 (deftest widgets-have-a-level-name
@@ -110,19 +118,23 @@
     (is (every? seq col-data) (str "There should be some data in every column in " sheet " for " centre))
     (is (apply = (map count col-data)) (str "Column counts differ in " sheet " for " centre))))
 
-(deftest baseline-cifs-should-not-be-empty
-  (testing "kidney baseline-cifs should be consistent"
+(deftest baseline-data-should-not-be-empty
+  (testing "baseline data should be consistent"
     (doseq [organ organs
             centre (c/get-centres organ)
-            tool (c/get-tools organ)]
-      (is-sheet-complete organ (keyword (str (name tool) "-baseline-cifs")) centre))))
+            tool-key (c/get-tools organ)
+            sheet (get (c/get-bundle organ) tool-key)]
+      (is-sheet-complete organ sheet centre))))
 
-(deftest baseline-cifs-should-not-be-empty
-  (testing "kidney competing-mortality should be consistent"
-    (doseq [organ organs
-            centre (c/get-centres organ)
-            tool (c/get-tools organ)]
-      (is-sheet-complete organ (keyword (str (name tool) "-competing-mortality")) centre))))
+(deftest tools-match-metadata
+  (testing "All tools in config.edn should be defined in metadata_template.edn"
+    (let [metadata (aero/read-config (io/resource "metadata_template.edn"))]
+      (doseq [organ organs]
+        (let [bundle (c/get-bundle organ)
+              config-tools (disj (into #{} (keys bundle)) :centres :tools :sheets)
+              metadata-tools (into #{} (keys (get-in metadata [organ :tools])))]
+          (is (st/subset? config-tools metadata-tools)
+              (str "Tools in config.edn bundles for " organ " should be defined in metadata_template.edn. Missing: " (st/difference config-tools metadata-tools))))))))
 
 (comment
   (c/get-bundle :kidney)

@@ -91,11 +91,9 @@
                                        (get-in fmaps [:tumor-size :levels (get-in inputs [:tumor-size]) :score])
                                        (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
                                        (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
-                 :plot-order         (:plot-order (get-in mdata [organ :tools tool]))
-                 :label-order        (:label-order (get-in mdata [organ :tools tool]))
-                 :hidden-labels      #{}
-                 }
-
+                 :plot-order         (:plot-order tool-mdata)
+                 :label-order        (:label-order tool-mdata)
+                 :hidden-labels      #{}}
 
         inputs (:inputs context)
         required-inputs (keys (:fmaps context))

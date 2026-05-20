@@ -1,203 +1,353 @@
 {; List of organ metadata.
-                                        ; Edit this to add a new organ to the tool.
-                                        ; Forms may be commented out with #_.
-                                        ; Lines or line tail ends may be commented out with ';'
-                                        ; Syntax is EDN - see definition at https://github.com/edn-format/edn
+ ; Edit this to add a new organ to the tool.
+ ; Forms may be commented out with #_.
+ ; Lines or line tail ends may be commented out with ';'
+ ; Syntax is EDN - see definition at https://github.com/edn-format/edn
 
  ;;
-                                        ; Generalised app-domains. In future we may add :kidney-cancer, :blood-cancer etc.
-                                        ;
-                                        ; If the app only contained one domain of application then the single domain could simply be called :app and could be elided.
-                                        ; The key thing about a domain is that it provides a HOME PAGE for an app, So for kcp, the domain is
-                                        ; related to the organ transplant that is being modelled.
-                                        ;
-                                        ; The main reason we don't simply write a different app for each domain is that this makes it very hard to write
-                                        ; generic application code which applies to all app domains that are all in development at the same time. We'd have to
-                                        ; share code through libraries, and that lengthens the development cycles.
-                                        ;
-                                        ; We should protect the integrity of all domains with automated tests. At some point - probably when
-                                        ; co-development of similar apps stops - we may want to transition to a classic app + local libraries organisation.
-                                        ;
-                                        ; cf. Polylith in the clojure world.
+ ; Generalised app-domains. In future we may add :kidney-cancer, :blood-cancer etc.
+ ;
+ ; If the app only contained one domain of application then the single domain could simply be called :app and could be elided.
+ ; The key thing about a domain is that it provides a HOME PAGE for an app, So for kcp, the domain is
+ ; related to the organ transplant that is being modelled.
+ ;
+ ; The main reason we don't simply write a different app for each domain is that this makes it very hard to write
+ ; generic application code which applies to all app domains that are all in development at the same time. We'd have to
+ ; share code through libraries, and that lengthens the development cycles.
+ ;
+ ; We should protect the integrity of all domains with automated tests. At some point - probably when
+ ; co-development of similar apps stops - we may want to transition to a classic app + local libraries organisation.
+ ;
+ ; cf. Polylith in the clojure world.
  ;;
 
  ;; We originally displayed multiple organs in one tool. Now we don't, but so far have retained a vector of organs
  ;; to indicate what is shown. To switch the tool between kidney and lung it is only necessary to switch the keyword
  ;; in the :organ-order vector.
 
- :organ-order [:lung]
+ :organ-order [:kidney]
 
  ;;
-                                        ; :todo - Check -
-                                        ; If an app only contains one domain, then the domain selection buttons should be skipped and the app should load
-                                        ; the domain home page at startup.
-                                        ;
-                                        ; If :organ-order contains more than one organ, then the selector should be present on the home page still.
-                                        ; [It's debatable whether this option is ever going to be needed, so we may perhaps just require a single organ at startup.]
+ ; :todo - Check -
+ ; If an app only contains one domain, then the domain selection buttons should be skipped and the app should load
+ ; the domain home page at startup.
+ ;
+ ; If :organ-order contains more than one organ, then the selector should be present on the home page still.
+ ; [It's debatable whether this option is ever going to be needed, so we may perhaps just require a single organ at startup.]
  ;;
 
-                                        ; this record from excel tools sheets. It pre-dates this metadata file and was used at initialisation
-                                        ; to load the top-level tools
+ ; this record from excel tools sheets. It pre-dates this metadata file and was used at initialisation
+ ; to load the top-level tools
 
- :kidney {:text "Kidney"
-          :label "Predicting recurrence and risk of death in patients treated with surgery for non-metastatic kidney cancer"
-          :description "This is a tool to predict the risk of cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the 10 years following surgery for kidney cancer. This tool also factors in how likely a patient is to die of other causes in the next ten years, based on their current age and their sex. The aim of the tool is to support conversations between patients and their clinical team about the risk of recurrence when planning follow-up care. Results can be printed out for patients to take home."
-          :who-is-it-for "This site is for adults who have had surgery to remove a kidney cancer that has not spread beyond the kidney at the time of surgery. It should only be used following a diagnosis of clear cell renal cell carcinoma (ccRCC). It should not be used for those with a diagnosis of metastatic kidney cancer or those with known hereditary cancer syndromes such as Von Hippel-Lindau Disease (VHL)."
-          :more-information [:div
-                             [:p.d-print-none "More information about kidney cancer and available support services is available from "
-                              [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "Kidney Cancer UK"] ", "
-                              [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "Cancer Research UK"] " and "
-                              [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "Macmillan"] "."]
-                             [:ul.d-none.d-print-block
-                              [:li "Kidney Cancer UK - " [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "https://www.kcuk.org.uk/"]]
-                              [:li "Cancer Research UK - " [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "https://www.cancerresearchuk.org/about-cancer/kidney-cancer"]]
-                              [:li "Macmillan - " [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer"]]]]
-          :tool-order [:ldsurvival :guidance]
-          :tools {:ldsurvival {:button-type "survival"
-                               :label "Survival - living donor"
-                               :inputs {:header [:div
-                                                 [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
-                               :outcomes {:residual {:label {:0 "$1 are living cancer\nfree"
-                                                             :1 "$1 is living cancer\nfree"
-                                                             :n "$1 are living cancer\nfree"
-                                                             :nil "Survival with\nno recurrence"}
-                                                     :long-label "patients are living cancer free"
-                                                     :hidein #{}
-                                                     :fill "#00979C"
-                                                     :background-color "#00979C"
-                                                     :color "#fff"
-                                                     :opacity 0.7
-                                                     :stroke-width 1
-                                                     :stroke "#000"
-                                                     :label-fill "#fff"}
-                                          :ldsurvival {:label {:0 "$1 kidney cancer\nrecurrences"
-                                                               :1 "$1 kidney cancer\nrecurrence"
-                                                               :n "$1 kidney cancer\nrecurrences"
-                                                               :nil "Kidney cancer\nrecurrence"}
-                                                       :long-label "patients have had a recurrence"
-                                                       :hidein #{}
-                                                       :fill "#104A64"
-                                                       :opacity 0.7
-                                                       :stroke-width 1
-                                                       :stroke "#000"
-                                                       :label-fill "#fff"}
-                                          :ldsurvival-competing-mortality {
-                                           :label "Death from\nother causes"
-                                           :long-label "patients have died from other causes"
-                                           :hidein #{:icon-array :chart-labels}
-                                           :fill "#827f7f"
-                                           :background-color "#827f7f"
-                                           :color "#fff"
-                                           :opacity 0.7
-                                           :stroke-width 1
-                                           :stroke "#000"
-                                           :label-fill "#000000"}}
-                               :plot-order  [:ldsurvival-competing-mortality :ldsurvival :residual]
-                               :label-order [:ldsurvival :residual :ldsurvival-competing-mortality]
-                               :printout-level-name {:t-stage {:pT1a ["Your tumour stage is " "pT1a"]
-                                                               :pT1b ["Your tumour stage is " "pT1b"]
-                                                               :pT2a ["Your tumour stage is " "pT2a"]
-                                                               :pT2b ["Your tumour stage is " "pT2b"]
-                                                               :pT3a ["Your tumour stage is " "pT3a"]
-                                                               :pT3b ["Your tumour stage is " "pT3b"]
-                                                               :pT3c ["Your tumour stage is " "pT3c"]
-                                                               :pT4 ["Your tumour stage is " "pT4"]}
-                                                     :n-stage {:pNx ["Your regional lymph node status is " "Not requiring investigation"]
-                                                               :pN0 ["Your regional lymph node status is " "pN0"]
-                                                               :pN1 ["Your regional lymph node status is " "pN1"]}
-                                                     :tumor-size {
-                                                                  :cm-<10 ["Your tumour is " "less than 10 cm " "in size"]
-                                                                  :cm->=10 ["Your tumour is " "greater than 10 cm " "in size"]}
-                                                     :histologic-tumor-necrosis {:No ["Your tumour had " "no necrosis"]
-                                                                                 :Yes ["Your tumour " "had necrosis"]}
-                                                     :nuclear-grade {:1 ["Your nuclear grade is " "1"]
-                                                                     :2 ["Your nuclear grade is " "2"]
-                                                                     :3 ["Your nuclear grade is " "3"]
-                                                                     :4 ["Your nuclear grade is " "4"]}}
-                               :printout {
-                                          :time-index 5
-                                          :description "5 years following surgery"}
-                               :bars {:width 150
-                                      :spacing 3.2
-                                      :font-size 30
-                                      :svg-width 1060
-                                      :svg-height 700
-                                      :svg-margin {:top 0 :right 10 :bottom 0 :left 0}
-                                      :svg-padding {:top 40 :right 20 :bottom 100 :left 20}
-                                      :labels [{:time-index 1
-                                                :x-offset 0
-                                                :y-offset 610
-                                                :line ["By the end"
-                                                       "of year 1"]}
-                                               {:time-index 5
-                                                :x-offset 0
-                                                :y-offset 610
-                                                :line ["By the end"
-                                                       "of year 5"]}
-                                               {:time-index 10
-                                                :x-offset 0
-                                                :y-offset 610
-                                                :line ["By the end"
-                                                       "of year 10"]}]}
-                               :area {:svg-width 1060
-                                      :svg-height 680
-                                      :svg-margin {:top 0 :right 10 :bottom 0 :left 40}
-                                      :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
-                                      :width 0
-                                      :spacing 0.97
-                                      :font-size 30
-                                      :labels [{:time-index 1
-                                                :x-offset -75
-                                                :y-offset 585
-                                                :line ["By the end"
-                                                       "of year 1"]}
-                                               {:time-index 5
-                                                :x-offset -75
-                                                :y-offset 585
-                                                :line ["By the end"
-                                                       "of year 5"]}
-                                               {:time-index 10
-                                                :x-offset -75
-                                                :y-offset 585
-                                                :line ["By the end"
-                                                       "of year 10"]}]}
-                               :icons {:svg-width 1060
-                                       :svg-height 520
-                                       :svg-margin {:top 0 :right 0 :bottom 0 :left 0}
-                                       :svg-padding {:top 0 :right 0 :bottom 0 :left 0}
-                                       :width 0
-                                       :font-size 25
-                                       :labels [{:time-index 1
-                                                 :x-offset -10
-                                                 :y-offset 610
-                                                 :line ["By the end of year 1"]}
-                                                {:time-index 5
-                                                 :x-offset -10
-                                                 :y-offset 610
-                                                 :line ["By the end of year 5"]}
-                                                {:time-index 10
-                                                 :x-offset -10
-                                                 :y-offset 610
-                                                 :line ["By the end of year 10"]}]}
-                               :table {:font-size 20
-                                       :labels [{:time-index 1
-                                                 :x-offset -10
-                                                 :y-offset 610
-                                                 :line ["By the end of year 1"]}
-                                                {:time-index 5
-                                                 :x-offset -10
-                                                 :y-offset 610
-                                                 :line ["By the end of year 5"]}
-                                                {:time-index 10
-                                                 :x-offset -10
-                                                 :y-offset 610
-                                                 :line ["By the end of year 10"]}]}
+ :kidney      {:text             "Kidney"
+               :label            "Predicting recurrence and risk of death in patients treated with surgery for non-metastatic kidney cancer"
+               :description      "This is a tool to predict the risk of cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the 10 years following surgery for kidney cancer. This tool also factors in how likely a patient is to die of other causes in the next ten years, based on their current age and their sex. The aim of the tool is to support conversations between patients and their clinical team about the risk of recurrence when planning follow-up care. Results can be printed out for patients to take home."
+               :who-is-it-for    "This site is for adults who have had surgery to remove a kidney cancer that has not spread beyond the kidney at the time of surgery. It should only be used following a diagnosis of clear cell renal cell carcinoma (ccRCC). It should not be used for those with a diagnosis of metastatic kidney cancer or those with known hereditary cancer syndromes such as Von Hippel-Lindau Disease (VHL)."
+               :more-information [:div
+                                  [:p.d-print-none "More information about kidney cancer and available support services is available from "
+                                   [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "Kidney Cancer UK"] ", "
+                                   [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "Cancer Research UK"] " and "
+                                   [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "Macmillan"] "."]
+                                  [:ul.d-none.d-print-block
+                                   [:li "Kidney Cancer UK - " [:a {:href "https://www.kcuk.org.uk/" :target "_blank"} "https://www.kcuk.org.uk/"]]
+                                   [:li "Cancer Research UK - " [:a {:href "https://www.cancerresearchuk.org/about-cancer/kidney-cancer" :target "_blank"} "https://www.cancerresearchuk.org/about-cancer/kidney-cancer"]]
+                                   [:li "Macmillan - " [:a {:href "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer" :target "_blank"} "https://www.macmillan.org.uk/cancer-information-and-support/kidney-cancer"]]]]
+               :tool-order       [:ldsurvival :pkm :guidance]
+               :tools            {:pkm        {:button-type         "survival"
+                                               :label               "Survival - living donor"
+                                               :model               :model2
+                                               :inputs              {:header [:div
+                                                                              [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
+                                               :outcomes            {:residual  {:label            {:0   "$1 are living cancer\nfree"
+                                                                                                    :1   "$1 is living cancer\nfree"
+                                                                                                    :n   "$1 are living cancer\nfree"
+                                                                                                    :nil "Survival with\nno recurrence"}
+                                                                                 :long-label       "patients are living cancer free"
+                                                                                 :hidein           #{}
+                                                                                 :fill             "#00979C"
+                                                                                 :background-color "#00979C"
+                                                                                 :color            "#fff"
+                                                                                 :opacity          0.7
+                                                                                 :stroke-width     1
+                                                                                 :stroke           "#000"
+                                                                                 :label-fill       "#fff"}
+                                                                     :rcc-death {:label        {:0   "$1 kidney cancer\ndeaths"
+                                                                                                :1   "$1 kidney cancer\ndeath"
+                                                                                                :n   "$1 kidney cancer\ndeaths"
+                                                                                                :nil "Kidney cancer\ndeath"}
+                                                                                 :long-label   "patients have died from kidney cancer"
+                                                                                 :hidein       #{}
+                                                                                 :fill         "#104A64"
+                                                                                 :opacity      0.7
+                                                                                 :stroke-width 1
+                                                                                 :stroke       "#000"
+                                                                                 :label-fill   "#fff"}
+                                                                     :oc-death  {:label            "Death from\nother causes"
+                                                                                 :long-label       "patients have died from other causes"
+                                                                                 :hidein           #{:icon-array :chart-labels}
+                                                                                 :fill             "#827f7f"
+                                                                                 :background-color "#827f7f"
+                                                                                 :color            "#fff"
+                                                                                 :opacity          0.7
+                                                                                 :stroke-width     1
+                                                                                 :stroke           "#000"
+                                                                                 :label-fill       "#000000"}}
+                                               :plot-order          [:oc-death :rcc-death :residual]
+                                               :label-order         [:rcc-death :residual :oc-death]
+                                               :printout-level-name {:t-stage                   {:pT1a ["Your tumour stage is " "pT1a"]
+                                                                                                 :pT1b ["Your tumour stage is " "pT1b"]
+                                                                                                 :pT2a ["Your tumour stage is " "pT2a"]
+                                                                                                 :pT2b ["Your tumour stage is " "pT2b"]
+                                                                                                 :pT3a ["Your tumour stage is " "pT3a"]
+                                                                                                 :pT3b ["Your tumour stage is " "pT3b"]
+                                                                                                 :pT3c ["Your tumour stage is " "pT3c"]
+                                                                                                 :pT4  ["Your tumour stage is " "pT4"]}
+                                                                     :n-stage                   {:pNx ["Your regional lymph node status is " "Not requiring investigation"]
+                                                                                                 :pN0 ["Your regional lymph node status is " "pN0"]
+                                                                                                 :pN1 ["Your regional lymph node status is " "pN1"]}
+                                                                     :tumor-size                {
+                                                                                                 :cm-<10  ["Your tumour is " "less than 10 cm " "in size"]
+                                                                                                 :cm->=10 ["Your tumour is " "greater than 10 cm " "in size"]}
+                                                                     :histologic-tumor-necrosis {:No  ["Your tumour had " "no necrosis"]
+                                                                                                 :Yes ["Your tumour " "had necrosis"]}
+                                                                     :nuclear-grade             {:1 ["Your nuclear grade is " "1"]
+                                                                                                 :2 ["Your nuclear grade is " "2"]
+                                                                                                 :3 ["Your nuclear grade is " "3"]
+                                                                                                 :4 ["Your nuclear grade is " "4"]}}
+                                               :printout            {
+                                                                     :time-index  5
+                                                                     :description "5 years following surgery"}
+                                               :bars                {:width       150
+                                                                     :spacing     3.2
+                                                                     :font-size   30
+                                                                     :svg-width   1060
+                                                                     :svg-height  700
+                                                                     :svg-margin  {:top 0 :right 10 :bottom 0 :left 0}
+                                                                     :svg-padding {:top 40 :right 20 :bottom 100 :left 20}
+                                                                     :labels      [{:time-index 1
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 1"]}
+                                                                                   {:time-index 5
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 5"]}
+                                                                                   {:time-index 10
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 10"]}]}
+                                               :area                {:svg-width   1060
+                                                                     :svg-height  680
+                                                                     :svg-margin  {:top 0 :right 10 :bottom 0 :left 40}
+                                                                     :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
+                                                                     :width       0
+                                                                     :spacing     0.97
+                                                                     :font-size   30
+                                                                     :labels      [{:time-index 1
+                                                                                    :x-offset   -75
+                                                                                    :y-offset   585
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 1"]}
+                                                                                   {:time-index 5
+                                                                                    :x-offset   -75
+                                                                                    :y-offset   585
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 5"]}
+                                                                                   {:time-index 10
+                                                                                    :x-offset   -75
+                                                                                    :y-offset   585
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 10"]}]}
+                                               :icons               {:svg-width   1060
+                                                                     :svg-height  520
+                                                                     :svg-margin  {:top 0 :right 0 :bottom 0 :left 0}
+                                                                     :svg-padding {:top 0 :right 0 :bottom 0 :left 0}
+                                                                     :width       0
+                                                                     :font-size   25
+                                                                     :labels      [{:time-index 1
+                                                                                    :x-offset   -10
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end of year 1"]}
+                                                                                   {:time-index 5
+                                                                                    :x-offset   -10
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end of year 5"]}
+                                                                                   {:time-index 10
+                                                                                    :x-offset   -10
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end of year 10"]}]}
+                                               :table               {:font-size 20
+                                                                     :labels    [{:time-index 1
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 1"]}
+                                                                                 {:time-index 5
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 5"]}
+                                                                                 {:time-index 10
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 10"]}]}
 
-                               :pre-section [:<>
-                                             [:h3 "What does this show?"]
-                                             [:section
-                                              [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer). It is not a prediction of what will happen to you. It is an estimate."]
-                                              ]]
-                               :rest-of-page [:section
-                                              [:h3 "Why does the display stop at year 10?"]
-                                              [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}}}}
+                                               :pre-section         [:<>
+                                                                     [:h3 "What does this show?"]
+                                                                     [:section
+                                                                      [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer). It is not a prediction of what will happen to you. It is an estimate."]
+                                                                      ]]
+                                               :rest-of-page        [:section
+                                                                     [:h3 "Why does the display stop at year 10?"]
+                                                                     [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}
+
+                                  :ldsurvival {:button-type         "survival"
+                                               :label               "Survival - living donor"
+                                               :model               :model1
+                                               :inputs              {:header [:div
+                                                                              [:p.d-print-none "Enter information for a non-metastatic primary kidney cancer tumour as well as sex and age at time of surgery. Non-metastatic means a tumour which is located in the kidney, has not spread outside the kidney, and has not spread to the kidney from another part of the body."]]}
+                                               :outcomes            {:residual                       {:label            {:0   "$1 are living cancer\nfree"
+                                                                                                                         :1   "$1 is living cancer\nfree"
+                                                                                                                         :n   "$1 are living cancer\nfree"
+                                                                                                                         :nil "Survival with\nno recurrence"}
+                                                                                                      :long-label       "patients are living cancer free"
+                                                                                                      :hidein           #{}
+                                                                                                      :fill             "#00979C"
+                                                                                                      :background-color "#00979C"
+                                                                                                      :color            "#fff"
+                                                                                                      :opacity          0.7
+                                                                                                      :stroke-width     1
+                                                                                                      :stroke           "#000"
+                                                                                                      :label-fill       "#fff"}
+                                                                     :ldsurvival                     {:label        {:0   "$1 kidney cancer\nrecurrences"
+                                                                                                                     :1   "$1 kidney cancer\nrecurrence"
+                                                                                                                     :n   "$1 kidney cancer\nrecurrences"
+                                                                                                                     :nil "Kidney cancer\nrecurrence"}
+                                                                                                      :long-label   "patients have had a recurrence"
+                                                                                                      :hidein       #{}
+                                                                                                      :fill         "#104A64"
+                                                                                                      :opacity      0.7
+                                                                                                      :stroke-width 1
+                                                                                                      :stroke       "#000"
+                                                                                                      :label-fill   "#fff"}
+                                                                     :ldsurvival-competing-mortality {
+                                                                                                      :label            "Death from\nother causes"
+                                                                                                      :long-label       "patients have died from other causes"
+                                                                                                      :hidein           #{:icon-array :chart-labels}
+                                                                                                      :fill             "#827f7f"
+                                                                                                      :background-color "#827f7f"
+                                                                                                      :color            "#fff"
+                                                                                                      :opacity          0.7
+                                                                                                      :stroke-width     1
+                                                                                                      :stroke           "#000"
+                                                                                                      :label-fill       "#000000"}}
+                                               :plot-order          [:ldsurvival-competing-mortality :ldsurvival :residual]
+                                               :label-order         [:ldsurvival :residual :ldsurvival-competing-mortality]
+                                               :printout-level-name {:t-stage                   {:pT1a ["Your tumour stage is " "pT1a"]
+                                                                                                 :pT1b ["Your tumour stage is " "pT1b"]
+                                                                                                 :pT2a ["Your tumour stage is " "pT2a"]
+                                                                                                 :pT2b ["Your tumour stage is " "pT2b"]
+                                                                                                 :pT3a ["Your tumour stage is " "pT3a"]
+                                                                                                 :pT3b ["Your tumour stage is " "pT3b"]
+                                                                                                 :pT3c ["Your tumour stage is " "pT3c"]
+                                                                                                 :pT4  ["Your tumour stage is " "pT4"]}
+                                                                     :n-stage                   {:pNx ["Your regional lymph node status is " "Not requiring investigation"]
+                                                                                                 :pN0 ["Your regional lymph node status is " "pN0"]
+                                                                                                 :pN1 ["Your regional lymph node status is " "pN1"]}
+                                                                     :tumor-size                {
+                                                                                                 :cm-<10  ["Your tumour is " "less than 10 cm " "in size"]
+                                                                                                 :cm->=10 ["Your tumour is " "greater than 10 cm " "in size"]}
+                                                                     :histologic-tumor-necrosis {:No  ["Your tumour had " "no necrosis"]
+                                                                                                 :Yes ["Your tumour " "had necrosis"]}
+                                                                     :nuclear-grade             {:1 ["Your nuclear grade is " "1"]
+                                                                                                 :2 ["Your nuclear grade is " "2"]
+                                                                                                 :3 ["Your nuclear grade is " "3"]
+                                                                                                 :4 ["Your nuclear grade is " "4"]}}
+                                               :printout            {
+                                                                     :time-index  5
+                                                                     :description "5 years following surgery"}
+                                               :bars                {:width       150
+                                                                     :spacing     3.2
+                                                                     :font-size   30
+                                                                     :svg-width   1060
+                                                                     :svg-height  700
+                                                                     :svg-margin  {:top 0 :right 10 :bottom 0 :left 0}
+                                                                     :svg-padding {:top 40 :right 20 :bottom 100 :left 20}
+                                                                     :labels      [{:time-index 1
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 1"]}
+                                                                                   {:time-index 5
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 5"]}
+                                                                                   {:time-index 10
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 10"]}]}
+                                               :area                {:svg-width   1060
+                                                                     :svg-height  680
+                                                                     :svg-margin  {:top 0 :right 10 :bottom 0 :left 40}
+                                                                     :svg-padding {:top 40 :right 20 :bottom 80 :left 20}
+                                                                     :width       0
+                                                                     :spacing     0.97
+                                                                     :font-size   30
+                                                                     :labels      [{:time-index 1
+                                                                                    :x-offset   -75
+                                                                                    :y-offset   585
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 1"]}
+                                                                                   {:time-index 5
+                                                                                    :x-offset   -75
+                                                                                    :y-offset   585
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 5"]}
+                                                                                   {:time-index 10
+                                                                                    :x-offset   -75
+                                                                                    :y-offset   585
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 10"]}]}
+                                               :icons               {:svg-width   1060
+                                                                     :svg-height  520
+                                                                     :svg-margin  {:top 0 :right 0 :bottom 0 :left 0}
+                                                                     :svg-padding {:top 0 :right 0 :bottom 0 :left 0}
+                                                                     :width       0
+                                                                     :font-size   25
+                                                                     :labels      [{:time-index 1
+                                                                                    :x-offset   -10
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end of year 1"]}
+                                                                                   {:time-index 5
+                                                                                    :x-offset   -10
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end of year 5"]}
+                                                                                   {:time-index 10
+                                                                                    :x-offset   -10
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end of year 10"]}]}
+                                               :table               {:font-size 20
+                                                                     :labels    [{:time-index 1
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 1"]}
+                                                                                 {:time-index 5
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 5"]}
+                                                                                 {:time-index 10
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 10"]}]}
+
+                                               :pre-section         [:<>
+                                                                     [:h3 "What does this show?"]
+                                                                     [:section
+                                                                      [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer). It is not a prediction of what will happen to you. It is an estimate."]
+                                                                      ]]
+                                               :rest-of-page        [:section
+                                                                     [:h3 "Why does the display stop at year 10?"]
+                                                                     [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}}}}

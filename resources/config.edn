@@ -15,10 +15,11 @@
 
 
  ;
- ; Configuration files may also be exported in bundles appropriate for embedded tools. 
+ ; Configuration files may also be exported in bundles appropriate for embedded tools.
  ; Baseline cifs may be filtered by centre.
  ;
  :bundles #profile {:kidney {:centres [:centres]
                              :tools [:tools]
-                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs :ldsurvival-competing-mortality]}}}
+                             :ldsurvival [:ldsurvival-baseline-cifs :ldsurvival-baseline-vars :ldsurvival-inputs :ldsurvival-competing-mortality]
+                             :pkm [:pkm-inputs :pkm-baseline-vars :pkm-baseline-hazards-mort :pkm-baseline-hazards-rcc]}}}
                             

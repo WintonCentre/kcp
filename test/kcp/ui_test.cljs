@@ -1,6 +1,7 @@
 (ns kcp.ui-test
   (:require [cljs.test :refer [deftest is testing]]
             [kcp.ui :refer [fixup-markup]]
+            [kcp.views :refer [render-description]]
             ))
 
 (defn mock-parse-url
@@ -37,3 +38,15 @@
                            [:span {:class "highlight"} "important"]]]
       (is (= (mocked-fixup-markup input) expected-output))))
   )
+
+(deftest test-render-description
+  (testing "when description is a string"
+    (is (= (render-description "Hello world")
+           [:p "Hello world"])))
+
+  (testing "when description is a sequential list/vector"
+    (is (= (render-description ["Para 1" "Para 2"])
+           [:<> [:p {:key 0} "Para 1"] [:p {:key 1} "Para 2"]])))
+
+  (testing "when description is nil"
+    (is (nil? (render-description nil)))))

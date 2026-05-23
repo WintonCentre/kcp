@@ -20,6 +20,7 @@
     [kcp.widgets :as widg]
     [medley.core :as medl]
     [re-frame.core :as rf]
+    [reagent.core :as r]
     [shadow.debug :refer [?-> ?->> ?> locals]]))
 
 (defn home-section
@@ -33,93 +34,97 @@
   (into [:section {:id id}]
         content))
 
-(defn choose-centre-nav
-  [mdata]
-  (let [single-organ (ui/get-single-organ mdata)]
-    (map (fn [organ]
-           [:div {:key   (get-in mdata [organ :text])
-                  :style {:margin-bottom 20}}
-            [ui/button {:id         (str (name organ) "-button")
-                        :class-name "btn-lg"
-                        :variant    "primary"
-                        :style      {:font-size "1.5em"}
-                        :on-click   #(do
-                                       (rf/dispatch [::events/reset-edit-state])
-                                       (rf/dispatch [::events/navigate ::organ-centre-tool-tab-inputs {:organ organ :centre "uk" :tool "ldsurvival" :tab "icons" :inputs "-"}]))}
-             (if single-organ
-               "Start the tool"
-               ;"Choose your transplant centre"
-               (get-in mdata [organ :label]))]])
-         (mdata :organ-order))))
+(defn render-description
+  [desc]
+  (cond
+    (string? desc) [:p desc]
+    (sequential? desc) (into [:<>]
+                             (for [[i p] (map-indexed vector desc)]
+                               [:p {:key i} p]))
+    :else nil))
 
-(defn leila-text
-  [mdata]
-  (let [single-organ (ui/get-single-organ mdata)]
-    [:<>
-     [:> bs/Row
-      [:> bs/Col {:md 6}
-       [home-section
-        [:h2 "What does this site do?"]
-        [:p (get-in mdata [single-organ :description])]]
-
-       [home-section
-        [:h2 "What does the tool show?"]
-        [:p "The tool will show the estimated risk of your cancer coming back (recurrence) or spreading to other parts of the body (metastasis).
-        It will also show an estimate of your risk of death from other causes over the next 10 years based on data from
-        people of the same age and sex. If your cancer comes back there are several options for treatment, which your clinical team will discuss with you."]]
-
-       [home-section
-        [:h2 "Who is this site for?"]
-        [:p (get-in mdata [single-organ :who-is-it-for])]]]
-
-      [:> bs/Col {:md 6}
-       [home-section
-        [:h2 "How does it work?"]
-        [:p "The tool takes the information you enter and shows what happened to people “like you” in the past.
-        It is not showing what will happen to you in the future, it is showing what happened to people of the
-        same age and sex with similar kidney cancers in the past."]
-        [:p "The tool uses a modified version of the Leibovich score, called Leibovich-Plus to estimate your risk. It does
-        not take into account everything about you. For example, it does not ask about other health conditions you may have. "]
-        [:p " If you want to know more about the data and the models behind the tool read
-             the " [:a {:href (ui/href :kcp.views/tech)} "technical section"] " of this site."]]
-       [home-section
-        [:h2 "Where can I find more information and support?"]
-        (get-in mdata [single-organ :more-information])]]
-
-      [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
-       (choose-centre-nav mdata)]]]))
+(defn tool-intro
+      [mdata organ tool-key]
+      (let [intro (get-in mdata [organ :tools tool-key :intro])]
+           [:> bs/Row
+            [:> bs/Col {:md 6}
+             [home-section
+              [:h2 "What does this site do?"]
+              [render-description (:description intro)]]
+             (when (utils/filled-in? (:what-does-it-show intro))
+               [home-section
+                [:h2 "What does the tool show?"]
+                [:p (:what-does-it-show intro)]])
+             [home-section
+              [:h2 "Who is this site for?"]
+              [:p (:who-is-it-for intro)]]]
+            [:> bs/Col {:md 6}
+             [home-section
+              [:h2 "How does it work?"]
+              (for [[i p] (map-indexed vector (:how-does-it-work intro))]
+                   [:p {:key i} p])
+              [:p "If you want to know more about the data and the models behind the tool read the "
+               [:a {:href (ui/href :kcp.views/tech)} "technical section"]
+               " of this site."]]
+             [home-section
+              [:h2 "Where can I find more information and support?"]
+              (get-in mdata [organ :more-information])]]
+            [:> bs/Col {:sm 12 :style {:display "flex" :justify-content "center"}}
+             [ui/button {:class-name "btn-lg"
+                         :variant    "primary"
+                         :style      {:font-size "1.5em"}
+                         :on-click   #(do
+                                        (rf/dispatch [::events/reset-edit-state])
+                                        (rf/dispatch [::events/navigate ::organ-centre-tool-tab-inputs
+                                                      {:organ organ :centre "uk" :tool (name tool-key)
+                                                       :tab "icons" :inputs "-"}]))}
+              "Start the tool"]]]))
 
 ;;; Views ;;;
 (defn home-page
   "Display a generic home page.
    Minimally, navigation from here to an organ home page."
   []
-  (let [mdata @(rf/subscribe [::subs/mdata])
-        route @(rf/subscribe [::subs/current-route])
-        single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])]
-    (if mdata
-      (if-let [organ (or single-organ organ)]
-        [ui/decorated-page
-         [:div {:style {:width            "calc(100% + 30px)"
-                        :background-color "#337777"         ; "#E0E0E8"
-                        :margin-left      "-15px"
-                        :padding          "15px"}}
-          [ui/row
-           [ui/col {:md 4}
-            [:img (if (= organ :lung)
-                    {:src "assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
-                    {:src "assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
-           [ui/col {:md 8 :style {:color "#fff"}}
-            [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
-            [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
-            [:p [:b "If you are a patient and you use this site on your own, discuss the results with your urology team."]]]]]
-         (str "PREDICT " (string/capitalize (name single-organ)))
-         (get-in mdata [single-organ :label])
-         [ui/row
-          [ui/col
-           [:<> (leila-text mdata)]]]])
-      [ui/loading])))
+  (let [selected (r/atom nil)]
+    (fn []
+      (let [mdata        @(rf/subscribe [::subs/mdata])
+            route        @(rf/subscribe [::subs/current-route])
+            single-organ (ui/get-single-organ mdata)
+            organ        (get-in route [:path-params :organ])
+            home-tools   (when mdata
+                           (filterv #(get-in mdata [single-organ :tools % :home-label])
+                                    (get-in mdata [single-organ :tool-order])))]
+        (when (and (seq home-tools) (nil? @selected))
+          (reset! selected (first home-tools)))
+        (if mdata
+          (if-let [organ (or single-organ organ)]
+            [ui/decorated-page
+             [:div {:style {:width            "calc(100% + 30px)"
+                            :background-color "#337777"         ; "#E0E0E8"
+                            :margin-left      "-15px"
+                            :padding          "15px"}}
+              [ui/row
+               [ui/col {:md 4}
+                [:img (if (= organ :lung)
+                        {:src "assets/lung-banner.png" :alt "lung tool banner image" :async true :style {:height 130 :width 250}}
+                        {:src "assets/kidney-banner.png" :alt "kidney tool banner image" :async true :style {:height 130 :width 260}})]]
+               [ui/col {:md 8 :style {:color "#fff"}}
+                [:p [:b {:style {:font-size "1.2em"}} "How should I use this site?"]]
+                [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
+                [:p [:b "If you are a patient and you use this site on your own, discuss the results with your urology team."]]]]]
+             [ui/tabs {:variant            "pills"
+                       :default-active-key (when @selected (name @selected))
+                       :active-key         (when @selected (name @selected))
+                       :on-select          #(reset! selected (keyword %))}
+              (for [tool-key home-tools]
+                [ui/tab {:key       (name tool-key)
+                         :event-key (name tool-key)
+                         :title     (get-in mdata [single-organ :tools tool-key :home-label])}])]
+             (get-in mdata [single-organ :label])
+             [ui/row
+              [ui/col
+               [tool-intro mdata single-organ @selected]]]])
+          [ui/loading])))))
 
 (defn organ-home
   "The organ home pages need organ centres data to render. And it's handy to detect small screens.

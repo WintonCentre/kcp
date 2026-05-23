@@ -135,7 +135,7 @@ in the routes table."
          ; Site name below
          [:> bs/Nav.Link {:style {:font-size "1em" :color "white"}
                           :on-click #(rf/dispatch [::events/reset-edit-state])
-                          :href (str (href :kcp.views/organ-centre-tool {:organ (name organ) :centre "uk" :tool "ldsurvival"}) "/bars/-")}
+                          :href home-url}
           [:div {:style {:font-size "1.5em"}}
            (if single-organ
              (str "PREDICT Kidney")

@@ -35,11 +35,12 @@
     "ws": "7.3.1"
   },
   "devDependencies": {
-    "rimraf": "^5.0.10",
-    "shadow-cljs": "^2.28.15",
-    "xmlhttprequest": "^1.8.0",
     "karma": "^6.4.4",
     "karma-chrome-launcher": "^3.2.0",
-    "karma-cljs-test": "^0.1.0"
+    "karma-cljs-test": "^0.1.0",
+    "rimraf": "^5.0.10",
+    "sass": "^1.101.0",
+    "shadow-cljs": "^2.28.15",
+    "xmlhttprequest": "^1.8.0"
   }
 }

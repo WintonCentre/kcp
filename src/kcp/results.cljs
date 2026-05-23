@@ -5,6 +5,7 @@
             [kcp.factors :as fac]
             [kcp.fullscreen :as fs]
             [kcp.model :as model]
+            [kcp.pkm-model :as pkm]
             [kcp.rgb :as rgb]
             [kcp.shortener :as shorts]
             [kcp.subs :as subs]
@@ -28,13 +29,19 @@
    [fs/full-screen-wrapper options]])
 
 (defn create-pkm-context
-  [{:keys [] :as context}]
-  (let [sample-days (range 0 121 12)]
-    {
+  "PREDICT Kidney competing-risks model"
+  [{:keys [plot-order bundle inputs]}]
+  (let [sample-days pkm/sample-days
+        base-outcome-keys (vec (remove #{:residual} plot-order))
+        F (pkm/compute-F inputs
+                         (:pkm-baseline-hazards-rcc bundle)
+                         (:pkm-baseline-hazards-mort bundle))
+        fs-by-year (model/S0-for-days F sample-days)
+        fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys plot-order fs-by-year)]
+    {:base-outcome-keys        base-outcome-keys
      :sample-days              sample-days
-     :F                        ()
-     :fs-by-year-in-plot-order ()
-     }))
+     :F                        F
+     :fs-by-year-in-plot-order fs-by-year-in-plot-order}))
 
 (defn create-ld-survival-context
   [{:keys [base-outcome-keys bundle inputs outcomes outcome-keys] :as context}]
@@ -46,7 +53,7 @@
                                                          "Sex" (if (= (get-in inputs [:sex]) :Male) "M" "F")}))
         beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
         s0 (map (fn [bc] [(:days bc)
-                              ((apply juxt outcome-keys) bc)]) baseline-cifs)
+                          ((apply juxt outcome-keys) bc)]) baseline-cifs)
         s0 (utils/filter-by-timestamps (set sample-days) s0)
         sum-betas (map #(fac/sum-beta-xs context %) beta-keys)
         F (utils/normalize-vectors (utils/merge-vectors (model/cox-only s0 sum-betas) mortality-data))
@@ -62,7 +69,7 @@
   "Creates a bundle of context used in all visualizations"
   [{:keys [organ centre tool selected-vis]}]
   (let [day @(rf/subscribe [::subs/test-day])
-    {:keys [fmaps outcome-keys base-outcome-keys outcomes] :as bundle}
+        {:keys [fmaps outcome-keys base-outcome-keys outcomes] :as bundle}
         (bun/get-bundle organ centre tool)
         inputs @(rf/subscribe [::subs/inputs])
         mdata @(rf/subscribe [::subs/mdata])

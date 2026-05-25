@@ -27,25 +27,48 @@
                  :bottom           -14}}
    [fs/full-screen-wrapper options]])
 
-(defn create-visualization-context
-  "Creates a bundle of context used in all visualizations"
-  [{:keys [organ centre tool selected-vis]}]
-  (let [day @(rf/subscribe [::subs/test-day])
-        {:keys [fmaps outcome-keys
-                base-outcome-keys timed-outcome-keys beta-keys outcomes S0 all-S0]
-         :as   bundle} (bun/get-bundle organ centre tool)
-        inputs @(rf/subscribe [::subs/inputs])
-        mdata @(rf/subscribe [::subs/mdata])
-        tool-mdata (get-in mdata [organ :tools tool])
-        show-results @(rf/subscribe [::subs/show-results])
+(defn create-pkm-context
+  [{:keys [] :as context}]
+  (let [sample-days (range 0 121 12)]
+    {
+     :sample-days              sample-days
+     :F                        ()
+     :fs-by-year-in-plot-order ()
+     }))
+
+(defn create-ld-survival-context
+  [{:keys [base-outcome-keys bundle inputs outcomes outcome-keys] :as context}]
+  (let [sample-days (range 0 121 12)
+        baseline-cifs (:baseline-cifs bundle)
         mortality-data (utils/reformat-mortality-data (utils/filter-parallel-data
                                                         (:ldsurvival-competing-mortality bundle)
                                                         {"Age" (js/parseInt (get-in inputs [:age-at-surgery])),
                                                          "Sex" (if (= (get-in inputs [:sex]) :Male) "M" "F")}))
+        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+        s0 (map (fn [bc] [(:days bc)
+                              ((apply juxt outcome-keys) bc)]) baseline-cifs)
+        s0 (utils/filter-by-timestamps (set sample-days) s0)
+        sum-betas (map #(fac/sum-beta-xs context %) beta-keys)
+        F (utils/normalize-vectors (utils/merge-vectors (model/cox-only s0 sum-betas) mortality-data))
+        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+        fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys (:plot-order context) fs-by-year)]
+    {
+     :sample-days              sample-days
+     :F                        F
+     :fs-by-year-in-plot-order fs-by-year-in-plot-order
+     }))
 
-        sample-days (range 0 121 12)
-        S0 (utils/filter-by-timestamps (set sample-days) S0)
-        all-S0 (utils/filter-by-timestamps (set sample-days) all-S0)
+(defn create-visualization-context
+  "Creates a bundle of context used in all visualizations"
+  [{:keys [organ centre tool selected-vis]}]
+  (let [day @(rf/subscribe [::subs/test-day])
+    {:keys [fmaps outcome-keys base-outcome-keys outcomes] :as bundle}
+        (bun/get-bundle organ centre tool)
+        inputs @(rf/subscribe [::subs/inputs])
+        mdata @(rf/subscribe [::subs/mdata])
+        tool-mdata (get-in mdata [organ :tools tool])
+        show-results @(rf/subscribe [::subs/show-results])
+
 
         context {:organ              organ
                  :centre             centre
@@ -56,13 +79,9 @@
                  :day                day
                  :bundle             bundle
                  :fmaps              fmaps
-                 :S0                 S0
-                 :all-S0             all-S0
                  :outcomes           outcomes
                  :outcome-keys       outcome-keys
                  :base-outcome-keys  base-outcome-keys
-                 :timed-outcome-keys timed-outcome-keys
-                 :beta-keys          beta-keys
                  :cohort-dates       @(rf/subscribe [::subs/cohort-dates])
                  :inputs             inputs
                  :selected-vis       selected-vis
@@ -92,23 +111,11 @@
                                 :unknowns         unknowns
                                 :overlay          overlay})
 
-        ;; We use all of S0 till it gets to be too slow. May need to query tool and vis here.
-        ;; Switching s0 is enough
-        s0 all-S0
-        s0-for-day (model/S0-for-day s0 day)
-        sum-betas (map #(fac/sum-beta-xs context %) beta-keys)
-        F (utils/normalize-vectors (utils/merge-vectors (model/cox-only s0 sum-betas) mortality-data))
-        sample-days sample-days
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys (:plot-order context) fs-by-year)
-
-        context (conj context
-                      [:sum-betas sum-betas]
-                      [:s0 s0]
-                      [:s0-for-day s0-for-day]
-                      [:F F]
-                      [:fs-by-year-in-plot-order fs-by-year-in-plot-order])]
-    context))
+        context-extension (case tool
+                            :pkm (create-pkm-context context)
+                            :ldsurvival (create-ld-survival-context context)
+                            {})]
+    (merge context context-extension)))
 
 
 
@@ -123,7 +130,7 @@
         total-score (:total-score vis-context)
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
 
-    (when (:S0 vis-context)
+    (when (:F vis-context)
       [:<>
        (rf/dispatch [::events/missing-inputs missing])
 

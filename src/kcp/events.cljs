@@ -11,8 +11,6 @@
     [kcp.model :as model]
     [ajax.core :as ajax]
     [cljs.reader :as edn]
-    [clojure.string :as string]
-    [clojure.set :as rel]
     ;[shadow.debug :refer [locals ?> ?-> ?->>]]
     ))
 
@@ -138,6 +136,46 @@
   [bundle-name tool-suffix]
   (keyword (str bundle-name tool-suffix)))
 
+(defn process-ld-survival
+  "Process ld-survival model-extension bundle data."
+  [raw bundle-name]
+  (let [baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
+        baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
+
+        ;; Convert legacy cifs to survivals keyed by outcome
+        timed-outcome-keys (keys (first baseline-cifs))
+        outcome-keys (remove #(= :days %) timed-outcome-keys)
+        outcomes (fac/get-outcomes* (first baseline-cifs))
+        beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
+        base-outcome-keys (mapcat #(vector (keyword %)
+                                           (keyword (str % "-competing-mortality")))
+                                  outcomes)
+
+        ;; Use SO+ if calculating with ALL data points
+        S0+ (map (fn [bc] [(:days bc)
+                           ((apply juxt outcome-keys) bc)]) baseline-cifs)
+
+        ;; Otherwise, use SO for a reduced data optimised calculation
+        S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
+                            %2) (model/sample-from S0+))]
+    {:baseline-cifs     baseline-cifs
+     :outcomes          outcomes
+     :outcome-keys      outcome-keys
+     :base-outcome-keys base-outcome-keys
+     :beta-keys         beta-keys
+     :all-S0            S0+
+     :S0                S0}))
+
+
+(defn process-pkm
+  "Process pkm model-extension bundle data."
+  [raw bundle-name]
+  (let []
+
+    {:outcomes          ()
+     :outcome-keys      ()
+     :base-outcome-keys ()}))
+
 ;;
 ;; Process raw tool bundles into db.
 ;;
@@ -173,41 +211,18 @@
                              (map (fn [[k [{:keys [level]}]]] [k level]))
                              (into {}))
 
-          baseline-cifs-key (bundle-sheet bundle-name "-baseline-cifs")
-          baseline-cifs (map #(dissoc % :centre) (get raw baseline-cifs-key))
-
-          ;; Convert legacy cifs to survivals keyed by outcome
-          timed-outcome-keys (keys (first baseline-cifs))
-          outcome-keys (remove #(= :days %) timed-outcome-keys)
-          outcomes (fac/get-outcomes* (first baseline-cifs))
-          beta-keys (fac/prefix-outcomes-keys "beta" outcomes)
-          base-outcome-keys (mapcat #(vector (keyword %)
-                                             (keyword (str % "-competing-mortality")))
-                                    outcomes)
-
-          ;; Use SO+ if calculating with ALL data points
-          S0+ (map (fn [bc] [(:days bc)
-                             ((apply juxt outcome-keys) bc)]) baseline-cifs)
-
-          ;; Otherwise, use SO for a reduced data optimised calculation
-          S0 (keep-indexed #(when-not (and (= %1 1) (zero? (first %2)))
-                              %2) (model/sample-from S0+))]
+          model-extension (case tool
+                           :pkm (process-pkm raw bundle-name)
+                           :ldsurvival (process-ld-survival raw bundle-name)
+                           {})]
 
       {:db
        (assoc-in db data-path
                  (-> raw
                      (assoc :fmaps tool-inputs
-                            :baseline-cifs baseline-cifs
-                            :baseline-vars baseline-vars
-                            :outcomes outcomes
-                            :outcome-keys outcome-keys
-                            :base-outcome-keys base-outcome-keys
-                            :timed-outcome-keys timed-outcome-keys
-                            :beta-keys beta-keys
-                            :all-S0 S0+
-                            :S0 S0)
+                            :baseline-vars baseline-vars)
+                     (merge model-extension)
                      (dissoc inputs-key)
-                     (dissoc baseline-cifs-key)
                      (dissoc baseline-vars-key)))
        :reg-factors [organ fmaps]})))
 

@@ -861,6 +861,5 @@
      {:days 1095,
       :cif-transplant 0.080756853,
       :cif-death 0.5165745583}),
-    :timed-outcome-keys '(:days :cif-transplant :cif-death),
     :beta-keys '(:beta-transplant :beta-death),
     :outcomes ''("transplant" "death")}}}})

@@ -146,66 +146,6 @@
    [:th]
    (map-indexed (fn [k b] [:th {:key k} (replace b #"-reasons" "")]) outcomes)])
 
-(defn test-rig
-  "expose calcluation in test"
-  [{:keys [day beta-keys outcomes fmaps s0 sum-betas F] :as env}]
-  (let [factors (keys fmaps)]
-    #_[:div "Not yet"]
-    [:> bs/Row {:style {:margin-top 20}}
-     (when factors
-       [:> bs/Col
-        ;; todo: add text configuration
-        [ui/test-day-selector "Results for test day:"]
-        [:> bs/Row
-         [:> bs/Col
-          [:> bs/Table {:striped  true
-                        :bordered true
-                        :hover    true}
-           [:thead [outcome-tr 1005 outcomes]]
-           (into [:tbody
-
-                  ;;  Show Baseline S0s for selected day
-                  [:tr {:key 1001}
-                   [:td [:b "S" [:sub "0"]]]
-                   (map-indexed
-                     (fn [i S0_i]
-                       [:td {:key i} (model/to-precision (- 1 S0_i) 4)])
-                     (second (model/S0-for-day s0 day)))]   ;;  Show Baseline S0s for selected day
-                  [:tr {:key 1002}
-                   [:td [:b "F"]]
-                   (map-indexed
-                     (fn [i F_i]
-                       [:td {:key i} (model/to-precision F_i 4)])
-                     (second (model/S0-for-day F day)))]
-
-                  ;; Show sum-beta-xs for selected inputs
-                  [:tr {:key 1003}
-                   [:td [:b {:style {:font-size 20}} "𝜮 𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]]
-                   (map-indexed
-                     (fn [i sb]
-                       [:td {:key i} (model/to-precision sb 4)])
-                     sum-betas)]
-
-                  [:tr {:key 1004 :style {:background-color rgb/secondary :color "#fff"}}
-                   [:th "Factor" [:sub [:i "𝒌"]]]
-                   [:th {:col-span (str (count outcomes))}
-                    [:b {:style {:font-size 20}} "𝛽" [:sub [:i "𝒌"]] "𝓍" [:sub [:i "𝒌"]]]
-                    #_[:i "Beta * x"]]]
-
-                  (outcome-tr 1006 outcomes)
-                  (conj
-                    (map-indexed
-                      (fn [i [factor fmap]]
-                        ; Show individual beta-x contribution
-                        [:tr {:key i}
-                         [:td {:key i} factor]
-                         (when fmap
-                           (map-indexed
-                             (fn [j b]
-                               [:td {:key j} (model/to-precision (last (fac/selected-beta-x env factor fmap b)) 4)])
-                             beta-keys))])
-                      fmaps))])]]]])]))
-
 ;;;
 ;; svg styles
 ;;;
@@ -425,11 +365,8 @@
 
 (defn bar-chart
   "Draw the bar chart"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env}]
-  (let [sample-days (map
-                      utils/year->day
-                      (range (inc (utils/day->year (first (last s0))))))
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+  [{:keys [organ tool base-outcome-keys sample-days F] :as env}]
+  (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
@@ -621,14 +558,10 @@
 
 (defn area-chart
   "Draw the area chart"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env} {:keys [slimline] :as display-options}]
+  [{:keys [organ tool base-outcome-keys sample-days F] :as env} {:keys [slimline] :as display-options}]
   ;(?-> s0 ::s0)
   (?-> env ::env)
-  (let [year-days (map
-                    utils/year->day
-                    (range (inc (utils/day->year (first (last s0))))))
-
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) year-days)
+  (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         quarter-days (range 121)
         _ (?-> quarter-days ::quarter-days)
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
@@ -856,12 +789,9 @@
 
 (defn icon-array
   "render an icon array results view"
-  [{:keys [organ tool base-outcome-keys s0 F] :as env} {:keys [disable-mobile]}]
+  [{:keys [organ tool base-outcome-keys sample-days F] :as env} {:keys [disable-mobile]}]
 
-  (let [sample-days (map
-                      utils/year->day
-                      (range (inc (utils/day->year (first (last s0))))))
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+  (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
@@ -952,12 +882,9 @@
 
 (defn table
   "render a table results view"
-  [{:keys [organ tool base-outcome-keys s0 F label-order hidden-labels] :as env}]
+  [{:keys [organ tool base-outcome-keys sample-days F label-order hidden-labels] :as env}]
 
-  (let [sample-days (map
-                      utils/year->day
-                      (range (inc (utils/day->year (first (last s0))))))
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+  (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         fs-by-year-in-label-order (fs-time-series base-outcome-keys label-order fs-by-year)
@@ -993,12 +920,9 @@
 
 (defn text
   "a text results view"
-  [{:keys [organ tool base-outcome-keys s0 F label-order] :as env}]
+  [{:keys [organ tool base-outcome-keys sample-days F label-order] :as env}]
 
-  (let [sample-days (map
-                      utils/year->day
-                      (range (inc (utils/day->year (first (last s0))))))
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+  (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         fs-by-year-in-label-order (fs-time-series base-outcome-keys label-order fs-by-year)]
@@ -1008,11 +932,8 @@
 
 (defn test-gen
   "send a test data structure for comparison against an R structure"
-  [{:keys [organ tool base-outcome-keys s0 F fulfilled-inputs fmaps centre-info] :as env}]
-  (let [sample-days (map
-                      utils/year->day
-                      (range (inc (utils/day->year (first (last s0))))))
-        fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
+  [{:keys [organ tool base-outcome-keys sample-days F fulfilled-inputs fmaps centre-info] :as env}]
+  (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         tool-mdata (tool-metadata env organ tool)
         plot-order (:plot-order tool-mdata)
         fs-by-year-in-plot-order (fs-time-series base-outcome-keys plot-order fs-by-year)

@@ -20,6 +20,7 @@ tmp.iml
 \#*
 .#*
 .~*#
+kcp2.iml
 
 # Node.js dependencies
 /node_modules/

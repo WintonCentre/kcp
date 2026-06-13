@@ -559,17 +559,17 @@
 (defn area-chart
   "Draw the area chart"
   [{:keys [organ tool base-outcome-keys sample-days F] :as env} {:keys [slimline] :as display-options}]
-  ;(?-> s0 ::s0)
-  (?-> env ::env)
   (let [fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
-        quarter-days (range 121)
-        _ (?-> quarter-days ::quarter-days)
+        quarter-days (range (+ (last sample-days) 1))
         fs-by-quarter (map (fn [day] (model/S0-for-day F day)) quarter-days)
         tool-mdata (tool-metadata env organ tool)
         data-styles (get tool-mdata :outcomes)
         plot-order (:plot-order tool-mdata)
         label-order (:label-order tool-mdata)
         svg-width (if slimline 780 1060)
+        x-domain-max (if (> (count sample-days) 11)
+                       25
+                       15)
         svg-height 660]
 
     [:> bs/Row
@@ -587,7 +587,7 @@
                    :padding      (if slimline
                                    {:top 40, :right -30, :bottom 100, :left -20}
                                    {:top 40, :right 20, :bottom 100, :left 20})
-                   :x-domain     [0 15]
+                   :x-domain [0 x-domain-max]
                    :x-ticks      10
                    :y-domain     [1 0]
                    :y-ticks      10})

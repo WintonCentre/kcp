@@ -169,12 +169,12 @@
                                                                                     :line       ["By the end"
                                                                                                  "of year 1"]}
                                                                                    {:time-index 5
-                                                                                    :x-offset   -75
+                                                                                    :x-offset   -50
                                                                                     :y-offset   585
                                                                                     :line       ["By the end"
                                                                                                  "of year 5"]}
                                                                                    {:time-index 10
-                                                                                    :x-offset   -75
+                                                                                    :x-offset   -50
                                                                                     :y-offset   585
                                                                                     :line       ["By the end"
                                                                                                  "of year 10"]}]}

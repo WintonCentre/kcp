@@ -117,16 +117,12 @@
                                                                      :n-stage                   {:pNx ["Your regional lymph node status is " "Not requiring investigation"]
                                                                                                  :pN0 ["Your regional lymph node status is " "pN0"]
                                                                                                  :pN1 ["Your regional lymph node status is " "pN1"]}
-                                                                     :tumor-size                {
-                                                                                                 :cm-<10  ["Your tumour is " "less than 10 cm " "in size"]
-                                                                                                 :cm->=10 ["Your tumour is " "greater than 10 cm " "in size"]}
-                                                                     :histologic-tumor-necrosis {:No  ["Your tumour had " "no necrosis"]
-                                                                                                 :Yes ["Your tumour " "had necrosis"]}
                                                                      :nuclear-grade             {:1 ["Your nuclear grade is " "1"]
                                                                                                  :2 ["Your nuclear grade is " "2"]
                                                                                                  :3 ["Your nuclear grade is " "3"]
                                                                                                  :4 ["Your nuclear grade is " "4"]}}
                                                :printout            {
+                                                                     :excluded-inputs #{:tumor-size :histologic-tumor-necrosis}
                                                                      :time-index  5
                                                                      :description "5 years following surgery"}
                                                :bars                {:width       150

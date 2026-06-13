@@ -130,7 +130,7 @@
                                                                      :time-index  5
                                                                      :description "5 years following surgery"}
                                                :bars                {:width       150
-                                                                     :spacing     3.2
+                                                                     :spacing     2.4
                                                                      :font-size   30
                                                                      :svg-width   1060
                                                                      :svg-height  700
@@ -150,7 +150,12 @@
                                                                                     :x-offset   0
                                                                                     :y-offset   610
                                                                                     :line       ["By the end"
-                                                                                                 "of year 10"]}]}
+                                                                                                 "of year 10"]}
+                                                                                   {:time-index 15
+                                                                                    :x-offset   0
+                                                                                    :y-offset   610
+                                                                                    :line       ["By the end"
+                                                                                                 "of year 15"]}]}
                                                :area                {:svg-width   1060
                                                                      :svg-height  680
                                                                      :svg-margin  {:top 0 :right 10 :bottom 0 :left 40}
@@ -203,7 +208,11 @@
                                                                                  {:time-index 10
                                                                                   :x-offset   -10
                                                                                   :y-offset   610
-                                                                                  :line       ["By the end of year 10"]}]}
+                                                                                  :line       ["By the end of year 10"]}
+                                                                                 {:time-index 15
+                                                                                  :x-offset   -10
+                                                                                  :y-offset   610
+                                                                                  :line       ["By the end of year 15"]}]}
 
                                                :pre-section         [:<>
                                                                      [:h3 "What does this show?"]

@@ -862,6 +862,7 @@ Here are typical donor characteristics you might be asked to think about."]
   (let [
         total-score (:total-score visualization-context)
         time-index (get-in visualization-context [:tool-mdata :printout :time-index] nil)
+        excluded-inputs (get-in visualization-context [:tool-mdata :printout :excluded-inputs] #{})
         fs-by-year-in-plot-order (:fs-by-year-in-plot-order visualization-context)
         details {
                  :selection                (utils/reorder-map (:inputs visualization-context) (:fmaps visualization-context))
@@ -870,6 +871,7 @@ Here are typical donor characteristics you might be asked to think about."]
                  :risk-group               (:risk-group visualization-context)
                  :leibovich-score          (:leibovich-score visualization-context)
                  :inline-score             (:inline-score visualization-context)
+                 :excluded-inputs          excluded-inputs
                  :risk-at-print-time-index (if (empty? fs-by-year-in-plot-order)
                                              nil
                                              (-> fs-by-year-in-plot-order
@@ -949,6 +951,7 @@ Here are typical donor characteristics you might be asked to think about."]
 
        (if-let [tool-centre-bundle tcb]
          (let [tcb-fmaps (get tool-centre-bundle :fmaps)
+               filtered-inputs (:excluded-inputs printout-details)
                first-boxed (ffirst (filter (fn [[_k w]] (:boxed w)) tcb-fmaps))]
            [ui/row {:style {:margin "0px 10px"}}
             [ui/col {:xs 12}
@@ -971,13 +974,14 @@ Here are typical donor characteristics you might be asked to think about."]
                 (into [:<>]
                       (map
                         (fn [[k w]] ^{:key (:factor w)}
-                          [:div {:style {:margin-top       0
-                                         :margin-bottom    -5
-                                         :margin-left      -15
-                                         :padding          5
-                                         :display          "relative"
-                                         :outline-bottom   (when (some? (:boxed w)) boxed-border)
-                                         :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
+                          [:div {:class-name (when (contains? filtered-inputs k) "d-print-none")
+                                 :style      {:margin-top       0
+                                              :margin-bottom    -5
+                                              :margin-left      -15
+                                              :padding          5
+                                              :display          "relative"
+                                              :outline-bottom   (when (some? (:boxed w)) boxed-border)
+                                              :background-image (when (some? (:boxed w)) (str "url(" (prf/data-urls :boxed) ")"))}}
                            [:div {:style {:position      "relative"
                                           :padding-right 5}}
                             (when (= k first-boxed)

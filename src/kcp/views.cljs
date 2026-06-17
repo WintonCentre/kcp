@@ -43,6 +43,18 @@
                                [:p {:key i} p]))
     :else nil))
 
+(defn render-formatted
+  [s]
+  (if (string? s)
+    (let [parts (str/split s #"\*\*")]
+      (into [:<>]
+            (map-indexed (fn [idx part]
+                           (if (odd? idx)
+                             [:b part]
+                             part))
+                         parts)))
+    s))
+
 (defn tool-intro
       [mdata organ tool-key]
       (let [intro (get-in mdata [organ :tools tool-key :intro])]
@@ -872,6 +884,7 @@ Here are typical donor characteristics you might be asked to think about."]
                  :leibovich-score          (:leibovich-score visualization-context)
                  :inline-score             (:inline-score visualization-context)
                  :excluded-inputs          excluded-inputs
+                 :page-header              (get-in visualization-context [:tool-mdata :printout :header] "")
                  :risk-at-print-time-index (if (empty? fs-by-year-in-plot-order)
                                              nil
                                              (-> fs-by-year-in-plot-order
@@ -890,7 +903,10 @@ Here are typical donor characteristics you might be asked to think about."]
                  :more-information         (-> visualization-context
                                                :mdata
                                                (get-in [(ui/get-single-organ (:mdata visualization-context))])
-                                               :more-information)}]
+                                               :more-information)
+                 :risk-statement-template  (get-in visualization-context [:tool-mdata :printout :risk-statement] "")
+                 :in-other-words-template  (get-in visualization-context [:tool-mdata :printout :in-other-words] "")
+                 :images-desc              (get-in visualization-context [:tool-mdata :printout :images-desc] "")}]
     details)
   )
 
@@ -938,8 +954,7 @@ Here are typical donor characteristics you might be asked to think about."]
        (when-not @(rf/subscribe [::subs/missing-inputs])
          [ui/col {:xs 12 :class-name "flex-fill d-none d-print-block"}
           [:div {:class-name "boxed text-center" :style {:margin-bottom "16px"}}
-           [:p {:style {:margin "8px"}}
-            "PREDICT Kidney is a prognostic tool to predict recurrence in patients surgically treated for non-metastatic kidney cancer"]]
+           [:p {:style {:margin "8px"}} (:page-header printout-details)]]
           [ui/col {:xs 12}
            [:h5 {:class-name "text-decoration-underline"}
             (let [{:keys [risk-group leibovich-score inline-score]} printout-details
@@ -1025,21 +1040,19 @@ Here are typical donor characteristics you might be asked to think about."]
               (:rest-of-page tool-mdata)]
 
              (when-not @(rf/subscribe [::subs/missing-inputs])
-               [:section.d-none.d-print-block {:style {:margin-top 10}}
-                [:p "Based on the details of your tumour, you are at "
-                 [:b (str/lower-case (:risk-description printout-details))]
-                 (str " of your cancer coming back or spreading. The estimated risk of the cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the "
-                      (:time-index-description printout-details)) " is " [:b (str (:risk-at-print-time-index printout-details) "%")]
-                 " based on what has happened previously to people of the same age and sex and with the same type of tumour."]
-                [:p "In other words, " [:b (str "the cancer will come back or spread in the " (:time-index-description printout-details)
-                                                " in about " (:risk-at-print-time-index printout-details) " out of 100 patients of the same age and sex with a similar tumour.")]]])
+               (let [{:keys [risk-statement-template in-other-words-template risk-description time-index-description risk-at-print-time-index]} printout-details
+                     risk-desc (str/lower-case risk-description)
+                     time-desc time-index-description
+                     risk-val risk-at-print-time-index]
+                 [:section.d-none.d-print-block {:style {:margin-top 10}}
+                  [:p (render-formatted (utils/localize-plural nil risk-statement-template risk-desc time-desc risk-val))]
+                  [:p "In other words, " [:b (utils/localize-plural nil in-other-words-template risk-desc time-desc risk-val)]]]))
 
              [widg/print-or-save]]
 
             (when-not @(rf/subscribe [::subs/missing-inputs])
               [:div [ui/col {:class-name "flex-fill d-none d-print-flex" :style {:margin-top "10px"}}
-                     [ui/col {:xs 12 :style {:padding 0}} [:p "The following images show that risk in different ways. They also
-             show the estimated risk of the cancer coming back or spreading between 1 year and 10 years."]]]
+                     [ui/col {:xs 12 :style {:padding 0}} [:p {:style {:margin-bottom "8px"}} (:images-desc printout-details)]]]
 
                [ui/col {:class-name "flex-fill d-none d-print-flex"}
                 [ui/col {:xs 6 :style {:padding 0}} [vis/icon-array vis-context {:disable-mobile true}]]
@@ -1077,7 +1090,7 @@ Here are typical donor characteristics you might be asked to think about."]
                                                      [level-id stage-id])]
                              (when description
                                [:div
-                                [:p [:b (:factor-name stage-data)] " - " (-> stage-data :info-box? edn/read-string second)]
+                                [:p [:b (:factor-name stage-data)] " - " (r/as-element (-> stage-data :info-box? edn/read-string second))]
                                 [:p {:class-name "ml-5" :style {:color "#007bff"}}
                                  (first description)
                                  [:b (second description)]

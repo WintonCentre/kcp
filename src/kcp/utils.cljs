@@ -277,7 +277,7 @@
           form-with-count (if (nil? count) form (str/replace form #"\$1" (str count)))
           offset (if (nil? count) 1 2)]
       (reduce (fn [acc [idx placeholder]]
-                (str/replace acc (re-pattern (str "\\$" (+ offset idx))) placeholder))
+                (str/replace acc (re-pattern (str "\\$" (+ offset idx))) (str placeholder)))
               form-with-count
               (map-indexed vector substitutions)))))
 

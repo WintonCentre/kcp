@@ -120,11 +120,27 @@
                                                                      :nuclear-grade             {:1 ["Your nuclear grade is " "1"]
                                                                                                  :2 ["Your nuclear grade is " "2"]
                                                                                                  :3 ["Your nuclear grade is " "3"]
-                                                                                                 :4 ["Your nuclear grade is " "4"]}}
+                                                                                                 :4 ["Your nuclear grade is " "4"]}
+                                                                     :charlson-comorbidity-score {
+                                                                                                  "2" ["Your Charlson Comorbidity Score is " "2"]
+                                                                                                  "3" ["Your Charlson Comorbidity Score is " "3"]
+                                                                                                  "4" ["Your Charlson Comorbidity Score is " "4"]
+                                                                                                  "5" ["Your Charlson Comorbidity Score is " "5"]
+                                                                                                  "6" ["Your Charlson Comorbidity Score is " "6"]
+                                                                                                  "7" ["Your Charlson Comorbidity Score is " "7"]
+                                                                                                  "8" ["Your Charlson Comorbidity Score is " "8"]
+                                                                                                  "9" ["Your Charlson Comorbidity Score is " "9"]
+                                                                                                  "10" ["Your Charlson Comorbidity Score is " "10"]
+                                                                                                  "11" ["Your Charlson Comorbidity Score is " "11"]
+                                                                                                  "12" ["Your Charlson Comorbidity Score is " "12"]}}
                                                :printout            {
                                                                      :excluded-inputs #{:tumor-size :histologic-tumor-necrosis}
-                                                                     :time-index  5
-                                                                     :description "5 years following surgery"}
+                                                                    :header "PREDICT Kidney is a prognostic tool to predict survival in patients surgically treated for non-metastatic kidney cancer"
+                                                                    :time-index  5
+                                                                    :description "5 years following surgery"
+                                                                    :risk-statement "Based on the details of your tumour, you are at **$1**. The estimated risk of dying from kidney cancer in the $2 is **$3%** based on what has happened previously to similar people with the same type of tumour."
+                                                                    :in-other-words "in the $2 in about $3 out of 100 similar patients (e.g. the same age and sex) with a similar tumour will die from kidney cancer."
+                                                                    :images-desc "The following images show that risk in different ways. They also show the likelihood of survival between 1 year and 15 years after your surgery."}
                                                :bars                {:width       150
                                                                      :spacing     2.4
                                                                      :font-size   30
@@ -292,8 +308,12 @@
                                                                                                  :3 ["Your nuclear grade is " "3"]
                                                                                                  :4 ["Your nuclear grade is " "4"]}}
                                                :printout            {
-                                                                     :time-index  5
-                                                                     :description "5 years following surgery"}
+                                                                    :header "PREDICT Kidney is a prognostic tool to predict recurrence in patients surgically treated for non-metastatic kidney cancer"
+                                                                    :time-index  5
+                                                                    :description "5 years following surgery"
+                                                                    :risk-statement "Based on the details of your tumour, you are at **$1** of your cancer coming back or spreading. The estimated risk of the cancer coming back (recurrence) or spreading to other parts of the body (metastasis) in the $2 is **$3%** based on what has happened previously to people of the same age and sex and with the same type of tumour."
+                                                                    :in-other-words "the cancer will come back or spread in the $2 in about $3 out of 100 patients of the same age and sex with a similar tumour."
+                                                                    :images-desc "The following images show that risk in different ways. They also show the estimated risk of the cancer coming back or spreading between 1 year and 10 years."}
                                                :bars                {:width       150
                                                                      :spacing     3.2
                                                                      :font-size   30

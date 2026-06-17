@@ -428,8 +428,8 @@
         numerics (edn/read-string (:type w))]
     [:> bs/Row {:style {:display "flex" :align-items "flex-start"}}
      [:> bs/Col {:xs    label-width
-                 :style {:display "flex" :justify-content "flex-end" :margin-top 10}}
-      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :line-height 1.2}}
+                 :style {:display "flex" :justify-content "flex-end"}}
+      [:> bs/Form.Label {:style {:font-weight "bold" :text-align "right" :line-height 1.2 :margin-bottom 0}}
        factor-name]
       (when info-box?
         [:> bs/Button {:size       "sm"

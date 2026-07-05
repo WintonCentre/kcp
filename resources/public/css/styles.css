@@ -115,6 +115,11 @@
     display: none;
   }
 }
+@media (max-width: 768px) {
+  .numeric-calc-row {
+    flex-direction: column;
+  }
+}
 .inline-math {
   font-family: "serif";
 }

@@ -855,28 +855,6 @@ Here are typical donor characteristics you might be asked to think about."]
 (def boxed-text [:span {:style {:font-size "1.2em" :font-weight "bold"}} "DONOR Characteristics"])
 (def boxed-text-color "#000")
 
-(defn factors-not-included
-  "Considered factors that were not included"
-  [mdata]
-  (let [route @(rf/subscribe [::subs/current-route])
-        single-organ (ui/get-single-organ mdata)
-        organ (get-in route [:path-params :organ])]
-    (condp = (or single-organ organ)
-      :lung [:div
-             [:p "Patient inputs that were considered but not included in the tool e.g. antibody status"]
-             [:p [:b "Recipient Antibody Status"] " – not currently collected by NHS BT"]
-             [:p [:b "Recipient Height or TLC" " – BMI is included in model.  In the model building, height was found to be significant for time to transplant and BMI for time to death on list (but not height), so a decision was made to go with BMI as it includes height."]]
-             [:p [:b "O2 need or use / NIV / Frailty / 6 minute walk test"] " - 6 minute walk completeness for cohort used = 84% so would reduce cohort even further to include as we would remove all patients completely from the modelling if they had this missing.  Home oxygen use (y/n) is collected but when we did the original project for this, we were told it was not relevant to include. NIV is not collected."]
-             [:p [:b "FEV1, Transfer Factor"] " - FVC is included in model."]
-             [:p [:b "Comorbidities (coronary artery disease, renal dysfunction, diabetes)"] " - Coronary artery disease collected only as primary disease so not available for inclusion.  eGFR and diabetes was considered when constructing the models originally and were not significant."] [:p [:b "Time on ventilator / mechanical support"] " - Time on support not captured and very low numbers for on ventilator as it is only collected for patients in hospital at transplant – 9 (0.8%) of cohort were on ventilator at transplant."]]
-      :kidney [:div
-               [:p "In some studies, other information about patients has been shown to be related to likelihood of
-kidney cancer coming back (recurrence). These factors include age, sex and measures of overall
-health (sometimes described as comorbidity or frailty). However, the relationship between these
-factors and the predictions made by this tool are not well understood by researchers and doctors do
-not currently use these factors to make decisions about follow-up care."]]
-      :else [:div])))
-
 (defn create-printout-details
   "Creates a context object for use in the printout"
   [visualization-context additional-details]
@@ -1011,8 +989,7 @@ not currently use these factors to make decisions about follow-up care."]]
 
                         tcb-fmaps))]
                [:<>
-                [:p.d-print-none {:style {:margin-top "15px"}} "This tool cannot take into account all the factors about you that might affect the result. We hope to include more in the future."]
-                [:p.d-print-none "Click below to find out more about factors that may affect the likelihood of kidney cancer coming back but are not included the tool."]
+                (get-in tool-mdata [:inputs :footer])
                 [:p
                  [:> bs/Button {:id       "factors-considered"
                                 :size     "md"
@@ -1023,7 +1000,7 @@ not currently use these factors to make decisions about follow-up care."]]
                                             (rf/dispatch [::events/modal-data
                                                           {:show    true
                                                            :title   "Important factors not included in the tool"
-                                                           :content (factors-not-included mdata)
+                                                           :content (get-in tool-mdata [:inputs :factors-not-included])
                                                            :on-hide widg/hide-handler
                                                            :ok      widg/hide-handler}]))}
                   [:span "Show important factors not included in the tool"]]]]])

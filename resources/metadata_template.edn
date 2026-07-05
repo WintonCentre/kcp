@@ -220,7 +220,7 @@
                                                                       [:p "The results below show what happened to people like you in the past (with similar types of kidney cancer). It is not a prediction of what will happen to you. It is an estimate."]
                                                                       ]]
                                                :rest-of-page        [:section
-                                                                     [:h3 "Why does the display stop at year 10?"]
+                                                                     [:h3 "Why does the display stop at year 15?"]
                                                                      [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}
 
                                   :ldsurvival {:button-type         "survival"

@@ -679,13 +679,16 @@
                            :transform (str "translate (" (* label-index 250) ", " (- (* display-index 42) 20) ")")}
                        [:g {:transform "translate(0, 8)"} [h-and-s {:scale 2 :fill (:fill outcome)}]]
                        (let [s (:label outcome)
-                             outcome-label-lines (utils/string-split (utils/localize-plural (int-fs k) s))]
+                             label-lines (utils/string-split (utils/localize-plural (int-fs k) s))
+                             line-height 15
+                             total-lines (count label-lines)]
                          (into [:<>]
                                (map-indexed
-                                 (fn [i outcome-label-line]
-                                   [:text {:transform (str "translate (40," (+ (* 15 i) 15) ")")}
-                                    outcome-label-line])
-                                 outcome-label-lines)))]
+                                 (fn [i line]
+                                   (let [y-offset (+ 15 (* i line-height) (if (= total-lines 1) 7.5 0))]
+                                     [:text {:transform (str "translate(40," y-offset ")")}
+                                      line]))
+                                 label-lines)))]
                       ))]
 
                  [:g {:key 2 :transform (str "translate(" (* label-index 250) ", 80)")}

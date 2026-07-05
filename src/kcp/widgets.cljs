@@ -404,8 +404,7 @@
                         :margin           "0px"
                         :background-color "rgb(51, 119, 119)"}}
         (str (value-f))]]
-      ; HACK - this should come from config
-      [:i {:class-name "d-print-none" :style {:margin "4px 0 0 0" :display "block" :font-size "0.8rem"}} "Age must be between 25 and 85 years"]
+      [:i {:class-name "d-print-none" :style {:margin "4px 0 0 0" :display "block" :font-size "0.8rem"}} (:validation numerics)]
       ]]))
 
 (comment

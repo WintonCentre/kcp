@@ -232,9 +232,34 @@
 
 
 
+(defn charlson-input-form
+  "A form for collecting Charlson Comorbidity Score inputs."
+  []
+  [:<>
+   [:section {:class-name "additional-info-modal"}
+    [:p "currently just sets the score to 2..."]
+    ]])
+
+(defn collect-charlson-comorbidity
+  "Opens a dialog for collecting additional details needed for computing the Charlson Comorbidity Score."
+  [factor-key factor-name]
+  (let [cancel-modal (fn [] (hide-handler nil))
+        update-score (fn []
+                       (rf/dispatch [::events/update-edit-state {factor-name ""}])
+                       (rf/dispatch [factor-key "2"])
+                       (cancel-modal))]
+    (rf/dispatch [::events/modal-data
+                  {:show     true
+                   :width    "700px"
+                   :title    "Charlson Comorbidity Score"
+                   :content  [charlson-input-form]
+                   :continue update-score
+                   :cancel   cancel-modal
+                   :on-hide  cancel-modal}])))
+
 (defn open-collect-additional-details-modal
   "Opens a dialog for collecting additional details, ready for printing."
-  [_e]
+  []
   (let [cancel-modal (fn []
                        (rf/dispatch [::events/reset-additional-details])
                        (hide-handler nil))
@@ -372,22 +397,32 @@
                  :style {:display "flex" :flex-direction "column"}}
       (if (and (map? numerics)
                (every? identity (map numerics [:min :max :dps])))
-        [num/numeric-input {:key       factor-key
-                            :value-f   value-f
-                            :on-change #(cond
-                                          (or (nil? %) (str/includes? % ":") (empty? %))
-                                          (do
-                                            (rf/dispatch [::events/update-edit-state {factor-name (if (nil? %) "" %)}])
-                                            (rf/dispatch [factor-key nil]))
+        [:div.d-print-none.numeric-calc-row {:style {:display     "flex"
+                                                     :align-items "flex-start"
+                                                     :gap         "1rem"}}
+         [:div {:style {:flex "0 0 auto"}}
+          [num/numeric-input {:key       factor-key
+                              :value-f   value-f
+                              :on-change #(cond
+                                            (or (nil? %) (str/includes? % ":") (empty? %))
+                                            (do
+                                              (rf/dispatch [::events/update-edit-state {factor-name (if (nil? %) "" %)}])
+                                              (rf/dispatch [factor-key nil]))
 
-                                          (= % (value-f)) nil ; nothing changed
+                                            (= % (value-f)) nil ; nothing changed
 
-                                          :else (do
-                                                  (rf/dispatch [::events/update-edit-state {factor-name ""}])
-                                                  (rf/dispatch [factor-key %]))
-                                          )
-                            :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
-                            :units     (:sub-text w)}]
+                                            :else (do
+                                                    (rf/dispatch [::events/update-edit-state {factor-name ""}])
+                                                    (rf/dispatch [factor-key %]))
+                                            )
+                              :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
+                              :units     (:sub-text w)}]]
+
+         (when (:calc-workflow numerics) [:> bs/Button {:variant    "primary"
+                                                        :style      {:z-index          100}
+                                                        :on-click   (fn [_e]
+                                                                      (collect-charlson-comorbidity factor-key factor-name))}
+                                          "Calculate"])]
 
         [:div "Check that " (:factor w) " has min, max, and dps parameters"])
       ; HACK - duplicated rules, the color should be from config
@@ -395,7 +430,7 @@
                      :margin-top      "5px"
                      :border-radius   "5px"
                      :padding         "1px"}
-                     :class "d-none d-print-block"}
+             :class "d-none d-print-block"}
        [:label {
                 :class "toggler btn active btn-outline-secondary"
                 :style {

@@ -914,7 +914,7 @@ not currently use these factors to make decisions about follow-up care."]]
   )
 
 (defn tool-page
-  [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name] :as params}]
+  [{:keys [organ organ-centres centre tool tool-name mdata tools organ-name centre-name]}]
   (when (and mdata organ centre ((keyword organ) organ-centres) tool)
     (let [centre-info (utils/get-centre-info organ-centres organ centre)
           uk-info (utils/get-centre-info organ-centres organ :uk)
@@ -931,7 +931,7 @@ not currently use these factors to make decisions about follow-up care."]]
          [:div [:div.d-print-none {:style {:width "100%" :background-color rgb/theme :padding 20 :color "white"}}
                 [ui/row
                  [ui/col {:xs 12 :sm 8}
-                  [:h1 (:explanation uk-info)]]]
+                  [:h1 (if (= tool-name "pkm") "PREDICT Kidney model" "Leibovich-Plus Score")]]]
 
                 [ui/tools-menu tools true organ-name centre-name {:vertical false}]]
           [:div.d-none.d-print-block.print-header

@@ -98,7 +98,7 @@
                                                                                                     :n   "$1 deaths from\nother causes"
                                                                                                     :nil "Death from\nother causes"}
                                                                                  :long-label       "patients have died from other causes"
-                                                                                 :hidein           #{:chart-labels}
+                                                                                 :hidein           #{:chart-labels :icon-array}
                                                                                  :fill             "#827f7f"
                                                                                  :background-color "#827f7f"
                                                                                  :color            "#fff"

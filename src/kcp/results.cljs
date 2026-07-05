@@ -230,17 +230,20 @@
 
            [:section {:style {:margin    (if is-full-screen "10%" "0")
                               :max-width (if is-full-screen "80%" "100%")
-                              :display   (when (= (:selected-vis vis-context) "test") "none")}}
-            [:h1 (cond
-                   (<= total-score 2) [:div {:style {:color "#ff9933"}}
-                                       [:h5 "Low Risk"]
-                                       [:h5 (str "Leibovich Score: " total-score " out of 11")]]
-                   (>= total-score 6) [:div {:style {:color "#ff4000"}}
-                                       [:h5 "High Risk"]
-                                       [:h5 (str "Leibovich Score: " total-score " out of 11")]]
-                   :default [:div {:style {:color "#ff751a"}}
-                             [:h5 "Intermediate Risk"]
-                             [:h5 (str "Leibovich Score: " total-score " out of 11")]])]
+                              :display   "flex"
+                              :flex-direction "column"}}
+            (let [risk-text (cond
+                              (<= total-score 2) "Low Risk"
+                              (>= total-score 6) "High Risk"
+                              :default "Intermediate Risk")
+                  color (cond
+                          (<= total-score 2) "#ff9933"
+                          (>= total-score 6) "#ff4000"
+                          :default "#ff751a")
+                  score-text (str "Leibovich Score: " total-score " out of 11")]
+              [:<>
+               [:h5 {:style {:color color}} risk-text]
+               [:h5 {:style {:color color :order (if (= (:tool vis-context) :pkm) 5 "")}} score-text]])
 
             [ui/tabs {:variant    "pills" :default-active-key (:selected-vis vis-context)
                       :active-key (:selected-vis vis-context)

@@ -118,6 +118,7 @@
 .inline-math {
   font-family: "serif";
 }
+
 .navbar-light .navbar-nav .nav-link {
   color: rgba(0, 0, 0, 0.5);
 }
@@ -344,6 +345,16 @@
 
 .btn-group-toggle > .btn input[type=radio] {
   display: none;
+}
+
+.nav-pills .nav-link {
+  border-radius: 0;
+  border: 3px solid transparent;
+}
+.nav-pills .nav-link.active {
+  color: #000000;
+  background-color: transparent;
+  border: 3px solid #000;
 }
 
 /*# sourceMappingURL=styles.css.map */

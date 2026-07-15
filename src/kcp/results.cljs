@@ -1,5 +1,6 @@
 (ns kcp.results
-  (:require [kcp.bundles :as bun]
+  (:require [clojure.string :as str]
+            [kcp.bundles :as bun]
             ["react-bootstrap" :as bs]
             [kcp.events :as events]
             [kcp.factors :as fac]
@@ -33,18 +34,19 @@
   [{:keys [plot-order bundle inputs]}]
   (let [sample-days pkm/sample-days
         base-outcome-keys (vec (remove #{:residual} plot-order))
-        F (pkm/compute-F inputs
-                         (:pkm-baseline-hazards-rcc bundle)
-                         (:pkm-baseline-hazards-mort bundle))
+        {:keys [F risk-group]} (pkm/compute-F inputs
+                                              (:pkm-baseline-hazards-rcc bundle)
+                                              (:pkm-baseline-hazards-mort bundle))
         fs-by-year (model/S0-for-days F sample-days)
         fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys plot-order fs-by-year)]
-    {:base-outcome-keys        base-outcome-keys
+    {:risk-group               risk-group
+     :base-outcome-keys        base-outcome-keys
      :sample-days              sample-days
      :F                        F
      :fs-by-year-in-plot-order fs-by-year-in-plot-order}))
 
 (defn create-ld-survival-context
-  [{:keys [base-outcome-keys bundle inputs outcomes outcome-keys] :as context}]
+  [{:keys [base-outcome-keys bundle inputs outcomes outcome-keys total-score] :as context}]
   (let [sample-days (range 0 121 12)
         baseline-cifs (:baseline-cifs bundle)
         mortality-data (utils/reformat-mortality-data (utils/filter-parallel-data
@@ -59,7 +61,11 @@
         F (utils/normalize-vectors (utils/merge-vectors (model/cox-only s0 sum-betas) mortality-data))
         fs-by-year (map (fn [day] (model/S0-for-day F day)) sample-days)
         fs-by-year-in-plot-order (vis/fs-time-series base-outcome-keys (:plot-order context) fs-by-year)]
-    {
+    {:inline-score             true
+     :risk-group               (cond
+                                 (<= total-score 2) :low
+                                 (>= total-score 6) :high
+                                 :else :intermediate)
      :sample-days              sample-days
      :F                        F
      :fs-by-year-in-plot-order fs-by-year-in-plot-order
@@ -77,30 +83,33 @@
         show-results @(rf/subscribe [::subs/show-results])
 
 
-        context {:organ              organ
-                 :centre             centre
-                 :tool               tool
-                 :mdata              mdata
-                 :tool-mdata         tool-mdata
-                 :data-styles        (get tool-mdata :outcomes)
-                 :day                day
-                 :bundle             bundle
-                 :fmaps              fmaps
-                 :outcomes           outcomes
-                 :outcome-keys       outcome-keys
-                 :base-outcome-keys  base-outcome-keys
-                 :cohort-dates       @(rf/subscribe [::subs/cohort-dates])
-                 :inputs             inputs
-                 :selected-vis       selected-vis
-                 :total-score        (+
-                                       (get-in fmaps [:t-stage :levels (get-in inputs [:t-stage]) :score])
-                                       (get-in fmaps [:n-stage :levels (get-in inputs [:n-stage]) :score])
-                                       (get-in fmaps [:tumor-size :levels (get-in inputs [:tumor-size]) :score])
-                                       (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
-                                       (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
-                 :plot-order         (:plot-order tool-mdata)
-                 :label-order        (:label-order tool-mdata)
-                 :hidden-labels      #{}}
+        total-score (+
+                      (get-in fmaps [:t-stage :levels (get-in inputs [:t-stage]) :score])
+                      (get-in fmaps [:n-stage :levels (get-in inputs [:n-stage]) :score])
+                      (get-in fmaps [:tumor-size :levels (get-in inputs [:tumor-size]) :score])
+                      (get-in fmaps [:nuclear-grade :levels (get-in inputs [:nuclear-grade]) :score])
+                      (get-in fmaps [:histologic-tumor-necrosis :levels (get-in inputs [:histologic-tumor-necrosis]) :score]))
+
+        context {:organ             organ
+                 :centre            centre
+                 :tool              tool
+                 :mdata             mdata
+                 :tool-mdata        tool-mdata
+                 :data-styles       (get tool-mdata :outcomes)
+                 :day               day
+                 :bundle            bundle
+                 :fmaps             fmaps
+                 :outcomes          outcomes
+                 :outcome-keys      outcome-keys
+                 :base-outcome-keys base-outcome-keys
+                 :cohort-dates      @(rf/subscribe [::subs/cohort-dates])
+                 :inputs            inputs
+                 :selected-vis      selected-vis
+                 :total-score       total-score
+                 :leibovich-score   (str "Leibovich Score " total-score " out of 11")
+                 :plot-order        (:plot-order tool-mdata)
+                 :label-order       (:label-order tool-mdata)
+                 :hidden-labels     #{}}
 
         inputs (:inputs context)
         required-inputs (keys (:fmaps context))
@@ -123,8 +132,6 @@
     (merge context context-extension)))
 
 
-
-
 (defn results-panel
   "Display results.
    TODO: REMOVE HARD_CODED TOOL KEYWORDS AND TEXTS"
@@ -132,7 +139,6 @@
   (let [
         mdata @(rf/subscribe [::subs/mdata])
         {:keys [inputs fulfilled-inputs missing overlay]} (:input-state vis-context)
-        total-score (:total-score vis-context)
         is-full-screen @(rf/subscribe [::subs/is-full-screen])]
 
     (when (:F vis-context)
@@ -232,15 +238,17 @@
                               :max-width (if is-full-screen "80%" "100%")
                               :display   "flex"
                               :flex-direction "column"}}
-            (let [risk-text (cond
-                              (<= total-score 2) "Low Risk"
-                              (>= total-score 6) "High Risk"
+            (let [risk-group (:risk-group vis-context)
+                  score (:leibovich-score vis-context)
+                  risk-text (cond
+                              (= risk-group :low) "Low Risk"
+                              (= risk-group :high) "High Risk"
                               :default "Intermediate Risk")
                   color (cond
-                          (<= total-score 2) "#ff9933"
-                          (>= total-score 6) "#ff4000"
+                          (= risk-group :low) "#ff9933"
+                          (= risk-group :high) "#ff4000"
                           :default "#ff751a")
-                  score-text (str "Leibovich Score: " total-score " out of 11")]
+                  score-text score]
               [:<>
                [:h5 {:style {:color color}} risk-text]
                [:h5 {:style {:color color :order (if (= (:tool vis-context) :pkm) 5 "")}} score-text]])

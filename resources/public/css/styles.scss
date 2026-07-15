@@ -345,9 +345,8 @@ $removed-darker: #DBCDB1;
     display: none;
 }
 
-.nav-pills {
+.nav-pills.tool-select {
     .nav-link {
-        border-radius: 0;
         border: 3px solid transparent;
 
         &.active {

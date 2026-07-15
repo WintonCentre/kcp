@@ -182,11 +182,14 @@
 
 (defn compute-F
   "Compute PREDICT Kidney competing-risks model F format from inputs and hazards.
-   hazards are maps with \"Time\" and \"H0\" keys."
+   hazards are maps with \"Time\" and \"H0\" keys.
+   Returns {:F <F-data> :risk-group :low/:intermediate/:high}"
   [inputs rcc-hazards mort-hazards]
   (if-let [norm-inputs (normalize-inputs inputs)]
     (let [rcc-idx (index-hazards rcc-hazards)
           mort-idx (index-hazards mort-hazards)
-          {:keys [yearly-results]} (compute-model norm-inputs rcc-idx mort-idx)]
-      (model->F yearly-results))
-    zeroed-F))
+          {:keys [yearly-results risk-group]} (compute-model norm-inputs rcc-idx mort-idx)]
+      {:F          (model->F yearly-results)
+       :risk-group risk-group})
+    {:F          zeroed-F
+     :risk-group ""}))

@@ -181,7 +181,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
    Not yet a reusable component as ony the parts we use are configured.
    To cancel the dialogue use the top-right close button."
   [data-f]
-  (let [{:keys [title content cancel continue on-hide print copy save ok paste width on-show ] :as data} @(data-f)]
+  (let [{:keys [title content cancel cancel-text continue on-hide print copy save ok ok-text paste width on-show ] :as data} @(data-f)]
     (when data
       [:> bs/Modal {:show true 
                     :onHide on-hide 
@@ -198,7 +198,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
                                        (goog.object.set style "max-width" "85%"))), 200)
               nil)
         (when cancel [:> bs/Button {:variant "secondary" :on-click cancel}
-                    "Cancel"])
+                    (or cancel-text "Cancel")])
         (when continue [:> bs/Button {:variant "primary" :on-click continue}
                       "Continue"])
         (when copy [:> bs/Button {:variant "primary" :on-click copy}
@@ -208,7 +208,7 @@ I've also missed out things like stopPropagation, preventDefault, and touch even
         (when save [:> bs/Button {:variant "primary" :on-click save}
                     "Save"])
         (when ok [:> bs/Button {:variant "primary" :on-click ok}
-                  "OK"])]])))
+                  (or ok-text "OK")])]])))
 
 (defn feedback-button
   [mdata single-organ]

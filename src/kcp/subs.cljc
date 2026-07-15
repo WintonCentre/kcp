@@ -72,3 +72,5 @@
 (rf/reg-sub ::count-of-collection-six (fn [db] (get-in db [:coll-six])))
 (rf/reg-sub ::count-of-collection-seven (fn [db] (get-in db [:coll-seven])))
 (rf/reg-sub ::count-of-collection-eight-and-more (fn [db] (get-in db [:coll-eight-and-more])))
+
+(rf/reg-sub ::charlson-inputs (fn [db] (:charlson-inputs db)))

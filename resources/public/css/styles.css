@@ -368,11 +368,10 @@
   display: none;
 }
 
-.nav-pills .nav-link {
-  border-radius: 0;
+.nav-pills.tool-select .nav-link {
   border: 3px solid transparent;
 }
-.nav-pills .nav-link.active {
+.nav-pills.tool-select .nav-link.active {
   color: #000000;
   background-color: transparent;
   border: 3px solid #000;

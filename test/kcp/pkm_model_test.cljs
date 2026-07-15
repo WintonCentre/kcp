@@ -5,10 +5,11 @@
 
 (deftest compute-F
   (testing "Returns zeroed F for invalid inputs"
-    (let [F (pkm/compute-F {} {} {})]
+    (let [{:keys [F risk-group]} (pkm/compute-F {} {} {})]
       (is (= 16 (count F)))
       (is (= [0 [0.0 0.0]] (first F)))
-      (is (= [180 [0.0 0.0]] (last F)))))
+      (is (= [180 [0.0 0.0]] (last F)))
+      (is (= "" risk-group))))
 
   (testing "Happy-path calculation for valid inputs"
     (let [inputs {:age-at-surgery "65"
@@ -22,7 +23,7 @@
                        "H0" (map (fn [t] (* t 0.01)) (range 1 16))}
           mort-hazards {"Time" (map double (range 1 16))
                         "H0" (map (fn [t] (* t 0.02)) (range 1 16))}
-          F (pkm/compute-F inputs rcc-hazards mort-hazards)
+          {:keys [F risk-group]} (pkm/compute-F inputs rcc-hazards mort-hazards)
           month-60-val (second (first (filter (fn [[m _]] (= m 60)) F)))
           month-120-val (second (first (filter (fn [[m _]] (= m 120)) F)))]
       (is (= 16 (count F)))
@@ -30,7 +31,8 @@
       (is (ish? 0.11718721883631984 (first month-60-val)))
       (is (ish? 0.057059513211194776 (second month-60-val)))
       (is (ish? 0.21164352649272625 (first month-120-val)))
-      (is (ish? 0.10648801397306458 (second month-120-val))))))
+      (is (ish? 0.10648801397306458 (second month-120-val)))
+      (is (= :low risk-group)))))
 
 (deftest model->F
   (testing "Adds origin and converts years to months"

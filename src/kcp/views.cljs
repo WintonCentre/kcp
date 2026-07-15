@@ -113,6 +113,7 @@
                 [:p [:b "The tool should be used with a clinician, specialist nurse or other healthcare professional."]]
                 [:p [:b "If you are a patient and you use this site on your own, discuss the results with your urology team."]]]]]
              [ui/tabs {:variant            "pills"
+                       :class-name "tool-select"
                        :default-active-key (when @selected (name @selected))
                        :active-key         (when @selected (name @selected))
                        :on-select          #(reset! selected (keyword %))}
@@ -865,10 +866,10 @@ Here are typical donor characteristics you might be asked to think about."]
         details {
                  :selection                (utils/reorder-map (:inputs visualization-context) (:fmaps visualization-context))
                  :risk-score               total-score
-                 :risk-description         (cond
-                                             (<= total-score 2) "Low Risk"
-                                             (>= total-score 6) "High Risk"
-                                             :default "Intermediate Risk")
+                 :risk-description         (str (str/capitalize (name (:risk-group visualization-context))) " Risk")
+                 :risk-group               (:risk-group visualization-context)
+                 :leibovich-score          (:leibovich-score visualization-context)
+                 :inline-score             (:inline-score visualization-context)
                  :risk-at-print-time-index (if (empty? fs-by-year-in-plot-order)
                                              nil
                                              (-> fs-by-year-in-plot-order
@@ -938,11 +939,12 @@ Here are typical donor characteristics you might be asked to think about."]
            [:p {:style {:margin "8px"}}
             "PREDICT Kidney is a prognostic tool to predict recurrence in patients surgically treated for non-metastatic kidney cancer"]]
           [ui/col {:xs 12}
-           (let [total-score (:risk-score printout-details)]
-             [:<>
-              [:h5 {:class-name "text-decoration-underline"}
-               (str "Results: " (:risk-description printout-details) ", " "Leibovich Score " total-score " out of 11")]
-              ])]])
+           [:h5 {:class-name "text-decoration-underline"}
+            (let [{:keys [risk-group leibovich-score inline-score]} printout-details
+                  risk-text (str "Results: " (str/capitalize (name risk-group)) " Risk")]
+              (if inline-score
+                (str risk-text ", " leibovich-score)
+                risk-text))]]])
 
 
        (if-let [tool-centre-bundle tcb]
@@ -1051,6 +1053,10 @@ Here are typical donor characteristics you might be asked to think about."]
                     [:rect {:width "100%" :height "100%" :fill "#CCC"}]
                     [:g {:transform "translate(20 -20)"}
                      (vis/svg-outcome-legend (:label-order vis-context) (:data-styles vis-context))]]]])
+
+               (let [{:keys [leibovich-score inline-score]} printout-details]
+                 (when (and leibovich-score (not inline-score))
+                   [:h5 {:style {:margin "8px 0 0 16px"}} leibovich-score]))
 
 
                [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}

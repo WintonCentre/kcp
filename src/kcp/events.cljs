@@ -9,6 +9,7 @@
     [kcp.factors :as fac]
     [kcp.shortener :as shorts]
     [kcp.model :as model]
+    [kcp.charlson :as charlson]
     [ajax.core :as ajax]
     [cljs.reader :as edn]
     ;[shadow.debug :refer [locals ?> ?-> ?->>]]
@@ -24,6 +25,7 @@
            {:current-route   nil
             :randomise-icons false
             :inputs          {}
+            :charlson-inputs {}
             :selected-vis    "bars"
             :window-width    (.-innerWidth js/window)
             :test-day        100
@@ -77,7 +79,10 @@
     [{:keys [db]} [_ _]]
     (let [path-params (-> (get-in db [:current-route :path-params])
                           (assoc :inputs "-"))]
-      {::fx/navigate! [:kcp.views/organ-centre-tool-tab-inputs path-params]})))
+      {:db (assoc db
+             :charlson-inputs {}
+             :edit-state {})
+       ::fx/navigate! [:kcp.views/organ-centre-tool-tab-inputs path-params]})))
 
 (rf/reg-event-db
   ; switch to or from full screen mode
@@ -298,6 +303,20 @@
   ::reset-edit-state
   (fn [db _]
     (assoc db :edit-state {})))
+
+(rf/reg-event-db
+  ::update-charlson-inputs
+  (fn [db [_ inputs]]
+    (update db :charlson-inputs merge inputs)))
+
+(rf/reg-event-fx
+  ::calculate-charlson-score
+  (fn [{:keys [db]} [_ factor-key factor-name]]
+    (let [inputs (:charlson-inputs db)
+          score (charlson/calculate-capped-charlson-score inputs)]
+      {:db (-> db
+               (assoc-in [:edit-state factor-name] ""))
+       :dispatch [factor-key (str score)]})))
 
 (rf/reg-event-db
   ::modal-data

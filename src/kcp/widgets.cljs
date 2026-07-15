@@ -9,6 +9,7 @@
             [kcp.numeric-input :as num]
             [kcp.copy-image :as snap]
             [clojure.string :as str]
+            [kcp.charlson :as charlson]
             ))
 
 (defn key->id
@@ -232,28 +233,66 @@
 
 
 
+(defn charlson-checkbox
+  [label condition charlson-inputs]
+  [:> bs/Form.Check
+   {:type      "checkbox"
+    :label     label
+    :class-name "mb-2"
+    :id        (str "charlson-" (name condition))
+    :checked   (boolean (get charlson-inputs condition))
+    :on-change #(rf/dispatch [::events/update-charlson-inputs
+                              {condition (-> % .-target .-checked)}])}])
+
 (defn charlson-input-form
   "A form for collecting Charlson Comorbidity Score inputs."
   []
-  [:<>
-   [:section {:class-name "additional-info-modal"}
-    [:p "currently just sets the score to 2..."]
-    ]])
+  (let [charlson-inputs @(rf/subscribe [::subs/charlson-inputs])]
+    [:section {:class-name "charlson-info-modal"}
+     [:p.mb-4 "Select any pre-existing medical conditions"]
+     [:> bs/Row
+      [:> bs/Col {:md 6}
+       [:h5.mb-3 "Heart Disease"]
+       [charlson-checkbox "Myocardial infarction (heart attack)" :MI charlson-inputs]
+       [charlson-checkbox "Congestive heart failure" :CHF charlson-inputs]
+       [charlson-checkbox "Peripheral arterial disease" :PVD charlson-inputs]
+       [charlson-checkbox "Cerebrovascular disease (stroke)" :CBD charlson-inputs]
+
+       [:h5.mb-3.mt-4 "Liver Disease"]
+       [charlson-checkbox "Mild" :LIVmild charlson-inputs]
+       [charlson-checkbox "Moderate or severe" :LIVsev charlson-inputs]
+
+       [:h5.mb-3.mt-4 "Diabetes"]
+       [charlson-checkbox "Uncomplicated" :DIB charlson-inputs]
+       [charlson-checkbox "With end organ damage" :DIBend charlson-inputs]]
+
+      [:> bs/Col {:md 6}
+       [:h5.mb-3 "Other conditions"]
+       [charlson-checkbox "Chronic obstructive pulmonary disease (lung disease)" :CPD charlson-inputs]
+       [charlson-checkbox "Connective tissue disease (such as arthritis)" :CTD charlson-inputs]
+       [charlson-checkbox "Peptic ulcer disease (stomach ulcers)" :UD charlson-inputs]
+       [charlson-checkbox "Chronic kidney disease (moderate or severe)" :RENAL charlson-inputs]
+       [charlson-checkbox "Hemiparesis or hemiplegia (weakness on one side of the body)" :HMP charlson-inputs]
+       [charlson-checkbox "Dementia" :DEM charlson-inputs]
+       [charlson-checkbox "Leukaemia" :LEUK charlson-inputs]
+       [charlson-checkbox "Lymphoma" :LYMPH charlson-inputs]
+       [charlson-checkbox "AIDS" :AIDS charlson-inputs]]]]))
 
 (defn collect-charlson-comorbidity
   "Opens a dialog for collecting additional details needed for computing the Charlson Comorbidity Score."
   [factor-key factor-name]
-  (let [cancel-modal (fn [] (hide-handler nil))
+  (let [cancel-modal (fn []
+                       (hide-handler nil))
         update-score (fn []
-                       (rf/dispatch [::events/update-edit-state {factor-name ""}])
-                       (rf/dispatch [factor-key "2"])
-                       (cancel-modal))]
+                       (rf/dispatch [::events/calculate-charlson-score factor-key factor-name])
+                       (hide-handler nil))]
     (rf/dispatch [::events/modal-data
                   {:show     true
                    :width    "700px"
                    :title    "Charlson Comorbidity Score"
                    :content  [charlson-input-form]
-                   :continue update-score
+                   :ok       update-score
+                   :ok-text  "Calculate"
                    :cancel   cancel-modal
                    :on-hide  cancel-modal}])))
 

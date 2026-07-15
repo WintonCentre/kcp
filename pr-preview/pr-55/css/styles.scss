@@ -318,3 +318,15 @@ $removed-darker: #DBCDB1;
 .btn-group-toggle>.btn input[type=radio] {
     display: none;
 }
+
+.nav-pills.tool-select {
+    .nav-link {
+        border: 3px solid transparent;
+
+        &.active {
+            color: #000000;
+            background-color: transparent;
+            border: 3px solid #000;
+        }
+    }
+}

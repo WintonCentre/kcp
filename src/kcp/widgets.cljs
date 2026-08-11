@@ -457,8 +457,11 @@
                               :min       (:min numerics) :max (:max numerics) :dps (:dps numerics)
                               :units     (:sub-text w)}]]
 
+         [:i {:class-name "d-print-none numeric-calc-validation"
+              :style {:margin "4px 0 0 0" :font-size "0.8rem"}}
+          (:validation numerics)]
          (when (:calc-workflow numerics) [:> bs/Button {:variant    "primary"
-                                                        :style      {:z-index          100}
+                                                        :class-name "numeric-calc-button"
                                                         :on-click   (fn [_e]
                                                                       (collect-charlson-comorbidity factor-key factor-name))}
                                           "Calculate"])]
@@ -478,7 +481,6 @@
                         :margin           "0px"
                         :background-color "rgb(51, 119, 119)"}}
         (str (value-f))]]
-      [:i {:class-name "d-print-none" :style {:margin "4px 0 0 0" :display "block" :font-size "0.8rem"}} (:validation numerics)]
       ]]))
 
 (comment

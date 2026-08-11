@@ -4,6 +4,7 @@
   "description": "A data driven lung and kidney transplant risk tool",
   "scripts": {
     "config": "bb ./bb-scripts/config.clj",
+    "sass": "sass resources/public/css/styles.scss:resources/public/css/styles.css",
     "watch-all": "shadow-cljs watch app test-browser",
     "build": "shadow-cljs release app",
     "report": "shadow-cljs run shadow.cljs.build-report app report.html",

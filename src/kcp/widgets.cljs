@@ -233,16 +233,29 @@
 
 
 
+(defn exclusive-charlson-inputs
+  [charlson-inputs condition checked exclusive-conditions]
+  (if checked
+    (merge charlson-inputs
+           (zipmap exclusive-conditions (repeat false))
+           {condition true})
+    {condition false}))
+
 (defn charlson-checkbox
-  [label condition charlson-inputs]
+  [label condition charlson-inputs & [exclusive-conditions]]
   [:> bs/Form.Check
-   {:type      "checkbox"
-    :label     label
+   {:type       "checkbox"
+    :label      label
     :class-name "mb-2"
-    :id        (str "charlson-" (name condition))
-    :checked   (boolean (get charlson-inputs condition))
-    :on-change #(rf/dispatch [::events/update-charlson-inputs
-                              {condition (-> % .-target .-checked)}])}])
+    :id         (str "charlson-" (name condition))
+    :checked    (boolean (get charlson-inputs condition))
+    :on-change #(let [checked (-> % .-target .-checked)]
+                  (rf/dispatch [::events/update-charlson-inputs
+                                (exclusive-charlson-inputs
+                                 charlson-inputs
+                                 condition
+                                 checked
+                                 exclusive-conditions)]))}])
 
 (defn charlson-input-form
   "A form for collecting Charlson Comorbidity Score inputs."
@@ -259,12 +272,12 @@
        [charlson-checkbox "Cerebrovascular disease (stroke)" :CBD charlson-inputs]
 
        [:h5.mb-3.mt-4 "Liver Disease"]
-       [charlson-checkbox "Mild" :LIVmild charlson-inputs]
-       [charlson-checkbox "Moderate or severe" :LIVsev charlson-inputs]
+       [charlson-checkbox "Mild" :LIVmild charlson-inputs [:LIVmild :LIVsev]]
+       [charlson-checkbox "Moderate or severe" :LIVsev charlson-inputs [:LIVmild :LIVsev]]
 
        [:h5.mb-3.mt-4 "Diabetes"]
-       [charlson-checkbox "Uncomplicated" :DIB charlson-inputs]
-       [charlson-checkbox "With end organ damage" :DIBend charlson-inputs]]
+       [charlson-checkbox "Uncomplicated" :DIB charlson-inputs [:DIB :DIBend]]
+       [charlson-checkbox "With end organ damage" :DIBend charlson-inputs [:DIB :DIBend]]]
 
       [:> bs/Col {:md 6}
        [:h5.mb-3 "Other conditions"]

@@ -85,7 +85,7 @@
                                                                      :rcc-death {:label        {:0   "$1 deaths from\nkidney cancer"
                                                                                                 :1   "$1 death from\nkidney cancer"
                                                                                                 :n   "$1 deaths from\nkidney cancer"
-                                                                                                :nil "Death from kidney\ncancer"}
+                                                                                                :nil "Risk of dying from\n kidney cancer"}
                                                                                  :long-label   "patients have died from kidney cancer"
                                                                                  :hidein       #{}
                                                                                  :fill         "#104A64"
@@ -96,7 +96,7 @@
                                                                      :oc-death  {:label            {:0   "$1 deaths from\nother causes"
                                                                                                     :1   "$1 death from\nother causes"
                                                                                                     :n   "$1 deaths from\nother causes"
-                                                                                                    :nil "Death from\nother causes"}
+                                                                                                    :nil "Risk of dying from\nsomething else"}
                                                                                  :long-label       "patients have died from other causes"
                                                                                  :hidein           #{:chart-labels :icon-array}
                                                                                  :fill             "#827f7f"
@@ -221,7 +221,7 @@
                                                                       ]]
                                                :rest-of-page        [:section
                                                                      [:h3 "Why does the display stop at year 15?"]
-                                                                     [:p "The data used in this tool was only available for the first ten years after surgery. In the future we hope to add predictions for more years."]]}
+                                                                     [:p "The NHS data used to develop this tool was only available for the first fifteen years after surgery."]]}
 
                                   :ldsurvival {:button-type         "survival"
                                                :label               "Survival - living donor"

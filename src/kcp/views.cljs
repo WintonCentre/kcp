@@ -1056,27 +1056,24 @@ Here are typical donor characteristics you might be asked to think about."]
 
                [ui/col {:class-name "flex-fill d-none d-print-flex"}
                 [ui/col {:xs 6 :style {:padding 0}} [vis/icon-array vis-context {:disable-mobile true}]]
-                [ui/col {:xs 1 :style {:padding 0}}]
-                [ui/col {:xs 4 :style {:padding 0}} [vis/area-chart vis-context {:slimline true}]]]
+                [ui/col {:xs 4 :style {:padding 0 :margin-left "16px"}} [vis/area-chart vis-context {:slimline true}]]]
 
                (let [vis-context (assoc vis-context :hidden-labels #{:ldsurvival-competing-mortality})]
                  [ui/col {:class-name "flex-fill d-none d-print-flex"}
                   [ui/col {:xs 8 :style {:padding 0 :margin-top -20 :margin-bottom -20}} [vis/table vis-context]]
 
-                  [ui/col {:xs 3 :style {:padding 0}}
+                  [ui/col {:xs 4 :style {:padding 0}}
                    [:svg {:style               {:width "240px" :border "2px solid"}
                           :viewBox             "0 0 300 160"
                           :preserveAspectRatio "xMinYMin meet"}
                     [:rect {:width "100%" :height "100%" :fill "#CCC"}]
                     [:g {:transform "translate(20 -20)"}
-                     (vis/svg-outcome-legend (:label-order vis-context) (:data-styles vis-context))]]]])
-
-               (let [{:keys [leibovich-score inline-score]} printout-details]
-                 (when (and leibovich-score (not inline-score))
-                   [:h5 {:class-name "d-none d-print-block"
-                         :style {:margin "8px 0 0 16px"}}
-                    leibovich-score]))
-
+                     (vis/svg-outcome-legend (:label-order vis-context) (:data-styles vis-context))]]
+                   (let [{:keys [leibovich-score inline-score]} printout-details]
+                        (when (and leibovich-score (not inline-score))
+                              [:h5 {:class-name "d-none d-print-block"
+                                    :style {:margin "16px 0 0 0px"}}
+                               leibovich-score]))]])
 
                [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}
                 [:h3 "Further details"]

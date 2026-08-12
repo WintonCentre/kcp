@@ -139,7 +139,7 @@
                                                                     :time-index  5
                                                                     :description "5 years following surgery"
                                                                     :risk-statement "Based on the details of your tumour, you are at **$1**. The estimated risk of dying from kidney cancer in the $2 is **$3%** based on what has happened previously to similar people with the same type of tumour."
-                                                                    :in-other-words "in the $2 in about $3 out of 100 similar patients (e.g. the same age and sex) with a similar tumour will die from kidney cancer."
+                                                                    :in-other-words "**in the $2 in about $3 out of 100 similar patients** (e.g. the same age and sex) with a similar tumour **will die from kidney cancer**."
                                                                     :images-desc "The following images show that risk in different ways. They also show the likelihood of survival between 1 year and 15 years after your surgery."}
                                                :bars                {:width       150
                                                                      :spacing     2.4

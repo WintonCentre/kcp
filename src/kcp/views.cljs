@@ -1046,7 +1046,7 @@ Here are typical donor characteristics you might be asked to think about."]
                      risk-val risk-at-print-time-index]
                  [:section.d-none.d-print-block {:style {:margin-top 10}}
                   [:p (render-formatted (utils/localize-plural nil risk-statement-template risk-desc time-desc risk-val))]
-                  [:p "In other words, " [:b (utils/localize-plural nil in-other-words-template risk-desc time-desc risk-val)]]]))
+                  [:p "In other words, " (render-formatted (utils/localize-plural nil in-other-words-template risk-desc time-desc risk-val))]]))
 
              [widg/print-or-save]]
 

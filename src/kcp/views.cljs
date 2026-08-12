@@ -1056,7 +1056,9 @@ Here are typical donor characteristics you might be asked to think about."]
 
                (let [{:keys [leibovich-score inline-score]} printout-details]
                  (when (and leibovich-score (not inline-score))
-                   [:h5 {:style {:margin "8px 0 0 16px"}} leibovich-score]))
+                   [:h5 {:class-name "d-none d-print-block"
+                         :style {:margin "8px 0 0 16px"}}
+                    leibovich-score]))
 
 
                [ui/col {:xs 12 :class-name "d-none d-print-block page-break"}

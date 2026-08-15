@@ -62,11 +62,16 @@
       (.split "T")
       (first)))
 
-(defn reorder-map [initial reference]
-  "Given an `initial` map, recreate it according to the key order of the `reference` map"
-  (into (array-map)
-        (for [k (keys reference)]
-          [k (get initial k)])))
+(defn reorder-map
+      "Given an `initial` map, return its entries as a vector of [k v] pairs
+       in the key order of `reference`. Returned as a vector (not a map) so
+       ordering is preserved regardless of size (avoids the array-map ->
+       hash-map promotion at 8 entries in ClojureScript)."
+      [initial reference]
+      (vec
+        (for [k (keys reference)
+              :when (contains? initial k)]
+             [k (get initial k)])))
 
 (defn to-locale-date-str [date]
   (if (or (nil? date) (js/isNaN (.getTime (js/Date. date))))

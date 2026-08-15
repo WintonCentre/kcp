@@ -494,27 +494,19 @@ or smaller than 10cm is most important in the context of recurrence"]
                             :margin-bottom 20}}
           [:h4 "Disclaimer"]
           [:p "You MUST read the information below before using the tool."]
-          [:p [:b "IMPORTANT NOTICE: "] "The tool uses a statistical model developed by a team at the Mayo
-          Medical School and Mayo Clinic, USA and adjusted by the Predict Kidney team at the
-          University of Cambridge. It is not showing you what will happen to you, it is showing you what
-          happened to people like you, in the past. It’s important to remember that the tool does not take
-          into account everything about you, for example, whether you have other health conditions which
-          might impact your outcome. Patients should always consult their own urologist, oncologist or
-          specialist nurse, who will be able to discuss the results in a more personalised context."]
-          [:p [:b "TERMS OF USE: "] "Results provided by this tool are for informational purposes only and are not
-          intended as a substitute for professional medical advice and counselling. This tool is a reference
-          guide only and cannot replace standard clinical counselling. Please read the " [:a {:href (ui/href :kcp.views/tech)} "technical details"]
-           " for the model derivation and context. By accessing and using this tool, you acknowledge and agree to the following terms."]
-          [:p "Except as otherwise permitted by law, this tool may be accessed and used in line with the
-               disclaimer above or for private study or for non-commercial research with this notice intact."]
-          [:p "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or
-               otherwise exploit this tool or any content within in whole or in part for any other purposes
-               without the prior written consent of the University of Cambridge and the authors."]
-          [:p "The authors and the University of Cambridge do not accept any liability for any errors in the
-               model prediction or outcomes. See also the University’s standard terms
-               at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions"] "."]
-          [:p "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
-          [:p "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner. Copyright © 2019 University of Cambridge. All rights reserved."]]
+          [:p [:b "IMPORTANT NOTICE: "] "The tool uses two statistical models: "]
+          [:ul {:style {:list-style "none"}}
+           [:li "(a) The PREDICT Kidney model developed by a team of researchers at the University of Cambridge"]
+           [:li "(b) The Leibovich-Plus model developed by a team at the Mayo Medical School and Mayo Clinic, USA and adjusted by researchers at the University of Cambridge."]]
+          [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past. It's important to remember that the tool does not take into account everything about you. Patients should always consult their own urologist, oncologist or specialist nurse, who will be able to discuss the results in a more personalised context."]
+          [:p [:b "TERMS OF USE: "] "Results provided by this tool are for the provision of information only and are not intended as a substitute for professional medical advice and counselling. Please read the " [:a {:href (ui/href :kcp.views/tech)} "technical details"] " for details of the model development and limitations. By accessing and using this tool, you acknowledge and agree to the following terms."]
+          [:ul
+           [:li "Except as otherwise permitted by law, this tool may be accessed and used in line with the disclaimer above or for private study or for non-commercial research with this notice intact."]
+           [:li "You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, rent, license, or otherwise exploit this tool or any content within in whole or in part for any other purposes without the prior written consent of the University of Cambridge and the authors."]
+           [:li "The authors and the University of Cambridge do not accept any liability for any errors in the model prediction or outcomes. See also the University's standard terms at " [:a {:href "http://www.cam.ac.uk/about-this-site/terms-and-conditions"} "http://www.cam.ac.uk/about-this-site/terms-and-conditions"] "."]
+           [:li "Any links from this tool or any associated text do not imply recommendations or endorsements of products or services."]
+           [:li "The trademarks of the University of Cambridge and others that appear in this tool are the property of the University of Cambridge or their respective owners. You may not use any trademark displayed in the tool without the written permission of the University of Cambridge or the respective owner."]]
+          [:p "Copyright © 2019 University of Cambridge. All rights reserved."]]
 
          [:h4 "Cookies and Privacy Notice"]
          [:p "This website does not use cookies."]

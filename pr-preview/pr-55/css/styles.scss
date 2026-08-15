@@ -136,9 +136,29 @@
     }
 }
 
-@media (max-width: 768px) {
+.numeric-calc-row {
+    flex-wrap: wrap;
+
+    .numeric-calc-validation {
+        order: 3;
+    }
+
+    .numeric-calc-button {
+        order: 2;
+    }
+}
+
+@media (max-width: 1460px) {
     .numeric-calc-row {
         flex-direction: column;
+
+        .numeric-calc-validation {
+            order: 2;
+        }
+
+        .numeric-calc-button {
+            order: 3;
+        }
     }
 }
 

@@ -219,35 +219,27 @@
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h4 "Overview"]
-    [:p "The tool takes information about your tumour, including the size and stage, and information
-    about you, including your age and sex, and uses people who had these same characteristics to
-    predict what might happen to you. For example, how many people 'like you' had their kidney
-    cancer recur within one year of surgery. It also uses UK national estimates of your risk of dying from other causes."]
+    [:p "The tool takes " [:b "information about your tumour"] ", including the size and stage, and " [:b "information about you"] ", including your age, sex and other health conditions, and uses people who had these same characteristics to predict what might happen to you (for example, how many people \"like you\" had their kidney cancer come back within one year of surgery)."]
 
-    [:p "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."]
+    [:p [:b "It is not showing you what will happen to you, it is showing you what happened to people like you, in the past."] " It's important to remember that the tool does not take into account everything about you."]
 
-    [:p "It’s important to remember that the tool does not take into account everything about you, for
-    example, whether you have other health conditions which might impact your outcome."]
+    [:p "The tool presents information about your risk from kidney cancer alongside your risk of dying from other causes. The aim of the tool is to support conversations between patients and their clinical team about long-term risk when planning follow-up care. Results can be printed out to take home."]
+
+    [:p "The " [:b "tool includes two different models"] " (the PREDICT-Kidney model and the Leibovich-Plus model). They are different in several ways, they were developed by different teams of researchers using different sets of patient data, they use different patient information in their calculations, and they predict different things. " [:b "The PREDICT-Kidney model predicts the risk of dying from kidney cancer"] " over the 15 years following surgery and the " [:b "Leibovich-Plus model predicts the risk of kidney cancer coming back"] " over the next 10 years."]
 
     [:p "If you want to know more about the models and data behind the tools, please read the "
-     [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "
-     "Data about kidney cancer patients and the UK general population were
-     used to create the statistical model. When you enter information into the tool, the calculator
-     looks at the models and produces results."]]
+     [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h4 "Who is this site for?"]
-    [:p "The tool is suitable for patients with clear cell renal cell carcinoma (ccRCC) who are over 18
-years old and have had a kidney removed (underwent a radical neprectomy). More details
-about the development cohort are available in the " [:a {:href (ui/href :kcp.views/tech)} "Technical section"] ". "]
-    [:p "The tool should be used initially by patients alongside their oncologist, urologist or specialist nurse."]]
+    [:p "The tool is suitable for patients with renal cell carcinoma (RCC) who are over 18 years old and have had part or all a kidney removed (underwent a partial or radical nephrectomy). Note that the Leibovich-Plus tool should only be used by patients with " [:b "clear cell"] " renal cell carcinoma (ccRCC)."]
+    [:p [:b "The tool should be used by patients alongside their urologist, oncologist or specialist nurse."]]]
 
-   [:h4 "Who developed the tool?"]
-   [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and
-   displays the Leibovich model built by a team at the Mayo Medical School and Mayo Clinic,
-   USA. This has then been adjusted by the Predict Kidney team at the University of Cambridge
-   to include the risk of dying from other causes."]])
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
+    [:h4 "Who developed the tool?"]
+    [:p "The tool was developed by the Winton Centre for Risk and Evidence Communication and calculates (a) the PREDICT-Kidney model developed by researchers at the University of Cambridge (UK) and (b) the Leibovich model built by a team at the Mayo Medical School and Mayo Clinic (USA). The Leibovich model was adjusted by the research team at the University of Cambridge to include the risk of dying from other causes."]]])
 
 
 

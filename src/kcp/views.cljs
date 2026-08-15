@@ -165,18 +165,38 @@
   []
   ;; This needs to be a promise....
   (let [mdata @(rf/subscribe [::subs/mdata])
-        ons-uri "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/li\nfeexpectancies/bulletins/pastandprojecteddatafromtheperiodandcohortlifetables/2020\nbaseduk1981to2070"
+        ons-uri "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/bulletins/pastandprojecteddatafromtheperiodandcohortlifetables/2020baseduk1981to2070"
         single-organ (ui/get-single-organ mdata)]
 
     (if mdata
-      [ui/page (str "Publications")
+      [ui/page (str "Publications and other resources")
        [ui/row
         (condp = single-organ
           :kidney [:> bs/Col
-                   [:p "Leibovich Model (" [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "https://doi.org/10.1002/cncr.11234"] ")."]
-                   [:p "Systematic review of models predicting recurrence after kidney cancer surgery (" [:a {:href   "https://doi.org/10.1111/bju.15673"
-                                                                                                              :target "_blank"} "https://doi.org/10.1111/bju.15673"] ")."]
-                   [:p "ONS period life tables (" [:a {:href ons-uri :target "_blank"} ons-uri] ")."]]
+                   [:section {:style {:border-bottom "1px #337777 solid"
+                                      :margin-bottom 20}}
+                    [:h4 "The PREDICT Kidney model"]
+                    [:ul
+                     [:li "A paper describing the development of this model is being written by the research team and will be added here once published."]
+                     [:li "An external validation of this model is underway and a paper describing these results will be added here once published."]
+                     [:li "Information on " [:b "SAIL Databank"] ", which includes the NHS Wales patient records used to develop this model: " [:a {:href "https://saildatabank.com/" :target "_blank"} "Home - SAIL Databank"]]
+                     [:li "More information about the joint modelling method used to develop the competing risk model can be found in papers describing the " [:a {:href "https://doi.org/10.1038/s41523-024-00612-y" :target "_blank"} "development of the PREDICT Breast model"] " and " [:a {:href "https://doi.org/10.1371/journal.pmed.1002758" :target "_blank"} "development of the PREDICT Prostate model"]]
+                     [:li "More information about the Charlson comorbidity score: " [:a {:href "https://www.sciencedirect.com/science/article/abs/pii/0021968187901718?via%3Dihub" :target "_blank"} "the development of this score"] " and " [:a {:href "https://karger.com/pps/article/91/1/8/826493/Charlson-Comorbidity-Index-A-Critical-Review-of" :target "_blank"} "a recent review of its clinical usefulness"] "."]]]
+
+                   [:section {:style {:border-bottom "1px #337777 solid"
+                                      :margin-bottom 20}}
+                    [:h4 "The Leibovich-Plus model"]
+                    [:ul
+                     [:li "A paper describing " [:a {:href "https://doi.org/10.1002/cncr.11234" :target "_blank"} "the development of the Leibovich Model"] " by the team at the Mayo clinic."]
+                     [:li "A " [:a {:href "https://doi.org/10.1111/bju.15673" :target "_blank"} "systematic review of models predicting recurrence after kidney cancer surgery,"] " which includes reporting of the performance of Leibovich model in several external validations."]
+                     [:li "A pre-print of a paper describing " [:a {:href "https://www.medrxiv.org/content/10.1101/2025.05.22.25328132v1" :target "_blank"} "the adjustment of the Leibovich model to include competing risks"] " by the team at the University of Cambridge (once a peer-reviewed version is published this will be added here)."]
+                     [:li [:a {:href "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/bulletins/pastandprojecteddatafromtheperiodandcohortlifetables/2020baseduk1981to2070" :target "_blank"} "The ONS period life tables"] " used to calculate the adjustment for the competing risk of death from other causes to generate the Leibovich-Plus model."]]]
+
+                   [:section {:style {:margin-bottom 20}}
+                    [:h4 "Development of this webtool"]
+                    [:ul
+                     [:li "Description of " [:a {:href "https://doi.org/10.1136/bmjopen-2025-110668" :target "_blank"} "the co-design of the PREDICT Kidney webtool"] "."]
+                     [:li [:a {:href "https://doi.org/10.1002/bco2.70014" :target "_blank"} "Protocol for a feasibility study testing this webtool"] " in three urology clinics (the full results of this feasibility study will be added once published)."]]]]
           :else [ui/col [:p "None."]])]]
       [ui/loading])))
 

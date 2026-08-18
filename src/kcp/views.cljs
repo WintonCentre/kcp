@@ -375,7 +375,81 @@ death from other causes) happening by time " (inline-math "t") ". "]
   [:> bs/Col
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3#model-development "Model development"]
+    [:h2 "1. The PREDICT Kidney Model"]
+    [:h3 "Overview"]
+    [:p "The PREDICT Kidney model was developed by researchers at the University of Cambridge (UK) in 2024-2026, the team included academics based in the Department of Public Health and Primary Care, the Department of Surgery and a patient advisory panel."]
+    [:p "To develop this model, a cohort of patients diagnosed with renal cell carcinoma (RCC) between 2005-2021 were identified using NHS records available in the SAIL Databank (this includes all individuals living in Wales, UK). Information on these patients was extracted from national registries (cancer and death records), their hospital in-patient records and their primary care (GP) records. This included:"]
+    [:ul
+     [:li "Risk factors relating to their kidney cancer tumour (stage, grade, lymph node involvement and cancer subtype)"]
+     [:li "Risk factors about the patients (age, sex, smoking history, BMI, hypertension, diabetes and other health conditions needed to calculate the Charlson comorbidity index)"]
+     [:li "Long term outcomes (the date and cause of death)"]]
+    [:p "Each risk factor was statistically tested and used in the model if found to have an important relationship with the outcomes of interest (death from kidney cancer or death from other causes). The final model includes stage, grade, lymph node status, age, sex, smoking history and the Charlson comorbidity index. These are described in detail in the input factors section below."]
+    [:p "The model predicts both the risk of death from kidney cancer and the risk of death from other causes for an individual following diagnosis and surgical treatment for RCC. The risk of death from other causes is displayed in the visualisations used in this webtool alongside the risk of death from kidney cancer and likelihood of survival."]
+    [:p "The model is also used to assign people a risk group. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]
+    [:p "The PREDICT-Kidney model has only recently been developed and has not yet been used in clinics. Testing of this model (external validation) is currently under way. It cannot say what the outcomes for a particular patient will be. Instead, it estimates the probability of death based on people from the past with similar kidney cancer tumours and other characteristics."]]
+
+   [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
+    [:h3 "Data"]
+    [:p "This analysis used individual-level pseudonymised data provided by the Secure Anonymised Information Linkage (SAIL) Databank. SAIL provides access to linked administrative and health records for 5 million Welsh residents. This includes information about: demographics (the Welsh Demographic Service Dataset), cancer diagnoses (the Cancer Network Information System and Welsh Cancer Intelligence and Surveillance Unit), primary care (Welsh Longitudinal General Practice Dataset), hospital admissions (Patient Episode Dataset for Wales) and deaths (Annual District Death Extract)."]
+    [:h3 "Cohort"]
+    [:p "In order to development the PREDICT-Kidney model, the researchers defined a cohort of eligible individuals with data available in SAIL Databank. The cohort includes all adults who received a diagnosis of RCC, and went on to have surgical treatment (nephrectomy) for RCC, between 01/01/2005 and 01/06/2021. Patients were excluded if their records could not be linked between SAIL data resources, they had metastatic cancer at the time of surgery, they had a hereditary cancer syndrome (such as Von Hippel-Lindau Disease), they were <18 years at surgery, or they died within 90 days of surgery."]
+    [:p "The researchers identified 3609 individuals who met these criteria. The median follow-up time was 7.74 years (interquartile range: 4.75, 11.65 years). In total, 1342 deaths were observed within 15 years of surgery, 670 due to RCC (50.6%) and 639 due to other causes (49.4%)."]]
+
+   [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
+    [:h3 "Model Inputs"]
+    [:p "In this section we explain the input factors used in this model:"]
+    [:p [:b [:i "Stage"]] " – The pathological stage of a kidney cancer tumour is a measure of its size and how far it has spread. This is determined by assessing cancer tissue removed during surgery."]
+    [:ul [:li "Stage 1 (or pT1) - the cancer is small (<7cm) and only inside the kidney"] [:li "Stage 2 (or pT2) - the cancer is larger (>7cm) and only inside the kidney"] [:li "Stage 3 (or pT3) - that cancer is growing into the area surrounding the kidney (this can include growing into the fat around the kidney, the renal vein or the vena cava)"] [:li "Stage 4 (or pT4) - the cancer has spread through the capsule that surrounds the kidney. It may have grown into the adrenal gland."]]
+    [:p "The model does not differentiate between stage sub-classifications (such as T2a or T2b)."]
+    [:p [:b [:i "Regional lymph node status"]] " – The regional lymph node status indicates if the cancer has spread to lymph nodes near the kidney. Lymph nodes are a network of glands found throughout the body that drain away waste products and fight infections. Lymph nodes near the kidney may be removed during surgery and tested for the presence of cancer. However, it is common for no lymph nodes to be removed at the time of surgery and no further investigation to be required."]
+    [:ul [:li "No investigation required (pNx) - There were no lymph nodes in the tissue removed at surgery. This is common if there are no noticeable lymph nodes present."] [:li "pN0 – No cancer was detected in any lymph nodes near the tumour."] [:li "pN1 – Cancer cells were detected in one or more lymph nodes near the tumour."]]
+    [:p [:b [:i "Nuclear grade"]] " – The nuclear grade is a scale indicating how much the cancer cells look like normal cells. Kidney cancers are graded 1 to 4. Grade 1 is the lowest (the most like normal cells) and grade 4 is the highest (the least like normal cells). Higher grade cancers tend to grow more quickly and are more likely to spread to other parts of the body. This is sometimes called the Fuhrman scale."]
+    [:p [:b [:i "Age at surgery"]] " – Age when the kidney cancer surgery was performed. Older patients are more at risk of other long-term health conditions and are relatively less likely to die from kidney cancer. Only people between 25 and 85 were included in model development, so the model should be used with caution for people outside this age range."]
+    [:p [:b [:i "Sex"]] " – Men are more likely to die at a younger age from both kidney cancer and other-causes than women with a similar kidney cancer tumour."]
+    [:p [:b [:i "Charlson comorbidity score"]] " – The Charlson comorbidity score (or index) is a measure of the number and severity of long-term conditions present for an individual. It includes 15 conditions in addition to cancer. These conditions are: myocardial infarction (heart attack), congestive heart failure, peripheral arterial disease, cerebrovascular disease (stroke), liver disease, diabetes, chronic obstructive pulmonary disease (lung disease), connective tissue disease (such as arthritis), peptic ulcers (stomach ulcers), chronic kidney disease, hemiparesis or hemiplegia (weakness on one side of the body), dementia, leukaemia, lymphoma and AIDs. The Charlson comorbidity index is widely used in medical settings to measure the frailty of patients. Resources providing more information about this score can be found in the publication section."]
+    [:p "A high score indicates that a patient is frail and less likely to benefit from further treatment for kidney cancer."]
+    [:p [:b [:i "Smoking history"]] " – Smoking history at the time of surgery. Patients with a history of tobacco usage are more at risk of other long-term health conditions and are relatively less likely to die from kidney cancer."]
+    [:p [:b [:i "Tumour size"]] " and " [:b [:i "tumour necrosis"]] " are not included in the model (this information was not available in the SAIL data). However, they are included as inputs because they are used to calculate the Leibovich score (displayed alongside the calculated risk) and used to assess eligibility for adjuvant treatment."]
+    [:p [:b [:i "Tumour Size"]] " – The size of the tumour removed during surgery. Whether the tumour is larger or smaller than 10cm is most important in this context."]
+    [:p [:b [:i "Tumour"]] " " [:b [:i "Necrosis"]] " – If dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]]
+
+   [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
+    [:h3 "Model Development"]
+    [:p "Cox Proportional Hazard submodels were fitted for RCC-death and other-cause death. These two submodels were used to compute the risk of RCC death at time "
+     (inline-math "t") ", " (inline-math "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ")")
+     " and the risk of other-cause death at time " (inline-math "t") ", "
+     (inline-math "R" [:sub "OC"] "(t|X" [:sub "OC"] ")") ", where "
+     (inline-math "X" [:sub "RCC"]) " and " (inline-math "X" [:sub "OC"])
+     " are the variables included in each model respectively. These were combined to give the overall risk of all-cause death "
+     (inline-math "R" [:sub "AC"] "(t|X)") ". Independence between the two submodels is assumed."]
+    [:div {:class-name "inline-math" :style {:display "flex" :justify-content "center" :margin-bottom 20}}
+     (inline-math "R" [:sub "AC"] "(t|X) = 1 - (1 - R" [:sub "RCC"] "(t|X" [:sub "RCC"] ")) * (1 - R" [:sub "OC"] "(t|X" [:sub "OC"] ")) #(1)")]
+    [:p "Reweighting the overall risk of all-cause death " (inline-math "R" [:sub "AC"] "(t|X)")
+     ", we compute the full PREDICT-Kidney model - cumulative risk of RCC death adjusted for the competing-risk of death from other causes - "
+     (inline-math "CR" [:sub "RCC"] "(t|X)") ". There is an accompanying model predicting other-cause death "
+     (inline-math "CR" [:sub "OC"] "(t|X)") "."]
+    [:div {:class-name "inline-math" :style {:display "flex" :justify-content "center" :margin-bottom 20}}
+     (inline-math "CR" [:sub "RCC"] "(t|X) = R" [:sub "AC"] "(t|X) * "
+                  [:span {:style {:display "inline-flex" :flex-direction "column" :vertical-align "middle" :text-align "center"}}
+                   [:span {:style {:border-bottom "1px solid currentColor"}} "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ")"]
+                   [:span "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ") + R" [:sub "OC"] "(t|X" [:sub "OC"] ")"]]
+                  " #(2.1)")]
+    [:div {:class-name "inline-math" :style {:display "flex" :justify-content "center" :margin-bottom 20}}
+     (inline-math "CR" [:sub "OC"] "(t|X) = R" [:sub "AC"] "(t|X) * "
+                  [:span {:style {:display "inline-flex" :flex-direction "column" :vertical-align "middle" :text-align "center"}}
+                   [:span {:style {:border-bottom "1px solid currentColor"}} "R" [:sub "OC"] "(t|X" [:sub "OC"] ")"]
+                   [:span "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ") + R" [:sub "OC"] "(t|X" [:sub "OC"] ")"]]
+                  " #(2.2)")]
+    [:p "The values " (inline-math "CR" [:sub "RCC"] "(t|X)") " and "
+     (inline-math "CR" [:sub "OC"] "(t|X)") " are displayed by the webtool."]
+    [:p "Categorisation into discrete risk groups enables assignment of patients to surveillance schedules based on prognosis. We use the k-means algorithm to cluster the PREDICT-Kidney model for each individual over the fifteen-year follow-up. Thresholds are computed for the PREDICT-Kidney model evaluated at 10-years. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]
+    [:h3 "External Validation"]
+    [:p "The performance of this model is currently being tested in a second dataset which is independent of the development cohort (no individuals are present in both datasets). Results of this external validation will be added once this is complete."]]
+
+   [:h2 "2. The Leibovich-Plus Model"]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
+    [:h3#model-development "Overview"]
     [:p "The model (the Leibovich model) behind this tool was developed by a team at the Mayo
 Clinic (Minnesota, USA) between 2000 and 2002. To develop this model, information was
 collected about a group of patients, who had been followed (on average) for 7 years after
@@ -416,7 +490,7 @@ were over 18 at the time of surgery."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3#model-validation "Model Validation"]
+    [:h3#model-validation "External Validation"]
     [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
 since it was first developed. In a recent review, 16 validations were identified with results for
 discrimination in the range 0.67-0.86. More details can be found in a review paper from 2021 (see the "
@@ -424,8 +498,8 @@ discrimination in the range 0.67-0.86. More details can be found in a review pap
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-   [:h3#input-factors "Input factors"]
-   [:p "In this section we give an explanation of the input factors considered in this model:"]
+   [:h3#input-factors "Model Inputs"]
+   [:p "In this section we explain the input factors considered in this model:"]
 
    [:p [:b "Primary Tumour Status"] " – The pathological stage of a kidney cancer tumour is a measure
 of its size and how far it has spread"]
@@ -455,14 +529,20 @@ or smaller than 10cm is most important in the context of recurrence"]
    This is sometimes called the Fuhrman scale. Kidney cancers are graded 1 to 4. Grade 1 is the lowest (the most like
    normal cells) and grade 4 is the highest (the least like normal cells)"]
 
-   [:p [:b "Tumour Necrosis"] " – Necrosis means that some of the cancer cells have died."]
+   [:p [:b "Tumour Necrosis"] " – The tumour necrosis indicates if dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]
 
    [:p [:b "Age (years)"] " – The age at surgery. This is used to predict the risk of death from other causes."]
    [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]
 
    (maths-section)
+   [:h2 "3. The PREDICT Kidney Webtool"]
+   [:section {:style {:border-bottom "1px #337777 solid"
+                      :margin-bottom 20}}
+    [:h3 "Co-design Process"]
+    [:p "PREDICT-Kidney was developed through a qualitative co-design process involving patients, members of the public, and healthcare professionals across the United Kingdom. Through a series of workshops in which we showcased the tool, participants, shared feedback, and evaluated changes."]
+    [:p "This iterative process led to substantial refinement of the initial prototype tool, with changes made to terminology, visual design, and content in response to patient and clinician feedback. Importantly, this approach ensured that the final tool reflects not only clinical priorities but also patient needs and expectations."]]
    (web-development-section)
-   (references-section)])
+   ])
 
 (defn tech-page
   "Display a generic home page.
@@ -472,7 +552,7 @@ or smaller than 10cm is most important in the context of recurrence"]
         single-organ (ui/get-single-organ mdata)]
 
     (if mdata
-      [ui/page (str "Technical Details for PREDICT " (string/capitalize (name single-organ)))
+      [ui/page (str "Technical Details")
        [ui/row
         (condp = single-organ
           :kidney [kidney-tech-content]

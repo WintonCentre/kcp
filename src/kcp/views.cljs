@@ -268,8 +268,7 @@
 (defn maths-section
   []
 
-  [:section {:style {:border-bottom "1px #337777 solid"
-                     :margin-bottom 20}}
+  [:section {:style {:margin-bottom 20}}
    [:h3#mathematical-section "Mathematical Section"]
    [:p "A joint modelling, cox proportional hazards approach was adopted to model the risk of recurrence and risk of death due to other causes."]
 
@@ -348,8 +347,7 @@ death from other causes) happening by time " (inline-math "t") ". "]
     developers of these codes. The development system used Shadow-cljs (by Thomas Heller), supported by a number of
     Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
 
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom 20}}
+   [:section {:style {:margin-bottom 20}}
     [:h3#browser-compatibility "Browser Compatibility"]
     [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
     [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
@@ -373,9 +371,20 @@ death from other causes) happening by time " (inline-math "t") ". "]
 (defn kidney-tech-content
   []
   [:> bs/Col
+   [:> bs/Accordion {:default-active-key "predict-kidney"}
+    [:> bs/Card
+     [:> bs/Card.Header
+      [:> bs/Accordion.Toggle {:as bs/Button
+                               :variant "link"
+                               :event-key "predict-kidney"
+                               :style {:font-size "1.5rem"
+                                       :font-weight 500
+                                       :padding 0}}
+       "1. The PREDICT Kidney Model"]]
+     [:> bs/Accordion.Collapse {:event-key "predict-kidney"}
+      [:> bs/Card.Body
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h2 "1. The PREDICT Kidney Model"]
     [:h3 "Overview"]
     [:p "The PREDICT Kidney model was developed by researchers at the University of Cambridge (UK) in 2024-2026, the team included academics based in the Department of Public Health and Primary Care, the Department of Surgery and a patient advisory panel."]
     [:p "To develop this model, a cohort of patients diagnosed with renal cell carcinoma (RCC) between 2005-2021 were identified using NHS records available in the SAIL Databank (this includes all individuals living in Wales, UK). Information on these patients was extracted from national registries (cancer and death records), their hospital in-patient records and their primary care (GP) records. This included:"]
@@ -413,7 +422,7 @@ death from other causes) happening by time " (inline-math "t") ". "]
     [:p [:b [:i "Tumour Size"]] " – The size of the tumour removed during surgery. Whether the tumour is larger or smaller than 10cm is most important in this context."]
     [:p [:b [:i "Tumour"]] " " [:b [:i "Necrosis"]] " – If dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]]
 
-   [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
+   [:section {:style {:margin-bottom 20}}
     [:h3 "Model Development"]
     [:p "Cox Proportional Hazard submodels were fitted for RCC-death and other-cause death. These two submodels were used to compute the risk of RCC death at time "
      (inline-math "t") ", " (inline-math "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ")")
@@ -444,9 +453,20 @@ death from other causes) happening by time " (inline-math "t") ". "]
      (inline-math "CR" [:sub "OC"] "(t|X)") " are displayed by the webtool."]
     [:p "Categorisation into discrete risk groups enables assignment of patients to surveillance schedules based on prognosis. We use the k-means algorithm to cluster the PREDICT-Kidney model for each individual over the fifteen-year follow-up. Thresholds are computed for the PREDICT-Kidney model evaluated at 10-years. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]
     [:h3 "External Validation"]
-    [:p "The performance of this model is currently being tested in a second dataset which is independent of the development cohort (no individuals are present in both datasets). Results of this external validation will be added once this is complete."]]
+    [:p "The performance of this model is currently being tested in a second dataset which is independent of the development cohort (no individuals are present in both datasets). Results of this external validation will be added once this is complete."]]]]]
 
-   [:h2 "2. The Leibovich-Plus Model"]
+    [:> bs/Card
+     [:> bs/Card.Header
+      [:> bs/Accordion.Toggle {:as bs/Button
+                               :variant "link"
+                               :event-key "leibovich-plus"
+                               :style {:font-size "1.5rem"
+                                       :font-weight 500
+                                       :padding 0
+                                       :text-align "left"}}
+       "2. The Leibovich-Plus Model"]]
+     [:> bs/Accordion.Collapse {:event-key "leibovich-plus"}
+      [:> bs/Card.Body
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h3#model-development "Overview"]
@@ -534,15 +554,25 @@ or smaller than 10cm is most important in the context of recurrence"]
    [:p [:b "Age (years)"] " – The age at surgery. This is used to predict the risk of death from other causes."]
    [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]
 
-   (maths-section)
-   [:h2 "3. The PREDICT Kidney Webtool"]
+   (maths-section)]]]
+    [:> bs/Card
+     [:> bs/Card.Header
+      [:> bs/Accordion.Toggle {:as bs/Button
+                               :variant "link"
+                               :event-key "predict-kidney-webtool"
+                               :style {:font-size "1.5rem"
+                                       :font-weight 500
+                                       :padding 0
+                                       :text-align "left"}}
+       "3. The PREDICT Kidney Webtool"]]
+     [:> bs/Accordion.Collapse {:event-key "predict-kidney-webtool"}
+      [:> bs/Card.Body
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h3 "Co-design Process"]
     [:p "PREDICT-Kidney was developed through a qualitative co-design process involving patients, members of the public, and healthcare professionals across the United Kingdom. Through a series of workshops in which we showcased the tool, participants, shared feedback, and evaluated changes."]
     [:p "This iterative process led to substantial refinement of the initial prototype tool, with changes made to terminology, visual design, and content in response to patient and clinician feedback. Importantly, this approach ensured that the final tool reflects not only clinical priorities but also patient needs and expectations."]]
-   (web-development-section)
-   ])
+   (web-development-section)]]]]])
 
 (defn tech-page
   "Display a generic home page.

@@ -265,11 +265,32 @@
   [& elements]
   (into [:i {:class-name "inline-math"}] elements))
 
+(defn tech-subsection
+  "A collapsible subsection with a clickable title that toggles the visibility of
+   its content. Must be rendered inside a parent bs/Accordion; the supplied
+   event-key selects which single subsection is open at a time."
+  [event-key title & body]
+  [:> bs/Card {:style {:border "none" :background-color "transparent"}}
+   [:> bs/Card.Header {:style {:background-color "transparent" :border "none" :padding 0}}
+    [:> bs/Accordion.Toggle {:as bs/Button
+                             :variant "link"
+                             :event-key event-key
+                             :style {:font-size "1.25rem"
+                                     :font-weight 500
+                                     :padding 0
+                                     :text-align "left"
+                                     :color "#1F6BC4"            ; site primary blue for clear affordance
+                                     :cursor "pointer"
+                                     :text-decoration "underline"}}
+     title]]
+   [:> bs/Accordion.Collapse {:event-key event-key}
+    (into [:> bs/Card.Body {:style {:padding "10px 0 0 0"}}] body)]])
+
 (defn maths-section
   []
 
   [:section {:style {:margin-bottom 20}}
-   [:h3#mathematical-section "Model Development"]
+   [tech-subsection "model-development" "Model Development"
    [:p "A joint modelling, cox proportional hazards approach was adopted to model the risk of recurrence and risk of death due to other causes."]
 
    [:p "The Leibovich model uses a Cox proportional hazard model as a way of modelling
@@ -323,33 +344,33 @@ death from other causes) happening by time " (inline-math "t") ". "]
     (inline-math "CR" [:sub "CM"] "(t|X)") ". This is based on how much of a person’s risk comes from their risk of
     recurrence and how much from their risk of death from other causes. These - " (inline-math "CR" [:sub "R"] "(t|X)")
     " and " (inline-math "CR" [:sub "CM"] "(t|X)") " - are the values displayed by the PREDICT-Kidney tool."]
-   ])
+   ]])
 
 (defn web-development-section
   []
   [:<>
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3#the-web-implementation "Web implementation"]
+    [tech-subsection "web-implementation" "Web implementation"
     [:p "This tool is a Single Page Application (SPA). It is a single web page which loads a Javascript application that
     updates the page according to the user's inputs. All data that you enter to the tool is stored in Javascript variables in the browser."]
     [:p "The application is also a calculator. The Javascript code includes implementations of the Leibovich models described above.
     This means that all inputs, calculations, and result displays are managed without the need for any interaction with another machine.
     The model calculations run once you have entered all necessary data, and will rerun whenever you change any input. Once you close the
-    browser window or tab, the data is erased, just like in a calculator."]]
+    browser window or tab, the data is erased, just like in a calculator."]]]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3#the-development-stack "The development stack"]
+    [tech-subsection "development-stack" "The development stack"
     [:p "The tool runs as a Javascript application, but it was written in Clojurescript and then compiled to Javascript.
     The most important libraries that it uses are ReactJS, Reagent, and Reframe, and we are sincerely grateful to the
     developers of these codes. The development system used Shadow-cljs (by Thomas Heller), supported by a number of
-    Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]
+    Clojure scripts running under Babashka (by Michiel Borkent) and the Clojure integrated development system Calva running in VSCode. "]]]
 
    [:section {:style {:margin-bottom 20}}
-    [:h3#browser-compatibility "Browser Compatibility"]
+    [tech-subsection "browser-compatibility" "Browser Compatibility"
     [:p "This version has been tested and found to work in Edge, Chrome, Safari, Firefox, on desktop PCs and Macs and also on Android and IOS mobile devices."]
     [:p "Support for IE 11 is limited and some functionalities like 'Copy' or 'Fullscreen' may not work at all."]
-    [:p "It does not currently support any other version of Internet Explorer."]]])
+    [:p "It does not currently support any other version of Internet Explorer."]]]])
 
 (defn references-section
   []
@@ -381,9 +402,10 @@ death from other causes) happening by time " (inline-math "t") ". "]
        "1. The PREDICT Kidney Model"]]
      [:> bs/Accordion.Collapse {:event-key "predict-kidney"}
       [:> bs/Card.Body
+   [:> bs/Accordion {:default-active-key "overview"}
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3 "Overview"]
+    [tech-subsection "overview" "Overview"
     [:p "The PREDICT Kidney model was developed by researchers at the University of Cambridge (UK) in 2024-2026, the team included academics based in the " [:a {:href "https://www.phpc.cam.ac.uk/" :target "_blank"} "Department of Public Health and Primary Care"] ", the " [:a {:href "https://www.medschl.cam.ac.uk/department-surgery" :target "_blank"} "Department of Surgery"] " and a patient advisory panel."]
     [:p "To develop this model, a cohort of patients diagnosed with renal cell carcinoma (RCC) between 2005-2021 were identified using NHS records available in the " [:a {:href "https://saildatabank.com/" :target "_blank"} "SAIL Databank"] " (this includes all individuals living in Wales, UK). Information on these patients was extracted from national registries (cancer and death records), their hospital in-patient records and their primary care (GP) records. This included:"]
     [:ul
@@ -393,19 +415,19 @@ death from other causes) happening by time " (inline-math "t") ". "]
     [:p "Each risk factor was statistically tested and used in the model if found to have an important relationship with the outcomes of interest (death from kidney cancer or death from other causes). The final model includes stage, grade, lymph node status, age, sex, smoking history and the Charlson comorbidity index. These are described in detail in the input factors section below."]
     [:p "The model predicts both the risk of death from kidney cancer and the risk of death from other causes for an individual following diagnosis and surgical treatment for RCC. The risk of death from other causes is displayed in the visualisations used in this webtool alongside the risk of death from kidney cancer and likelihood of survival."]
     [:p "The model is also used to assign people a risk group. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]
-    [:p "The PREDICT-Kidney model has only recently been developed and has not yet been used in clinics. Testing of this model (external validation) is currently under way. It cannot say what the outcomes for a particular patient will be. Instead, it estimates the probability of death based on people from the past with similar kidney cancer tumours and other characteristics."]]
+    [:p "The PREDICT-Kidney model has only recently been developed and has not yet been used in clinics. Testing of this model (external validation) is currently under way. It cannot say what the outcomes for a particular patient will be. Instead, it estimates the probability of death based on people from the past with similar kidney cancer tumours and other characteristics."]]]
 
    [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
-    [:h3 "Data"]
-    [:p "This analysis used individual-level pseudonymised data provided by the Secure Anonymised Information Linkage (SAIL) Databank. SAIL provides access to linked administrative and health records for 5 million Welsh residents. This includes information about: demographics (the Welsh Demographic Service Dataset), cancer diagnoses (the Cancer Network Information System and Welsh Cancer Intelligence and Surveillance Unit), primary care (Welsh Longitudinal General Practice Dataset), hospital admissions (Patient Episode Dataset for Wales) and deaths (Annual District Death Extract)."]]
+    [tech-subsection "data" "Data"
+    [:p "This analysis used individual-level pseudonymised data provided by the Secure Anonymised Information Linkage (SAIL) Databank. SAIL provides access to linked administrative and health records for 5 million Welsh residents. This includes information about: demographics (the Welsh Demographic Service Dataset), cancer diagnoses (the Cancer Network Information System and Welsh Cancer Intelligence and Surveillance Unit), primary care (Welsh Longitudinal General Practice Dataset), hospital admissions (Patient Episode Dataset for Wales) and deaths (Annual District Death Extract)."]]]
 
    [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
-    [:h3 "Cohort"]
+    [tech-subsection "cohort" "Cohort"
     [:p "In order to development the PREDICT-Kidney model, the researchers defined a cohort of eligible individuals with data available in SAIL Databank. The cohort includes all adults who received a diagnosis of RCC, and went on to have surgical treatment (nephrectomy) for RCC, between 01/01/2005 and 01/06/2021. Patients were excluded if their records could not be linked between SAIL data resources, they had metastatic cancer at the time of surgery, they had a hereditary cancer syndrome (such as Von Hippel-Lindau Disease), they were <18 years at surgery, or they died within 90 days of surgery."]
-    [:p "The researchers identified 3609 individuals who met these criteria. The median follow-up time was 7.74 years (interquartile range: 4.75, 11.65 years). In total, 1342 deaths were observed within 15 years of surgery, 670 due to RCC (50.6%) and 639 due to other causes (49.4%)."]]
+    [:p "The researchers identified 3609 individuals who met these criteria. The median follow-up time was 7.74 years (interquartile range: 4.75, 11.65 years). In total, 1342 deaths were observed within 15 years of surgery, 670 due to RCC (50.6%) and 639 due to other causes (49.4%)."]]]
 
    [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
-    [:h3 "Model Inputs"]
+    [tech-subsection "model-inputs" "Model Inputs"
     [:p "In this section we explain the input factors used in this model:"]
     [:p [:b [:i "Stage"]] " – The pathological stage of a kidney cancer tumour is a measure of its size and how far it has spread. This is determined by assessing cancer tissue removed during surgery."]
     [:ul [:li "Stage 1 (or pT1) - the cancer is small (<7cm) and only inside the kidney"] [:li "Stage 2 (or pT2) - the cancer is larger (>7cm) and only inside the kidney"] [:li "Stage 3 (or pT3) - that cancer is growing into the area surrounding the kidney (this can include growing into the fat around the kidney, the renal vein or the vena cava)"] [:li "Stage 4 (or pT4) - the cancer has spread through the capsule that surrounds the kidney. It may have grown into the adrenal gland."]]
@@ -421,10 +443,10 @@ death from other causes) happening by time " (inline-math "t") ". "]
     [:p [:b [:i "Smoking history"]] " – Smoking history at the time of surgery. Patients with a history of tobacco usage are more at risk of other long-term health conditions and are relatively less likely to die from kidney cancer."]
     [:p [:b [:i "Tumour size"]] " and " [:b [:i "tumour necrosis"]] " are not included in the model (this information was not available in the SAIL data). However, they are included as inputs because they are used to calculate the Leibovich score (displayed alongside the calculated risk) and used to assess eligibility for adjuvant treatment."]
     [:p [:b [:i "Tumour Size"]] " – The size of the tumour removed during surgery. Whether the tumour is larger or smaller than 10cm is most important in this context."]
-    [:p [:b [:i "Tumour"]] " " [:b [:i "Necrosis"]] " – If dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]]
+    [:p [:b [:i "Tumour"]] " " [:b [:i "Necrosis"]] " – If dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]]]
 
    [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
-    [:h3 "Model Development"]
+    [tech-subsection "model-development" "Model Development"
     [:p "Cox Proportional Hazard submodels were fitted for RCC-death and other-cause death. These two submodels were used to compute the risk of RCC death at time "
      (inline-math "t") ", " (inline-math "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ")")
      " and the risk of other-cause death at time " (inline-math "t") ", "
@@ -452,11 +474,11 @@ death from other causes) happening by time " (inline-math "t") ". "]
                   " #(2.2)")]
     [:p "The values " (inline-math "CR" [:sub "RCC"] "(t|X)") " and "
      (inline-math "CR" [:sub "OC"] "(t|X)") " are displayed by the webtool."]
-    [:p "Categorisation into discrete risk groups enables assignment of patients to surveillance schedules based on prognosis. We use the k-means algorithm to cluster the PREDICT-Kidney model for each individual over the fifteen-year follow-up. Thresholds are computed for the PREDICT-Kidney model evaluated at 10-years. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]]
+    [:p "Categorisation into discrete risk groups enables assignment of patients to surveillance schedules based on prognosis. We use the k-means algorithm to cluster the PREDICT-Kidney model for each individual over the fifteen-year follow-up. Thresholds are computed for the PREDICT-Kidney model evaluated at 10-years. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]]]
 
    [:section {:style {:margin-bottom 20}}
-    [:h3 "External Validation"]
-    [:p "The performance of this model is currently being tested in a second dataset which is independent of the development cohort (no individuals are present in both datasets). Results of this external validation will be added once this is complete."]]]]]
+    [tech-subsection "external-validation" "External Validation"
+    [:p "The performance of this model is currently being tested in a second dataset which is independent of the development cohort (no individuals are present in both datasets). Results of this external validation will be added once this is complete."]]]]]]]
 
     [:> bs/Card
      [:> bs/Card.Header
@@ -470,9 +492,10 @@ death from other causes) happening by time " (inline-math "t") ". "]
        "2. The Leibovich-Plus Model"]]
      [:> bs/Accordion.Collapse {:event-key "leibovich-plus"}
       [:> bs/Card.Body
+   [:> bs/Accordion {:default-active-key "overview"}
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3#model-development "Overview"]
+    [tech-subsection "overview" "Overview"
     [:p "The Leibovich model was developed by a team at the Mayo Clinic (Minnesota, USA) between 2000 and 2002."]
     [:p "To develop this model, information was collected about a group of patients, who had been followed (on average)
     for 7 years after their kidney cancer surgery. This included information (or risk factors) about the patients
@@ -494,24 +517,24 @@ death from other causes) happening by time " (inline-math "t") ". "]
     tables for England for 2024). This provides estimated survival rates for the English general population by age and
     sex, based on historic data and trends. This version of the model calculates the risk of recurrence adjusted for
     the expected risk of death from other causes for people of the same age and sex living in England. The risk of death
-    from other causes is displayed in the visualisations alongside the risk of recurrence and likelihood of surviving cancer-free."]]
+    from other causes is displayed in the visualisations alongside the risk of recurrence and likelihood of surviving cancer-free."]]]
 
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3#cohort "Cohort"]
+    [tech-subsection "cohort" "Cohort"
     [:p "The Leibovich score was developed in a cohort of patients who underwent a radical
 nephrectomy (full removal of the kidney) to treat clear cell renal cell carcinoma (ccRCC)
 between 1970 and 2000. This did not include patients who already had metastatic disease.
 Patients with inherited renal cell carcinoma (including von Hippel-Lindau disease), those
 with tumours in both kidneys (bilateral synchronous tumours), or who were diagnosed with
 Wilms tumour (a different form of kidney cancer) were not included. All included patients
-were over 18 at the time of surgery."]]
+were over 18 at the time of surgery."]]]
 
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-   [:h3#input-factors "Model Inputs"]
+   [tech-subsection "model-inputs" "Model Inputs"
    [:p "In this section we explain the input factors considered in this model:"]
 
    [:p [:b "Primary Tumour Status"] " – The pathological stage of a kidney cancer tumour is a measure
@@ -545,9 +568,9 @@ or smaller than 10cm is most important in the context of recurrence"]
    [:p [:b "Tumour Necrosis"] " – The tumour necrosis indicates if dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]
 
    [:p [:b "Age"] " – The age at surgery in years. This is used to predict the risk of death from other causes."]
-   [:p [:b "Sex"] " – Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]
+   [:p [:b "Sex"] " – Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]]
 
-   (maths-section)]]]
+   (maths-section)]]]]
     [:> bs/Card
      [:> bs/Card.Header
       [:> bs/Accordion.Toggle {:as bs/Button
@@ -560,12 +583,13 @@ or smaller than 10cm is most important in the context of recurrence"]
        "3. The PREDICT Kidney Webtool"]]
      [:> bs/Accordion.Collapse {:event-key "predict-kidney-webtool"}
       [:> bs/Card.Body
+   [:> bs/Accordion {:default-active-key "co-design-process"}
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
-    [:h3 "Co-design Process"]
+    [tech-subsection "co-design-process" "Co-design Process"
     [:p "PREDICT-Kidney was developed through a qualitative co-design process involving patients, members of the public, and healthcare professionals across the United Kingdom. Through a series of workshops in which we showcased the tool, participants, shared feedback, and evaluated changes."]
-    [:p "This iterative process led to substantial refinement of the initial prototype tool, with changes made to terminology, visual design, and content in response to patient and clinician feedback. Importantly, this approach ensured that the final tool reflects not only clinical priorities but also patient needs and expectations."]]
-   (web-development-section)]]]]])
+    [:p "This iterative process led to substantial refinement of the initial prototype tool, with changes made to terminology, visual design, and content in response to patient and clinician feedback. Importantly, this approach ensured that the final tool reflects not only clinical priorities but also patient needs and expectations."]]]
+   (web-development-section)]]]]]])
 
 (defn tech-page
   "Display a generic home page.

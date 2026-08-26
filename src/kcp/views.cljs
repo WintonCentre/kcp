@@ -269,10 +269,9 @@
   []
 
   [:section {:style {:margin-bottom 20}}
-   [:h3#mathematical-section "Mathematical Section"]
+   [:h3#mathematical-section "Model Development"]
    [:p "A joint modelling, cox proportional hazards approach was adopted to model the risk of recurrence and risk of death due to other causes."]
 
-   [:p [:b "Leibovich Model"]]
    [:p "The Leibovich model uses a Cox proportional hazard model as a way of modelling
    factors which effect an event (such as a recurrence of kidney cancer) that may or may
    not happen over a certain amount of time. The hazard of recurrence is the likelihood
@@ -301,7 +300,6 @@ experienced from the start date (kidney cancer surgery) up to a given time."]
     (inline-math "R" [:sub "R"] "(t|X" [:sub "P"] ") = 1 - S" [:sub "R"] "(t|X" [:sub "P"] ") = 1 - exp(-H" [:sub "R"] "(t|X" [:sub "P"] "))")]
 
 
-   [:p [:b "Leibovich Plus Model"]]
    [:p "The Leibovich model only captures the risk of recurrence in people who are still alive at time "
     (inline-math "t") ". We have adapted this to produce a relative estimate of recurrence risk
    alongside the competing risk of death from other causes. This is referred to as the Leibovich Plus model."]
@@ -386,8 +384,8 @@ death from other causes) happening by time " (inline-math "t") ". "]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h3 "Overview"]
-    [:p "The PREDICT Kidney model was developed by researchers at the University of Cambridge (UK) in 2024-2026, the team included academics based in the Department of Public Health and Primary Care, the Department of Surgery and a patient advisory panel."]
-    [:p "To develop this model, a cohort of patients diagnosed with renal cell carcinoma (RCC) between 2005-2021 were identified using NHS records available in the SAIL Databank (this includes all individuals living in Wales, UK). Information on these patients was extracted from national registries (cancer and death records), their hospital in-patient records and their primary care (GP) records. This included:"]
+    [:p "The PREDICT Kidney model was developed by researchers at the University of Cambridge (UK) in 2024-2026, the team included academics based in the " [:a {:href "https://www.phpc.cam.ac.uk/" :target "_blank"} "Department of Public Health and Primary Care"] ", the " [:a {:href "https://www.medschl.cam.ac.uk/department-surgery" :target "_blank"} "Department of Surgery"] " and a patient advisory panel."]
+    [:p "To develop this model, a cohort of patients diagnosed with renal cell carcinoma (RCC) between 2005-2021 were identified using NHS records available in the " [:a {:href "https://saildatabank.com/" :target "_blank"} "SAIL Databank"] " (this includes all individuals living in Wales, UK). Information on these patients was extracted from national registries (cancer and death records), their hospital in-patient records and their primary care (GP) records. This included:"]
     [:ul
      [:li "Risk factors relating to their kidney cancer tumour (stage, grade, lymph node involvement and cancer subtype)"]
      [:li "Risk factors about the patients (age, sex, smoking history, BMI, hypertension, diabetes and other health conditions needed to calculate the Charlson comorbidity index)"]
@@ -415,7 +413,8 @@ death from other causes) happening by time " (inline-math "t") ". "]
     [:p [:b [:i "Nuclear grade"]] " – The nuclear grade is a scale indicating how much the cancer cells look like normal cells. Kidney cancers are graded 1 to 4. Grade 1 is the lowest (the most like normal cells) and grade 4 is the highest (the least like normal cells). Higher grade cancers tend to grow more quickly and are more likely to spread to other parts of the body. This is sometimes called the Fuhrman scale."]
     [:p [:b [:i "Age at surgery"]] " – Age when the kidney cancer surgery was performed. Older patients are more at risk of other long-term health conditions and are relatively less likely to die from kidney cancer. Only people between 25 and 85 were included in model development, so the model should be used with caution for people outside this age range."]
     [:p [:b [:i "Sex"]] " – Men are more likely to die at a younger age from both kidney cancer and other-causes than women with a similar kidney cancer tumour."]
-    [:p [:b [:i "Charlson comorbidity score"]] " – The Charlson comorbidity score (or index) is a measure of the number and severity of long-term conditions present for an individual. It includes 15 conditions in addition to cancer. These conditions are: myocardial infarction (heart attack), congestive heart failure, peripheral arterial disease, cerebrovascular disease (stroke), liver disease, diabetes, chronic obstructive pulmonary disease (lung disease), connective tissue disease (such as arthritis), peptic ulcers (stomach ulcers), chronic kidney disease, hemiparesis or hemiplegia (weakness on one side of the body), dementia, leukaemia, lymphoma and AIDs. The Charlson comorbidity index is widely used in medical settings to measure the frailty of patients. Resources providing more information about this score can be found in the publication section."]
+    [:p [:b [:i "Charlson comorbidity score"]] " – The Charlson comorbidity score (or index) is a measure of the number and severity of long-term conditions present for an individual. It includes 15 conditions in addition to cancer. These conditions are: myocardial infarction (heart attack), congestive heart failure, peripheral arterial disease, cerebrovascular disease (stroke), liver disease, diabetes, chronic obstructive pulmonary disease (lung disease), connective tissue disease (such as arthritis), peptic ulcers (stomach ulcers), chronic kidney disease, hemiparesis or hemiplegia (weakness on one side of the body), dementia, leukaemia, lymphoma and AIDs. The Charlson comorbidity index is widely used in medical settings to measure the frailty of patients. Resources providing more information about this score can be found in the "
+     [:a {:href (ui/href :kcp.views/pubs)} "publication section"] "."]
     [:p "A high score indicates that a patient is frail and less likely to benefit from further treatment for kidney cancer."]
     [:p [:b [:i "Smoking history"]] " – Smoking history at the time of surgery. Patients with a history of tobacco usage are more at risk of other long-term health conditions and are relatively less likely to die from kidney cancer."]
     [:p [:b [:i "Tumour size"]] " and " [:b [:i "tumour necrosis"]] " are not included in the model (this information was not available in the SAIL data). However, they are included as inputs because they are used to calculate the Leibovich score (displayed alongside the calculated risk) and used to assess eligibility for adjuvant treatment."]
@@ -470,24 +469,22 @@ death from other causes) happening by time " (inline-math "t") ". "]
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
     [:h3#model-development "Overview"]
-    [:p "The model (the Leibovich model) behind this tool was developed by a team at the Mayo
-Clinic (Minnesota, USA) between 2000 and 2002. To develop this model, information was
-collected about a group of patients, who had been followed (on average) for 7 years after
-their kidney cancer surgery. This included information (or risk factors) about the patients
-(including their age, gender, whether they smoked, whether they were hypertensive at
-surgery) and risk factors related to their kidney cancer tumour (including stage, lymph node
-involvement, size, grade and necrosis)."]
-    [:p "Each risk factor was statistically tested and used in the model if found to have an important
-relationship with the outcome of interest (metastasis-free survival). The final model includes
-tumour stage, regional lymph node status, tumour size, nuclear grade, and histologic tumour
-necrosis. These are described in detail in the input factors section below."]
-    [:p "The Leibovich model is often used to assign patients a score (ranging from 0 to 11) based on
-their tumour characteristics. These scores are then separated into three risk groups: low risk
-(score 0 – 2), intermediate risk (score 3 – 5) and high risk (score above 6)."]
+    [:p "The Leibovich model was developed by a team at the Mayo Clinic (Minnesota, USA) between 2000 and 2002."]
+    [:p "To develop this model, information was collected about a group of patients, who had been followed (on average)
+    for 7 years after their kidney cancer surgery. This included information (or risk factors) about the patients
+    (including their age, gender, whether they smoked, whether they were hypertensive at surgery) and risk factors
+    related to their kidney cancer tumour (including stage, lymph node involvement, size, grade and necrosis)."]
+    [:p "Each risk factor was statistically tested and used in the model if found to have an important relationship with
+    the outcome of interest (metastasis-free survival). The final model includes tumour stage, regional lymph node
+    status, tumour size, nuclear grade, and histologic tumour necrosis. These are described in detail in the input
+    factors section below."]
+    [:p "The Leibovich model is often used to assign patients a score (ranging from 0 to 11) based on their tumour
+    characteristics. These scores are then separated into three risk groups: low risk (score 0 – 2), intermediate risk
+    (score 3 – 5) and high risk (score above 6)."]
     [:p "The Leibovich model and score have been used clinically for 20 years. However, it cannot say what the outcomes
     for a particular patient will be. Instead, it estimates the probability of recurrence in people from the past with
-    similar kidney cancer tumours. Further information is provided in the "
-     [:a {:href (ui/href :kcp.views/pubs)} "paper published"] " in the journal Cancer, March 2003. "]
+    similar kidney cancer tumours (see the "
+     [:a {:href (ui/href :kcp.views/pubs)} "publication section"] " for resources providing more information)."]
     [:p "The Leibovich model has been adapted by the Predict Kidney team at the University of Cambridge, to create the
     Leibovich Plus model. The adjusted model uses data from the Office for National Statistics (projected period life
     tables for England for 2024). This provides estimated survival rates for the English general population by age and
@@ -507,14 +504,6 @@ with tumours in both kidneys (bilateral synchronous tumours), or who were diagno
 Wilms tumour (a different form of kidney cancer) were not included. All included patients
 were over 18 at the time of surgery."]]
 
-
-   [:section {:style {:border-bottom "1px #337777 solid"
-                      :margin-bottom 20}}
-    [:h3#model-validation "External Validation"]
-    [:p "The Leibovich model has been tested (or validated) in multiple different groups of patients
-since it was first developed. In a recent review, 16 validations were identified with results for
-discrimination in the range 0.67-0.86. More details can be found in a review paper from 2021 (see the "
-     [:a {:href (ui/href :kcp.views/pubs)} "publication section"] ")."]]
 
    [:section {:style {:border-bottom "1px #337777 solid"
                       :margin-bottom 20}}
@@ -551,8 +540,8 @@ or smaller than 10cm is most important in the context of recurrence"]
 
    [:p [:b "Tumour Necrosis"] " – The tumour necrosis indicates if dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]
 
-   [:p [:b "Age (years)"] " – The age at surgery. This is used to predict the risk of death from other causes."]
-   [:p [:b "Sex:"] " Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]
+   [:p [:b "Age"] " – The age at surgery in years. This is used to predict the risk of death from other causes."]
+   [:p [:b "Sex"] " – Male or female. Note this refers to sex, not gender – This is used to predict the risk of death from other causes."]]
 
    (maths-section)]]]
     [:> bs/Card

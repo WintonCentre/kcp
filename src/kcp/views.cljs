@@ -397,7 +397,9 @@ death from other causes) happening by time " (inline-math "t") ". "]
 
    [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
     [:h3 "Data"]
-    [:p "This analysis used individual-level pseudonymised data provided by the Secure Anonymised Information Linkage (SAIL) Databank. SAIL provides access to linked administrative and health records for 5 million Welsh residents. This includes information about: demographics (the Welsh Demographic Service Dataset), cancer diagnoses (the Cancer Network Information System and Welsh Cancer Intelligence and Surveillance Unit), primary care (Welsh Longitudinal General Practice Dataset), hospital admissions (Patient Episode Dataset for Wales) and deaths (Annual District Death Extract)."]
+    [:p "This analysis used individual-level pseudonymised data provided by the Secure Anonymised Information Linkage (SAIL) Databank. SAIL provides access to linked administrative and health records for 5 million Welsh residents. This includes information about: demographics (the Welsh Demographic Service Dataset), cancer diagnoses (the Cancer Network Information System and Welsh Cancer Intelligence and Surveillance Unit), primary care (Welsh Longitudinal General Practice Dataset), hospital admissions (Patient Episode Dataset for Wales) and deaths (Annual District Death Extract)."]]
+
+   [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
     [:h3 "Cohort"]
     [:p "In order to development the PREDICT-Kidney model, the researchers defined a cohort of eligible individuals with data available in SAIL Databank. The cohort includes all adults who received a diagnosis of RCC, and went on to have surgical treatment (nephrectomy) for RCC, between 01/01/2005 and 01/06/2021. Patients were excluded if their records could not be linked between SAIL data resources, they had metastatic cancer at the time of surgery, they had a hereditary cancer syndrome (such as Von Hippel-Lindau Disease), they were <18 years at surgery, or they died within 90 days of surgery."]
     [:p "The researchers identified 3609 individuals who met these criteria. The median follow-up time was 7.74 years (interquartile range: 4.75, 11.65 years). In total, 1342 deaths were observed within 15 years of surgery, 670 due to RCC (50.6%) and 639 due to other causes (49.4%)."]]
@@ -421,7 +423,7 @@ death from other causes) happening by time " (inline-math "t") ". "]
     [:p [:b [:i "Tumour Size"]] " – The size of the tumour removed during surgery. Whether the tumour is larger or smaller than 10cm is most important in this context."]
     [:p [:b [:i "Tumour"]] " " [:b [:i "Necrosis"]] " – If dead cancer cells were found in the samples removed at surgery. Dead cells may indicate a faster-growing tumour. If necrosis was detected the cancer is more likely to return."]]
 
-   [:section {:style {:margin-bottom 20}}
+   [:section {:style {:border-bottom "1px #337777 solid" :margin-bottom 20}}
     [:h3 "Model Development"]
     [:p "Cox Proportional Hazard submodels were fitted for RCC-death and other-cause death. These two submodels were used to compute the risk of RCC death at time "
      (inline-math "t") ", " (inline-math "R" [:sub "RCC"] "(t|X" [:sub "RCC"] ")")
@@ -450,7 +452,9 @@ death from other causes) happening by time " (inline-math "t") ". "]
                   " #(2.2)")]
     [:p "The values " (inline-math "CR" [:sub "RCC"] "(t|X)") " and "
      (inline-math "CR" [:sub "OC"] "(t|X)") " are displayed by the webtool."]
-    [:p "Categorisation into discrete risk groups enables assignment of patients to surveillance schedules based on prognosis. We use the k-means algorithm to cluster the PREDICT-Kidney model for each individual over the fifteen-year follow-up. Thresholds are computed for the PREDICT-Kidney model evaluated at 10-years. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]
+    [:p "Categorisation into discrete risk groups enables assignment of patients to surveillance schedules based on prognosis. We use the k-means algorithm to cluster the PREDICT-Kidney model for each individual over the fifteen-year follow-up. Thresholds are computed for the PREDICT-Kidney model evaluated at 10-years. This is determined based on an individual's risk of death from kidney cancer 10 years after their surgery: low risk (<19.3%), intermediate risk (19.3%-39.0%) and high risk (>39.0%)."]]
+
+   [:section {:style {:margin-bottom 20}}
     [:h3 "External Validation"]
     [:p "The performance of this model is currently being tested in a second dataset which is independent of the development cohort (no individuals are present in both datasets). Results of this external validation will be added once this is complete."]]]]]
 
